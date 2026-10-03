@@ -1712,8 +1712,11 @@ sizes.
 
 **How assurance works.** `/assurance` reads `GET /catalog/assurance`
 (`modules/catalog/assurance.service.ts`): the verified-supplier count, whether
-any inspection rule is active and in force, the return settings and the
-dispute settings. The page's rule is that nothing on it may be a promise the
+any inspection rule is active and in force, the return settings, the
+dispute settings, and delivery reach: `logistics.activeCarriers` (active,
+unarchived `MARKETPLACE_CARRIER` partners) and `logistics.deliveryCountries`
+(distinct countries of those carriers' active, non-exclusion delivery
+regions). A seller's own carrier is not counted - it is no marketplace claim. The page's rule is that nothing on it may be a promise the
 deployment does not keep: with no inspection rules it says inspection is not
 required; it says nothing about holding money back from sellers, because
 payouts are not built; and it always lists what is not covered. Claims are
@@ -1738,9 +1741,12 @@ home page read live data and render nothing when they have none (there used to
 be a third, "Newly verified suppliers", which is now on the admin Sellers
 screen): `AssuranceExplainer`
 (the same `/catalog/assurance` facts and query key as the assurance page, one
-line per protection that is switched on) and `YourMarketBlock` (the selected
-country's `/catalog/markets/:cc`). The assurance page is now a five-step
-timeline (verification, payment, inspection, returns, claims) followed by a
+line per protection that is switched on; the delivery line appears only when
+approved carriers reach more than one country, so "global logistics" is never
+claimed by a single-country deployment - checklist DYNAMIC-003) and `YourMarketBlock` (the selected
+country's `/catalog/markets/:cc`). The assurance page is now a six-step
+timeline (verification, payment, inspection, delivery across borders, returns,
+claims) followed by a
 responsibilities section; the windows in it are the live settings. Each cart
 line shows "Sold by {seller}" (`sellerName` was already in the cart response),
 has Save for later, and the totals carry a note that import duties are not

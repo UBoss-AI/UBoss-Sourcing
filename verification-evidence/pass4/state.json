@@ -2869,6 +2869,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 32: DYNAMIC-005. AI Mode (reached from the home hero and the sourcing hub's assistant node) shows example starter prompts; asking 'I need 500 pieces of nitrile gloves delivered to Germany, CIF, CE certified, within 30 days' showed the understood chips (500 pieces, DE, CIF, CE, within 30 days) and 'Turn this into a request for quotation', which opened /account/rfqs/new prefilled (title, full text as specification, quantity 500, unit pieces, DE, CIF, CE) and unsent. Headless Chrome against the dev stack, signed in as the seeded buyer: verification-evidence/pass10/browser-dyn005 (flow.mjs, results.json, shots/rfq-draft.png). Builds on ENH-001 (batch 28).",
       "verifiedAt": "2026-10-04 (pass 10)"
+    },
+    {
+      "id": "DYNAMIC-003",
+      "status": "VERIFIED",
+      "evidence": "Pass 11 batch 33: DYNAMIC-003. Home \"How buying here is protected\" now carries all four trust statements, each only when the deployment substantiates it: supplier review (verified-supplier count), payment confirmed by the provider, inspection before dispatch (an in-force inspection rule), and a new global-logistics line - \"Carriers the marketplace has approved deliver to N countries\" - shown only when active, unarchived marketplace carriers' active, non-exclusion delivery regions cover more than one country (GET /catalog/assurance gains logistics.activeCarriers and logistics.deliveryCountries). /assurance gains a \"Delivery across borders\" step stating the reach, or one country, or no approved carriers. Tests: catalog-assurance integration (suspended carrier, exclusion region and seller carriers do not count), HomeTrustBlocks and AssurancePage; customer-web verify 1924/1924. Headless Chrome against the dev stack (5 carriers, 4 countries; a temporary buyer-requested inspection rule proved the inspection line, then removed): verification-evidence/pass11/dyn003 (flow.mjs, results.json, shots), no horizontal scroll at 320/1280.",
+      "verifiedAt": "2026-10-04 (pass 11)"
     }
   ],
   "pendingBoxes": []

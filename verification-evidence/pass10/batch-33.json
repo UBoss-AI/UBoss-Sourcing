@@ -1,0 +1,15 @@
+{
+  "batch": 33,
+  "ids": [
+    "DYNAMIC-003"
+  ],
+  "before": {
+    "checked": 306,
+    "unchecked": 58
+  },
+  "after": {
+    "checked": 307,
+    "unchecked": 57
+  },
+  "evidence": "Home \"How buying here is protected\" now carries all four trust statements, each only when the deployment substantiates it: supplier review (verified-supplier count), payment confirmed by the provider, inspection before dispatch (an in-force inspection rule), and a new global-logistics line - \"Carriers the marketplace has approved deliver to N countries\" - shown only when active, unarchived marketplace carriers' active, non-exclusion delivery regions cover more than one country (GET /catalog/assurance gains logistics.activeCarriers and logistics.deliveryCountries). /assurance gains a \"Delivery across borders\" step stating the reach, or one country, or no approved carriers. Tests: catalog-assurance integration (suspended carrier, exclusion region and seller carriers do not count), HomeTrustBlocks and AssurancePage; customer-web verify 1924/1924. Headless Chrome against the dev stack (5 carriers, 4 countries; a temporary buyer-requested inspection rule proved the inspection line, then removed): verification-evidence/pass11/dyn003 (flow.mjs, results.json, shots), no horizontal scroll at 320/1280."
+}

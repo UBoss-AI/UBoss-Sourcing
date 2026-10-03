@@ -84,8 +84,8 @@ async function settled(fragment: string): Promise<void> {
   });
 }
 
-function renderHome(): void {
-  renderWithProviders(<HomePage />, { config: FALLBACK_CONFIG, session: GUEST });
+function renderHome(): ReturnType<typeof renderWithProviders> {
+  return renderWithProviders(<HomePage />, { config: FALLBACK_CONFIG, session: GUEST });
 }
 
 beforeEach(() => {
@@ -131,6 +131,25 @@ describe('the assurance explainer', () => {
     // Inspection is not in use, so it is not implied.
     expect(within(section).queryByText(/inspection/i)).not.toBeInTheDocument();
     expect(within(section).getByRole('link', { name: 'How assurance works' })).toHaveAttribute('href', '/assurance');
+  });
+
+  it('claims delivery across borders only when approved carriers reach more than one country', async () => {
+    const base = {
+      verifiedSuppliers: 3,
+      inspection: { inUse: false, mandatoryRules: 0 },
+      returns: { windowDays: 14, replacementEnabled: true },
+      claims: { claimWindowDays: 30, sellerResponseHours: 48, decisionHours: 120, appealWindowDays: 7 },
+    };
+    serve({ assurance: { ...base, logistics: { activeCarriers: 4, deliveryCountries: 12 } } });
+    const first = renderHome();
+    const section = await screen.findByRole('region', { name: 'How buying here is protected' });
+    expect(within(section).getByText(/approved deliver to 12 countries/)).toBeInTheDocument();
+    first.unmount();
+
+    serve({ assurance: { ...base, logistics: { activeCarriers: 2, deliveryCountries: 1 } } });
+    renderHome();
+    const single = await screen.findByRole('region', { name: 'How buying here is protected' });
+    expect(within(single).queryByText(/deliver to/)).not.toBeInTheDocument();
   });
 
   it('is absent when the facts cannot be read', async () => {

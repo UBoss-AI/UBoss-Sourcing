@@ -1,0 +1,36 @@
+{
+  "homeAssurance": "How buying here is protected\n\nWhat Gloviaa Mart checks, and what happens if something goes wrong. These are the marketplace's current settings.\n\nEvery supplier is reviewed by Gloviaa Mart before it can sell.\nAn order is confirmed only once the payment provider confirms the payment.\nGoods covered by the inspection rules cannot be dispatched until they pass inspection.\nCarriers the marketplace has approved deliver to 4 countries, and each product page says whether it reaches you.\nReturns can be requested up to 14 days after delivery.\nA claim can be raised up to 30 days after delivery.\nHow assurance works",
+  "overflow320": false,
+  "overflow1280": false,
+  "assuranceLogistics": "Delivery across borders\n\nCarriers the marketplace has approved deliver to 4 countries. The marketplace reviewed each carrier and the regions it says it serves.\n\nEach product page says whether it can be delivered to your country.",
+  "timeline": [
+    "Verified suppliers",
+    "Paying",
+    "Inspection before dispatch",
+    "Delivery across borders",
+    "Returns",
+    "If something goes wrong"
+  ],
+  "api": {
+    "verifiedSuppliers": 12,
+    "inspection": {
+      "inUse": true,
+      "mandatoryRules": 0
+    },
+    "logistics": {
+      "activeCarriers": 5,
+      "deliveryCountries": 4
+    },
+    "returns": {
+      "windowDays": 14,
+      "replacementEnabled": false
+    },
+    "claims": {
+      "claimWindowDays": 30,
+      "sellerResponseHours": 72,
+      "decisionHours": 168,
+      "appealWindowDays": 7
+    }
+  },
+  "consoleErrors": []
+}

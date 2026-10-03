@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-32.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-33.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 306
-- Entire document unchecked: 58
+- Entire document checked: 307
+- Entire document unchecked: 57
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 32, DYNAMIC-005 verified and ticked; storefront work committed (36c72f3e).
+- Last completed work: Pass 11 batch 33, DYNAMIC-003 implemented, verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -106,7 +106,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-032 | A | Verified in Pass 10 batch 27: RFQ form explains hard fields and suggests values from the buyer's last submitted request, applied only on confirmation. |
 | DYNAMIC-001 | E | Still open after the storefront commit: header has no universal search and no messages/notifications entry. |
 | DYNAMIC-002 | E | Verified in Pass 10 batch 16: substantiated manufacturer statement, Search/AI and four sourcing shortcuts with guarded destinations. |
-| DYNAMIC-003 | E | Still open: no global logistics trust statement; the others appear only when their setting exists. |
+| DYNAMIC-003 | E | Verified in Pass 11 batch 33: four substantiated trust statements, including approved-carrier delivery reach, on home and /assurance. |
 | DYNAMIC-004 | A | Verified in Pass 10 batch 30: signed-in home task row for quotes, inspections, shipments, payments and repeat orders, scoped to the buyer. |
 | DYNAMIC-005 | E | Verified in Pass 10 batch 32: AI Mode examples and the conversation-to-RFQ draft, in the browser against the dev stack. |
 | DYNAMIC-007 | E | Still open: no Private Label/OEM, Upload Bulk Requirement or Landed Cost tool on home. |
@@ -221,6 +221,8 @@ Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the 
 **Found while working, still open:** an accepted RFQ ends at a purchase order that never becomes a marketplace order (no payment, production, inspection or shipment for B2B) — blocks LIVE-004 and JOURNEY-019's sample-to-inspection link. Checkout terms consent is only a browser checkbox (JOURNEY-022). Phone verification is by email code until an SMS provider is configured (JOURNEY-008). JOURNEY-010 needs the production payout provider's bank verification.
 
 **Batch 3 (Sections 17.2-17.4) — ticked: JOURNEY-008, 014, 016, 017, 018, 022, 025.** Built: SMS phone confirmation through the operator's gateway (email fallback, 502 SMS_DELIVERY_FAILED); RFQ match reasons and capacity/conflict flags with invite-all/exclude-all; export documents on quotes (hash-stable); comparison landed estimate, missing terms and PDF; server-side checkout consent recorded on the order and per-country postcode validation; refund method and timing on returns. Fixed on the way: CI schema drift for updatedAt defaults (pushed fa38aa2d), fastify 5.12.5 for new high advisories, three forms leaving mutateAsync rejections unhandled, an import that loaded config before the carton test set it, and shared test IP bases that made sign-ins share a rate-limit bucket. Verify: backend 308 files / 5147 tests, customer 185 / 1744, admin unchanged since 43 / 345.
+
+**Batch 33 — implemented, verified and ticked: DYNAMIC-003.** Home "How buying here is protected" now carries all four trust statements, each only when the deployment substantiates it: supplier review (verified-supplier count), payment confirmed by the provider, inspection before dispatch (an in-force inspection rule), and a new global-logistics line - "Carriers the marketplace has approved deliver to N countries" - shown only when active, unarchived marketplace carriers' active, non-exclusion delivery regions cover more than one country (GET /catalog/assurance gains logistics.activeCarriers and logistics.deliveryCountries). /assurance gains a "Delivery across borders" step stating the reach, or one country, or no approved carriers. Tests: catalog-assurance integration (suspended carrier, exclusion region and seller carriers do not count), HomeTrustBlocks and AssurancePage; customer-web verify 1924/1924. Headless Chrome against the dev stack (5 carriers, 4 countries; a temporary buyer-requested inspection rule proved the inspection line, then removed): verification-evidence/pass11/dyn003 (flow.mjs, results.json, shots), no horizontal scroll at 320/1280.
 
 Still open in 17.2-17.4: JOURNEY-010 (bank validation needs the production payout provider), JOURNEY-019 (sample-to-final-inspection link needs RFQ purchase orders to become fulfilable orders).
 

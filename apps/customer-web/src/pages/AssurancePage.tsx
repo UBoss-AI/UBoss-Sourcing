@@ -13,7 +13,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { AlertIcon, CardIcon, ChatBubblesIcon, DocumentIcon, RepeatIcon, ShieldIcon } from '@/components/icons';
+import { AlertIcon, CardIcon, ChatBubblesIcon, DocumentIcon, RepeatIcon, ShieldIcon, TruckIcon } from '@/components/icons';
 import type { DocumentInForce } from './HelpPoliciesPage';
 import { ErrorState, LoadingState } from '@/components/ui';
 import { useStorefront } from '@/app/storefront-context';
@@ -26,6 +26,8 @@ import { useI18n } from '@/i18n/i18n-context';
 interface AssuranceFacts {
   verifiedSuppliers: number;
   inspection: { inUse: boolean; mandatoryRules: number };
+  /** Absent from an older API; read as no approved carriers. */
+  logistics?: { activeCarriers: number; deliveryCountries: number };
   returns: { windowDays: number; replacementEnabled: boolean };
   claims: { claimWindowDays: number; sellerResponseHours: number; decisionHours: number; appealWindowDays: number };
 }
@@ -103,6 +105,8 @@ export function AssurancePage(): React.JSX.Element {
   }
 
   const facts = query.data;
+  const carriers = facts.logistics?.activeCarriers ?? 0;
+  const reach = facts.logistics?.deliveryCountries ?? 0;
   // The published policies behind these sections, when the operator has them.
   const policies = (inForce.data?.documents ?? []).filter((document) =>
     (['BUYER_PROTECTION_POLICY', 'RETURNS_POLICY', 'INSPECTION_POLICY'] as const).some((kind) => kind === document.kind),
@@ -150,6 +154,19 @@ export function AssurancePage(): React.JSX.Element {
         </Milestone>
 
         <Milestone step={4}>
+        <Section id="assurance-logistics" icon={<TruckIcon className="h-5 w-5" />} title={t('assurance.logisticsTitle')}>
+          {carriers > 0 && reach > 1 ? (
+            <p>{t('assurance.logisticsReach', { countries: formatNumber(reach) })}</p>
+          ) : carriers > 0 ? (
+            <p>{t('assurance.logisticsOneCountry')}</p>
+          ) : (
+            <p>{t('assurance.logisticsNone')}</p>
+          )}
+          <p className="text-ink-muted">{t('assurance.logisticsWhere')}</p>
+        </Section>
+        </Milestone>
+
+        <Milestone step={5}>
         <Section id="assurance-returns" icon={<RepeatIcon className="h-5 w-5" />} title={t('assurance.returnsTitle')}>
           {facts.returns.windowDays > 0 ? (
             <p>
@@ -162,7 +179,7 @@ export function AssurancePage(): React.JSX.Element {
         </Section>
         </Milestone>
 
-        <Milestone step={5}>
+        <Milestone step={6}>
         <Section id="assurance-claims" icon={<ChatBubblesIcon className="h-5 w-5" />} title={t('assurance.claimsTitle')}>
           <p>
             {t('assurance.claimsWindow', {

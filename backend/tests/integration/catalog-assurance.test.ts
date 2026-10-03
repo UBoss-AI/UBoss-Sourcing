@@ -13,11 +13,13 @@ import { getReturnPolicy } from '../../src/modules/returns/return-settings.servi
 import { readDisputeSettings } from '../../src/modules/disputes/dispute-settings.service.js';
 
 const RULE_NAME = 'assurance-test-rule';
+const CARRIER_CODE = 'ASSURE-TEST';
 let app: Awaited<ReturnType<typeof buildApp>>;
 
 interface Facts {
   verifiedSuppliers: number;
   inspection: { inUse: boolean; mandatoryRules: number };
+  logistics: { activeCarriers: number; deliveryCountries: number };
   returns: { windowDays: number; replacementEnabled: boolean };
   claims: { claimWindowDays: number; sellerResponseHours: number; decisionHours: number; appealWindowDays: number };
 }
@@ -32,9 +34,15 @@ beforeAll(async () => {
   app = await buildApp();
   await app.ready();
   await prisma.inspectionRule.deleteMany({ where: { name: { startsWith: RULE_NAME } } });
+  await removeCarriers();
 });
 
+async function removeCarriers(): Promise<void> {
+  await prisma.logisticsPartner.deleteMany({ where: { partnerCode: { startsWith: CARRIER_CODE } } });
+}
+
 afterAll(async () => {
+  await removeCarriers();
   await prisma.inspectionRule.deleteMany({ where: { name: { startsWith: RULE_NAME } } });
   await app.close();
 });
@@ -71,5 +79,46 @@ describe('GET /api/v1/catalog/assurance', () => {
     const after = await facts();
     expect(after.inspection.inUse).toBe(true);
     expect(after.inspection.mandatoryRules).toBe(before.inspection.mandatoryRules + 1);
+  });
+
+  it('counts delivery reach only from active marketplace carriers and their active regions', async () => {
+    const covered = new Set(
+      (await prisma.logisticsServiceRegion.findMany({ select: { countryCode: true } })).map((row) => row.countryCode),
+    );
+    const fresh = ['AQ', 'BV', 'HM', 'TF', 'UM', 'GS', 'IO', 'PN'].filter((code) => !covered.has(code));
+    expect(fresh.length).toBeGreaterThanOrEqual(4);
+    const [deliver1, deliver2, excluded, suspendedOnly] = fresh;
+    const before = (await facts()).logistics;
+
+    const carrier = async (suffix: string, status: 'ACTIVE' | 'SUSPENDED'): Promise<string> => {
+      const id = newId();
+      await prisma.logisticsPartner.create({
+        data: {
+          id,
+          partnerCode: `${CARRIER_CODE}-${suffix}`,
+          legalName: `Assurance ${suffix}`,
+          displayName: `Assurance ${suffix}`,
+          displayNameNormalized: `assurance test ${suffix.toLowerCase()}`,
+          registrationCountry: 'DE',
+          contactEmail: `${suffix.toLowerCase()}@assurance.test`,
+          status,
+        },
+      });
+      return id;
+    };
+    const active = await carrier('A', 'ACTIVE');
+    const suspended = await carrier('S', 'SUSPENDED');
+    const region = (partnerId: string, countryCode: string, isExclusion = false) =>
+      prisma.logisticsServiceRegion.create({
+        data: { id: newId(), logisticsPartnerId: partnerId, scope: 'COUNTRY', countryCode, isExclusion },
+      });
+    await region(active, deliver1!);
+    await region(active, deliver2!);
+    await region(active, excluded!, true);
+    await region(suspended, suspendedOnly!);
+
+    const after = (await facts()).logistics;
+    expect(after.activeCarriers).toBe(before.activeCarriers + 1);
+    expect(after.deliveryCountries).toBe(before.deliveryCountries + 2);
   });
 });

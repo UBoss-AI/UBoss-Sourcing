@@ -52,7 +52,7 @@ describe('AssurancePage', () => {
     const headings = within(timeline)
       .getAllByRole('heading', { level: 2 })
       .map((heading) => heading.textContent);
-    expect(headings).toEqual(['Verified suppliers', 'Paying', 'Inspection before dispatch', 'Returns', 'If something goes wrong']);
+    expect(headings).toEqual(['Verified suppliers', 'Paying', 'Inspection before dispatch', 'Delivery across borders', 'Returns', 'If something goes wrong']);
   });
 
   it('says who is responsible for what, using the configured windows', async () => {
@@ -75,6 +75,23 @@ describe('AssurancePage', () => {
     renderWithProviders(<AssurancePage />);
 
     expect(await screen.findByText(/Does not dispatch goods that the inspection rules cover/)).toBeInTheDocument();
+  });
+
+  it('states delivery reach from approved carriers, and says so when there are none', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(facts({ logistics: { activeCarriers: 3, deliveryCountries: 9 } })));
+    const view = renderWithProviders(<AssurancePage />);
+    expect(await screen.findByText(/approved deliver to 9 countries/)).toBeInTheDocument();
+    view.unmount();
+
+    fetchMock.mockResolvedValue(jsonResponse(facts({ logistics: { activeCarriers: 1, deliveryCountries: 1 } })));
+    const one = renderWithProviders(<AssurancePage />);
+    expect(await screen.findByText(/deliver within one country/)).toBeInTheDocument();
+    one.unmount();
+
+    // An older API without the field reads as no approved carriers, never as reach.
+    fetchMock.mockResolvedValue(jsonResponse(facts()));
+    renderWithProviders(<AssurancePage />);
+    expect(await screen.findByText(/has not approved carriers of its own yet/)).toBeInTheDocument();
   });
 
   it('says inspection is not in use rather than implying it', async () => {

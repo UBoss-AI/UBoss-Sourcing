@@ -728,8 +728,8 @@ browse.
      when published, and **Read the market guide for …** linking to
      `/markets/:cc`) and **How buying here is protected** (only the
      protections this deployment has switched on: supplier review, payment
-     confirmation, inspection before dispatch, the return window, the claim
-     window; **How assurance works** links to `/assurance`).
+     confirmation, inspection before dispatch, delivery to more than one
+     country through approved carriers, the return window, the claim window; **How assurance works** links to `/assurance`).
 3. **Shelves**: up to five rows of six products (New arrivals, Business
    essentials, Industrial and professional supplies, Technology and
    electronics, Home, lifestyle and personal care), each with **See all**. A
@@ -1067,11 +1067,13 @@ delivery promise. Carrier and price are not shown.
 **Purpose.** What the marketplace checks, what happens when something goes
 wrong, and what is not covered — for this deployment's settings.
 
-**On the screen.** A milestone timeline, **From order to delivery**, of five
+**On the screen.** A milestone timeline, **From order to delivery**, of six
 numbered steps in the order they come into play: **Verified suppliers** (the
 count, what the review means and what it is not), **Paying**, **Inspection
 before dispatch** (the dispatch gate when rules are in force; otherwise "not
-required on any order at the moment"), **Returns** (the window and refund /
+required on any order at the moment"), **Delivery across borders** (how many
+countries approved carriers deliver to; "within one country" or "not approved
+carriers of its own yet" when that is the truth), **Returns** (the window and refund /
 replacement, or "not offered") and **If something goes wrong** (claim window,
 seller response, decision and appeal times, and **Contact support**). Then
 **Who is responsible for what** (what the buyer does, what the seller does,

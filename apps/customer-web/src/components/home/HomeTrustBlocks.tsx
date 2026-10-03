@@ -21,12 +21,14 @@ import { ShieldIcon } from '@/components/icons';
 import { useLocale } from '@/app/locale-context';
 import { api } from '@/lib/api';
 import { formatDays } from '@/lib/duration';
+import { formatNumber } from '@/lib/format';
 import { countryName } from '@/lib/iso-countries';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface AssuranceFacts {
   verifiedSuppliers?: number;
   inspection?: { inUse?: boolean };
+  logistics?: { activeCarriers?: number; deliveryCountries?: number };
   returns?: { windowDays?: number };
   claims?: { claimWindowDays?: number };
 }
@@ -51,6 +53,12 @@ export function AssuranceExplainer(): React.JSX.Element | null {
   // Always true of this software: an order is confirmed only by the provider.
   if (typeof facts.claims?.claimWindowDays === 'number') lines.push(t('home.assurancePayment'));
   if (facts.inspection?.inUse === true) lines.push(t('home.assuranceInspection'));
+  // "Across borders" is claimed only when approved carriers really reach more
+  // than one country; one country, or none, says nothing about logistics.
+  const deliveryCountries = facts.logistics?.deliveryCountries ?? 0;
+  if ((facts.logistics?.activeCarriers ?? 0) > 0 && deliveryCountries > 1) {
+    lines.push(t('home.assuranceLogistics', { countries: formatNumber(deliveryCountries) }));
+  }
   if (returnDays > 0) lines.push(t('home.assuranceReturns', { window: formatDays(returnDays, language) }));
   if (claimDays > 0) lines.push(t('home.assuranceClaims', { window: formatDays(claimDays, language) }));
   // A response that says nothing usable leaves no block, not a heading over nothing.

@@ -2037,13 +2037,15 @@ No API shape, permission, schema or provider decision changes.
 
 - **Statement.** `/assurance` explains, in plain language, verification,
   inspection before dispatch, payment, returns, claims and what is not
-  covered. Linked from the footer and from every product page's sourcing
+  covered, and how far approved carriers deliver. Linked from the footer and from every product page's sourcing
   block. `GET /api/v1/catalog/assurance` supplies the facts.
 - **Rules.**
   1. Every figure is the operator's current setting: verified-supplier count,
      whether any in-force inspection rule exists, the return window and
      replacement option, the claim, seller-response, decision and appeal
-     windows.
+     windows, and delivery reach: active marketplace carriers and the
+     countries their active delivery regions cover. A seller's own carrier
+     does not count.
   2. A protection not in use is said to be not in use (no inspection rules →
      "not required on any order at the moment"; return window 0 → "not
      offered").
@@ -2052,10 +2054,12 @@ No API shape, permission, schema or provider decision changes.
   4. Raising a claim is described as it works today: a support request with
      the order number (the buyer claim screen is Master rows 24/30).
   5. The page is laid out as a milestone timeline (verification, payment,
-     inspection, returns, claims) followed by a "who is responsible for what"
+     inspection, delivery across borders, returns, claims) followed by a "who is responsible for what"
      section for buyer, seller and marketplace. The home page carries a short
      "How buying here is protected" block from the same facts, showing only
-     protections that are switched on.
+     protections that are switched on. Its delivery line ("Global logistics",
+     checklist DYNAMIC-003) appears only when approved carriers reach more
+     than one country.
 - **Status.** Built (29 Sep 2026, checklist Master row 7). Links to published
   buyer-protection, inspection and returns policies come with Master row 9.
 
