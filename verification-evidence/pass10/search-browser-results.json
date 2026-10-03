@@ -1,0 +1,59 @@
+[
+  {
+    "width": 320,
+    "scopes": [
+      "product",
+      "category",
+      "supplier",
+      "capability"
+    ],
+    "keyboardDestination": true,
+    "recentEditAndClear": true,
+    "explicitRetry": true,
+    "spellingChoice": true,
+    "actualCatalogueGrid": true,
+    "marketRetained": true,
+    "languageRefresh": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 375,
+    "scopes": [
+      "product",
+      "category",
+      "supplier",
+      "capability"
+    ],
+    "keyboardDestination": true,
+    "recentEditAndClear": true,
+    "explicitRetry": true,
+    "spellingChoice": true,
+    "actualCatalogueGrid": true,
+    "marketRetained": true,
+    "languageRefresh": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 1280,
+    "scopes": [
+      "product",
+      "category",
+      "supplier",
+      "capability"
+    ],
+    "keyboardDestination": true,
+    "recentEditAndClear": true,
+    "explicitRetry": true,
+    "spellingChoice": true,
+    "actualCatalogueGrid": true,
+    "marketRetained": true,
+    "languageRefresh": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  }
+]

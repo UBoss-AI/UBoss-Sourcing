@@ -3978,3 +3978,18 @@ Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED
   occurred_at, kind, order, credit_minor, debit_minor, currency, reason,
   payout_reference, payout_status`; amounts are never negative. Another
   seller's statement is `404`. All `seller.finance.read`.
+
+Public catalogue discovery: GET /api/v1/catalog/search (no authentication; 90 reads
+per minute). Query: q (trimmed, maximum 120 characters, default empty), currency
+(3-character sellable code or configured base), country (2-character destination),
+language (supported primary language or base-copy fallback). Response: query,
+terms, items [{scope: product|category|supplier|capability, label, href}], suggestions
+(strings), currency and country. Blank query returns no items. Invalid query
+returns the existing validation error. Read failures keep the existing API error
+contract. At most 12 products and 8 records per other scope; suggestions use a
+bounded visible-name shortlist and never automatically change the query. Published
+product/category, destination BLOCK, currency availability, approved live offers
+and request storefront scope apply. No private records or internal identifiers
+are returned. The main products and filters routes now share word/synonym matching.
+No schema, role or permission change. No SearchQueryLog write is performed; existing
+privacy-respecting submission counters remain the analytics mechanism.

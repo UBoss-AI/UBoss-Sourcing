@@ -8389,5 +8389,17 @@
   "product.translation.hideOriginal": "Oorspronkelijke producttekst verbergen",
   "product.translation.originalTitle": "Oorspronkelijke producttekst",
   "product.translation.originalHint": "Hier verschijnt de oorspronkelijke catalogustekst. Het product in de gekozen taal blijft erboven en eronder staan. Ontbrekende vertalingen gebruiken de oorspronkelijke tekst.",
-  "product.translation.unavailable": "De oorspronkelijke producttekst kon niet worden geladen. Probeer het opnieuw."
+  "product.translation.unavailable": "De oorspronkelijke producttekst kon niet worden geladen. Probeer het opnieuw.",
+  "discovery.title": "Catalogusresultaten",
+  "discovery.recent": "Recente zoekopdrachten in dit tabblad",
+  "discovery.clearRecent": "Recente zoekopdrachten wissen",
+  "discovery.unavailable": "Catalogusresultaten konden niet worden geladen. Probeer opnieuw.",
+  "discovery.empty": "Geen openbare resultaten. Probeer minder woorden, een productcode of de categorieën.",
+  "discovery.product": "Product",
+  "discovery.category": "Categorie",
+  "discovery.supplier": "Leverancier",
+  "discovery.capability": "Capaciteit van de leverancier",
+  "discovery.didYouMean": "Bedoelde je? Kies een suggestie om opnieuw te zoeken.",
+  "discovery.browse": "Catalogus bekijken",
+  "discovery.hint": "Enkele overeenkomende openbare gegevens worden getoond. Verfijn je woorden voor andere resultaten. Capaciteiten zijn opgegeven door de leverancier; deze zoekopdracht bevestigt geen uitvoering."
 }

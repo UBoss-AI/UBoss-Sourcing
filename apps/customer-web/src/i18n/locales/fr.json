@@ -8498,5 +8498,17 @@
   "product.translation.hideOriginal": "Masquer le texte original du produit",
   "product.translation.originalTitle": "Texte original du produit",
   "product.translation.originalHint": "Le texte original du catalogue apparaît ici. Le produit dans la langue choisie reste au-dessus et en dessous. Les traductions manquantes utilisent le texte original.",
-  "product.translation.unavailable": "Le texte original du produit n’a pas pu être chargé. Réessayez."
+  "product.translation.unavailable": "Le texte original du produit n’a pas pu être chargé. Réessayez.",
+  "discovery.title": "Résultats du catalogue",
+  "discovery.recent": "Recherches récentes dans cet onglet",
+  "discovery.clearRecent": "Effacer les recherches récentes",
+  "discovery.unavailable": "Les résultats ne peuvent pas être chargés. Réessayez.",
+  "discovery.empty": "Aucun résultat public. Essayez moins de mots, un code produit ou les catégories.",
+  "discovery.product": "Produit",
+  "discovery.category": "Catégorie",
+  "discovery.supplier": "Fournisseur",
+  "discovery.capability": "Capacité du fournisseur",
+  "discovery.didYouMean": "Vouliez-vous dire ? Choisissez une suggestion pour relancer la recherche.",
+  "discovery.browse": "Parcourir le catalogue",
+  "discovery.hint": "Quelques fiches publiques correspondantes sont affichées. Précisez vos mots pour d’autres résultats. Les capacités sont déclarées par le fournisseur ; cette recherche ne confirme pas leur réalisation."
 }

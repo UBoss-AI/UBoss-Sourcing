@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1361 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1362 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -32,7 +32,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Seller Hub](#seller-hub) | 342 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 307 |
-| [Public and storefront](#public-and-storefront) | 56 |
+| [Public and storefront](#public-and-storefront) | 57 |
 
 ## Admin panel (staff)
 
@@ -2819,6 +2819,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/catalog/variant-axes` | Public |  | The variant axis definitions, for the whole catalogue. |
+| GET | `/api/v1/catalog/search` | Public |  | Public discovery only: no RFQs, orders, invoices, buyer or seller private data. |
 | GET | `/api/v1/catalog/suppliers` | Public |  | Verified suppliers: sellers the operator approved who have something live to sell. |
 | GET | `/api/v1/catalog/markets/:country` | Public |  | One destination's market page: its currency, what may not be sold there, and the operator's published notes. |
 | GET | `/api/v1/catalog/assurance` | Public |  | The protections this deployment runs, as its settings define them: verification, inspection, returns, claims. |

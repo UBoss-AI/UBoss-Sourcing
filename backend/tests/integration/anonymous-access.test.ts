@@ -41,6 +41,8 @@ const PUBLIC: string[] = [
   'GET /api/v1/catalog/products',
   'GET /api/v1/catalog/products/:slug',
   'GET /api/v1/catalog/products/:slug/reviews',
+  // Read-only public discovery, with the same catalogue/market/seller visibility.
+  'GET /api/v1/catalog/search',
   'GET /api/v1/catalog/suppliers',
   'GET /api/v1/catalog/suppliers/:slug',
   'GET /api/v1/catalog/variant-axes',

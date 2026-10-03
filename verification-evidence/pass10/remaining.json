@@ -749,9 +749,10 @@
       "priority": "—",
       "requirement": "Natural-language and keyword search across products, categories, suppliers and capabilities. Checks: Autocomplete; spelling; synonyms; no-result recovery; recent searches; search analytics.",
       "classification": "A",
-      "remainingAction": "Verify all search scopes, autocomplete, spelling, synonyms, recovery, recents, analytics, authorization and accessible states; review the preserved pending storefront changes.",
-      "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "remainingAction": "None for public catalogue discovery; universal/private role-scoped search and AI/RFQ enhancements remain separate open rows.",
+      "status": "VERIFIED",
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "evidence": "verification-evidence/pass10/batch-15.json"
     },
     {
       "id": "JOURNEY-010",
@@ -1233,8 +1234,8 @@
     }
   ],
   "current": {
-    "checked": 288,
-    "open": 76,
+    "checked": 289,
+    "open": 75,
     "total": 364
   },
   "baselineCounts": {
@@ -1325,7 +1326,7 @@
       "total": 18
     },
     "HOME": {
-      "checked": 17,
+      "checked": 18,
       "total": 18
     },
     "JOURNEY": {
@@ -1398,7 +1399,6 @@
     "SIGNOFF-016",
     "SIGNOFF-017",
     "SIGNOFF-018",
-    "HOME-009",
     "JOURNEY-010",
     "ENH-001",
     "ENH-002",

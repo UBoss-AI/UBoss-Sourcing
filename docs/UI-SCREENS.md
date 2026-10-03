@@ -8203,3 +8203,26 @@ The effect list gains **Labelling required**, with **What the label must show**.
 - **Product page, category page, `/markets/:country`:** a labelling rule for the destination shows its text ("Labelling for this country: …").
 - **`/checkout`:** **Labelling for delivery to {country}** lists the labelling rules that apply to the basket for the chosen address (`GET /api/v1/catalog/label-requirements`). It never blocks the order.
 - **Seller Hub listing wizard:** when the marketplace sent a listing back, **What to send** lists the evidence asked for. A refused listing offers **Disagree? Appeal, and say why** and **Send appeal** (`POST /api/v1/seller/listing-drafts/:id/appeal`); then "Your appeal is with a different moderator", or that it was not upheld. The listings table shows **Appeal under review**.
+
+
+**Public catalogue discovery (HOME-009).** The home search offers labelled product,
+category, approved supplier and supplier-declared capability links after the buyer
+pauses typing. Product results and facets share the same word/synonym matching.
+Explicit English request prefixes such as “please find me” or “suppliers who make”
+are removed; the remaining words, codes and specifications stay literal. Maintained
+active SearchSynonym rows expand words or complete phrases. There is no AI inference
+of materials, exclusions, quantities, prices or buying terms. The discovery route
+is GET /catalog/search with q (up to 120 characters), currency, destination and
+language. It uses published, active, non-archived products/categories, market BLOCK
+rules, selected-currency availability and approved live supplier offers. Seller
+shops remain scoped to their own offers and suppliers. Only public labels and
+destinations leave the route, with up to 12 product and 8 other matches per scope;
+the home preview displays six links. Source capabilities are displayed as declared
+tags, without promising that an enquiry can be fulfilled. Single-word spelling
+suggestions use a bounded visible product-name shortlist and at most one edit;
+they never rewrite a request automatically. Empty results offer revised words,
+an explicit spelling link when available, and browsing; failed reads offer retry.
+Up to eight submitted searches are kept in optional browser-tab session storage,
+can refill the editable input, and have a Clear control. They are never sent to
+analytics: search_submitted remains a privacy-respecting daily counter without
+query text or identifiers. No private account, RFQ, order or invoice search is added.

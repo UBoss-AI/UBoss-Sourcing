@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 288,
-    "open": 76
+    "checked": 289,
+    "open": 75
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 288,
-    "open": 76
+    "checked": 289,
+    "open": 75
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -1262,6 +1262,189 @@
       "result": "No leaks found",
       "commitsScanned": 256,
       "nonMergeCommits": 234,
+      "scope": "Complete history before commit; new commit scanned again before push."
+    },
+    "integration": {
+      "mainCommit": "b7836fb4d58fb5a1d06aa0f04d5bccb002ae2027",
+      "pushed": true,
+      "protectedIndexEntries": 3216,
+      "protectedUntrackedFiles": 131,
+      "sharedFilesMerged": 15,
+      "safetySnapshot": "3112fc9dce9691439711da7db2857acf611ef2b4",
+      "primaryFocused": {
+        "files": 2,
+        "tests": 10,
+        "result": "Passed"
+      },
+      "primaryGuide": {
+        "pagesInspected": [
+          11,
+          16
+        ],
+        "totalPages": 131,
+        "readOnly": true
+      },
+      "fullHistoryBeforePush": {
+        "commits": 257,
+        "nonMergeCommits": 235,
+        "result": "No leaks found; enabled pre-push hook passed."
+      }
+    }
+  },
+  "batch15": {
+    "id": "HOME-009",
+    "sourceBaseline": "b7836fb4d58fb5a1d06aa0f04d5bccb002ae2027",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 288,
+      "open": 76
+    },
+    "after": {
+      "checked": 289,
+      "open": 75
+    },
+    "targeted": {
+      "customer": {
+        "files": 5,
+        "tests": 46,
+        "command": "npx vitest run --config ../../output/pass10-customer.config.mts src/components/catalog/DiscoveryMatches.test.tsx src/lib/recent-catalogue-searches.test.ts src/components/hero-search/HeroSearch.test.tsx src/pages/CatalogPage.test.tsx src/lib/analytics.test.ts --maxWorkers=1",
+        "exitCode": 0
+      },
+      "backend": {
+        "files": 4,
+        "tests": 33,
+        "command": "npx vitest run tests/unit/search-query.test.ts tests/integration/catalogue-discovery.test.ts tests/integration/catalogue-translations.test.ts tests/integration/anonymous-access.test.ts",
+        "exitCode": 0
+      }
+    },
+    "customer": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts --maxWorkers=1",
+        "npm run build"
+      ],
+      "files": 202,
+      "tests": 1835,
+      "exitCode": 0
+    },
+    "backend": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run test"
+      ],
+      "files": 341,
+      "tests": 5400,
+      "exitCode": 0
+    },
+    "retainedVerification": {
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "pass": 5
+      },
+      "reason": "No admin/logistics/deploy source/tests/config changes; guarded diff empty."
+    },
+    "regressionProof": {
+      "oldSource": "Old b7836fb4 product-grid source fails the actual-grid natural/synonym assertion.",
+      "cleanup": "Current route file restored byte-identical."
+    },
+    "sourceFiles": [
+      "apps/customer-web/src/components/catalog/DiscoveryMatches.tsx",
+      "apps/customer-web/src/lib/recent-catalogue-searches.ts",
+      "apps/customer-web/src/components/hero-search/HeroSearch.tsx",
+      "apps/customer-web/src/pages/CatalogPage.tsx",
+      "backend/src/http/routes/catalog.public.ts",
+      "backend/src/modules/catalog/search-query.ts",
+      "backend/src/modules/catalog/catalogue-search.service.ts",
+      "backend/src/modules/catalog/category.service.ts"
+    ],
+    "testFiles": [
+      "apps/customer-web/src/components/catalog/DiscoveryMatches.test.tsx",
+      "apps/customer-web/src/lib/recent-catalogue-searches.test.ts",
+      "apps/customer-web/src/pages/CatalogPage.test.tsx",
+      "backend/tests/unit/search-query.test.ts",
+      "backend/tests/integration/catalogue-discovery.test.ts",
+      "backend/tests/integration/anonymous-access.test.ts"
+    ],
+    "browser": {
+      "engine": "Chrome",
+      "viewports": [
+        320,
+        375,
+        1280
+      ],
+      "results": "search-browser-results.json",
+      "apiBoundary": "Local fixtures",
+      "helpers": [
+        "search-browser-prepare.cjs",
+        "search-browser.cjs"
+      ],
+      "screenshotsInspected": [
+        "matches-320",
+        "recovery-375",
+        "grid-1280",
+        "polish-375"
+      ]
+    },
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "referenceEndpointCount": 1362,
+      "guide": "npm run guide passed; native Word QA recorded separately; Guide page 9/131 rendered read-only; paragraph ends on page 9; 1132 x 1600; inspected; known GDI font playback limitation",
+      "languages": [
+        "English",
+        "Hinglish"
+      ],
+      "locales": [
+        "en",
+        "de",
+        "el",
+        "es",
+        "fr",
+        "it",
+        "nl",
+        "pl"
+      ],
+      "newKeys": 12,
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md",
+        "docs/API.md"
+      ]
+    },
+    "runnerNotes": "Initial real-database setup used the same normalized display name for two fixture suppliers; made names unique and reran. Initial UI rerender removed the harness providers; changed the test to drive the query through a button/state inside the unchanged providers. Lint required explicit String conversions for a React key and test loop label; equivalent conversions applied, target/lint rerun and complete tests/build continued. Earlier UI typecheck retained for this syntax-only change; production build checks current types again. No assertions or timeout limits weakened. The literal-wildcard fixture was narrowed to its own unique token to avoid depending on unrelated catalogue data. Parent-department, unavailable-currency and paused own-shop regressions were added before backend verification began. The first backend target 3/30 and typecheck passed; verification was deliberately interrupted before full lint/test completion to reject malformed/nested capability JSON. Fresh complete backend checks were restarted after adding the new source guard and regression. Review then caught the required missing PUBLIC inventory entry; the anonymous-access case alone failed only for 200 GET /catalog/search. Added that deliberately public read route to the inventory without changing any private guard/assertion/timeout, then reran the targeted inventory and complete backend checks.",
+    "limitations": [
+      "Only explicit English request prefixes are interpreted; remaining words/specifications are literal, with maintained synonyms.",
+      "Spelling uses a bounded visible product-name shortlist and one edit; no automatic correction or full dictionary claim.",
+      "Public catalogue only; permission-scoped private universal search and AI/RFQ features remain open.",
+      "Supplier capability tags are supplier-declared, not fulfilment guarantees.",
+      "Browser read/error responses are fixtures; actual public API/database scope tested separately."
+    ],
+    "evidence": "batch-15.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "renderedStage": "Guide page 21/29 rendered read-only; paragraph ends on page 21; 1237 x 1600",
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and inspected.",
+      "structuralComparison": {
+        "baseline": "b7836fb4d58fb5a1d06aa0f04d5bccb002ae2027",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "HOME-009"
+        ]
+      },
+      "visualResult": "Catalogue search checked; surrounding boxes/layout preserved. Known GDI font playback limitation.",
+      "cleanup": "Private read-only renderer closed without saving."
+    },
+    "secretScan": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 257,
+      "nonMergeCommits": 235,
       "scope": "Complete history before commit; new commit scanned again before push."
     }
   }

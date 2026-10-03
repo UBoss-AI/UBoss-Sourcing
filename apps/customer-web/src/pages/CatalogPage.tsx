@@ -29,6 +29,7 @@
  *     desktop sidebar and inside the mobile dialog. Two copies of a price
  *     validator is how the two quietly stop agreeing.
  */
+import { DiscoveryMatches } from '@/components/catalog/DiscoveryMatches';
 import { useEffect, useState } from 'react';
 import { SourcingFilterPanel } from '@/components/catalog/SourcingFilters';
 import { readSourcingFilters, sourcingChips } from '@/lib/sourcing-filters';
@@ -1650,6 +1651,7 @@ export function CatalogPage(): React.JSX.Element {
         <div className="min-w-0">
           {/* Suppliers whose name matches the search, above the products. */}
           <SupplierMatches q={q} />
+          <DiscoveryMatches q={q} />
 
           {products.isError && (
             <ErrorState

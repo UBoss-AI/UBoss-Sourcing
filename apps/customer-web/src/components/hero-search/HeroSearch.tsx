@@ -66,6 +66,8 @@
  * capability the operator has not switched on. Home and Products are not
  * optional, so unlike before there is always a row.
  */
+import { DiscoveryMatches } from '@/components/catalog/DiscoveryMatches';
+import { rememberCatalogueSearch } from '@/lib/recent-catalogue-searches';
 import { useCallback, useRef, useState } from 'react';
 import { track } from '@/lib/analytics';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -259,12 +261,13 @@ export function HeroSearch(): React.JSX.Element {
    * everything", and the catalogue page with no `q` is exactly that.
    */
   const submit = (): void => {
-    track('search_submitted', '/');
     // A second press while the first is still on its way is dropped, not
     // queued: the catalogue is a lazy route, and on a slow connection the
     // chunk takes long enough for somebody to press again. The spinner on the
     // button is the feedback that the first press was heard.
     if (isNavigating) return;
+    track('search_submitted', '/');
+    rememberCatalogueSearch(term);
     setIsNavigating(true);
     void navigate(catalogueHref(term));
   };
@@ -330,7 +333,7 @@ export function HeroSearch(): React.JSX.Element {
               placeholder={t('heroSearch.placeholderProducts')}
               autoComplete="off"
               enterKeyHint="search"
-              maxLength={300}
+              maxLength={120}
               className="min-w-0 flex-1 bg-transparent py-1.5 text-base text-ink outline-none placeholder:text-ink-subtle"
             />
 
@@ -413,6 +416,7 @@ export function HeroSearch(): React.JSX.Element {
             </button>
           </div>
         </form>
+        <DiscoveryMatches q={term} onRecentSelect={setTerm} />
       </div>
 
       {/*

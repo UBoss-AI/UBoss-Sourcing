@@ -9591,6 +9591,29 @@ the session guard. It is rate limited to **12 in five minutes**, well below the
 chat endpoint, because a vision call is the most expensive single request this
 API makes and nobody legitimately photographs ten products a minute.
 
+
+**Public catalogue discovery (HOME-009).** The home search offers labelled product,
+category, approved supplier and supplier-declared capability links after the buyer
+pauses typing. Product results and facets share the same word/synonym matching.
+Explicit English request prefixes such as “please find me” or “suppliers who make”
+are removed; the remaining words, codes and specifications stay literal. Maintained
+active SearchSynonym rows expand words or complete phrases. There is no AI inference
+of materials, exclusions, quantities, prices or buying terms. The discovery route
+is GET /catalog/search with q (up to 120 characters), currency, destination and
+language. It uses published, active, non-archived products/categories, market BLOCK
+rules, selected-currency availability and approved live supplier offers. Seller
+shops remain scoped to their own offers and suppliers. Only public labels and
+destinations leave the route, with up to 12 product and 8 other matches per scope;
+the home preview displays six links. Source capabilities are displayed as declared
+tags, without promising that an enquiry can be fulfilled. Single-word spelling
+suggestions use a bounded visible product-name shortlist and at most one edit;
+they never rewrite a request automatically. Empty results offer revised words,
+an explicit spelling link when available, and browsing; failed reads offer retry.
+Up to eight submitted searches are kept in optional browser-tab session storage,
+can refill the editable input, and have a Clear control. They are never sent to
+analytics: search_submitted remains a privacy-respecting daily counter without
+query text or identifiers. No private account, RFQ, order or invoice search is added.
+
 **Product and message translation (ENH-021).** Choosing a supported language
 loads the stored product translation; missing fields retain the original copy.
 On the product page, **Show original product text** reads the same public

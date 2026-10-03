@@ -8389,5 +8389,17 @@
   "product.translation.hideOriginal": "Hide original product text",
   "product.translation.originalTitle": "Original product text",
   "product.translation.originalHint": "The catalogue’s original copy appears here. The selected-language product stays above and below. Missing translations use the original copy.",
-  "product.translation.unavailable": "The original product text could not be loaded. Try again."
+  "product.translation.unavailable": "The original product text could not be loaded. Try again.",
+  "discovery.title": "Catalogue matches",
+  "discovery.recent": "Recent searches in this tab",
+  "discovery.clearRecent": "Clear recent searches",
+  "discovery.unavailable": "Catalogue matches could not be loaded. Try again.",
+  "discovery.empty": "No public matches found. Try fewer words, a product code, or browse categories.",
+  "discovery.product": "Product",
+  "discovery.category": "Category",
+  "discovery.supplier": "Supplier",
+  "discovery.capability": "Supplier capability",
+  "discovery.didYouMean": "Did you mean? Choose a suggestion to search again.",
+  "discovery.browse": "Browse the catalogue",
+  "discovery.hint": "Some matching public records are shown. Refine your words for other matches. Capabilities are stated by the supplier; this search does not confirm fulfilment."
 }

@@ -27,6 +27,7 @@
  * three different numbers. In a deployment with no EU VAT configured that call
  * returns the listed figure untouched.
  */
+import { searchCatalogue, searchInterpretationFor, publicSearchProductMatch } from '../../modules/catalog/catalogue-search.service.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { z } from 'zod';
@@ -89,7 +90,6 @@ import {
 } from '../../modules/catalog/product-filters.js';
 import {
   applyProductCopy,
-  productIdsMatchingTranslation,
 } from '../../modules/catalog/translation.service.js';
 import { isSupportedLanguage } from '../../modules/identity/language.service.js';
 import { descriptionSectionsFor } from '../../modules/catalog/product-content.service.js';
@@ -970,42 +970,11 @@ async function resolveFilters(
   }
 
   if (query.q !== undefined && query.q.length > 0) {
-    // Base-language columns *and* the translated ones. Without the second
-    // half, a Polish buyer reading a fully translated catalogue would search
-    // it and get nothing back - the page would look translated and behave as
-    // though it were not. The base match stays so a SKU, or a product nobody
-    // has translated yet, is still findable in any language.
-    const translatedIds = await productIdsMatchingTranslation(language, query.q);
-
-    conditions.push({
-      OR: [
-        { name: { contains: query.q } },
-        { shortDescription: { contains: query.q } },
-        { sku: { contains: query.q } },
-        // A buyer working from a supplier's paperwork types the code or the
-        // barcode off it, not the marketing name - and on a catalogue whose
-        // sizes are separate variants, both of those live on the variant
-        // rather than on the product. Without the variant half, searching for
-        // the exact code printed on the box returns nothing.
-        { gtin: { contains: query.q } },
-        { modelIdentifier: { contains: query.q } },
-        {
-          variants: {
-            some: {
-              isActive: true,
-              archivedAt: null,
-              OR: [
-                { sku: { contains: query.q } },
-                { gtin: { contains: query.q } },
-                { modelIdentifier: { contains: query.q } },
-                { name: { contains: query.q } },
-              ],
-            },
-          },
-        },
-        ...(translatedIds.length > 0 ? [{ id: { in: translatedIds } }] : []),
-      ],
-    });
+    // The grid and discovery links interpret the same words and maintained
+    // synonyms. Public visibility, market, currency and seller filters below
+    // still apply to every result and facet count.
+    const interpreted = await searchInterpretationFor(query.q);
+    conditions.push(publicSearchProductMatch(interpreted.groups, language));
   }
 
   // Size, as its own filter rather than as free text.
@@ -1373,6 +1342,22 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           { label: entry.label, axes: entry.axes.map(serialise) },
         ]),
       ),
+    });
+  });
+
+  /** Public discovery only: no RFQs, orders, invoices, buyer or seller private data. */
+  app.get('/search', { config: { rateLimit: { max: 90, timeWindow: '1 minute' } } }, async (request, reply) => {
+    const query = z.object({
+      q: z.string().trim().max(120).default(''),
+      currency: z.string().trim().length(3).optional(),
+      country: z.string().trim().regex(/^[A-Za-z]{2}$/).optional(),
+      language: z.string().trim().max(10).optional(),
+    }).parse(request.query);
+    const currency = await currencyForRequest(query.currency);
+    const country = destinationFor(query.country);
+    return reply.status(200).send({
+      ...(await searchCatalogue({ q: query.q, currency, country, language: languageForRequest(query.language), sellerAccountId: request.storefront?.sellerAccountId ?? null })),
+      currency, country,
     });
   });
 

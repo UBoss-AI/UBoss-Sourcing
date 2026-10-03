@@ -37,7 +37,7 @@ export interface CreateCategoryInput {
 export type UpdateCategoryInput = Partial<CreateCategoryInput>;
 
 /** Deepest nesting permitted. Beyond this, navigation stops being usable. */
-const MAX_CATEGORY_DEPTH = 4;
+export const MAX_CATEGORY_DEPTH = 4;
 
 async function assertSlugAvailable(
   slug: string,

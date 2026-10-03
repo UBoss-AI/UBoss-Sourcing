@@ -44,6 +44,7 @@ function lastListingParams(): URLSearchParams {
  */
 function serveCatalog(): void {
   fetchMock.mockImplementation((url: string) => {
+    if (url.includes('/catalog/search')) return Promise.resolve(jsonResponse({ query: '', terms: [], items: [], suggestions: [], currency: 'INR', country: 'IN' }));
     if (url.includes('/catalog/filters')) {
       return Promise.resolve(
         jsonResponse({

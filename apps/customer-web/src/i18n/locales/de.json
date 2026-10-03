@@ -8389,5 +8389,17 @@
   "product.translation.hideOriginal": "Originalen Produkttext ausblenden",
   "product.translation.originalTitle": "Originaler Produkttext",
   "product.translation.originalHint": "Hier erscheint der Originaltext des Katalogs. Das Produkt in der gewählten Sprache bleibt darüber und darunter. Fehlende Übersetzungen verwenden den Originaltext.",
-  "product.translation.unavailable": "Der originale Produkttext konnte nicht geladen werden. Versuchen Sie es erneut."
+  "product.translation.unavailable": "Der originale Produkttext konnte nicht geladen werden. Versuchen Sie es erneut.",
+  "discovery.title": "Katalogtreffer",
+  "discovery.recent": "Letzte Suchen in diesem Tab",
+  "discovery.clearRecent": "Letzte Suchen löschen",
+  "discovery.unavailable": "Katalogtreffer konnten nicht geladen werden. Bitte erneut versuchen.",
+  "discovery.empty": "Keine öffentlichen Treffer. Versuchen Sie weniger Wörter, einen Produktcode oder durchsuchen Sie Kategorien.",
+  "discovery.product": "Produkt",
+  "discovery.category": "Kategorie",
+  "discovery.supplier": "Lieferant",
+  "discovery.capability": "Fähigkeit des Lieferanten",
+  "discovery.didYouMean": "Meinten Sie? Wählen Sie einen Vorschlag für eine neue Suche.",
+  "discovery.browse": "Katalog durchsuchen",
+  "discovery.hint": "Einige passende öffentliche Einträge werden angezeigt. Präzisieren Sie Ihre Wörter für weitere Treffer. Fähigkeiten sind Angaben des Lieferanten; die Suche bestätigt keine Erfüllung."
 }

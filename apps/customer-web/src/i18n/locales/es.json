@@ -8498,5 +8498,17 @@
   "product.translation.hideOriginal": "Ocultar el texto original del producto",
   "product.translation.originalTitle": "Texto original del producto",
   "product.translation.originalHint": "Aquí aparece el texto original del catálogo. El producto en el idioma seleccionado permanece arriba y abajo. Las traducciones que faltan usan el texto original.",
-  "product.translation.unavailable": "No se pudo cargar el texto original del producto. Inténtalo de nuevo."
+  "product.translation.unavailable": "No se pudo cargar el texto original del producto. Inténtalo de nuevo.",
+  "discovery.title": "Coincidencias del catálogo",
+  "discovery.recent": "Búsquedas recientes en esta pestaña",
+  "discovery.clearRecent": "Borrar búsquedas recientes",
+  "discovery.unavailable": "No se pudieron cargar las coincidencias. Inténtalo de nuevo.",
+  "discovery.empty": "No hay coincidencias públicas. Prueba menos palabras, un código de producto o las categorías.",
+  "discovery.product": "Producto",
+  "discovery.category": "Categoría",
+  "discovery.supplier": "Proveedor",
+  "discovery.capability": "Capacidad del proveedor",
+  "discovery.didYouMean": "¿Querías decir? Elige una sugerencia para buscar de nuevo.",
+  "discovery.browse": "Explorar el catálogo",
+  "discovery.hint": "Se muestran algunos registros públicos coincidentes. Ajusta las palabras para ver otras coincidencias. Las capacidades las declara el proveedor; esta búsqueda no confirma el cumplimiento."
 }
