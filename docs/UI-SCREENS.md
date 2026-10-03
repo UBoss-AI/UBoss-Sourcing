@@ -545,7 +545,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
 
    | Item | What it is | What it does |
    |---|---|---|
-   | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **The Way to the Global Sourcing** (15px, from 1024px), in their own bright colour tokens | Goes to `/` |
+   | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **Source with Intelligence \| Deliver with Confidence** (15px, from 1024px), in their own bright colour tokens. From 640px up, "Gloviaa" is in the script face and "Mart" in Inter, smaller (0.62em) and semibold, on the same baseline; it still reads "Gloviaa Mart". The footer heading draws the name the same way. A store with its own name is drawn in one face | Goes to `/` |
    | Appearance | Match my device, Light, Dark. One cycling button on phones | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
@@ -687,9 +687,12 @@ browse.
    background (light washes, a faint grid and points) starts right under the
    header, runs to both edges of the window and carries on behind every
    section of the page. The turning earth stays in the greeting only.
-   - "One connected flow" (guest) or "Welcome back, …" (customer), the store's
-     name, and a line that changes ("Source with Intelligence" / "Deliver with
-     Confidence").
+   - "One connected flow" (guest) or "Welcome back, …" (customer), then the
+     store's name (for Gloviaa Mart, "Gloviaa" in script and "Mart" in Inter),
+     then the tagline **Source with Intelligence | Deliver with Confidence** in
+     the script face (Gloviaa Mart only, not translated), then a still,
+     translated line: "Your Integrated B2B B2C Platform". Nothing in the
+     greeting alternates.
    - **The search module**: tabs **Home**, **AI Assistant** (when switched on)
      and **Products**; Product, Supplier, RFQ and Image Search shortcuts above
      the bar, with unavailable wording for switched-off RFQ/image features;
@@ -714,18 +717,10 @@ browse.
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.
-   - **Newly verified suppliers**: the same cards for suppliers approved in
-     the last 90 days (up to four, newest first). Suppliers approved before the
-     date was recorded are never listed. Not shown when there are none or the
-     read fails.
-   - **Verified suppliers** (or **Verified suppliers from {country}** when
-     every verified supplier is registered in one country): up to eight cards
-     of sellers the operator approved who have something live to sell. Each
-     shows the name, the kind of business, the country, "Verified since
-     {month year}" (or "Verified by {marketplace}" when no approval date was
-     recorded) and the product count, and opens `/products?seller={slug}`.
-     Not shown at all until the answer arrives, and not shown when there are
-     none or the read fails.
+   - The home page no longer lists suppliers. **Verified suppliers** and
+     **Newly verified suppliers** are on the admin console's Sellers screen
+     (`/sellers`). Only the sentence under the strapline still depends on
+     them; it reads `GET /api/v1/catalog/suppliers?limit=1`.
    - After the shelves, two short blocks that read live settings and are
      absent when there is nothing to report: **Shopping from {country}** (the
      shopper's selected country: the currency, "Some products cannot be sold
@@ -1263,25 +1258,30 @@ not sent to the API.
     subject, or calls the store's support telephone when there is no address.
     With neither set in Settings, the button is left out and **Preorder** and
     **Add instructions** remain.
-  - **Schedule your Cart** (teal), when recurring orders are switched on,
-    the product allows it and exactly one version is chosen. Opens
-    `/schedules/new?productId=…&quantity=…`.
-  - **Preorder**: ask the seller for a large quantity by a date. Needs one
-    version chosen and a business account. Opens a dialog with the address,
+  - **Schedule your Cart** (teal), when recurring orders are switched on and
+    the product can be bought. It stays in the row before a version is chosen;
+    pressing it then points the caret at the missing choice. With exactly one
+    version chosen it opens `/schedules/new?productId=…&quantity=…`.
+  - **Preorder** (filled brand blue): ask the seller for a large quantity by a
+    date. Inside the button, in order: a boxes icon, "Preorder", the ⓘ and the
+    chat icon. Pressing it before a version is chosen points the caret at the
+    missing choice; it is disabled only when the server says preorder is
+    unavailable or the account has no company. Opens a dialog with the address,
     a preview, and **Send**. The first time (per version of the note), it
     opens **Bulk preorder information** first: the minimum, how the seller
     confirms, that nothing is charged, and a checkbox *"I understand the
     minimum quantity and preorder process."*; **Agree and continue to
     preorder** stays disabled until it is ticked. **Not now** closes it.
-  - **ⓘ** inside Preorder's right end (its own button, laid over it, label *Preorder
+  - **ⓘ** inside Preorder, after the word (its own 36px round button, laid over the plate as a sibling, label *Preorder
     information*): the same note, to read at any time — a popover beside the
     button on a desktop, a bottom sheet on a phone. Already acknowledged, it
     offers **Continue to preorder** with no checkbox.
-  - **Chat icon** (speech bubbles) directly right of the ⓘ, on every product
-    whether or not it can be preordered. The row is `[ Preorder (i) ] [ chat
-    icon ]`: the icon is a 48×48 px button as tall as Preorder; on a phone
-    Preorder takes the rest of the row and the row does not wrap. There is no
-    visible "Chat with …" text button; this is the only chat entry in the row.
+  - **Chat icon** (speech bubbles) inside Preorder, right of the ⓘ, on every
+    product whether or not it can be preordered. The button reads
+    `[ boxes  Preorder  (i)  chat ]`: the icon is a 36px round target laid
+    over the 48px plate as a sibling, so pressing it opens the chat drawer and
+    never starts a preorder. The separate chat square beside Preorder is gone;
+    there is no visible "Chat with …" text button.
     Its accessible name is *Chat with {marketplace}* (the operator's own name;
     *Chat with Gloviaa Mart* until one is set), or *Chat with {marketplace}. Unread
     replies: N*. The tooltip *"Ask {marketplace} about this preorder"* shows on
@@ -1347,8 +1347,16 @@ not sent to the API.
   Start preorder goes through the note (if not yet acknowledged) into the
   form, keeping the version and the quantity. It waits while another dialog
   (such as Bulk offers) is open.
-  - **Add instructions**: a standing note to the seller about this product,
-    without buying anything.
+  - **Add instructions**, directly under the row: a standing note to the
+    seller about this product, without buying anything. It opens a small
+    panel right under the button, not a modal, headed "Tell the seller what
+    you need": a box of up to 500 characters with the placeholder "For the
+    seller and their packing team. For example: …", a "used/500" counter,
+    **Save**, **Cancel**, a close (×) button, and **Remove** when something is
+    saved. Focus goes into the box on open and back to the button on close;
+    Escape closes it. Cancel and Escape discard the draft. Save trims spaces,
+    is disabled while saving, and a failed save keeps the panel open with the
+    words and an error. Calls `GET` / `POST /account/product-instructions`.
   - **Save for later**.
   - **Order by** carton, pallet or container, when the product offers it.
 - **Buttons, for a guest**: **Sign in to order**, **Save for later**,
@@ -1830,7 +1838,7 @@ deployment only: a feature that is switched off here is not mentioned.
 **On the screen**
 
 - **About {marketplace}**, then the heading. On the product's own storefront
-  the heading is the tagline, **The Way to the Global Sourcing**, in the
+  the heading is the tagline, **Source with Intelligence | Deliver with Confidence**, in the
   wordmark's script. On a storefront trading under another name it is "One
   marketplace for sourcing, selling and delivery" instead. A short
   introduction and **Powered by UBOSS** follow.
@@ -6027,7 +6035,21 @@ Rejected, Suspended, Not submitted yet. Search by name. Columns: Business,
 Type, Registered in, Application (steps done, with a bar), Documents,
 Submitted, Status.
 
-**API call:** `GET /api/v1/admin/sellers?page=…&pageSize=25&status=…&search=…`
+Under the table, two cards:
+
+- **Verified suppliers**: up to 24 sellers the operator approved who have
+  something live to sell, longest-verified first. Columns: Supplier (with its
+  slug), Type, Registered in, Verified on, Live products. "Showing X of Y"
+  when there are more.
+- **Newly verified suppliers**: those verified in the last 90 days, newest
+  first.
+
+Each card has a loading state, an empty state and an error state with a
+retry. Pressing a row opens `/sellers/:id`. These two lists used to be
+on the storefront's home page.
+
+**API calls:** `GET /api/v1/admin/sellers?page=…&pageSize=25&status=…&search=…`;
+`GET /api/v1/admin/sellers/verified` and `GET /api/v1/admin/sellers/verified?sort=newest`
 
 #### `/sellers/:id` — One seller application
 

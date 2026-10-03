@@ -12,10 +12,9 @@
  * Subscribed, not sampled: somebody who turns the preference on mid-visit gets
  * the still version from that moment, not at the next page load.
  *
- * `ui/flip-words.tsx` carries its own copy of this, written before there was a
- * shared one. It is left alone deliberately — it is covered by its own tests
- * and moving it is a change to a component this piece of work is not otherwise
- * touching. A fourth copy is what this module exists to stop.
+ * `ui/flip-words.tsx` used to carry its own copy of this; it went with the
+ * home page's rotating strapline. A second copy is what this module exists
+ * to stop.
  */
 import { useEffect, useState } from 'react';
 

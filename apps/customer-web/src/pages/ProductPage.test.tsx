@@ -321,6 +321,43 @@ describe('ProductPage', () => {
     expect(screen.queryByText('₹1720000.00')).not.toBeInTheDocument();
   });
 
+  it('puts Add to Cart, Schedule your Cart and Preorder in one row, in that order, with instructions under it', async () => {
+    const user = userEvent.setup();
+
+    renderProduct(twoOptions(), { recurring: true });
+    await user.click(await screen.findByRole('button', { name: /1 Litre/ }));
+
+    const add = screen.getByRole('button', { name: /add to cart/i });
+    const schedule = screen.getByRole('link', { name: /schedule your cart/i });
+    const preorder = screen.getByRole('button', { name: /^preorder$/i });
+    const row = add.parentElement as HTMLElement;
+    // A three-column grid from sm up: one line, never wrapping.
+    expect(row.className).toContain('sm:grid-cols-[');
+
+    // One row: the three are children of the same flex container.
+    expect(row.contains(schedule)).toBe(true);
+    expect(row.contains(preorder)).toBe(true);
+    expect(add.compareDocumentPosition(schedule) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(schedule.compareDocumentPosition(preorder) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    // The chat is inside Preorder now; there is no separate chat button in the row.
+    const chats = screen.queryAllByRole('button', { name: /^chat with/i });
+    expect(chats.every((chat) => preorder.parentElement?.contains(chat) === true)).toBe(true);
+
+    // Add instructions is under the row, not in it.
+    const instructions = screen.getByRole('button', { name: /instructions/i });
+    expect(row.contains(instructions)).toBe(false);
+    expect(row.compareDocumentPosition(instructions) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps Schedule your Cart in the row before an option is chosen, pointing at the choice', async () => {
+    renderProduct(twoOptions(), { recurring: true });
+
+    const schedule = await screen.findByRole('button', { name: /schedule your cart/i });
+    expect(schedule).toBeEnabled();
+    expect(screen.queryByRole('link', { name: /schedule your cart/i })).not.toBeInTheDocument();
+  });
+
   it('offers a repeat purchase for one chosen option, and says why not for two', async () => {
     const user = userEvent.setup();
 

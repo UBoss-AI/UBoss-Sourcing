@@ -2,7 +2,7 @@
  * The brand block, at the top of the rail.
  *
  * Two lines rather than one: the mark and the product name are the thing you
- * look at once, and `The Way to the Global Sourcing` underneath is the product's
+ * look at once, and `Source with Intelligence | Deliver with Confidence` underneath is the product's
  * tagline. Both come from `lib/brand.ts`, which is the one place either
  * string is written in any of the three applications. Both are set in
  * `font-brand` (Dancing Script Bold) — the wordmark's own face, used for the
@@ -38,7 +38,23 @@
 import { Link } from 'react-router-dom';
 import { SidebarLabel } from '@/components/ui/sidebar';
 import { EarthMark } from '@/components/EarthMark';
-import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_TAGLINE } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
+
+/**
+ * "Gloviaa" in the script, "Mart" in Inter a step smaller on the same
+ * baseline — a parent brand naming one of its services. The same treatment as
+ * the storefront's `components/BrandName.tsx`.
+ */
+function BrandName(): React.JSX.Element {
+  return (
+    <>
+      {PRODUCT_SHORT_NAME}{' '}
+      <span className="brand-name-service font-sans text-[0.62em] font-semibold tracking-tight">
+        {PRODUCT_BRAND.slice(PRODUCT_SHORT_NAME.length).trim()}
+      </span>
+    </>
+  );
+}
 
 export function BrandLockup({
   onNavigate,
@@ -55,7 +71,7 @@ export function BrandLockup({
       <EarthMark initial={PRODUCT_INITIAL} size="sm" />
       <SidebarLabel display="block" className="min-w-0 leading-tight">
         <span aria-hidden="true" className="brand-wordmark block font-brand text-xl font-bold leading-6">
-          {PRODUCT_BRAND}
+          <BrandName />
         </span>
         <span
           aria-hidden="true"

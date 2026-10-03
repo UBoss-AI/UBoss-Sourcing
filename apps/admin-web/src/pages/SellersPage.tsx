@@ -24,6 +24,7 @@ import {
   type SellerApplicationRow,
 } from '@/lib/sellers';
 import { useNavigate } from 'react-router-dom';
+import { VerifiedSuppliersPanels } from '@/pages/seller/VerifiedSuppliersPanels';
 
 const STATUSES = [
   { value: '', label: 'Every application' },
@@ -227,6 +228,10 @@ export function SellersPage(): React.JSX.Element {
           }}
         />
       )}
+
+      {/* Who is approved and selling, and who was approved lately. These were
+          on the storefront's home page; they are the operator's view now. */}
+      <VerifiedSuppliersPanels />
     </div>
   );
 }

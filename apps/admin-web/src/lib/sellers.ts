@@ -666,3 +666,32 @@ export interface ListingContent {
   descriptionSections: { heading: string; body: string; imageMediaId: string | null; altText: string | null }[];
   variantOverrides: { variantSignature: string; group: string; label: string; value: string; unit: string | null }[];
 }
+
+/**
+ * A verified supplier as the Sellers screen lists it: approved, not suspended,
+ * with something live in the catalogue. The same rule the public catalogue
+ * uses for the word "verified", plus the seller id so a row opens the record.
+ */
+export interface VerifiedSupplierRow {
+  sellerId: string;
+  slug: string;
+  displayName: string;
+  kind: string;
+  registrationCountry: string;
+  /** When the operator approved them. Null for an approval made before the date was recorded. */
+  verifiedAt: string | null;
+  productCount: number;
+  logoUrl: string | null;
+}
+
+export interface VerifiedSupplierList {
+  suppliers: VerifiedSupplierRow[];
+  total: number;
+}
+
+/** `newest` puts the most recently verified first and leaves undated approvals out. */
+export function fetchVerifiedSuppliers(sort?: 'newest'): Promise<VerifiedSupplierList> {
+  return api.get<VerifiedSupplierList>(
+    sort === undefined ? '/admin/sellers/verified' : `/admin/sellers/verified?sort=${sort}`,
+  );
+}

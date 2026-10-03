@@ -1,9 +1,11 @@
 /**
- * The home page's newly-verified, assurance and market blocks.
+ * The home page's assurance and market blocks.
  *
- * The rule under test is the same one the verified-suppliers section keeps:
- * **a block appears only when real data gives it something to say**, and says
- * nothing while loading or when the read fails.
+ * The rule under test: **a block appears only when real data gives it
+ * something to say**, and says nothing while loading or when the read fails.
+ *
+ * "Newly verified suppliers" used to be one of these blocks. It is on the
+ * admin console now, and the last describe here proves it stays off the page.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -96,26 +98,17 @@ afterEach(() => {
 });
 
 describe('newly verified suppliers', () => {
-  it('lists suppliers approved in the last 90 days and leaves older ones out', async () => {
+  it('is not on the home page, and the page never asks for the newest suppliers', async () => {
     serve({
-      newest: [
-        supplier({ slug: 'fresh-co', displayName: 'Fresh Co', verifiedAt: daysAgo(10) }),
-        supplier({ slug: 'old-co', displayName: 'Old Co', verifiedAt: daysAgo(200) }),
-      ],
+      newest: [supplier({ slug: 'fresh-co', displayName: 'Fresh Co', verifiedAt: daysAgo(10) })],
     });
     renderHome();
-
-    const section = await screen.findByRole('region', { name: 'Newly verified suppliers' });
-    expect(within(section).getByRole('link', { name: /Fresh Co/ })).toHaveAttribute('href', '/suppliers/fresh-co');
-    expect(within(section).queryByRole('link', { name: /Old Co/ })).not.toBeInTheDocument();
-  });
-
-  it('is absent when nothing was verified recently', async () => {
-    serve({ newest: [supplier({ verifiedAt: daysAgo(400) })] });
-    renderHome();
-    await settled('sort=newest');
+    await settled('/catalog/suppliers');
 
     expect(screen.queryByRole('region', { name: 'Newly verified suppliers' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Fresh Co')).not.toBeInTheDocument();
+    const supplierReads = fetchMock.mock.calls.map((call) => String(call[0])).filter((url) => url.includes('/catalog/suppliers'));
+    expect(supplierReads.some((url) => url.includes('sort=newest'))).toBe(false);
   });
 });
 

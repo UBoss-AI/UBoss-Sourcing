@@ -18,11 +18,12 @@ import { SellersPage } from './SellersPage';
 
 vi.mock('@/lib/sellers', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/sellers')>();
-  return { ...actual, fetchSellerApplications: vi.fn() };
+  return { ...actual, fetchSellerApplications: vi.fn(), fetchVerifiedSuppliers: vi.fn() };
 });
 
 const lib = await import('@/lib/sellers');
 const fetchApplications = vi.mocked(lib.fetchSellerApplications);
+const fetchVerified = vi.mocked(lib.fetchVerifiedSuppliers);
 
 function row(overrides: Partial<SellerApplicationRow> = {}): SellerApplicationRow {
   return {
@@ -65,6 +66,8 @@ function renderPage(): void {
 beforeEach(async () => {
   await i18n.changeLanguage('en');
   fetchApplications.mockReset();
+  fetchVerified.mockReset();
+  fetchVerified.mockResolvedValue({ suppliers: [], total: 0 });
   fetchApplications.mockResolvedValue({
     rows: [row()],
     total: 1,
@@ -134,5 +137,15 @@ describe('SellersPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: /try again/i }));
     expect(await screen.findByText('Sikka Traders')).toBeTruthy();
+  });
+});
+
+describe('SellersPage verified suppliers', () => {
+  it('shows both verified-supplier sections under the application queue', async () => {
+    renderPage();
+    expect(await screen.findByRole('heading', { name: 'Verified suppliers' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Newly verified suppliers' })).toBeTruthy();
+    expect(fetchVerified).toHaveBeenCalledWith();
+    expect(fetchVerified).toHaveBeenCalledWith('newest');
   });
 });

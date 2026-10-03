@@ -58,7 +58,7 @@ have to read separately — this *is* the explanation.
 
 ## What the product is called
 
-The product is **Gloviaa Mart**, and its tagline is **The Way to the Global Sourcing**. The
+The product is **Gloviaa Mart**, and its tagline is **Source with Intelligence | Deliver with Confidence**. The
 company behind it is **UBOSS**, and that is said as small print:
 **Powered by UBOSS**.
 
@@ -66,10 +66,22 @@ Where each one appears:
 
 | Surface | Top-left brand block | `Powered by UBOSS` |
 |---|---|---|
-| Storefront and Seller Hub | Earth mark, **Gloviaa Mart** over **The Way to the Global Sourcing** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
-| Admin console | The rail: earth mark, **Gloviaa Mart** over **The Way to the Global Sourcing** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
+| Storefront and Seller Hub | Earth mark, **Gloviaa Mart** over **Source with Intelligence \| Deliver with Confidence** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
+| Admin console | The rail: earth mark, **Gloviaa Mart** over **Source with Intelligence \| Deliver with Confidence** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
 | Logistics portal | The rail and the sign-in header: the same lockup | Small print at the foot of the sign-in column |
-| Greeting page hero | **Gloviaa Mart** in the script face, then **The Way to the Global Sourcing** standing still, then a line alternating "Source with Intelligence" and "Deliver with Confidence" | — (it used to be one of the two alternating phrases) |
+| Greeting page hero | **Gloviaa Mart** in the script face, then **Source with Intelligence \| Deliver with Confidence**, then a still, translated line: "Your Integrated B2B B2C Platform" (`greeting.platformLine`) | — |
+
+**"Mart" is set in a second face.** Wherever the wordmark "Gloviaa Mart" is
+drawn — the storefront header (from 640px), the greeting headline, the
+storefront footer heading, and the admin and logistics lockups — "Gloviaa"
+stays in the script face and only "Mart" is set in Inter (already loaded, no
+new font), at 0.62em, semibold, on the same baseline. It reads like a parent
+brand naming one of its services. It is plain text, so a screen reader and a
+copy-paste still get "Gloviaa Mart". The storefront draws it with
+`components/BrandName.tsx`; the admin console and the logistics portal each
+have a small `BrandName` inside `layout/BrandLockup.tsx`. A deployment with its
+own name is not touched: its name is drawn in one face, as before. On a phone
+the storefront header still shows only "Gloviaa".
 
 **The name has a one-word form, Gloviaa.** `PRODUCT_SHORT_NAME` in each
 app's `lib/brand.ts`, used where two words do not fit or do not belong: the
@@ -101,7 +113,7 @@ loads, the fallback face `Dancing Script Fallback` — Arial Bold resized to
 Dancing Script's metrics, declared in each app's `index.css` — sets "Gloviaa Mart"
 at the same width and height, so nothing moves when the script arrives.
 
-**The tagline is in the same script as the name.** "The Way to the Global Sourcing" is
+**The tagline is in the same script as the name.** "Source with Intelligence | Deliver with Confidence" is
 set in `font-brand` too, in sentence case (no uppercase, no letter-spacing),
 wherever it appears: the storefront header, the greeting, and the admin and
 logistics lockups. Because the face is bundled with each app, the name and
@@ -142,7 +154,7 @@ Three names are involved and they are not interchangeable:
 | Name | What it is | Where it comes from |
 |---|---|---|
 | **Gloviaa Mart** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
-| **The Way to the Global Sourcing** | The product's tagline — under the wordmark | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
+| **Source with Intelligence \| Deliver with Confidence** | The product's tagline — under the wordmark. A constant, never translated. It replaced "The Way to the Global Sourcing" | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
 | **Powered by UBOSS** | The attribution — who makes it | `lib/brand.ts`, the same constant module |
 | The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` — and `marketplace.displayName`, the same name, which a seller's shop front never replaces |
 
@@ -1569,33 +1581,60 @@ spies on `scrollIntoView` to assert that nothing scrolls on arrival, which is
 the half of the old behaviour that was always wrong and the one a re-invention
 would bring back first.
 
-**Verified suppliers, and the sentence that depends on them.** Under the
-department rail sits a row of up to eight supplier cards, read from
-`GET /api/v1/catalog/suppliers`. A supplier is listed only when the operator
-approved their application (`SellerAccount.status = APPROVED`, not suspended,
-not archived) and they have a live offer on a product the public catalogue
-shows (`modules/catalog/supplier-directory.service.ts`). Only the operator can
-move an application to `APPROVED` (`domain/seller-state.ts`), so "verified" on
-the page is exactly as true as that review, and nothing more is claimed. Each
-card opens `/products?seller={slug}`; the catalogue and its facet counts take
-the same `seller` filter, and a supplier who is later suspended leaves an old
-link showing an empty grid rather than products nobody can buy from them.
+**Verified suppliers, and the sentence that depends on them.**
+`GET /api/v1/catalog/suppliers` lists verified suppliers. A supplier is listed
+only when the operator approved their application
+(`SellerAccount.status = APPROVED`, not suspended, not archived) and they have
+a live offer on a product the public catalogue shows
+(`modules/catalog/supplier-directory.service.ts`). Only the operator can move
+an application to `APPROVED` (`domain/seller-state.ts`), so "verified" is
+exactly as true as that review, and nothing more is claimed. Search, category
+pages and supplier pages use this list; the catalogue and its facet counts
+take the same `seller` filter, and a supplier who is later suspended leaves an
+old link showing an empty grid rather than products nobody can buy from them.
 
-The same read decides the sentence under the strapline
-(`components/home/VerifiedSuppliers.tsx`, `lib/verified-suppliers.ts`). With
-suppliers all registered in one country it reads "Source direct from verified
-suppliers in India, …"; with several countries it names none; with no
-suppliers it is the neutral "Everything your business orders, in one place".
-The API reports every verified supplier's country regardless of the page size,
-so "in India" is never said because the first eight happened to be Indian. The
-three wordings share one grid cell, so the line is the same height from the
-first frame and the search bar never moves; the two not shown are
-`aria-hidden`. The supplier row itself renders nothing until the answer
-arrives — a heading shown while loading, on a deployment that turns out to have
-no suppliers, is a claim made and withdrawn. On a seller's own shop front the
-list is empty: a seller's shop does not advertise its competitors.
+**The home page no longer lists suppliers.** It used to show a "Verified
+suppliers" row and a "Newly verified suppliers" block. Both moved to the admin
+console's Sellers screen (see *Verified suppliers on the Sellers screen*
+below). The storefront keeps only the sentence under the strapline
+(`components/home/ValueProposition.tsx`, which was `VerifiedSuppliers.tsx`, and
+`lib/verified-suppliers.ts`). Its read is now `GET /catalog/suppliers?limit=1`,
+because it needs the country list, not a page of cards; the home page no longer
+asks for `sort=newest`. With suppliers all registered in one country it reads
+"Source direct from verified suppliers in India, …"; with several countries it
+names none; with no suppliers it is the neutral "Everything your business
+orders, in one place". The API reports every verified supplier's country
+regardless of the page size, so "in India" is never said because the one
+supplier returned happened to be Indian. The three wordings share one grid
+cell, so the line is the same height from the first frame and the search bar
+never moves; the two not shown are `aria-hidden`. On a seller's own shop front
+the list is empty: a seller's shop does not advertise its competitors.
 `tests/integration/catalog-suppliers.test.ts` and
-`components/home/VerifiedSuppliers.test.tsx` hold these rules.
+`components/home/ValueProposition.test.tsx` hold these rules.
+
+**Verified suppliers on the Sellers screen.** The admin console's Sellers
+screen (`/sellers`, `pages/SellersPage.tsx`) shows two cards under the
+application table (`pages/seller/VerifiedSuppliersPanels.tsx`, translated in
+the console's eight languages under `adminVerifiedSuppliers.*`):
+
+- **Verified suppliers** — up to 24, longest-verified first. Columns:
+  Supplier (with its slug), Type, Registered in, Verified on, Live products.
+  When there are more than are shown it says "Showing X of Y".
+- **Newly verified suppliers** — those verified in the last 90 days, newest
+  first.
+
+Each card has a loading, an empty and an error state, and the error has a
+retry. A row opens that seller's review page, `/sellers/:id`. Both read
+`GET /api/v1/admin/sellers/verified` (`listVerifiedSuppliersForAdmin` in
+`supplier-directory.service.ts`), guarded by `requireAdmin(CUSTOMER_READ)`, the
+same permission as the Sellers queue. Query: `limit` 1–24 (default 24), an
+optional `sort=newest`, and an optional `q` (up to 120 characters; the public
+name contains it). It returns
+`{ suppliers: [{ sellerId, slug, displayName, kind, registrationCountry, verifiedAt, productCount, logoUrl }], countries, total }`
+with `cache-control: no-store`. "Verified" means exactly what it means in the
+public list; the only addition is `sellerId`, so a row can open the review
+page. A guest gets 401, a buyer session 401 or 403, and staff without
+`CUSTOMER_READ` (for example `catalog_manager`) 403.
 
 **Market eligibility on every listing.** `resolveFilters` in
 `catalog.public.ts` — shared by the grid, search and the facet counts, so the
@@ -1694,11 +1733,10 @@ The same response also carries the country's stored `languageCode` and a
 in that country, folded to one entry per origin and mode with the widest transit
 window. Carrier, price and service level are deliberately not in it.
 
-**Home-page trust blocks, cart notes and reorder results.** Three blocks on the
-home page read live data and render nothing when they have none:
-`NewlyVerifiedSuppliers` (`GET /catalog/suppliers?sort=newest`, which orders by
-approval date, newest first, and drops suppliers with no recorded approval date;
-the page keeps only those approved in the last 90 days), `AssuranceExplainer`
+**Home-page trust blocks, cart notes and reorder results.** Two blocks on the
+home page read live data and render nothing when they have none (there used to
+be a third, "Newly verified suppliers", which is now on the admin Sellers
+screen): `AssuranceExplainer`
 (the same `/catalog/assurance` facts and query key as the assurance page, one
 line per protection that is switched on) and `YourMarketBlock` (the selected
 country's `/catalog/markets/:cc`). The assurance page is now a five-step
@@ -1886,16 +1924,16 @@ real destinations. The AI link appears only when the operator enables it. RFQ
 and Image Search shortcuts show unavailable wording when their features are
 off, without a link or button that would lead to a dead end.
 
-## The headline, and the line that changes under it
+## The headline, and the lines under it
 
-The greeting opens on three lines, and the moving one is the third:
+The greeting opens on four lines, and none of them moves:
 
 | Line | What it is |
 |---|---|
 | The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
-| The headline | The shop's configured name. Fixed. Nothing cycles after it. In the script wordmark face when the name is "Gloviaa Mart" |
-| The tagline | **The Way to the Global Sourcing** — `PRODUCT_TAGLINE` from `lib/brand.ts`. Fixed. Only when the name is "Gloviaa Mart" |
-| The strapline | Two whole phrases, alternating every 4.2 seconds |
+| The headline | The shop's configured name. Fixed. Nothing cycles after it. When the name is "Gloviaa Mart", "Gloviaa" is in the script wordmark face and "Mart" in Inter at 0.62em (see *What the product is called*) |
+| The tagline | **Source with Intelligence \| Deliver with Confidence** — `PRODUCT_TAGLINE` from `lib/brand.ts`, in the script face. Fixed, not translated. Only when the name is "Gloviaa Mart" |
+| The platform line | `greeting.platformLine` — "Your Integrated B2B B2C Platform". Fixed, translated into all eight languages |
 
 **The headline is the name, still.** It reads "Gloviaa Mart" on a deployment that has
 not set a business name of its own, and "Northwind Industrial" on one that has.
@@ -1904,67 +1942,24 @@ arrangements and your payment authority", and a guest's sentence explaining what
 a catalogue is to somebody already looking at one. The search module directly
 below asks that question in one control.
 
-**It used to move, and that is what changed.** One word cycled after the name —
-sourcing, intelligence, optimism, innovation — which made the name part of a
-rotation: "Gloviaa Mart Sourcing", then "Gloviaa Mart Intelligence". A brand that rewrites
-itself every three seconds is not a brand, and a reader arriving mid-cycle saw a
-product the deployment does not sell. `lib/greeting-headline.ts` went with it:
-the whole module existed to stop a name ending in a cycling word saying that
-word twice — *UBOSS Sourcing* read "UBOSS Sourcing Sourcing" — and with nothing
-cycling after the name there is nothing left to collide with.
+**It used to move.** One word cycled after the name — sourcing, intelligence,
+optimism, innovation — which made the name part of a rotation: "Gloviaa Mart
+Sourcing", then "Gloviaa Mart Intelligence". A brand that rewrites itself every
+three seconds is not a brand, and a reader arriving mid-cycle saw a product the
+deployment does not sell. `lib/greeting-headline.ts` went with it: the whole
+module existed to stop a name ending in a cycling word saying that word twice —
+*UBOSS Sourcing* read "UBOSS Sourcing Sourcing" — and with nothing cycling
+after the name there is nothing left to collide with.
 
-**What alternates now is the line below, and each entry is a whole thought:**
-
-1. `greeting.taglineSource` — "Source with Intelligence";
-2. `greeting.taglineDeliver` — "Deliver with Confidence".
-
-Both are prose and translated into all eight languages. They are the two halves
-of what used to be one key, `greeting.tagline` ("Source with Intelligence |
-Deliver with Confidence"), split at the bar in every language so each
-translation kept its approved wording. The line used to alternate that whole
-strapline with **Powered by UBOSS**; the attribution is the footer's small
-print now, and the product's tagline stands still above the line.
-
-**The line does not change height when it changes.** Both phrases sit in the
-flow in the same CSS grid cell, one visible and one `invisible`, so the row is
-as tall as the taller of them and stays that height for the life of the page.
-Without it the band grew and shrank by two lines every few seconds on a phone —
-where one phrase wraps and the other does not — and
-everything below the hero moved with it. It cannot be a `min-height`: the
-taller phrase is a different phrase in each of the eight languages, and a number
-measured in English is a number that is wrong in Polish.
-
-**A screen reader is told one sentence, once.** `FlipWords` takes an `srLabel`
-covering both phrases — "Source with Intelligence. Deliver with Confidence." —
-and reads it in place of the rotation. Nothing on the line
-is in an `aria-live` region, which is the whole point: a phrase swapping itself
-inside one would interrupt whatever a screen-reader user is doing, every four
-seconds, for as long as the page is open. Under `prefers-reduced-motion:
-reduce` there is no timer at all, the first phrase is drawn and left alone, and
-the label still carries both.
-
-**The motion is `components/ui/flip-words.tsx`** — the Aceternity
-`flip-words`, adapted. Six things about it could not survive contact with this
-repository and the file lists each one; three are worth knowing before touching
-it:
-
-- **A screen reader is told one steady word, once.** The moving copy is a span
-  per letter, rebuilt every three seconds, and is `aria-hidden`; one
-  `sr-only` word stands in for it. So the accessible name of the `h1` is the
-  shop's configured name, and it does not rewrite itself under the reader.
-- **`prefers-reduced-motion` gets a still word and no timer**, not a slower
-  flip.
-- **The exit is a tween, where the entrance is a spring.** `AnimatePresence`
-  only reports an exit complete once every exiting property has settled, and
-  the timer for the next word is armed off the back of that report. Under the
-  shared spring the exit sometimes never reported finishing: the word stopped
-  changing two flips in, with both copies left in the DOM. A duration cannot do
-  that.
-
-The tagline is `sm:whitespace-nowrap`. A strapline broken over two lines is
-two half-thoughts, and every translation of it fits one line at that type size
-from 640px up; below that it wraps, because a phone is narrower than the
-shortest of them and clipping it would be worse.
+**The line under the tagline used to move too, and now it does not.** It
+alternated "Source with Intelligence" and "Deliver with Confidence" every 4.2
+seconds (`components/ui/flip-words.tsx`). Those two phrases are now the
+product's tagline, standing still above it, so the line says something else:
+`greeting.platformLine`, "Your Integrated B2B B2C Platform", in all eight
+languages. `flip-words.tsx` and its test were deleted, and the keys
+`greeting.taglineSource` and `greeting.taglineDeliver` were removed. There is
+no timer, no hidden measuring copy and no screen-reader label standing in for a
+rotation: the line is ordinary text, read once.
 
 ## The sourcing hub
 
@@ -3544,10 +3539,20 @@ choice, a preselection is a decision made on the customer's behalf, and the one
 it would make is "you want the first one".
 
 **A repeat purchase still takes one option at a time.** `/schedules/new` builds
-a plan around one product and one option, so the "Schedule your Cart" button
-appears only where exactly one thing is chosen. Where two are chosen the page
-says so and points at the path that does work — put them in the cart, then
-schedule the whole cart.
+a plan around one product and one option. The "Schedule your Cart" button now
+stays in the row before an option is chosen: pressing it then points the caret
+at the missing choice, the same as Add to Cart and Preorder do. With exactly
+one option chosen it is the link to `/schedules/new?...`. Where two are chosen
+the page says so and points at the path that does work — put them in the cart,
+then schedule the whole cart. It is still hidden when recurring orders are
+switched off or the product cannot be bought.
+
+**The three purchase buttons share one line.** From 640px (`sm`) up, **Add to
+Cart** (orange), **Schedule your Cart** (teal) and **Preorder** (filled brand
+blue, `primary`) always sit on one line, in a three-column grid. The Preorder
+column never goes below 12rem. In a narrow column a label may wrap to two lines
+inside its 48px button rather than push a button onto a new line. On a phone
+the three stack, full width. **Add instructions** sits directly under the row.
 
 Each chosen option becomes **its own cart line**. That was always true of the
 database: `unique(cartId, productId, variantKey)` gives every option a row of
@@ -4371,16 +4376,29 @@ became an email nobody could tie back to a product, or they became nothing and
 the sale did not happen.
 
 So there is a second instruction, standing free of a basket: **Add
-instructions**, on the product page, in the row with Add to Cart and Set up a
-repeat purchase.
+instructions**, on the product page, directly under the row of Add to Cart,
+Schedule your Cart and Preorder.
 
-It sits with those two rather than under them because it is an alternative to
-pressing them, not something you do afterwards. A shopper reading that panel
-has the specification in front of them, and the thing stopping them is a
-question they will only ask if asking is offered where the decision is being
-made. It is drawn as the quiet button of the three: the orange and the teal
-are the two commitments, and a third filled button beside them would read as a
-third way to buy.
+It sits right by those three because it is an alternative to pressing them,
+not something you do afterwards. A shopper reading that panel has the
+specification in front of them, and the thing stopping them is a question they
+will only ask if asking is offered where the decision is being made. It is
+drawn as a quiet secondary button: the three filled buttons above it are the
+ways to buy, and this is not one.
+
+**It opens a small panel, not a modal.** Pressing it opens an inline panel
+right under the control (`role="dialog"`, `aria-modal="false"`, named by its
+heading "Tell the seller what you need"). The panel holds a text box (500
+characters at most, enforced), a visible counter ("used/500"), the placeholder
+"For the seller and their packing team. For example: …", **Save**, **Cancel**,
+a close (×) button, and **Remove** when an instruction already exists. Focus
+goes into the box when it opens and back to the button when it closes; Escape
+closes it. Cancel and Escape throw the draft away, so reopening shows what is
+saved. Save trims spaces from both ends, is disabled while saving so it cannot
+be sent twice, and a failed save keeps the panel open with the words in it and
+an error under them. It uses the same endpoints as before (table below); there
+is no new field. The basket line's own "Special instructions" box is a
+separate thing and has not changed.
 
 It is deliberately **not** on the product card. It was there briefly and came
 off again — a card is a stretched link, so a real control on it has to be
@@ -5774,7 +5792,9 @@ Owner and so awarding themselves the one permission Admin deliberately lacks.
 ## The operator's side
 
 Under the admin API: seller applications, business documents, listing
-moderation and brand requests.
+moderation and brand requests — and the list of verified suppliers,
+`GET /admin/sellers/verified`, which the Sellers screen shows under its
+application table (see *Verified suppliers on the Sellers screen* in section 4).
 
 ### Quality review: `/listing-review`
 
@@ -6421,7 +6441,7 @@ meantime.
 | `/product-reviews` | Product reviews | Every review buyers have written, and hiding one that breaks the rules, with a reason (section 9.12). Needs `review.read`; hiding needs `review.moderate` |
 | `/support` | Support → Tickets | The inbox of support tickets from the storefront, Seller Hub and the logistics portal, opening on **Needs work** (section 9.13). Needs `support_ticket.view` |
 | `/support/:id` | One ticket | Who raised it and for whom, the timeline with staff-only notes, the customer's documents (previewed or downloaded on the page), and the controls: status, priority, assignment, reply, internal note |
-| `/sellers` | Sellers | Businesses applying to sell on the marketplace |
+| `/sellers` | Sellers | Businesses applying to sell on the marketplace; under the table, **Verified suppliers** and **Newly verified suppliers** (`GET /admin/sellers/verified`) |
 | `/sellers/:id` | Seller detail | One application: the business, its documents, its people, the decision |
 | `/audit` | Audit log | Who changed what, in which role, why, when and from where, and **Download CSV** of the current filter (needs `export.create` as well) |
 | `/operations/dead-jobs` | Dead background jobs | Background jobs that ran out of attempts, and **Try again** for one more. The screen the dashboard's "dead background jobs" queue names; no menu entry |
@@ -12979,12 +12999,25 @@ which business they are negotiating with.
 
 ### The minimum, said three ways, and the first-use acknowledgement
 
+**What is inside the Preorder button.** Preorder is a filled brand-blue
+(`primary`) plate, 48px tall, in the product page's three-button row. Inside
+it, in order: a boxes icon, the word "Preorder", an (i) info icon and a chat
+icon. The two icons are 36px round targets laid over the plate as siblings
+(never buttons nested inside a button), so their clicks never reach Preorder.
+Both have an aria-label and a tooltip. The (i) opens the preorder information
+dialog; the chat icon opens the preorder chat drawer (see *Preorder chat*
+below); the rest of the plate starts the preorder. There is no separate chat
+square beside Preorder any more. Preorder is **not** disabled just because no
+option is chosen: pressing it points the caret at the missing choice, as Add
+to Cart does. It is disabled only when the server says preorder is unavailable
+or the account has no company.
+
 Three entry points on the product page, all in
 `components/preorder/PreorderButton.tsx`, all reading the ONE minimum from the
 eligibility answer (`eligibility.moq`) and all ending in the same request form
 through one function, `startPreorder`:
 
-- **The ⓘ** - a separate `<button>` laid over the right end of Preorder (a sibling, never nested), label
+- **The ⓘ** - a separate `<button>` laid over Preorder, after the word (a sibling, never nested), label
   *Preorder information*. Opens `PreorderInfoDialog`: a modal `<dialog>` placed
   as a popover beside the button from `sm` up and as a bottom sheet below it
   (`Modal`'s `placement="anchored"`; centred when the anchor is scrolled out of
@@ -13077,8 +13110,8 @@ ready.
 
 ### Screens
 
-- **Storefront.** The Preorder button on every product page, with the ⓘ inside
-  its right end, the *Ordering in bulk?* suggestion and the first-use note (above); the request form (a
+- **Storefront.** The Preorder button on every product page, with the ⓘ and
+  the chat icon inside it, the *Ordering in bulk?* suggestion and the first-use note (above); the request form (a
   modal) whose summary is the server's preview. The form opens on the quantity
   typed on the product page, rounded up to a whole unit and onto the seller's
   steps and capped at their maximum (`openingQuantity` in
@@ -13394,15 +13427,17 @@ that writes them.
 
 A buyer looking at a product often has a question before they are ready to send
 a preorder request - *"how many fit in a 40-ft container?"*, *"can you do
-20,000 by March?"*. A **chat icon** beside Preorder lets them ask the
+20,000 by March?"*. A **chat icon** inside the Preorder button lets them ask the
 **operator's own team**, live, and the team answers in the console's **Preorder
 Chats**.
 
-**The entry point is an icon, not a text button.** The product page's preorder
-row is `[ Preorder (i) ] [ chat icon ]`. The icon (speech bubbles) is a 48×48 px
-button directly right of the (i), as tall as Preorder. On a phone Preorder takes
-the rest of the row, and the row never wraps. There is no visible "Chat with …"
-text button any more; this icon is the only chat entry in that row.
+**The entry point is an icon, not a text button.** The Preorder button reads
+`[ boxes icon  Preorder  (i)  chat icon ]`. The chat icon (speech bubbles) is a
+36px round target laid over the right end of the 48px Preorder plate, as a
+sibling of Preorder, never nested in it, so pressing it opens the chat and
+never starts a preorder. The separate 48×48 px chat square that used to sit
+beside Preorder is gone. There is no visible "Chat with …" text button; this
+icon is the only chat entry on the product page's purchase row.
 
 - **Its name.** Screen readers hear *Chat with {marketplace}* - the operator's
   trading name (`{{marketplace}}` in the translations; *Chat with Gloviaa Mart* until
@@ -20396,12 +20431,12 @@ UBoss-Software/
 │   ├── components/ui/
 │   │   ├── carousel.tsx            The deck itself, knowing nothing of categories
 │   │   ├── background-gradient.tsx The glare behind a hovered product card
-│   │   ├── flip-words.tsx        The greeting headline's changing word
 │   │   ├── placeholders-and-vanish-input.tsx  Text that blows away when sent
 │   │   ├── vanish.ts            The particles, and the placeholder clock
 │   │   ├── sidebar.tsx          The rail that widens — the same file in all three apps
 │   │   └── sidebar-context.ts   What it knows about itself, and its row type
-│   ├── lib/brand.ts             The product's name, and the attribution under it
+│   ├── lib/brand.ts             The product's name, tagline and attribution
+│   ├── components/BrandName.tsx "Gloviaa" in script, "Mart" in Inter
 │   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
 │   ├── lib/camera.ts               The device camera, as one still photograph
 │   ├── components/ProductRow.tsx   A product as a listing row, with its specs
@@ -20449,7 +20484,8 @@ UBoss-Software/
 | Change how the individual purchase limit counts or who it binds | `domain/b2c-order-limit.ts` (the rule) and `modules/cart/b2c-limit.service.ts` (the locks and checks) |
 | Change a page's look | `apps/*/src/pages/` |
 | Change the product's name or its attribution | `lib/brand.ts` — one copy in each of the three apps, and all three change together |
-| Change the phrases the greeting alternates | `pages/HomePage.tsx` for which phrases and how long each is up, `components/ui/flip-words.tsx` for how one becomes the next |
+| Change the line under the greeting's tagline | `greeting.platformLine` in the eight `i18n/locales/*.json` files; `pages/HomePage.tsx` for where it sits |
+| Change how "Mart" is set beside "Gloviaa" | `components/BrandName.tsx` in the storefront, the `BrandName` in `layout/BrandLockup.tsx` in the admin console and the logistics portal |
 | Change how a sent question leaves the AI composer | `components/ui/vanish.ts` for the particles, `pages/ai/AiComposer.tsx` for where the canvas sits |
 | Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the lean and the specular, `.glare*` there and `components/ui/background-gradient.tsx` for the glow around it |
 | Change what a product ROW does on hover | the same files, but a row uses `.sheen` rather than `.tilt` — the highlight without the lean, because the listing is one sheet and a leaning row lifts off the divider above it |

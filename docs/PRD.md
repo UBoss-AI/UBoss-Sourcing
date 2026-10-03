@@ -20,7 +20,7 @@ retry with queue backoff and remain visible as operational job evidence.
 Reads have a 30-second deadline. LIVE-017 still needs staging outage evidence.
 
 **A self-hosted B2B sourcing and ordering platform.**
-Product name: **Gloviaa Mart** · Tagline: *The Way to the Global Sourcing* · Made by **UBOSS** ("Powered by UBOSS").
+Product name: **Gloviaa Mart** · Tagline: *Source with Intelligence | Deliver with Confidence* · Made by **UBOSS** ("Powered by UBOSS").
 Repository and internal name: **UBOSS / UBOSS Sourcing**.
 
 ---
@@ -245,9 +245,9 @@ gloves run the same code. See Appendix A for where older text still says
 
 | Name | What it is | Translated? |
 |---|---|---|
-| **Gloviaa Mart** | The product. Set in its own script face (Dancing Script Bold) where it is the brand | Never |
+| **Gloviaa Mart** | The product. Where it is the brand, "Gloviaa" is set in its own script face (Dancing Script Bold) and "Mart" in Inter at 0.62em, semibold, on the same baseline, like a parent brand naming a service. Plain text; it reads "Gloviaa Mart". A deployment with its own name is drawn in one face | Never |
 | **Gloviaa** | The one-word name. Used only where two words do not fit or do not belong: the label on the greeting page's globe, and the storefront header on a phone (under 640px). Never "Glovia", "Glovia Mart" or "Gloviaa Market" | Never |
-| **The Way to the Global Sourcing** | The product's tagline. Set in the same script face as the name (Dancing Script Bold), so the two look the same on every device | Never |
+| **Source with Intelligence \| Deliver with Confidence** | The product's tagline (it replaced "The Way to the Global Sourcing"). Set in the same script face as the name (Dancing Script Bold), so the two look the same on every device. Shown in the storefront header (from 1024px), the home hero, the About page heading, the admin rail and the logistics portal | Never |
 | **Powered by UBOSS** | The attribution, as small print | Never |
 | The operator's business name | Whoever runs the deployment (Settings → Business profile) | It is a name, not a string |
 
@@ -1420,6 +1420,16 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   switched off; the choice kept in the URL) or an **option list** where several
   options are bought at once, each with its own quantity.
 - **Acceptance criteria.** Availability is published as a **boolean per SKU**, never a quantity; "out of stock" is drawn differently from "not offered"; a sold-out option cannot be ticked.
+- **The purchase row.** From 640px up, **Add to Cart** (orange), **Schedule
+  your Cart** (teal) and **Preorder** (filled brand blue) always sit on one line
+  in a three-column grid (the Preorder column has a 12rem floor; in a narrow
+  column a label may wrap to two lines inside its 48px button). On a phone
+  they stack full width. Before an option is chosen all three stay in the row
+  and pressing any of them points the caret at the missing choice. With one
+  option chosen, Schedule your Cart links to `/schedules/new`; it is hidden
+  when recurring orders are off or the product cannot be bought. Preorder is
+  disabled only when the server says preorder is unavailable or the account
+  has no company. **Add instructions** (FR-CAT-009) sits directly under the row.
 - **Status.** Built.
 
 ### FR-CAT-005 — Pack count is not cart quantity
@@ -1463,7 +1473,22 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Statement.** A signed-in buyer can leave one standing instruction per
   product ("do you do this in 8 mm?") without buying. Every seller listing that
   product reads it in **Seller Hub → Buyer requests** (`/seller/instructions`).
-- **Rules.** Saving again replaces it; clearing withdraws it; never shown to other shoppers; read-only for sellers; scoped to products the seller lists.
+- **Where and how.** **Add instructions** sits directly under the product
+  page's row of Add to Cart, Schedule your Cart and Preorder. It opens a small
+  inline panel right under the control, not a modal (`role="dialog"`,
+  non-modal, named by its heading "Tell the seller what you need"): a text box
+  of at most 500 characters (enforced), a visible "used/500" counter, Save,
+  Cancel, a close (×) button, and Remove when an instruction exists. A guest is
+  sent to sign in.
+- **Rules.** Saving again replaces it; clearing (Remove) withdraws it; never shown to other shoppers; read-only for sellers; scoped to products the seller lists.
+- **Acceptance criteria.** Focus moves into the box on open and back to the
+  button on close; Escape closes it. Cancel and Escape discard the draft, so
+  reopening shows what is saved. Save trims leading and trailing spaces and is
+  disabled while saving (no double submit). A failed save keeps the panel open
+  with the words and shows an error in it. It uses the same API as before
+  (`GET`/`POST /account/product-instructions`, one standing instruction per
+  shopper per product and option); there is no new field. The cart line's own
+  "Special instructions" box is separate and unchanged.
 - **Status.** Built.
 
 ### FR-CAT-010 — Save for later (wishlist)
@@ -1870,13 +1895,26 @@ does not persist an unsaved image. No image URL or bytes enter the request URL.
 - **Rules.** A card never links somewhere the person cannot go. A feature this deployment has switched off shows a note instead of a link, to guests and customers alike: the public config reports `features.customerAutopay` (true only when `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on) and `features.customerErp` (`FEATURE_CUSTOMER_ERP`); a config without them counts as off. Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
 - **Status.** Built. Until 29 Sep 2026 the Autopay and ERP cards linked to their pages even when those features were off, which left the customer at a dead end.
 
-### FR-SRCH-010 — Verified suppliers on the home page
+### FR-SRCH-010 — Verified suppliers: the home-page sentence and the admin lists
 
-- **Statement.** The home page names the marketplace's verified suppliers and
-  says, in one sentence under the headline, what the marketplace offers.
-  `GET /api/v1/catalog/suppliers` (public, `limit` 1–24, optional `country`
-  and `slug`) lists them; each card opens `/products?seller={slug}`, and the
-  catalogue and its filter counts accept the same `seller` filter.
+- **Statement.** The home page says, in one sentence under the headline, what
+  the marketplace offers, naming verified suppliers only when there are some.
+  It no longer lists suppliers: the **Verified suppliers** and **Newly
+  verified suppliers** sections moved to the admin console's **Sellers**
+  screen. `GET /api/v1/catalog/suppliers` (public, `limit` 1–24, optional
+  `country` and `slug`) is unchanged and still feeds search, category pages
+  and supplier pages; the home page reads it with `limit=1` and no longer asks
+  for `sort=newest`. The catalogue and its filter counts accept the same
+  `seller` filter.
+- **Admin lists.** Under the application table, the Sellers screen shows
+  **Verified suppliers** (up to 24, longest-verified first; Supplier and slug,
+  Type, Registered in, Verified on, Live products; "Showing X of Y" when there
+  are more) and **Newly verified suppliers** (verified in the last 90 days,
+  newest first). Each has loading, empty and error (with retry) states, and a
+  row opens `/sellers/:id`. Both read `GET /api/v1/admin/sellers/verified`
+  (`customer.read`, the same as the Sellers queue; `limit` 1–24, default 24,
+  optional `sort=newest` and `q`). A guest gets 401, a buyer 401 or 403, and
+  staff without `customer.read` 403.
 - **Rules.**
   1. A supplier is listed only when the operator approved them
      (`APPROVED`, not suspended, not archived) **and** they have at least one
@@ -1884,15 +1922,16 @@ does not persist an unsaved image. No image URL or bytes enter the request URL.
      exactly that review; nothing else is claimed (no ratings, no rankings).
   2. A country is named ("from India") only when every verified supplier is
      registered in it, counted across all of them, not just the page shown.
-  3. With no verified suppliers the section is absent and the sentence is the
-     neutral "Everything your business orders, in one place".
+  3. With no verified suppliers the sentence is the neutral "Everything your
+     business orders, in one place", and the admin lists show their empty state.
   4. A seller's own shop front (a seller subdomain) gets an empty list: it
      never advertises other sellers.
-  5. The list exposes only the public name, slug, kind, country, approval
-     date, product count and logo — never the legal name or notes.
-- **Status.** Built (29 Sep 2026, checklist Master row 1). A supplier page of
-  its own (profile, factory, certifications) is Master row 5 and not built
-  yet; until then the card opens the filtered catalogue.
+  5. The public list exposes only the public name, slug, kind, country,
+     approval date, product count and logo — never the legal name or notes.
+     The admin list applies the same rule for "verified" and adds only
+     `sellerId`.
+- **Status.** Built. The home-page lists were built 29 Sep 2026 (checklist
+  Master row 1) and moved to the admin Sellers screen in October 2026.
 
 ### FR-SRCH-011 — Sourcing entry on a category page
 
@@ -2948,7 +2987,7 @@ Built. The review step has an unticked box: "I have read and agree to the Terms 
 
 ### FR-PRE-009 — The minimum, said before the buyer asks
 
-- **Statement.** Inside the right end of **Preorder** is a separate ⓘ button that opens *Bulk
+- **Statement.** Inside **Preorder**, after the word and before the chat icon, is a separate ⓘ button that opens *Bulk
   preorder information*: the product's minimum in its own unit, that the
   seller confirms quantity, price, availability and a committed date, and that
   a request charges nothing. When the quantity on the page reaches the minimum
@@ -3141,12 +3180,13 @@ and has no route that reads these conversations.
 
 ### FR-PCH-001 — A chat icon on every product
 
-- **Statement.** The product page's preorder row is `[ Preorder (i) ] [ chat
-  icon ]`. The chat entry is a 48×48 px icon button (speech bubbles) directly
-  right of the (i), as tall as Preorder, whether or not the product can be
-  preordered right now. It is the only chat entry in that row; there is no
-  visible "Chat with …" text button. On a phone Preorder takes the rest of the
-  row and the row does not wrap.
+- **Statement.** The Preorder button reads `[ boxes icon  Preorder  (i)  chat
+  icon ]`. The chat entry is a 36px round icon target (speech bubbles) laid
+  over the right end of the 48px Preorder plate, as a sibling of Preorder and
+  never nested in it, so pressing it opens the chat and never starts a
+  preorder. It is there whether or not the product can be preordered right
+  now. The separate chat square that used to sit beside Preorder is gone; there
+  is no visible "Chat with …" text button.
 - **Acceptance criteria.** Its accessible name is **Chat with {marketplace}**,
   the operator's own trading name (**Chat with Gloviaa Mart** until one is set), and
   **Chat with {marketplace}. Unread replies: N** when replies are unread. The

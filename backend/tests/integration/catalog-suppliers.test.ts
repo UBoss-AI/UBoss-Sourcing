@@ -24,8 +24,19 @@ import { buildApp } from '../../src/http/app.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { getBaseCurrency } from '../../src/modules/settings/currency.service.js';
+import {
+  asCustomer,
+  asStaff,
+  cleanUpOrderDesk,
+  customer,
+  staff,
+  type Session,
+  type StaffSession,
+} from '../support/order-desk-fixture.js';
 
 const PREFIX = 'supdir-';
+/** The admin route's sessions, cleaned up by `cleanUpOrderDesk`. */
+const TAG = 'supdir';
 const COUNTRY = 'ZW';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
@@ -132,6 +143,7 @@ async function cleanUp(): Promise<void> {
   await prisma.product.deleteMany({ where: { slug: { startsWith: PREFIX } } });
   await prisma.category.deleteMany({ where: { slug: `${PREFIX}category` } });
   await prisma.taxClass.deleteMany({ where: { code: 'SUPDIR' } });
+  await cleanUpOrderDesk(TAG);
 }
 
 beforeAll(async () => {
@@ -303,6 +315,68 @@ describe('GET /api/v1/catalog/products?seller=', () => {
       method: 'GET',
       url: '/api/v1/catalog/products?seller=%3Cscript%3E',
     });
+    expect(response.statusCode).toBe(400);
+  });
+});
+
+/*
+ * The same list, as the operator's Sellers screen reads it. It moved there
+ * from the storefront's home page, so this is the only place that shows the
+ * "Newly verified" cut, and it must be the operator's alone.
+ */
+describe('GET /api/v1/admin/sellers/verified', () => {
+  let owner: StaffSession;
+  let catalogue: StaffSession;
+  let buyer: Session;
+
+  beforeAll(async () => {
+    owner = await staff(app, TAG, 'desk', 'business_owner', '10.237.4.1');
+    // A real staff role without CUSTOMER_READ.
+    catalogue = await staff(app, TAG, 'catalog', 'catalog_manager', '10.237.4.2');
+    buyer = await customer(app, TAG, 'buyer', '10.237.4.3');
+  });
+
+  interface AdminSupplierResponse {
+    suppliers: { sellerId: string; slug: string; verifiedAt: string | null }[];
+    total: number;
+  }
+
+  it('lists the same verified suppliers as the catalogue, with the seller id', async () => {
+    const response = await asStaff(app, owner, 'GET', `/sellers/verified?q=Supdir`);
+    expect(response.statusCode, response.body).toBe(200);
+    const body = response.json<AdminSupplierResponse>();
+
+    expect(body.suppliers.map((row) => row.slug)).toEqual([`${PREFIX}older`, `${PREFIX}acme`]);
+    const acme = await prisma.sellerAccount.findUniqueOrThrow({
+      where: { slug: `${PREFIX}acme` },
+      select: { id: true },
+    });
+    expect(body.suppliers[1]?.sellerId).toBe(acme.id);
+    expect(response.headers['cache-control']).toBe('no-store');
+  });
+
+  it('sort=newest is the newly verified cut', async () => {
+    const response = await asStaff(app, owner, 'GET', `/sellers/verified?q=Supdir&sort=newest`);
+    expect(response.statusCode, response.body).toBe(200);
+    expect(response.json<AdminSupplierResponse>().suppliers.map((row) => row.slug)).toEqual([
+      `${PREFIX}acme`,
+    ]);
+  });
+
+  it('refuses staff without CUSTOMER_READ, a buyer and a guest', async () => {
+    const denied = await asStaff(app, catalogue, 'GET', '/sellers/verified');
+    expect(denied.statusCode).toBe(403);
+
+    const asBuyer = await asCustomer(app, buyer, 'GET', '/admin/sellers/verified');
+    expect([401, 403]).toContain(asBuyer.statusCode);
+    expect(asBuyer.body).not.toContain(PREFIX);
+
+    const guest = await app.inject({ method: 'GET', url: '/api/v1/admin/sellers/verified' });
+    expect(guest.statusCode).toBe(401);
+  });
+
+  it.each([['limit=0'], ['limit=25'], ['sort=oldest']])('refuses %s', async (query) => {
+    const response = await asStaff(app, owner, 'GET', `/sellers/verified?${query}`);
     expect(response.statusCode).toBe(400);
   });
 });

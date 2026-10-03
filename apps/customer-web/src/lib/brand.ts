@@ -8,8 +8,9 @@
  *     Mart, and `PRODUCT_SHORT_NAME` — Gloviaa — is the same name where there
  *     is room for one word only. It is not a per-deployment setting, because a buyer does not get to rename the
  *     product they licensed any more than they get to rename their browser.
- *   - **`PRODUCT_TAGLINE` is what it says under its name.** `The Way to the
- *     Global Sourcing`, beside the wordmark wherever the wordmark is shown.
+ *   - **`PRODUCT_TAGLINE` is what it says under its name.** `Source with
+ *     Intelligence | Deliver with Confidence`, beside the wordmark wherever
+ *     the wordmark is shown: the header, the home page's hero and About.
  *   - **`PARENT_ATTRIBUTION` is who makes it.** UBOSS. It appears verbatim, as
  *     small print — the storefront's footer, the console's sign-in screens.
  *
@@ -30,9 +31,9 @@
  * WHY THESE ARE CONSTANTS AND NOT TRANSLATION KEYS
  *
  * A name is not a string to translate; it is a fact, and a slogan is a brand
- * asset rather than a sentence. The greeting's moving line under it —
- * `greeting.taglineSource` and `greeting.taglineDeliver` — *is* prose and *is*
- * translated, which is exactly the line this draws.
+ * asset rather than a sentence. The greeting's platform line under it —
+ * `greeting.platformLine` — *is* prose and *is* translated, which is exactly
+ * the line this draws.
  * `Powered by UBOSS` is a fixed attribution lockup rather than a sentence, so
  * it reads identically in all eight languages — one spelling, one
  * capitalisation, nothing for a translator to drift. `scripts/check-i18n.mjs`
@@ -64,10 +65,11 @@ export const PRODUCT_SHORT_NAME = 'Gloviaa';
 /**
  * The line under the wordmark. The product's slogan, written once, in English,
  * in every language — a tagline is a brand asset rather than a sentence to
- * translate, for the same reason the name is. Never `The way to the global sourcing`,
- * never `The Way To The Global Sourcing`; any uppercasing is CSS.
+ * translate, for the same reason the name is. Owner-approved, exactly: the
+ * capitals and the vertical bar are part of it. It replaced `The Way to the
+ * Global Sourcing`, which must not come back; any uppercasing is CSS.
  */
-export const PRODUCT_TAGLINE = 'The Way to the Global Sourcing';
+export const PRODUCT_TAGLINE = 'Source with Intelligence | Deliver with Confidence';
 
 /**
  * The company behind it. Never `Power by UBOSS`, never `Powered By Uboss`.

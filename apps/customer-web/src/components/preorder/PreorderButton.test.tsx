@@ -302,26 +302,81 @@ describe('PreorderButton', () => {
 
   // --- 1-3. The i beside Preorder ------------------------------------------------
 
-  it('lays out [ Preorder (i) ] [ chat ] as separate, labelled buttons', async () => {
+  it('lays out [ Preorder (i) (chat) ] on one plate, as separate, labelled buttons', async () => {
     stubApi(AVAILABLE, viewer());
     renderPage();
 
     const preorder = await preorderButton();
     const info = infoButton();
-    // The i sits over Preorder's right end, but as a sibling, never nested: a
-    // button inside a button is invalid and unusable.
-    expect(preorder.contains(info)).toBe(false);
-    expect(info.contains(preorder)).toBe(false);
-    expect(preorder.nextElementSibling).toBe(info);
     const chat = screen.getByRole('button', { name: 'Chat with Gloviaa Mart' });
+    const plate = preorder.parentElement as HTMLElement;
+    // Both icons sit over Preorder's right end, inside the same wrapper, but
+    // as siblings, never nested: a button inside a button is invalid.
+    expect(plate.contains(info)).toBe(true);
+    expect(plate.contains(chat)).toBe(true);
+    expect(preorder.contains(info)).toBe(false);
+    expect(preorder.contains(chat)).toBe(false);
+    // In order: Preorder, then the i, then the chat.
+    expect(preorder.compareDocumentPosition(info) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(info.compareDocumentPosition(chat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(chat.contains(info)).toBe(false);
+    // Branded: a filled plate, not the grey bordered secondary it was.
+    expect(preorder.className).toContain('bg-brand-fill');
+    // Both icons are described by a tooltip as well as named.
+    expect(info).toHaveAccessibleDescription('Preorder information');
     // One way into the chat from this row, and it is the icon: no visible
     // "Chat with Gloviaa Mart" text button beside it any more.
     expect(screen.getAllByRole('button', { name: /chat with/i })).toHaveLength(1);
     expect(screen.queryByText('Chat with Gloviaa Mart')).toBeNull();
     expect(info).toHaveAttribute('aria-haspopup', 'dialog');
     expect(info).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('sends each click to its own target and nowhere else', async () => {
+    stubApi(
+      AVAILABLE,
+      viewer({ preorderInfo: { policyVersion: 'PREORDER_INFO_V1', acknowledged: true } }),
+    );
+    renderPage();
+    const preorder = await preorderButton();
+
+    // The i: the information, not the form.
+    fireEvent.click(infoButton());
+    const info = await screen.findByRole('dialog', { name: 'Bulk preorder information' });
+    expect(screen.queryByText('Request a bulk preorder')).toBeNull();
+    fireEvent(info, new Event('cancel', { cancelable: true }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    // The chat icon is checked in ChatWithUbossButton.test.tsx, where the
+    // chat API is stubbed.
+
+    // Preorder itself: the form.
+    fireEvent.click(preorder);
+    expect(await screen.findByText('Request a bulk preorder')).toBeInTheDocument();
+  });
+
+  it('is live before an option is chosen when the page can point at it', () => {
+    stubApi(AVAILABLE, viewer());
+    const onNotReady = vi.fn();
+    renderWithProviders(
+      <PreorderButton
+        productId="01PRODUCT00000000000000000"
+        productName="Examination gloves"
+        imageUrl={null}
+        variantId={null}
+        variantName={null}
+        isReady={false}
+        onNotReady={onNotReady}
+      />,
+      { session: makeSession() },
+    );
+
+    const preorder = screen.getByRole('button', { name: /^preorder$/i });
+    expect(preorder).toBeEnabled();
+    fireEvent.click(preorder);
+    expect(onNotReady).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('opens the product’s own minimum from the i, and closes on Escape with focus back', async () => {

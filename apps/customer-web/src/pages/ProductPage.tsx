@@ -1313,6 +1313,15 @@ export function ProductPage(): React.JSX.Element {
   const isReady = chosenLines.length > 0;
 
   /**
+   * Any of the three ways to buy, pressed before the choice is complete: put
+   * the caret on the first missing choice, and the line under the row says
+   * which. Shared so all three answer "why can't I?" the same way.
+   */
+  const pointAtMissingChoice = (): void => {
+    setFocusAxisKey(resolution?.missingAxisKeys[0] ?? null);
+  };
+
+  /**
    * The rules the quantity control enforces.
    *
    * The chosen size's own where it has them, the product's otherwise. A pallet
@@ -2211,7 +2220,17 @@ export function ProductPage(): React.JSX.Element {
 
               {isCustomer ? (
                 <div className="space-y-2.5">
-                  <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+                  {/*
+                   * The three ways to buy, always on one line from `sm` up:
+                   * Add to Cart (orange), Schedule your Cart (teal), Preorder
+                   * (blue). A three-column grid rather than a wrapping row, so
+                   * the line never breaks: the columns share the width, and
+                   * Preorder's has a floor for its label and its two icons.
+                   * In a narrow column a label may take two lines inside its
+                   * button; every button stays 48 px tall. One column on a
+                   * phone, every button full width.
+                   */}
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(12rem,1.15fr)] sm:items-start sm:gap-2">
                     {/* Priced on request has no basket path at all - there
                         is no figure to charge - so the button is replaced
                         rather than disabled. A greyed-out Add to Cart invites
@@ -2227,7 +2246,7 @@ export function ProductPage(): React.JSX.Element {
                           href={quoteHref}
                           variant="action"
                           size="lg"
-                          className="w-full sm:w-auto"
+                          className="w-full text-center sm:min-w-0 sm:whitespace-normal sm:px-3 sm:text-[0.9375rem] sm:leading-tight"
                         >
                           {t('product.requestAQuote')}
                         </ButtonAnchor>
@@ -2252,8 +2271,7 @@ export function ProductPage(): React.JSX.Element {
                         isLoading={addToCart.isPending}
                         onClick={() => {
                           if (isGuided && !isReady) {
-                            const missing = resolution?.missingAxisKeys[0] ?? null;
-                            setFocusAxisKey(missing);
+                            pointAtMissingChoice();
                             return;
                           }
                           // Over the individual limit: the dialog, not a
@@ -2266,7 +2284,7 @@ export function ProductPage(): React.JSX.Element {
                         }}
                         // Full width on a phone, where a half-width primary
                         // action beside nothing reads as unfinished.
-                        className="w-full sm:w-auto"
+                        className="w-full text-center sm:min-w-0 sm:whitespace-normal sm:px-3 sm:text-[0.9375rem] sm:leading-tight"
                       >
                         {chosenLines.length > 1
                           ? t('product.addOptionsToCart', {
@@ -2276,20 +2294,36 @@ export function ProductPage(): React.JSX.Element {
                       </Button>
                     )}
 
-                    {canBuy && canSchedule && scheduleLine !== undefined && (
+                    {canBuy && canSchedule && (
                       // Teal, beside the orange Add to Cart: two real choices,
                       // each visibly its own kind of commitment, and neither
                       // mistakable for the other.
-                      <ButtonLink
-                        to={`/schedules/new?productId=${product.id}&quantity=${String(scheduleLine.quantity)}${
-                          scheduleLine.variantId === null ? '' : `&variantId=${scheduleLine.variantId}`
-                        }`}
-                        variant="operational"
-                        size="lg"
-                        className="w-full sm:w-auto"
-                      >
-                        {t('product.setUpARepeatPurchase')}
-                      </ButtonLink>
+                      //
+                      // Before exactly one option is chosen there is no line
+                      // to schedule yet. It stays in the row, live, and points
+                      // at the missing choice the way Add to Cart does, rather
+                      // than leaving a gap where the second way to buy goes.
+                      scheduleLine !== undefined ? (
+                        <ButtonLink
+                          to={`/schedules/new?productId=${product.id}&quantity=${String(scheduleLine.quantity)}${
+                            scheduleLine.variantId === null ? '' : `&variantId=${scheduleLine.variantId}`
+                          }`}
+                          variant="operational"
+                          size="lg"
+                          className="w-full text-center sm:min-w-0 sm:whitespace-normal sm:px-3 sm:text-[0.9375rem] sm:leading-tight"
+                        >
+                          {t('product.setUpARepeatPurchase')}
+                        </ButtonLink>
+                      ) : (
+                        <Button
+                          variant="operational"
+                          size="lg"
+                          className="w-full text-center sm:min-w-0 sm:whitespace-normal sm:px-3 sm:text-[0.9375rem] sm:leading-tight"
+                          onClick={pointAtMissingChoice}
+                        >
+                          {t('product.setUpARepeatPurchase')}
+                        </Button>
+                      )
                     )}
 
                     {/*
@@ -2344,17 +2378,22 @@ export function ProductPage(): React.JSX.Element {
                       // product's own ordering rules, and the server applies
                       // the same rules to the cart.
                       regularOrderAllowed={canBuy && !isPriceOnRequest}
-                      className="w-full sm:w-auto"
-                    />
-                    <ProductInstructionsButton
-                      productId={product.id}
-                      productName={product.name}
-                      variantId={scheduleLine?.variantId ?? null}
-                      size="lg"
-                      variant="secondary"
-                      className="w-full sm:w-auto"
+                      onNotReady={pointAtMissingChoice}
+                      className="min-w-0"
                     />
                   </div>
+
+                  {/* Under the three ways to buy, not among them: a question
+                      for the seller is not a fourth way to buy. It opens a
+                      small panel right here. */}
+                  <ProductInstructionsButton
+                    productId={product.id}
+                    productName={product.name}
+                    variantId={scheduleLine?.variantId ?? null}
+                    size="lg"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                  />
 
                   {!isReady && (
                     <p className="text-sm text-ink-muted">
@@ -2485,7 +2524,8 @@ export function ProductPage(): React.JSX.Element {
                       // the stock prompt says the same and more.
                       blocked={quantityDecision.dialog !== null || quantityDecision.overStockNow}
                       onDialogChange={setPreorderDialogOpen}
-                      className="w-full sm:w-auto"
+                      onNotReady={pointAtMissingChoice}
+                      className="w-full sm:w-72"
                     />
                   </div>
                 </div>

@@ -1,12 +1,17 @@
 /**
- * The home page's verified suppliers, and the sentence under the headline.
+ * The sentence under the home page's headline, and the supplier lists that are
+ * no longer on the page.
  *
  * The rule under test is the one that keeps the page honest on every
  * deployment: **a claim about suppliers appears only when the API says there
  * are suppliers to make it about**, and a country is named only when every
  * verified supplier is registered there.
+ *
+ * "Verified suppliers" and "Newly verified suppliers" moved to the admin
+ * console's Sellers screen. The storefront must show neither, and must not
+ * spend a request on either.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HomePage } from '@/pages/HomePage';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
@@ -81,18 +86,19 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('verified suppliers on the home page', () => {
+describe('the value proposition on the home page', () => {
   it('names the country when every verified supplier is registered there', async () => {
     serve({
-      suppliers: [supplier(), supplier({ slug: 'bharat-tools', displayName: 'Bharat Tools' })],
+      suppliers: [supplier()],
       countries: [{ country: 'IN', count: 2 }],
       total: 2,
     });
     renderHome();
 
-    const section = await screen.findByRole('region', { name: 'Verified suppliers from India' });
-    expect(within(section).getByText(/reviewed and approved by/)).toBeInTheDocument();
-    expect(await screen.findByTestId('value-proposition')).toHaveTextContent(
+    await waitFor(() => {
+      expect(screen.getByTestId('value-proposition')).toHaveTextContent(/in India/);
+    });
+    expect(screen.getByTestId('value-proposition')).toHaveTextContent(
       'Source direct from verified suppliers in India, priced in your currency and ordered online.',
     );
   });
@@ -108,32 +114,27 @@ describe('verified suppliers on the home page', () => {
     });
     renderHome();
 
-    expect(await screen.findByRole('region', { name: 'Verified suppliers' })).toBeInTheDocument();
-    expect(await screen.findByTestId('value-proposition')).toHaveTextContent(
-      'Source direct from verified suppliers, priced in your currency and ordered online.',
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('value-proposition')).toHaveTextContent(
+        'Source direct from verified suppliers, priced in your currency and ordered online.',
+      );
+    });
   });
 
-  it('each card opens the catalogue filtered to that supplier and says what it knows', async () => {
+  it('shows no verified-supplier section and no supplier cards, even with suppliers', async () => {
     serve({
-      suppliers: [supplier(), supplier({ slug: 'older-co', displayName: 'Older Co', verifiedAt: null, productCount: 1, kind: 'WHOLESALER' })],
+      suppliers: [supplier(), supplier({ slug: 'older-co', displayName: 'Older Co' })],
       countries: [{ country: 'IN', count: 2 }],
       total: 2,
     });
     renderHome();
+    await suppliersSettled();
 
-    const acme = await screen.findByRole('link', { name: /Acme Industries/ });
-    expect(acme).toHaveAttribute('href', '/suppliers/acme-industries');
-    expect(acme).toHaveTextContent('Manufacturer · India');
-    expect(acme).toHaveTextContent('Verified since January 2026');
-    expect(acme).toHaveTextContent('12 products');
-
-    // No approval date recorded: it says verified, and never invents a date.
-    const older = screen.getByRole('link', { name: /Older Co/ });
-    expect(older).toHaveTextContent('Wholesaler · India');
-    expect(older).toHaveTextContent('Verified by');
-    expect(older).not.toHaveTextContent('since');
-    expect(older).toHaveTextContent('1 product');
+    expect(screen.queryByRole('region', { name: /Verified suppliers/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: /Newly verified suppliers/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /verified suppliers/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Acme Industries')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Older Co/ })).not.toBeInTheDocument();
   });
 
   it('says nothing about suppliers when there are none', async () => {
@@ -176,7 +177,9 @@ describe('verified suppliers on the home page', () => {
   it('keeps the hidden wordings away from screen readers', async () => {
     serve({ suppliers: [supplier()], countries: [{ country: 'IN', count: 1 }], total: 1 });
     renderHome();
-    await screen.findByRole('region', { name: 'Verified suppliers from India' });
+    await waitFor(() => {
+      expect(screen.getByTestId('value-proposition')).toHaveTextContent(/in India/);
+    });
 
     const shown = screen.getByTestId('value-proposition');
     const line = shown.parentElement;
@@ -187,14 +190,14 @@ describe('verified suppliers on the home page', () => {
     expect(shown).not.toHaveAttribute('aria-hidden');
   });
 
-  it('asks for the suppliers once, however many parts of the page use them', async () => {
+  it('asks for one supplier, once, and never for the newest-suppliers list', async () => {
     serve({ suppliers: [supplier()], countries: [{ country: 'IN', count: 1 }], total: 1 });
     renderHome();
+    await suppliersSettled();
 
-    await screen.findByRole('region', { name: 'Verified suppliers from India' });
-    const reads = fetchMock.mock.calls.filter((call) => String(call[0]).includes('/catalog/suppliers') && !String(call[0]).includes('sort=newest'),
-    );
+    const reads = fetchMock.mock.calls.filter((call) => String(call[0]).includes('/catalog/suppliers'));
     expect(reads).toHaveLength(1);
-    expect(String(reads[0]?.[0])).toContain('limit=8');
+    expect(String(reads[0]?.[0])).toContain('limit=1');
+    expect(String(reads[0]?.[0])).not.toContain('sort=newest');
   });
 });

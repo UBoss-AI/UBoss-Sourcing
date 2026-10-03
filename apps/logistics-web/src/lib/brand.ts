@@ -56,10 +56,11 @@ export const PRODUCT_SHORT_NAME = 'Gloviaa';
 /**
  * The line under the wordmark. The product's slogan, written once, in English,
  * in every language — a tagline is a brand asset rather than a sentence to
- * translate, for the same reason the name is. Never `The way to the global sourcing`,
- * never `The Way To The Global Sourcing`; any uppercasing is CSS.
+ * translate, for the same reason the name is. Owner-approved, exactly: the
+ * capitals and the vertical bar are part of it. It replaced `The Way to the
+ * Global Sourcing`, which must not come back; any uppercasing is CSS.
  */
-export const PRODUCT_TAGLINE = 'The Way to the Global Sourcing';
+export const PRODUCT_TAGLINE = 'Source with Intelligence | Deliver with Confidence';
 
 /**
  * The company behind it. Never `Power by UBOSS`, never `Powered By Uboss`.

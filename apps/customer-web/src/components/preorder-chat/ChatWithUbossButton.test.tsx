@@ -270,7 +270,7 @@ afterEach(() => {
 });
 
 describe('Chat with UBOSS', () => {
-  it('sits beside Preorder as an icon, named and with an accessible tooltip', async () => {
+  it('sits inside Preorder as an icon, named and with an accessible tooltip', async () => {
     stubApi();
     renderButton();
     const chat = await screen.findByRole('button', { name: 'Chat with Gloviaa Mart' });
@@ -279,12 +279,25 @@ describe('Chat with UBOSS', () => {
     // The tooltip describes it, for hover and for keyboard focus alike.
     expect(chat).toHaveAccessibleDescription('Ask Gloviaa Mart about this preorder');
     fireEvent.focus(chat);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Ask Gloviaa Mart about this preorder');
-    // A 48 px target, past the 44 px minimum.
-    expect(chat).toHaveClass('size-12');
-    expect(screen.getByRole('button', { name: /^preorder$/i })).toBeInTheDocument();
+    expect(screen.getByText('Ask Gloviaa Mart about this preorder')).toHaveAttribute('role', 'tooltip');
+    // A 36 px round target on Preorder's 48 px plate, the (i)'s size.
+    expect(chat).toHaveClass('size-9');
+    const preorder = screen.getByRole('button', { name: /^preorder$/i });
+    // Inside the plate's bounds: in the same wrapper as Preorder, never in it.
+    expect(preorder.parentElement?.contains(chat)).toBe(true);
+    expect(preorder.contains(chat)).toBe(false);
     // Preorder is off for this product; the chat is still there to ask why.
     expect(chat).toBeEnabled();
+  });
+
+  it('opens only the chat, never the preorder information or form', async () => {
+    stubApi();
+    renderButton();
+    fireEvent.click(await screen.findByRole('button', { name: 'Chat with Gloviaa Mart' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Bulk preorder information' })).toBeNull();
+    expect(screen.queryByText('Request a bulk preorder')).toBeNull();
   });
 
   it('shows how many replies about this product are unread, counted by the server', async () => {

@@ -15,6 +15,22 @@
  *   - A signed-in account with no company: disabled, with a link to add one.
  *     Preorders are a negotiation with a business.
  *
+ * ONE PLATE, THREE TARGETS
+ *
+ * [ boxes  Preorder  (i)  (chat) ] - one filled, brand-blue plate, beside the
+ * orange Add to Cart and the teal Schedule your Cart, so each of the three
+ * ways to buy has its own colour. The (i) opens how preorders work; the chat
+ * opens the preorder chat; everywhere else on the plate starts a preorder.
+ * The two icons are siblings laid over the button, never buttons inside it:
+ * nested buttons are invalid HTML, and a disabled Preorder would swallow their
+ * clicks. Being siblings is also why neither needs `stopPropagation` - a click
+ * on them never reaches Preorder at all.
+ *
+ * Waiting for an option is not "unavailable". With `onNotReady`, Preorder is
+ * live before an option is chosen and pressing it asks the page to point at
+ * the missing choice, the way Add to Cart does. It is disabled only when the
+ * server says it cannot be preordered, or the account cannot.
+ *
  * THREE WAYS IN, ONE WAY THROUGH
  *
  * The circular i inside its right end, the "Ordering in bulk?" suggestion when the
@@ -33,6 +49,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui';
+import { Tooltip } from '@/components/Tooltip';
 import { useSession } from '@/auth/session-context';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
@@ -100,6 +117,12 @@ export interface PreorderButtonProps {
   blocked?: boolean;
   /** Told whenever one of this component's dialogs opens or closes. */
   onDialogChange?: (open: boolean) => void;
+  /**
+   * Pressed before an option is chosen. With this, Preorder stays live while
+   * `isReady` is false and the page points at what is missing; without it,
+   * Preorder waits disabled for the choice, as it always did.
+   */
+  onNotReady?: () => void;
   className?: string;
 }
 
@@ -119,6 +142,7 @@ export function PreorderButton({
   onStockPromptClose,
   blocked = false,
   onDialogChange,
+  onNotReady,
   className,
 }: PreorderButtonProps): React.JSX.Element {
   const { t } = useI18n();
@@ -385,7 +409,9 @@ export function PreorderButton({
     reviewProposal(conversationParam, proposalParam);
   }, [proposalParam, conversationParam, isCustomer, canPreorder, searchParams, setSearchParams, reviewProposal]);
 
-  const disabled = !isReady || eligibility.isPending || !available || needsBusiness;
+  const disabled = isReady
+    ? eligibility.isPending || !available || needsBusiness
+    : onNotReady === undefined;
 
   let reason: React.ReactNode = null;
   if (!isReady) reason = t('preorder.chooseOptionFirst');
@@ -419,53 +445,57 @@ export function PreorderButton({
 
   return (
     <div className={className}>
-      {/* [ Preorder  (i) ] [ chat ] - the i sits inside the right end of
-          Preorder, but it is a sibling laid over it, never a button inside a
-          button: nested buttons are invalid HTML, and a disabled Preorder
-          would swallow its clicks. The i stays whenever Preorder is shown,
-          enabled or not: the information is most useful to the buyer
-          wondering why it is off. The chat is there either way, for the same
-          reason - an icon now, the same height as Preorder, directly to the
-          right of the i. Preorder takes the rest of the row on a phone. */}
-      <div className="flex items-stretch gap-1.5">
-        <div className="relative flex min-w-0 flex-1 sm:flex-none">
-          <Button
-            ref={preorderButtonRef}
-            size="lg"
-            variant="secondary"
-            disabled={disabled}
-            isLoading={isReady && eligibility.isPending}
-            aria-describedby={reason === null ? undefined : reasonId}
-            className="w-full min-w-0 pr-14"
-            onClick={(event) => {
-              startPreorder(event.currentTarget);
-            }}
-          >
-            <BoxesIcon />
-            {t('preorder.button')}
-          </Button>
-          <button
-            type="button"
-            aria-label={t('preorderInfo.iconLabel')}
-            aria-haspopup="dialog"
-            aria-expanded={panel === 'info'}
-            title={t('preorderInfo.iconLabel')}
-            onClick={(event) => {
-              anchorRef.current = event.currentTarget;
-              setPanel('info');
-              emitPreorderEvent('preorder_info_opened', { productId, variantId });
-            }}
-            className="absolute right-1.5 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand"
-          >
-            <InfoIcon />
-          </button>
+      {/* [ boxes Preorder (i) (chat) ] - both icons inside the plate's right
+          end, laid over it as siblings (see the header). They stay whenever
+          Preorder is shown, enabled or not: the information and the chat are
+          most useful to the buyer wondering why it is off. The padding keeps the
+          label clear of them (`pr-20`: two 36 px icons and their gap). Preorder
+          takes the whole row on a phone. */}
+      <div className="relative flex min-w-0">
+        <Button
+          ref={preorderButtonRef}
+          size="lg"
+          variant="primary"
+          disabled={disabled}
+          isLoading={isReady && eligibility.isPending}
+          aria-describedby={reason === null ? undefined : reasonId}
+          className="w-full min-w-0 justify-start gap-1.5 whitespace-nowrap pl-3 pr-20 sm:text-[0.9375rem]"
+          onClick={(event) => {
+            if (!isReady) {
+              onNotReady?.();
+              return;
+            }
+            startPreorder(event.currentTarget);
+          }}
+        >
+          <BoxesIcon />
+          {t('preorder.button')}
+        </Button>
+        <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
+          <Tooltip label={t('preorderInfo.iconLabel')} align="end">
+            <button
+              type="button"
+              aria-label={t('preorderInfo.iconLabel')}
+              aria-haspopup="dialog"
+              aria-expanded={panel === 'info'}
+              onClick={(event) => {
+                anchorRef.current = event.currentTarget;
+                setPanel('info');
+                emitPreorderEvent('preorder_info_opened', { productId, variantId });
+              }}
+              className="inline-flex size-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-white"
+            >
+              <InfoIcon />
+            </button>
+          </Tooltip>
+          <ChatWithUbossButton
+            productId={productId}
+            variantId={variantId}
+            pieces={pieces}
+            onReviewProposal={reviewProposal}
+            appearance="inset"
+          />
         </div>
-        <ChatWithUbossButton
-          productId={productId}
-          variantId={variantId}
-          pieces={pieces}
-          onReviewProposal={reviewProposal}
-        />
       </div>
 
       {reason !== null && (

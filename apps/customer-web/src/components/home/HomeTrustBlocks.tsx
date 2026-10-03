@@ -1,11 +1,7 @@
 /**
- * Three home-page blocks that each say something true about THIS deployment,
+ * Two home-page blocks that each say something true about THIS deployment,
  * and vanish when there is nothing true to say:
  *
- *   - **Newly verified suppliers** - approved by the operator in the last 90
- *     days. Read from the same list as the verified-suppliers section, sorted
- *     newest first; a supplier approved before the date was recorded is never
- *     called new.
  *   - **How buying here is protected** - a short read of `GET /catalog/assurance`,
  *     the same facts the assurance page shows, each line only when the setting
  *     behind it is on.
@@ -15,59 +11,18 @@
  *
  * Every block renders nothing while loading and nothing on an error, so a
  * shopper never sees a heading that is then withdrawn.
+ *
+ * "Newly verified suppliers" used to be a third block here. It is on the admin
+ * console's Sellers screen now, beside the full verified-supplier list.
  */
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ShieldIcon } from '@/components/icons';
-import { SupplierCard } from '@/components/home/VerifiedSuppliers';
 import { useLocale } from '@/app/locale-context';
 import { api } from '@/lib/api';
 import { formatDays } from '@/lib/duration';
 import { countryName } from '@/lib/iso-countries';
-import type { SupplierListResponse } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
-
-/** How recent "newly verified" means. */
-export const NEW_SUPPLIER_DAYS = 90;
-const NEW_SUPPLIER_LIMIT = 4;
-
-export function NewlyVerifiedSuppliers(): React.JSX.Element | null {
-  const { t } = useI18n();
-  const query = useQuery({
-    queryKey: ['verified-suppliers', 'newest', NEW_SUPPLIER_LIMIT],
-    queryFn: () =>
-      api.get<SupplierListResponse>('/catalog/suppliers', {
-        query: { sort: 'newest', limit: NEW_SUPPLIER_LIMIT },
-      }),
-    staleTime: 5 * 60_000,
-    retry: false,
-  });
-
-  if (!query.isSuccess) return null;
-  const cutoff = Date.now() - NEW_SUPPLIER_DAYS * 86_400_000;
-  const suppliers = (Array.isArray(query.data.suppliers) ? query.data.suppliers : []).filter(
-    (supplier) => supplier.verifiedAt !== null && new Date(supplier.verifiedAt).getTime() >= cutoff,
-  );
-  if (suppliers.length === 0) return null;
-
-  return (
-    <section aria-labelledby="new-suppliers" className="mb-12">
-      <header className="mb-4">
-        <h2 id="new-suppliers" className="text-title-lg text-ink">
-          {t('home.newSuppliersTitle')}
-        </h2>
-        <p className="mt-1 max-w-prose text-sm text-ink-muted">{t('home.newSuppliersBlurb')}</p>
-      </header>
-      <ul className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">
-        {suppliers.map((supplier) => (
-          <li key={supplier.slug}>
-            <SupplierCard supplier={supplier} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 interface AssuranceFacts {
   verifiedSuppliers?: number;

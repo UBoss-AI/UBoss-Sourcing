@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1369 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1370 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 557 |
+| [Admin panel (staff)](#admin-panel-staff) | 558 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 343 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -1011,6 +1011,7 @@ Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/admin/sellers` | Staff | Admin(CUSTOMER_READ) | List seller applications a page at a time, filtered by status or searched by business name. |
+| GET | `/api/v1/admin/sellers/verified` | Staff | Admin(CUSTOMER_READ) | Verified suppliers - approved, not suspended, with something live to sell - for the Sellers screen. `sort=newest` is most recently verified first. |
 | GET | `/api/v1/admin/sellers/:id` | Staff | Admin(CUSTOMER_READ) | One seller application in full, including internal notes the seller never sees. |
 | GET | `/api/v1/admin/sellers/:id/insight` | Staff | Admin(CUSTOMER_READ) | How this seller is doing, and where its goods are. |
 | GET | `/api/v1/admin/sellers/:id/access-review` | Staff | Admin(CUSTOMER_READ) | Who can act for this seller, read-only: each member's role, when they joined, who invited them, when they last signed in and used the Hub, the open invitations and the recent access reviews. |

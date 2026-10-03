@@ -48,6 +48,15 @@ export interface VerifiedSupplier {
   logoUrl: string | null;
 }
 
+/**
+ * The same supplier as the operator's console sees it: the seller account's id
+ * as well, so a row can open that seller's record. Never sent by the public
+ * catalogue, which has no business handing out internal identifiers.
+ */
+export interface AdminVerifiedSupplier extends VerifiedSupplier {
+  sellerId: string;
+}
+
 export interface SupplierListQuery {
   limit: number;
   /** Only suppliers registered in this country. */
@@ -69,8 +78,8 @@ export interface SupplierListQuery {
   sort?: 'newest' | undefined;
 }
 
-export interface SupplierListResult {
-  suppliers: VerifiedSupplier[];
+export interface SupplierListResult<T extends VerifiedSupplier = VerifiedSupplier> {
+  suppliers: T[];
   /**
    * Every verified supplier's country, with how many there are, whatever the
    * `limit`. The home page uses it to say "from India" only when that is true
@@ -101,6 +110,26 @@ export function verifiedSupplierWhere(): Prisma.SellerAccountWhereInput {
 export async function listVerifiedSuppliers(
   query: SupplierListQuery,
 ): Promise<SupplierListResult> {
+  const result = await listSuppliers(query);
+  return {
+    ...result,
+    suppliers: result.suppliers.map(({ sellerId: _sellerId, ...supplier }) => supplier),
+  };
+}
+
+/**
+ * The operator's view of the same list: exactly the public rule for "verified",
+ * plus the seller id. Only an admin route may call this.
+ */
+export function listVerifiedSuppliersForAdmin(
+  query: SupplierListQuery,
+): Promise<SupplierListResult<AdminVerifiedSupplier>> {
+  return listSuppliers(query);
+}
+
+async function listSuppliers(
+  query: SupplierListQuery,
+): Promise<SupplierListResult<AdminVerifiedSupplier>> {
   const base = verifiedSupplierWhere();
   const where: Prisma.SellerAccountWhereInput = {
     ...base,
@@ -167,6 +196,7 @@ export async function listVerifiedSuppliers(
 
   return {
     suppliers: rows.map((row) => ({
+      sellerId: row.id,
       slug: row.slug,
       displayName: row.displayName,
       kind: row.kind,

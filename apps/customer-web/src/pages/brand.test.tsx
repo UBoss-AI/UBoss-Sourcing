@@ -5,10 +5,10 @@
  * make the name move: a shop's name with one word cycling after it — Sourcing,
  * Intelligence, Optimism, Innovation — so the headline read "UBOSS Sourcing",
  * then "UBOSS Intelligence", then "UBOSS Optimism". The product is Gloviaa Mart now
- * and the headline does not rotate at all. What rotates is the line beneath
- * the static tagline under it, between "Source with Intelligence" and
- * "Deliver with Confidence", which are two complete thoughts rather than two
- * spellings of a name.
+ * and nothing on the hero rotates any more. The line under the name is the
+ * approved strapline, "Source with Intelligence | Deliver with Confidence", in
+ * one piece; its two halves used to alternate on the line below it, which is
+ * now the static "Your Integrated B2B B2C Platform".
  *
  * Three things here are worth more than the rest, because all three are the
  * kind of thing that comes back:
@@ -22,14 +22,9 @@
  *     headline may ever read `UBOSS Sourcing`, `UBOSS Innovation` or `UBOSS
  *     Intelligence` again, and that is asserted against the rendered text
  *     rather than against a list of words that no longer exists.
- *   - **The line below does not change height when it changes.** Both phrases
- *     are in the flow as measuring copies, which is what stops everything
- *     under the hero moving every four seconds on a phone. It is structural,
- *     so it is asserted structurally: jsdom has no layout and cannot be asked
- *     how tall anything is.
- *
- * `components/ui/flip-words.test.tsx` holds the animation itself — the
- * alternation, the timer, reduced motion and what a screen reader is told.
+ *   - **Nothing under the name moves.** No timer is armed, no measuring
+ *     copies are left in the flow, and the platform line is one plain
+ *     paragraph — asserted with fake timers rather than by eye.
  */
 import { screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,9 +32,26 @@ import { HomePage } from './HomePage';
 import { Header } from '@/layout/Header';
 import { Footer } from '@/layout/Footer';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
-import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
+import {
+  PARENT_ATTRIBUTION,
+  PRODUCT_BRAND,
+  PRODUCT_SHORT_NAME,
+  PRODUCT_TAGLINE,
+} from '@/lib/brand';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
 import type { StorefrontConfig } from '@/lib/types';
+
+/**
+ * The innermost element whose whole text is `text`. The wordmark is two spans
+ * now — "Gloviaa" and "Mart" in different faces — so the name is no longer
+ * one text node that `getByText` can match on its own.
+ */
+function whole(text: string): (content: string, element: Element | null) => boolean {
+  return (_content, element) =>
+    element !== null &&
+    element.textContent === text &&
+    ![...element.children].some((child) => child.textContent === text);
+}
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -52,14 +64,12 @@ function makeConfig(business: Partial<StorefrontConfig['business']> = {}): Store
   };
 }
 
-/** The non-breaking space the animation puts between a phrase's words. */
-const NBSP = String.fromCharCode(0xa0);
-
 const GUEST = makeSession({ user: null, isCustomer: false });
 
-/** The two halves of the English strapline, in the order the line shows them. */
-const SOURCE = 'Source with Intelligence';
-const DELIVER = 'Deliver with Confidence';
+/** The approved strapline, spelled out so a change to the constant is caught. */
+const STRAPLINE = 'Source with Intelligence | Deliver with Confidence';
+/** The static line under it, in English. */
+const PLATFORM_LINE = 'Your Integrated B2B B2C Platform';
 
 /** Every name the headline used to be able to show, and must not again. */
 const RETIRED_HEADLINES = [
@@ -110,7 +120,7 @@ describe('the header lockup', () => {
 
     // Nothing has overridden the fallback, so the name a fresh deployment
     // carries is the product's own.
-    expect(screen.getByText(PRODUCT_BRAND)).toBeInTheDocument();
+    expect(screen.getByText(whole(PRODUCT_BRAND))).toBeInTheDocument();
   });
 
   it('says the one-word name on a phone and the full name from sm up', () => {
@@ -120,8 +130,11 @@ describe('the header lockup', () => {
     // the classes are what can be asserted.
     expect(PRODUCT_BRAND).toBe('Gloviaa Mart');
     expect(PRODUCT_SHORT_NAME).toBe('Gloviaa');
-    expect(screen.getByText(PRODUCT_SHORT_NAME).className).toContain('sm:hidden');
-    expect(screen.getByText(PRODUCT_BRAND).className).toContain('max-sm:hidden');
+    const phoneName = screen
+      .getAllByText(PRODUCT_SHORT_NAME)
+      .find((element) => element.classList.contains('sm:hidden'));
+    expect(phoneName).toBeDefined();
+    expect(screen.getByText(whole(PRODUCT_BRAND)).className).toContain('max-sm:hidden');
   });
 
   it('carries the tagline on the second', () => {
@@ -132,8 +145,8 @@ describe('the header lockup', () => {
     expect(tagline).toBeInTheDocument();
     // Written as a sentence, not in capitals.
     // A reader with a stylesheet that does not load, and anything reading the
-    // markup, gets `The Way to the Global Sourcing` and not `THE WAY TO THE GLOBAL SOURCING`.
-    expect(tagline.textContent).toBe('The Way to the Global Sourcing');
+    // markup, gets the approved line exactly, capitals and bar included.
+    expect(tagline.textContent).toBe('Source with Intelligence | Deliver with Confidence');
 
     // The attribution moved to the footer; the header does not repeat it.
     expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
@@ -142,8 +155,12 @@ describe('the header lockup', () => {
   it('sets the product name and the tagline in the one wordmark face', () => {
     renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
 
-    expect(screen.getByText(PRODUCT_BRAND).closest('.font-brand')).not.toBeNull();
-    expect(screen.getByText(PRODUCT_SHORT_NAME).closest('.font-brand')).not.toBeNull();
+    expect(screen.getByText(whole(PRODUCT_BRAND)).closest('.font-brand')).not.toBeNull();
+    expect(screen.getAllByText(PRODUCT_SHORT_NAME)[0]?.closest('.font-brand')).not.toBeNull();
+    // Only "Mart" leaves the script, for the interface face.
+    const service = document.querySelector('.brand-wordmark .brand-name-service');
+    expect(service?.textContent).toBe('Mart');
+    expect(service?.className).toContain('font-sans');
     expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
@@ -158,7 +175,7 @@ describe('the header lockup', () => {
 
     const name = screen.getByText('Northwind Industrial');
     expect(name).toBeInTheDocument();
-    expect(screen.queryByText(PRODUCT_BRAND)).toBeNull();
+    expect(screen.queryByText(whole(PRODUCT_BRAND))).toBeNull();
 
     // Gloviaa Mart's face and Gloviaa Mart's slogan belong to Gloviaa Mart. Under somebody
     // else's name they would be the software claiming that company's shop.
@@ -210,25 +227,36 @@ function headline(): HTMLElement {
   return screen.getByRole('heading', { level: 1 });
 }
 
-/**
- * What the moving line currently says.
- *
- * The animated copy is split into a span per letter and the spaces between its
- * words are non-breaking, so it cannot be found by its text and has to be
- * read off the element. The two measuring copies in the same grid cell are the
- * reason it is scoped rather than taken from the paragraph.
- */
-function strapline(container: HTMLElement): string {
-  const moving = container.querySelector('.greeting-strapline [aria-hidden="true"]');
-
-  return moving === null ? '' : moving.textContent.replaceAll(NBSP, ' ');
-}
-
 describe('the greeting headline', () => {
   it('is the shop’s name, and only the shop’s name', () => {
     renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
 
     expect(headline().textContent).toBe(PRODUCT_BRAND);
+  });
+
+  it('sets "Gloviaa" in the script and only "Mart" in the interface face', () => {
+    renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
+
+    const parent = headline().querySelector('.brand-name-parent');
+    const service = headline().querySelector('.brand-name-service');
+
+    expect(parent?.textContent).toBe(PRODUCT_SHORT_NAME);
+    // The script comes from the heading; the parent word adds no face of its own.
+    expect(parent?.className).not.toContain('font-sans');
+    expect(service?.textContent).toBe('Mart');
+    expect(service?.className).toContain('font-sans');
+    // Text, on the same line: one heading that reads "Gloviaa Mart".
+    expect(headline().querySelector('img, svg')).toBeNull();
+    expect(headline().querySelector('br')).toBeNull();
+  });
+
+  it('leaves another company’s name in one face', () => {
+    renderWithProviders(<HomePage />, {
+      config: makeConfig({ displayName: 'Northwind Industrial' }),
+      session: GUEST,
+    });
+
+    expect(headline().querySelector('.brand-name-service')).toBeNull();
   });
 
   it('is the wordmark when it is the product’s name, and a heading when it is not', () => {
@@ -278,7 +306,7 @@ describe('the greeting headline', () => {
 });
 
 describe('the tagline under the headline', () => {
-  it('is the product’s slogan, and it does not move', () => {
+  it('is the approved strapline, exactly, and it does not move', () => {
     const { container } = renderWithProviders(<HomePage />, {
       config: makeConfig(),
       session: GUEST,
@@ -286,9 +314,10 @@ describe('the tagline under the headline', () => {
 
     const tagline = container.querySelector('.greeting-tagline');
 
-    expect(tagline?.textContent).toBe(PRODUCT_TAGLINE);
-    // Static: not inside the moving line, and not animated itself.
-    expect(tagline?.closest('.greeting-strapline')).toBeNull();
+    expect(PRODUCT_TAGLINE).toBe(STRAPLINE);
+    expect(tagline?.textContent).toBe(STRAPLINE);
+    // The old sentence is gone, here and everywhere else.
+    expect(container.textContent).not.toContain('The Way to the Global Sourcing');
   });
 
   it('belongs to Gloviaa Mart, so another company’s greeting does not carry it', () => {
@@ -302,68 +331,37 @@ describe('the tagline under the headline', () => {
 });
 
 describe('the line under the tagline', () => {
-  it('opens on the first half of the strapline', () => {
+  it('is the platform line, as plain text', () => {
     const { container } = renderWithProviders(<HomePage />, {
       config: makeConfig(),
       session: GUEST,
     });
 
-    expect(strapline(container)).toBe(SOURCE);
-  });
+    const line = container.querySelector('.greeting-platform');
 
-  it('no longer carries the attribution — the footer does', () => {
-    const { container } = renderWithProviders(<HomePage />, {
-      config: makeConfig(),
-      session: GUEST,
-    });
-
-    const line = container.querySelector('.greeting-strapline')?.parentElement;
-
+    expect(line?.textContent).toBe(PLATFORM_LINE);
+    // One paragraph of text: no measuring copies, no per-letter spans.
+    expect(line?.children.length).toBe(0);
+    expect(line?.closest('[aria-live]')).toBeNull();
     expect(line?.textContent).not.toContain(PARENT_ATTRIBUTION);
   });
 
-  it('reserves the height of both phrases so nothing moves when it changes', () => {
-    const { container } = renderWithProviders(<HomePage />, {
-      config: makeConfig(),
-      session: GUEST,
-    });
+  it('never flips, however long the page is open', () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = renderWithProviders(<HomePage />, {
+        config: makeConfig(),
+        session: GUEST,
+      });
 
-    const cell = container.querySelector('.greeting-strapline');
-    const line = cell?.parentElement;
+      vi.advanceTimersByTime(20_000);
 
-    expect(line).not.toBeNull();
-
-    // Both phrases, in the flow, in the same grid cell as the moving copy.
-    // jsdom has no layout, so what is asserted is the arrangement that makes
-    // the height constant rather than the height itself.
-    const measured = [...(line?.querySelectorAll(':scope > .invisible') ?? [])].map(
-      (span) => span.textContent,
-    );
-
-    expect(measured).toEqual([SOURCE, DELIVER]);
-    expect(line?.className).toContain('grid');
-    for (const span of line?.querySelectorAll(':scope > .invisible') ?? []) {
-      expect(span.className).toContain('col-start-1');
-      expect(span.className).toContain('row-start-1');
-      expect(span.getAttribute('aria-hidden')).toBe('true');
+      expect(container.querySelector('.greeting-platform')?.textContent).toBe(PLATFORM_LINE);
+      expect(container.querySelector('.greeting-tagline')?.textContent).toBe(STRAPLINE);
+      expect(container.querySelector('.greeting-strapline')).toBeNull();
+    } finally {
+      vi.useRealTimers();
     }
-    expect(cell?.className).toContain('col-start-1');
-    expect(cell?.className).toContain('row-start-1');
-  });
-
-  it('is not announced as it changes', () => {
-    const { container } = renderWithProviders(<HomePage />, {
-      config: makeConfig(),
-      session: GUEST,
-    });
-
-    // Nothing on this line may be live. A phrase swapping itself inside an
-    // `aria-live` region interrupts whatever a screen-reader user is doing,
-    // every four seconds, for as long as the page is open.
-    const cell = container.querySelector('.greeting-strapline');
-
-    expect(cell?.closest('[aria-live]')).toBeNull();
-    expect(cell?.querySelector('[aria-live]')).toBeNull();
   });
 });
 

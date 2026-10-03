@@ -52,11 +52,11 @@ import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { HomeBanners } from '@/components/home/ContentBlocks';
 import { HomeQuickStart } from '@/components/home/HomeQuickStart';
 import { InlineProducts } from '@/components/home/InlineProducts';
-import { AssuranceExplainer, NewlyVerifiedSuppliers, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
-import { ValueProposition, VerifiedSuppliers } from '@/components/home/VerifiedSuppliers';
+import { AssuranceExplainer, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
+import { ValueProposition } from '@/components/home/ValueProposition';
 import { HeroStage } from '@/components/greeting/HeroStage';
-import { FlipWords } from '@/components/ui/flip-words';
 import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
+import { BrandName } from '@/components/BrandName';
 import { cx } from '@/lib/cx';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
@@ -170,19 +170,6 @@ function Greeting(): React.JSX.Element {
       : null,
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
-  /*
-   * The two phrases under the tagline, in the order they are shown.
-   *
-   * The two halves of the strapline — "Source with Intelligence", "Deliver
-   * with Confidence" — each its own key, so each language's approved wording
-   * of the pair survives the split. It used to alternate the whole strapline
-   * with `Powered by UBOSS`; the attribution is the footer's small print now,
-   * and the line under the name is the product's tagline, which does not move.
-   *
-   * Rebuilt on each render, which costs nothing: `FlipWords` arms its timer
-   * off the length of the list, not off the identity of the array.
-   */
-  const phrases = [t('greeting.taglineSource'), t('greeting.taglineDeliver')];
   const isProductBrand = business.displayName === PRODUCT_BRAND;
 
   const eyebrow =
@@ -312,15 +299,18 @@ function Greeting(): React.JSX.Element {
                     : 'text-3xl tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]',
                 )}
               >
-                {business.displayName}
+                {isProductBrand ? <BrandName /> : business.displayName}
               </h1>
 
               {/*
-               * The tagline, still. It is the product's slogan rather than a
-               * sentence, so it is a constant and reads the same in every
+               * The tagline, still. It is the product's slogan rather
+               * than a sentence, so it is a constant and reads the same in every
                * language — see `lib/brand.ts` — and it belongs to Gloviaa Mart, so a
                * deployment greeting its customers under its own name does not
                * carry it. Set in the wordmark's script, like the name above it.
+               *
+               * Its two halves used to alternate on the line below it. They are
+               * one line here now, joined by the bar, and nothing on the hero moves.
                */}
               {isProductBrand && (
                 <p className="greeting-tagline mt-1 font-brand text-2xl font-bold text-brand sm:text-3xl">
@@ -329,68 +319,24 @@ function Greeting(): React.JSX.Element {
               )}
 
               {/*
-               * The two halves of the strapline, alternating.
+               * What the platform is, in one line that does not move.
                *
-               * It used to be a sentence, and a different sentence for a guest
-               * than for a signed-in customer. Both are gone, deliberately: the
-               * guest's version explained what a catalogue is to somebody
-               * already looking at one, and the search bar directly below it
-               * asks the same question in one control instead of three lines.
+               * This used to be the two halves of the strapline, alternating
+               * every 4.2 seconds, with measuring copies of both in one grid
+               * cell so the band did not jump. Both halves are in the line
+               * above now, so this line is static: no timer, no measuring
+               * copies, nothing to announce twice, and nothing that can shift
+               * the search bar after the page has loaded.
                *
-               * `sm:whitespace-nowrap` because it is a strapline and a
-               * strapline broken over two lines is two half-thoughts. It is held
-               * to one line from 640px up, which every translation of it fits
-               * at this type size; under that it wraps, because a phone is
-               * narrower than the shortest of them and clipping a tagline is
-               * worse than turning it.
-               *
-               * THE GRID IS WHAT STOPS THE LINE JUMPING.
-               *
-               * Both phrases are in the flow, in the same cell — one visible and
-               * one `invisible` — so the row is as tall as the taller of them
-               * and stays that height for the life of the page. Without it the
-               * band grew and shrank by two lines every few seconds on a phone,
-               * where one phrase wraps and the other does not, and everything
-               * below the hero moved with it. It cannot
-               * be a `min-height`: the taller phrase is a different phrase in
-               * each of the eight languages, and a number measured in English is
-               * a number that is wrong in Polish.
-               *
-               * The measuring copies are `aria-hidden`, and `FlipWords` is
-               * handed one steady sentence covering both phrases — so a screen
-               * reader is told the whole message once and is never read to
-               * again. See `components/ui/flip-words.tsx`.
-               *
-               * 4.2s rather than the component's 3s: these are phrases rather
-               * than single words, and somebody has to have time to finish one.
+               * `greeting-platform` carries no styling; it is the handle
+               * `pages/brand.test.tsx` reads the line by.
                */}
-              <p className="mt-4 grid text-base leading-relaxed text-ink-muted sm:whitespace-nowrap sm:text-lg">
-                {phrases.map((phrase) => (
-                  <span
-                    key={phrase}
-                    aria-hidden="true"
-                    className="invisible col-start-1 row-start-1"
-                  >
-                    {phrase}
-                  </span>
-                ))}
-
-                {/* `greeting-strapline` carries no styling. It is a handle, the
-                    way `.orch-orb` is one: with both phrases in the cell as
-                    measuring copies, a test asking "what does this line say" by
-                    its text would find the copy that is deliberately invisible.
-                    See `pages/brand.test.tsx`. */}
-                <span className="greeting-strapline col-start-1 row-start-1">
-                  <FlipWords
-                    words={phrases}
-                    duration={4200}
-                    srLabel={`${t('greeting.taglineSource')}. ${t('greeting.taglineDeliver')}.`}
-                  />
-                </span>
+              <p className="greeting-platform mt-4 text-base leading-relaxed text-ink-muted sm:text-lg">
+                {t('greeting.platformLine')}
               </p>
 
               {/* What this marketplace is, in one sentence - naming verified
-                  suppliers only when there are some. See VerifiedSuppliers. */}
+                  suppliers only when there are some. See ValueProposition. */}
               <ValueProposition />
 
               {/*
@@ -596,13 +542,9 @@ export function HomePage(): React.JSX.Element {
             the shopper can hide (JOURNEY-001). */}
         <HomeQuickStart />
 
-        {/* Who is selling: sellers the operator reviewed and approved, each
-            opening the catalogue filtered to what they sell. Absent when
-            there are none, so a deployment never claims suppliers it lacks. */}
-        <VerifiedSuppliers />
-
-        {/* Suppliers approved in the last 90 days; absent when there are none. */}
-        <NewlyVerifiedSuppliers />
+        {/* "Verified suppliers" and "Newly verified suppliers" were here. They
+            are the operator's view now, on the admin console's Sellers
+            screen; a shopper finds a supplier through search or a product. */}
 
         {/*
         Curated shelves, between the department rail and the full catalogue.

@@ -30,6 +30,10 @@ import {
   redeemDocumentLink,
 } from '../../modules/seller/document.service.js';
 import { readSellerInsight } from '../../modules/seller/insight.service.js';
+import {
+  listVerifiedSuppliersForAdmin,
+  MAX_SUPPLIERS,
+} from '../../modules/catalog/supplier-directory.service.js';
 import { sellerAccessForStaff } from '../../modules/access-review/admin-access-review.service.js';
 import { approvalReadiness, recordScreening } from '../../modules/seller/application-review.service.js';
 import {
@@ -101,6 +105,32 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         .parse(request.query);
 
       const result = await listApplications(query);
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
+
+  /**
+   * Verified suppliers - approved, not suspended, with something live to sell -
+   * for the Sellers screen. `sort=newest` is most recently verified first.
+   *
+   * The storefront used to show these on its home page; they are the
+   * operator's view now. The same rule for "verified" as the public catalogue,
+   * so the two can never disagree about who counts. Declared before
+   * `/sellers/:id`, though a static segment wins either way.
+   */
+  app.get(
+    '/sellers/verified',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          limit: z.coerce.number().int().min(1).max(MAX_SUPPLIERS).default(MAX_SUPPLIERS),
+          sort: z.enum(['newest']).optional(),
+          q: z.string().trim().max(120).optional(),
+        })
+        .parse(request.query);
+
+      const result = await listVerifiedSuppliersForAdmin(query);
       return reply.header('cache-control', 'no-store').status(200).send(result);
     },
   );

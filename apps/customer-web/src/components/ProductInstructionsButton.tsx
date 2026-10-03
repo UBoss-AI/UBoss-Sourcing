@@ -11,14 +11,16 @@
  *
  * ## Where it lives, and where it does not
  *
- * On the **product page**, in the row with Add to Cart and Set up a repeat
- * purchase. It belongs with those two because it is an alternative to pressing
- * them rather than something you do afterwards: the shopper reading that panel
- * has the specification in front of them, and the thing stopping them is a
- * question they will only ask if asking is offered where the decision is being
- * made. It takes `variant="secondary"` there — the orange and the teal are the
- * two commitments, and a third filled button beside them would read as a third
- * way to buy.
+ * On the **product page**, directly under the row of Add to Cart, Schedule
+ * your Cart and Preorder. It belongs with those three because it is an
+ * alternative to pressing them rather than something you do afterwards: the
+ * shopper reading that panel has the specification in front of them, and the
+ * thing stopping them is a question they will only ask if asking is offered
+ * where the decision is being made. It takes `variant="secondary"` there — the
+ * three filled buttons are the ways to buy, and this is not one.
+ *
+ * Pressing it opens a small panel right under it rather than a modal: up to
+ * 500 characters, a running count, Save and Cancel. See `InstructionPanel`.
  *
  * **Not on `ProductCard`.** It was there briefly and came off again. A card is
  * a stretched link — an `::after` overlay on the product name makes the whole
@@ -44,19 +46,19 @@
  * There is one standing instruction per shopper per product, and saving
  * replaces it. A form that came up empty over something they wrote last week
  * would have them write it again, and the second one would silently overwrite
- * the first. So the dialog opens in a loading state and fills with their own
+ * the first. So the panel opens in a loading state and fills with their own
  * words, which also turns "Add" into "Edit" on the button itself.
  */
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Modal } from './Modal';
-import { Button, Field, Spinner, Textarea } from './ui';
+import { Button, Spinner, Textarea } from './ui';
 import { useToast } from './toast-context';
 import { useSession } from '@/auth/session-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
+import { formatNumber } from '@/lib/format';
 import {
   MAX_INSTRUCTION_CHARS,
   fetchOwnInstruction,
@@ -66,7 +68,7 @@ import {
 
 export interface ProductInstructionsButtonProps {
   productId: string;
-  /** For the dialog's heading, so it is obvious what is being written about. */
+  /** For the panel's intro, so it is obvious what is being written about. */
   productName: string;
   /** The version chosen, where one is. Null means the product in general. */
   variantId?: string | null;
@@ -75,9 +77,9 @@ export interface ProductInstructionsButtonProps {
   /**
    * How loud it is.
    *
-   * `secondary` beside Add to Cart, where it is a real third option and has to
-   * look like one without competing with the two commitments. `ghost` is the
-   * default for anywhere quieter.
+   * `secondary` under the buy row, where it is a real option and has to look
+   * like one without competing with the commitments. `ghost` is the default
+   * for anywhere quieter.
    */
   variant?: 'secondary' | 'ghost';
   fullWidth?: boolean;
@@ -97,6 +99,8 @@ export function ProductInstructionsButton({
   const { isCustomer } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
+  const panelId = useId();
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -112,7 +116,7 @@ export function ProductInstructionsButton({
     queryKey: instructionQueryKey(productId, variantId),
     queryFn: () => fetchOwnInstruction(productId, variantId),
     enabled: isCustomer,
-    // These change only when this shopper changes them, from a dialog that
+    // These change only when this shopper changes them, from a panel that
     // writes the result straight back into this cache. Re-asking on every
     // window focus would be a request for an answer that cannot have moved.
     staleTime: 5 * 60 * 1000,
@@ -122,13 +126,28 @@ export function ProductInstructionsButton({
   const stored = existing.data ?? null;
   const hasInstruction = stored !== null;
 
+  // A different option is a different instruction: close rather than let a
+  // draft written about one size be saved against another.
+  useEffect(() => {
+    setIsOpen(false);
+  }, [productId, variantId]);
+
+  const close = (): void => {
+    setIsOpen(false);
+    // Back to the control that opened it, once the panel has left the DOM.
+    window.setTimeout(() => triggerRef.current?.focus(), 0);
+  };
+
   return (
-    <>
+    <div className="min-w-0">
       <Button
+        ref={triggerRef}
         size={size}
         variant={variant}
         fullWidth={fullWidth}
         className={className}
+        aria-expanded={isCustomer ? isOpen : undefined}
+        aria-controls={isCustomer && isOpen ? panelId : undefined}
         onClick={(event) => {
           // Neither is needed where this sits today, and both are kept: they
           // are what makes the control safe to drop into a row, a list item or
@@ -151,7 +170,8 @@ export function ProductInstructionsButton({
             return;
           }
 
-          setIsOpen(true);
+          if (isOpen) close();
+          else setIsOpen(true);
         }}
       >
         <PencilIcon />
@@ -159,29 +179,36 @@ export function ProductInstructionsButton({
       </Button>
 
       {isOpen && (
-        <InstructionDialog
+        <InstructionPanel
+          id={panelId}
           productId={productId}
           productName={productName}
           variantId={variantId}
           existing={stored}
           isLoading={existing.isPending}
-          onClose={() => {
-            setIsOpen(false);
-          }}
+          onClose={close}
         />
       )}
-    </>
+    </div>
   );
 }
 
 /**
- * The box itself.
+ * The box itself, directly under the control that opened it.
  *
- * Mounted only while open, so the draft starts from what is stored every time
- * rather than from whatever was typed and abandoned last time. Reopening has
- * to show what is actually saved.
+ * An inline panel rather than a modal: it is a few lines about the product the
+ * shopper is looking at, and covering that product to write them took away
+ * the thing they were writing about. It is still a dialog to assistive
+ * technology — named by its heading, closed by Escape, focus moved into the
+ * box on open and back to the control on close — just not a modal one, so the
+ * page around it stays readable.
+ *
+ * Mounted only while open, so the draft starts from what is stored every time.
+ * That is what makes Cancel a restore: closing throws the draft away, and the
+ * next open shows what is actually saved.
  */
-function InstructionDialog({
+function InstructionPanel({
+  id,
   productId,
   productName,
   variantId,
@@ -189,6 +216,7 @@ function InstructionDialog({
   isLoading,
   onClose,
 }: {
+  id: string;
   productId: string;
   productName: string;
   variantId: string | null;
@@ -199,8 +227,29 @@ function InstructionDialog({
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
+  const headingId = `${id}-heading`;
+  const introId = `${id}-intro`;
+  const counterId = `${id}-counter`;
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [draft, setDraft] = useState(existing?.body ?? '');
+  const [error, setError] = useState<string | null>(null);
+
+  // The stored text can arrive after the panel opened; take it while the
+  // shopper has not started typing over the empty box.
+  const seeded = useRef(existing !== null);
+  useEffect(() => {
+    if (seeded.current || existing === null) return;
+    seeded.current = true;
+    setDraft(existing.body);
+  }, [existing]);
+
+  // Focus the box once it is there. Inline, not modal, so nothing else moves
+  // focus in for us; the heading is the box's description, so a screen reader
+  // hears what it is for as it lands.
+  useEffect(() => {
+    if (!isLoading) textareaRef.current?.focus();
+  }, [isLoading]);
 
   const save = useMutation({
     mutationFn: (body: string) => saveOwnInstruction({ productId, variantId, body }),
@@ -215,113 +264,169 @@ function InstructionDialog({
       );
       onClose();
     },
-    onError: (error: unknown) => {
-      // The dialog deliberately stays open and the words stay in the box. A
+    onError: (failure: unknown) => {
+      // The panel deliberately stays open and the words stay in the box. A
       // paragraph somebody typed must not disappear because a request timed
       // out — the same rule the basket's note follows.
-      toast.error(errorMessage(t, error, t('instructions.couldNotBeSent')));
+      setError(errorMessage(t, failure, t('instructions.couldNotBeSent')));
     },
   });
 
-  const remaining = MAX_INSTRUCTION_CHARS - draft.length;
   const isBusy = save.isPending;
+  // Leading and trailing blank space is not an instruction. What is inside is
+  // the shopper's, line breaks included; React renders it as text, never HTML.
+  const cleaned = draft.trim();
+  const unchanged = cleaned === (existing?.body ?? '');
+
+  // Escape closes it, from anywhere inside. A listener on the panel rather
+  // than a handler on the element: the panel is a dialog region, not a control.
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (panel === null) return undefined;
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      if (!isBusy) onClose();
+    };
+    panel.addEventListener('keydown', onKey);
+    return () => {
+      panel.removeEventListener('keydown', onKey);
+    };
+  }, [isBusy, onClose]);
+
+  const submit = (body: string): void => {
+    // `isPending` as well as the disabled button: a second Enter or a double
+    // tap that lands before the re-render must not send the same words twice.
+    if (save.isPending) return;
+    setError(null);
+    save.mutate(body);
+  };
 
   return (
-    <Modal
-      isOpen
-      onClose={onClose}
-      title={t('instructions.dialogTitle')}
-      description={t('instructions.dialogIntro', { product: productName })}
-      footer={
-        // `flex-wrap` and `w-full`: at 320px these three do not fit on one
-        // line, and a Save button half off the edge of a phone is a dialog
-        // nobody can complete.
-        <div className="flex w-full flex-wrap items-center justify-end gap-2">
-          {existing !== null && (
-            <Button
-              variant="ghost"
-              disabled={isBusy}
-              className="mr-auto text-danger hover:bg-danger-soft"
-              onClick={() => {
-                // Clearing the box IS the delete, server-side. One code path
-                // for "take back what I said" rather than two that can
-                // disagree about what an empty string means.
-                save.mutate('');
-              }}
-            >
-              {t('instructions.remove')}
-            </Button>
-          )}
-          <Button variant="ghost" disabled={isBusy} onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="primary"
-            isLoading={isBusy}
-            disabled={isLoading || draft.trim() === (existing?.body ?? '')}
-            onClick={() => {
-              save.mutate(draft);
-            }}
-          >
-            {t('instructions.send')}
-          </Button>
-        </div>
-      }
+    <div
+      id={id}
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby={headingId}
+      aria-describedby={introId}
+      className="mt-2 w-full max-w-lg rounded-lg border border-border bg-surface p-4 shadow-card"
+      ref={panelRef}
     >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 id={headingId} className="text-sm font-semibold text-ink">
+            {t('instructions.dialogTitle')}
+          </h3>
+          <p id={introId} className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+            {t('instructions.dialogIntro', { product: productName })}
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label={t('instructions.close')}
+          title={t('instructions.close')}
+          disabled={isBusy}
+          onClick={onClose}
+          className="-mr-1 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink disabled:opacity-50"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+
       {isLoading ? (
         <div className="flex items-center gap-2 py-6 text-sm text-ink-muted">
           <Spinner className="h-4 w-4" />
           {t('common.loading')}
         </div>
       ) : (
-        <div className="space-y-3">
-          <Field
-            label={t('instructions.fieldLabel')}
-            hint={t('instructions.fieldHint')}
-          >
-            {({ inputId, describedBy }) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                value={draft}
-                rows={5}
-                maxLength={MAX_INSTRUCTION_CHARS}
-                disabled={isBusy}
-                // No `autoFocus`. The native `<dialog>` this sits in already
-                // moves focus into itself on `showModal()`, so adding one here
-                // buys nothing and takes the choice of where to start away
-                // from anybody using a screen reader, who would be dropped
-                // into the box without having heard the heading that says
-                // what it is for.
-                placeholder={t('instructions.placeholder')}
-                onChange={(event) => {
-                  setDraft(event.currentTarget.value);
-                }}
-              />
-            )}
-          </Field>
+        <div className="mt-3 space-y-2">
+          <label htmlFor={`${id}-text`} className="sr-only">
+            {t('instructions.fieldLabel')}
+          </label>
+          <Textarea
+            ref={textareaRef}
+            id={`${id}-text`}
+            aria-describedby={counterId}
+            value={draft}
+            rows={4}
+            // The browser enforces the limit while typing and pasting, so the
+            // box can never hold more than the server will take.
+            maxLength={MAX_INSTRUCTION_CHARS}
+            disabled={isBusy}
+            invalid={error !== null}
+            placeholder={t('instructions.placeholder')}
+            onChange={(event) => {
+              setDraft(event.currentTarget.value.slice(0, MAX_INSTRUCTION_CHARS));
+              if (error !== null) setError(null);
+            }}
+          />
 
-          {/* Counts DOWN, and turns when it is nearly gone. A count up tells
-              somebody how much they have written, which they can see; a count
-              down tells them how much room is left, which is the thing they
-              cannot. `aria-live="polite"` so it is not read on every
-              keystroke. */}
-          <p
-            aria-live="polite"
-            className={cx(
-              'text-right text-xxs tabular',
-              remaining <= 25 ? 'text-warning' : 'text-ink-subtle',
+          <div className="flex items-start justify-between gap-3">
+            {error === null ? (
+              <span />
+            ) : (
+              <p role="alert" className="text-xs text-danger">
+                {error}
+              </p>
             )}
-          >
-            {t('instructions.charactersLeft', { count: remaining })}
-          </p>
+            {/* Counts up against the limit: "125/500". Read with the box, not
+                announced on every keystroke. */}
+            <p
+              id={counterId}
+              className={cx(
+                'shrink-0 text-right text-xxs tabular',
+                MAX_INSTRUCTION_CHARS - draft.length <= 25 ? 'text-warning' : 'text-ink-subtle',
+              )}
+            >
+              {t('instructions.counter', {
+                used: formatNumber(draft.length),
+                max: formatNumber(MAX_INSTRUCTION_CHARS),
+              })}
+            </p>
+          </div>
 
           <p className="rounded-md bg-surface-sunken px-3 py-2 text-xxs leading-relaxed text-ink-muted">
             {t('instructions.privacyNote')}
           </p>
+
+          {/* `flex-wrap`: at 320px these do not fit on one line, and a Save
+              button half off the edge of a phone is a panel nobody can finish. */}
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+            {existing !== null && (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isBusy}
+                className="mr-auto text-danger hover:bg-danger-soft"
+                onClick={() => {
+                  // Clearing the box IS the delete, server-side. One code path
+                  // for "take back what I said" rather than two that can
+                  // disagree about what an empty string means.
+                  submit('');
+                }}
+              >
+                {t('instructions.remove')}
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" disabled={isBusy} onClick={onClose}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              isLoading={isBusy}
+              disabled={unchanged || (existing === null && cleaned === '')}
+              onClick={() => {
+                submit(cleaned);
+              }}
+            >
+              {t('common.save')}
+            </Button>
+          </div>
         </div>
       )}
-    </Modal>
+    </div>
   );
 }
 
@@ -340,6 +445,22 @@ function PencilIcon(): React.JSX.Element {
     >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function CloseIcon(): React.JSX.Element {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M6 6l12 12M18 6 6 18" />
     </svg>
   );
 }

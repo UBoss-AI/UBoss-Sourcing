@@ -1,6 +1,7 @@
 /**
- * "Chat with UBOSS" - an icon beside Preorder's (i) on every product page:
- * [ Preorder (i) ] [ chat ].
+ * "Chat with UBOSS" - an icon inside the right end of Preorder, after its (i),
+ * on every product page: [ Preorder (i) (chat) ]. `appearance="inset"` is that
+ * placement; the default is the bordered square it used to be beside Preorder.
  *
  * An icon button rather than a labelled one, because the row already says
  * "Preorder" and three words of text beside it crowded the action the buyer
@@ -53,6 +54,11 @@ export interface ChatWithUbossButtonProps {
   /** The pieces on the page, carried into the chat as the quantity asked about. */
   pieces?: number | undefined;
   onReviewProposal: (conversationId: string, proposalId: string) => void;
+  /**
+   * `inset` sits on Preorder's filled plate, beside the (i): round, white,
+   * no border of its own. `standalone` is a bordered square of its own.
+   */
+  appearance?: 'standalone' | 'inset';
   className?: string;
 }
 
@@ -61,6 +67,7 @@ export function ChatWithUbossButton({
   variantId,
   pieces,
   onReviewProposal,
+  appearance = 'standalone',
   className,
 }: ChatWithUbossButtonProps): React.JSX.Element | null {
   const { t, intlLocale } = useI18n();
@@ -154,10 +161,16 @@ export function ChatWithUbossButton({
               : t('preorderChat.button')
           }
           className={cx(
-            'relative inline-flex size-12 shrink-0 items-center justify-center rounded-md border border-border-strong bg-surface text-brand shadow-card',
-            'transition-[border-color,background-color,box-shadow] duration-200',
-            'hover:border-brand/50 hover:bg-brand-soft hover:shadow-[0_0_0_4px_rgb(var(--brand)/0.12),0_6px_18px_-6px_rgb(var(--brand)/0.45)]',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+            appearance === 'inset'
+              ? // 36 px round on a 48 px plate, the (i)'s size: room for both
+                // icons and the label inside the plate in a three-button row.
+                'relative inline-flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-white'
+              : cx(
+                  'relative inline-flex size-12 shrink-0 items-center justify-center rounded-md border border-border-strong bg-surface text-brand shadow-card',
+                  'transition-[border-color,background-color,box-shadow] duration-200',
+                  'hover:border-brand/50 hover:bg-brand-soft hover:shadow-[0_0_0_4px_rgb(var(--brand)/0.12),0_6px_18px_-6px_rgb(var(--brand)/0.45)]',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+                ),
             className,
           )}
         >

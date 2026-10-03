@@ -20,6 +20,7 @@ import { LocaleContext } from '@/app/locale-context';
 import { countryName } from '@/lib/iso-countries';
 import { useI18n } from '@/i18n/i18n-context';
 import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
+import { BrandName } from '@/components/BrandName';
 import { DocumentIcon, HeadsetIcon, InfoIcon, MailIcon, PhoneIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 
@@ -141,7 +142,7 @@ export function Footer({
                   : 'text-title-xs',
               )}
             >
-              {business.displayName}
+              {business.displayName === PRODUCT_BRAND ? <BrandName /> : business.displayName}
             </h2>
           </div>
 

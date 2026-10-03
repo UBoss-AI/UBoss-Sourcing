@@ -20,8 +20,7 @@
  *
  * The shape of this is the Aceternity `sidebar` component. Seven things about
  * it could not survive contact with this repository — the same kind of list
- * `ui/flip-words.tsx` and `ui/apple-cards-carousel.tsx` keep, for the same
- * reason.
+ * `ui/apple-cards-carousel.tsx` keeps, for the same reason.
  *
  *   - **`cn` is `cx`.** This project's class joiner is `lib/cx.ts`. There is
  *     no `clsx`/`tailwind-merge` pair here, and adding one to satisfy an

@@ -19,8 +19,8 @@
  *
  * The shape of this is the Aceternity `apple-cards-carousel` component. It
  * arrives written for Next.js and shadcn/ui, and this repository is neither,
- * so the same list `ui/flip-words.tsx`, `ui/background-gradient.tsx` and
- * `ui/3d-globe.tsx` keep applies again, with a few entries of its own.
+ * so the same list `ui/background-gradient.tsx` and `ui/3d-globe.tsx` keep
+ * applies again, with a few entries of its own.
  *
  *   - **`cn` is `cx`.** This project's class joiner is `lib/cx.ts`. There is no
  *     `clsx`/`tailwind-merge` pair here and adding one for one function would

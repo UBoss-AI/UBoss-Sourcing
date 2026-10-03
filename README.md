@@ -79,7 +79,7 @@ part of the branding worth being precise about:
 |---|---|---|
 | **Gloviaa Mart** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
 | **Gloviaa** | The one-word name — the label on the greeting page's globe, and the storefront header on a phone | the same module (`PRODUCT_SHORT_NAME`) |
-| **The Way to the Global Sourcing** | The product's tagline, under the wordmark | the same module |
+| **Source with Intelligence \| Deliver with Confidence** | The product's tagline, under the wordmark (it replaced "The Way to the Global Sourcing") | the same module (`PRODUCT_TAGLINE`) |
 | **Powered by UBOSS** | The attribution — who makes it; small print in the storefront footer and on the console and portal sign-in screens | the same module |
 | Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` as `business.displayName` and as `marketplace.displayName` (the second is never replaced by a seller's name on a seller's shop front) |
 
@@ -96,9 +96,16 @@ the tagline is a brand asset, and `Powered by UBOSS` is a fixed attribution
 lockup, so all three read identically in all eight languages. The word "Gloviaa Mart"
 wherever it is the brand is set in its own bundled script face, Dancing
 Script Bold, and so is the tagline under it, so both look the same on every
-device and in all three applications; on a
+device and in all three applications. In the wordmark only "Gloviaa" is in
+the script; "Mart" is set beside it in Inter, smaller and semibold, on the same
+baseline, like a parent brand naming a service — it is still plain text and
+reads "Gloviaa Mart". On a
 deployment with its own business name, that name is set in the ordinary face
 and carries no Gloviaa Mart tagline.
+
+The greeting page shows the name, the tagline, and under them a still,
+translated line, "Your Integrated B2B B2C Platform". Nothing in the hero
+alternates any more.
 
 **Inside, UBOSS is unchanged and that is deliberate.** Package names, the
 database, Prisma models, migration history, API routes, cookie names, session
@@ -485,16 +492,24 @@ frozen onto the order line at checkout, and is shown to whoever packs it: the
 warehouse on the admin order, or the seller on theirs. An order-wide note
 reaches everybody and identifies nothing, which is why this one is per line.
 
-It also carries **Add instructions**, in the row with Add to Cart and Set up a
-repeat purchase — the same idea standing free of a basket, and a third thing to
-do with a product rather than a second way to buy it. A signed-
+It also carries **Add instructions**, directly under the row of Add to Cart,
+Schedule your Cart and Preorder — the same idea standing free of a basket, and
+another thing to do with a product rather than another way to buy it. A signed-
 in shopper can say what they need without buying anything ("do you do this in
 8 mm?", "can you supply a calibration certificate?", "we need four hundred a
 month — would you hold stock?") and every seller listing that product reads it
-in their Hub. One standing instruction per shopper per product: saving again
-replaces it, clearing the box takes it back, and it is never shown to other
+in their Hub. It opens a small panel right under the button, not a pop-up: a
+box of up to 500 characters with a running count, Save, Cancel and, once
+something is saved, Remove. Cancel or Escape throws the draft away; a failed
+save keeps the words. One standing instruction per shopper per product: saving
+again replaces it, removing it takes it back, and it is never shown to other
 shoppers. No purchase is required; an account is, so a seller can tell three
 buyers from one.
+
+From 640px wide up, the three purchase buttons — **Add to Cart** (orange),
+**Schedule your Cart** (teal) and **Preorder** (brand blue) — always sit on one
+line; on a phone they stack. Pressing any of them before an option is chosen
+points at the choice still to make.
 
 **Pressing a product photograph opens it full screen**, with a zoom on the
 buttons, the wheel, a double-click and the keyboard, and dragging to move once
@@ -2951,8 +2966,8 @@ every screen that states it reads it from the same server answer.
 Three things on the product page all say the same minimum and all lead into
 the same request form:
 
-- **The ⓘ inside Preorder.** A separate button at Preorder's right end,
-  always there while Preorder is, and still pressable when Preorder is off. It opens *Bulk preorder information* — a popover beside the button on a
+- **The ⓘ inside Preorder.** A separate button inside Preorder, after the
+  word and before the chat icon, always there while Preorder is, and still pressable when Preorder is off. It opens *Bulk preorder information* — a popover beside the button on a
   desktop, a bottom sheet on a phone — with the product's minimum in its own
   unit ("10 UK pallets (12,000 pieces)"), that the seller confirms quantity,
   price, availability and date, and that sending a request charges nothing.
@@ -3077,8 +3092,9 @@ not in the conversation and never sees it.
 
 ### What each side has
 
-- **The buyer:** a chat icon (speech bubbles) right beside Preorder and its
-  (i) on every product page. Its accessible name and tooltip use your trading
+- **The buyer:** a chat icon (speech bubbles) inside the Preorder button,
+  after its (i), on every product page. Pressing it opens the chat, never the
+  preorder. Its accessible name and tooltip use your trading
   name (*Chat with Gloviaa Mart* until you set one), and a red badge counts your
   team's replies they have not read about that product. It opens a drawer (full screen on a phone) with the product card - picture, name,
   seller, SKU, option, minimum, and the unit (pieces, 20-ft or 40-ft container),
@@ -3467,6 +3483,12 @@ off. See [Configuration](#configuration).
 
 ### Sellers, scores and fraud
 
+- The console's **Sellers** screen shows, under the application table,
+  **Verified suppliers** (up to 24, longest-verified first, with type, country,
+  verification date and live products) and **Newly verified suppliers** (the
+  last 90 days, newest first). They used to be on the storefront's home page,
+  which now keeps only the one sentence under its headline. Opening a row opens
+  that seller's record. It needs `customer.read`, the same as the queue.
 - A review counts towards the **seller of the order line** it rests on. Each
   seller gets a **service score** — the average of the delivery and support
   scores across everything it sold — on its supplier profile and on the

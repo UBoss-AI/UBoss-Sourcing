@@ -54,6 +54,7 @@ import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
 import { EarthMark } from '@/components/EarthMark';
 import { PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
+import { BrandName } from '@/components/BrandName';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CartIcon, HeadsetIcon, InfoIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
@@ -71,7 +72,7 @@ import { cx } from '@/lib/cx';
  * When that name IS the product's — the marketplace itself, and every fresh
  * deployment until its business profile is filled in — the first line is the
  * Gloviaa Mart wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
- * own face), and the second is the tagline, `The Way to the Global Sourcing`. Both come from
+ * own face), and the second is the tagline, `Source with Intelligence | Deliver with Confidence`. Both come from
  * `lib/brand.ts` and read the same in every language.
  *
  * When it is somebody else's name, neither applies. Gloviaa Mart's face and its
@@ -153,7 +154,9 @@ function BrandMark(): React.JSX.Element {
             // accessible name follows whichever is displayed.
             <>
               <span className="sm:hidden">{PRODUCT_SHORT_NAME}</span>
-              <span className="max-sm:hidden">{PRODUCT_BRAND}</span>
+              <span className="max-sm:hidden">
+                <BrandName />
+              </span>
             </>
           ) : (
             business.displayName
