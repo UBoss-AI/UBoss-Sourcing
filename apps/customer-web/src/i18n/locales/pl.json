@@ -8619,5 +8619,17 @@
   "discovery.capability": "Możliwości dostawcy",
   "discovery.didYouMean": "Czy chodziło o? Wybierz sugestię, aby wyszukać ponownie.",
   "discovery.browse": "Przeglądaj katalog",
-  "discovery.hint": "Wyświetlane są niektóre pasujące publiczne dane. Doprecyzuj słowa, aby uzyskać inne wyniki. Możliwości deklaruje dostawca; wyszukiwanie nie potwierdza realizacji."
+  "discovery.hint": "Wyświetlane są niektóre pasujące publiczne dane. Doprecyzuj słowa, aby uzyskać inne wyniki. Możliwości deklaruje dostawca; wyszukiwanie nie potwierdza realizacji.",
+  "sourcingShortcuts.label": "Skróty zakupowe",
+  "sourcingShortcuts.manufacturers": "Kupuj od zweryfikowanych indyjskich producentów",
+  "sourcingShortcuts.reviewBasis": "Weryfikacja zarejestrowana przez tę platformę; Indie są krajem ich rejestracji.",
+  "sourcingShortcuts.product": "Produkt",
+  "sourcingShortcuts.supplier": "Dostawca",
+  "sourcingShortcuts.rfq": "Zapytanie ofertowe",
+  "sourcingShortcuts.rfqUnavailable": "Zapytania ofertowe są tutaj niedostępne",
+  "sourcingShortcuts.imageUnavailable": "Wyszukiwanie obrazem jest tutaj niedostępne",
+  "sourcingShortcuts.directoryTitle": "Znajdź dostawcę",
+  "sourcingShortcuts.directoryHint": "Zatwierdzeni dostawcy z aktywnymi produktami. Wyświetlamy do 24 publicznych wyników; doprecyzuj publiczną nazwę, aby znaleźć inne wyniki.",
+  "sourcingShortcuts.nameSearch": "Publiczna nazwa dostawcy",
+  "sourcingShortcuts.directoryEmpty": "Nie znaleziono zatwierdzonych dostawców. Użyj mniej słów lub wyczyść wyszukiwanie."
 }

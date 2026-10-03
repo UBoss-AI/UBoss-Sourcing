@@ -1,0 +1,47 @@
+[
+  {
+    "width": 320,
+    "manufacturerFact": true,
+    "productWords": true,
+    "supplierKeyboardNavigation": true,
+    "supplierWords": true,
+    "emptyAndRetry": true,
+    "editableRfqTitle": true,
+    "noRfqWrite": true,
+    "imageDialog": true,
+    "polishDestination": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 375,
+    "manufacturerFact": true,
+    "productWords": true,
+    "supplierKeyboardNavigation": true,
+    "supplierWords": true,
+    "emptyAndRetry": true,
+    "editableRfqTitle": true,
+    "noRfqWrite": true,
+    "imageDialog": true,
+    "polishDestination": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 1280,
+    "manufacturerFact": true,
+    "productWords": true,
+    "supplierKeyboardNavigation": true,
+    "supplierWords": true,
+    "emptyAndRetry": true,
+    "editableRfqTitle": true,
+    "noRfqWrite": true,
+    "imageDialog": true,
+    "polishDestination": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  }
+]

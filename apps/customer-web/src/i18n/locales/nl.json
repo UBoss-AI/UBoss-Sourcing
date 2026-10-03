@@ -8401,5 +8401,17 @@
   "discovery.capability": "Capaciteit van de leverancier",
   "discovery.didYouMean": "Bedoelde je? Kies een suggestie om opnieuw te zoeken.",
   "discovery.browse": "Catalogus bekijken",
-  "discovery.hint": "Enkele overeenkomende openbare gegevens worden getoond. Verfijn je woorden voor andere resultaten. Capaciteiten zijn opgegeven door de leverancier; deze zoekopdracht bevestigt geen uitvoering."
+  "discovery.hint": "Enkele overeenkomende openbare gegevens worden getoond. Verfijn je woorden voor andere resultaten. Capaciteiten zijn opgegeven door de leverancier; deze zoekopdracht bevestigt geen uitvoering.",
+  "sourcingShortcuts.label": "Snelkoppelingen voor inkoop",
+  "sourcingShortcuts.manufacturers": "Koop bij geverifieerde Indiase fabrikanten",
+  "sourcingShortcuts.reviewBasis": "Verificatie vastgelegd door deze marktplaats; India is hun registratieland.",
+  "sourcingShortcuts.product": "Product",
+  "sourcingShortcuts.supplier": "Leverancier",
+  "sourcingShortcuts.rfq": "Offerteaanvraag",
+  "sourcingShortcuts.rfqUnavailable": "Offerteaanvragen zijn hier niet beschikbaar",
+  "sourcingShortcuts.imageUnavailable": "Zoeken op afbeelding is hier niet beschikbaar",
+  "sourcingShortcuts.directoryTitle": "Vind een leverancier",
+  "sourcingShortcuts.directoryHint": "Goedgekeurde leveranciers met actieve producten. Er worden maximaal 24 openbare resultaten getoond; verfijn de openbare naam voor andere resultaten.",
+  "sourcingShortcuts.nameSearch": "Openbare leveranciersnaam",
+  "sourcingShortcuts.directoryEmpty": "Geen goedgekeurde leveranciers gevonden. Probeer minder woorden of wis de zoekopdracht."
 }

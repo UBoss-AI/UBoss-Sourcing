@@ -1,0 +1,947 @@
+{
+  "date": "2026-10-03",
+  "source": "3788bcf1bb97f7c376f0b4b0cbd15abc39457047",
+  "starting": {
+    "checked": 289,
+    "open": 75,
+    "total": 364
+  },
+  "audit": {
+    "problems": []
+  },
+  "explorers": [
+    {
+      "name": "checklist_mapper",
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "role": "Exact open Word/Markdown/state mapping and criteria"
+    },
+    {
+      "name": "frontend_explorer",
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "role": "Components, UX, feature gaps and file overlap"
+    },
+    {
+      "name": "backend_explorer",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "role": "Domain execution paths, integration and external boundaries"
+    },
+    {
+      "name": "test_evidence_explorer",
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "role": "Existing proof, test risks and synchronization gate"
+    }
+  ],
+  "concurrency": "Three read-only children ran concurrently; fourth started when a slot freed. All four completed before new implementation assignment. Session capacity includes parent.",
+  "findings": {
+    "alreadyVerified": [
+      "HOME-009",
+      "ENH-021",
+      "ENH-024",
+      "ENH-025",
+      "ENH-026",
+      "ENH-031",
+      "all 15 UAT-UI rows"
+    ],
+    "evidenceOnlyWins": [],
+    "heroBlocker": "An approved supplier can have verifiedAt:null. Manufacturer claim must require actual valid recorded verification data; malformed response checks must validate unknown runtime data before narrowing.",
+    "stateNote": "Historical pass4 header date/recommendation must not replace current Git checkpoints; state.otherBoxes remains an authoritative audit input.",
+    "externalChoices": "Twelve reusable QA choices and eighteen signoff choices stay blank.",
+    "unrelatedWork": "Preserve primary pending branding/storefront/Admin supplier migration, staged renames/deletes and untracked files."
+  },
+  "ownership": {
+    "checklistWordStateEvidenceGitFullVerificationMigrationsDocs": "Parent only",
+    "heroWorker": [
+      "apps/customer-web/src/components/hero-search/SourcingShortcuts.tsx",
+      "apps/customer-web/src/components/hero-search/SourcingShortcuts.test.tsx",
+      "apps/customer-web/src/pages/SupplierDirectoryPage.tsx",
+      "apps/customer-web/src/pages/SupplierDirectoryPage.test.tsx"
+    ],
+    "locales": "Parent only for current batch",
+    "otherWorkers": "No second writer until explicit disjoint files, data and ports are assigned"
+  },
+  "queue": [
+    {
+      "ids": [
+        "ENH-022"
+      ],
+      "priority": 2,
+      "action": "Destination-derived RFQ/importer/document/label guidance using existing configured market facts; checkout reuse and switch/failure enforcement tests.",
+      "dependencies": [
+        "existing destination compliance"
+      ],
+      "shared": [
+        "RFQ forms",
+        "market-rule service",
+        "customer locales",
+        "guides"
+      ],
+      "owner": "Assign one worker after hero push",
+      "preparation": {
+        "owner": "hero_worker",
+        "location": "Ignored primary output/pass10-guidance-patch",
+        "files": 8,
+        "byteGuardManifest": true,
+        "preliminaryReview": "Approved",
+        "tests": "Pending after hero integration/push; no concurrent heavy tests"
+      }
+    },
+    {
+      "ids": [
+        "ENH-015"
+      ],
+      "priority": 3,
+      "action": "Prove existing six-step ERP wizard and semantic acknowledgement/shipment mappings with real local sandbox cases before adding contracts.",
+      "dependencies": [
+        "existing ERP mappings/dry-run"
+      ],
+      "shared": [
+        "customer ERP services/routes/wizard",
+        "guides"
+      ],
+      "owner": "Assign isolated ERP worker; DB tests sequential"
+    },
+    {
+      "ids": [
+        "ENH-003",
+        "DYNAMIC-004"
+      ],
+      "priority": 4,
+      "action": "Persona composition and actual scoped quote/inspection/shipment/payment/repeat-order tasks; preserve current homepage design.",
+      "dependencies": [
+        "session buyer context",
+        "account/RFQ domain scope"
+      ],
+      "shared": [
+        "HomePage",
+        "header/account APIs",
+        "customer locales",
+        "guides"
+      ],
+      "owner": "One frontend/domain worker"
+    },
+    {
+      "ids": [
+        "ENH-001",
+        "DYNAMIC-005"
+      ],
+      "priority": 5,
+      "action": "Plain-language intent to editable verified filters/specifications and draft RFQ with explicit confirmation, source grounding and failures.",
+      "dependencies": [
+        "assistant snapshots",
+        "RFQ draft contract"
+      ],
+      "shared": [
+        "AI Mode",
+        "RFQ forms",
+        "customer locales",
+        "guides"
+      ],
+      "owner": "One worker; serialize against RFQ guidance"
+    },
+    {
+      "ids": [
+        "ENH-004",
+        "DYNAMIC-001",
+        "ENH-005"
+      ],
+      "priority": 6,
+      "action": "Permission-scoped universal search and persistent role/feature action entry points after entity contracts are proved.",
+      "dependencies": [
+        "RFQ/order/invoice/shipment/help authorization"
+      ],
+      "shared": [
+        "header",
+        "router",
+        "domain search",
+        "locales",
+        "guides"
+      ],
+      "owner": "One foundation worker"
+    },
+    {
+      "ids": [
+        "ENH-018"
+      ],
+      "priority": 7,
+      "action": "Seller individual task feed sorted by deadline/business impact with deterministic ties; no cross-currency float ranking.",
+      "dependencies": [
+        "existing seller/RFQ/dispatch/doc/dispute scope"
+      ],
+      "shared": [
+        "seller dashboard",
+        "customer locales",
+        "guides"
+      ],
+      "owner": "One seller worker"
+    },
+    {
+      "ids": [
+        "ENH-019",
+        "LIVE-011 partial software"
+      ],
+      "priority": 8,
+      "action": "Six-type paged permission-filtered individual exception feed; retain external named-owner action.",
+      "dependencies": [
+        "admin queue permissions"
+      ],
+      "shared": [
+        "governance routes/services",
+        "admin locales",
+        "guides"
+      ],
+      "owner": "One admin worker"
+    },
+    {
+      "ids": [
+        "ENH-020"
+      ],
+      "priority": 9,
+      "action": "Low-priority digest, immediate critical escalation and RFQ deadline sweep with dedupe/retry/extension tests.",
+      "dependencies": [
+        "notification outbox",
+        "worker jobs"
+      ],
+      "shared": [
+        "notifications",
+        "worker",
+        "guides"
+      ],
+      "owner": "One backend worker"
+    },
+    {
+      "ids": [
+        "ENH-030"
+      ],
+      "priority": 10,
+      "action": "Distinct inspector-assignment SLA and five actual countdown kinds; do not mislabel agency acceptDueAt.",
+      "dependencies": [
+        "inspection schema/settings",
+        "notifications"
+      ],
+      "shared": [
+        "inspection/domain dates",
+        "all affected locales",
+        "guides"
+      ],
+      "owner": "One worker; parent migration execution"
+    },
+    {
+      "ids": [
+        "ENH-016",
+        "DYNAMIC-007 dependent tools"
+      ],
+      "priority": 11,
+      "action": "Multi-line CSV/XLSX buyer order preview/confirmation using cart/order lines; avoid single-RFQ-per-row shortcut.",
+      "dependencies": [
+        "existing cart/order line contracts",
+        "ERP wizard",
+        "existing OEM/landed/schedules"
+      ],
+      "shared": [
+        "buyer upload/order services",
+        "tools home row",
+        "locales",
+        "guides"
+      ],
+      "owner": "One transaction worker"
+    },
+    {
+      "ids": [
+        "ENH-002",
+        "ENH-008",
+        "ENH-027",
+        "ENH-032",
+        "DYNAMIC-003"
+      ],
+      "priority": 12,
+      "action": "Implement independent comparison citations, explainable supplier match, exact-money slider, confirmed verified-data form suggestions and substantiated trust claims in separate <=5-row batches.",
+      "dependencies": [
+        "verified source fields",
+        "configured claims",
+        "pending ProductPage"
+      ],
+      "shared": [
+        "comparison",
+        "supplier facts",
+        "ProductPage",
+        "forms",
+        "locales",
+        "guides"
+      ],
+      "owner": "Separate strict per-feature contracts"
+    },
+    {
+      "ids": [
+        "DOD-001",
+        "DOD-003",
+        "DOD-004",
+        "DOD-044",
+        "LIVE-003 partial software",
+        "DYNAMIC-010 partial software"
+      ],
+      "priority": 13,
+      "action": "Global screen/action/state/keyboard/responsive/performance and configured footer audit after feature integration; do not infer all-screen proof from fixtures.",
+      "dependencies": [
+        "completed feature queue",
+        "preserved storefront changes",
+        "approved policy content for overall legal rows"
+      ],
+      "shared": [
+        "all applicable routes",
+        "configured budgets",
+        "footer",
+        "guides"
+      ],
+      "owner": "Parent coordinates route matrix and measurements"
+    },
+    {
+      "ids": [
+        "SEC-010",
+        "LIVE-010",
+        "LIVE-015",
+        "LIVE-017",
+        "LIVE-018",
+        "LIVE-019",
+        "LIVE-020",
+        "SCREEN-012",
+        "JOURNEY-010",
+        "SCREEN-009"
+      ],
+      "priority": 14,
+      "action": "Complete local software verification/support only, retain precise human/legal/provider/device/staging/production actions; no overall tick while external proof remains.",
+      "dependencies": [
+        "actual configured environments/owners/providers"
+      ],
+      "shared": [
+        "readiness",
+        "restore",
+        "secrets metrics",
+        "SOPs",
+        "analytics",
+        "KYB",
+        "policies"
+      ],
+      "owner": "Parent gates and dedicated read-only review"
+    }
+  ],
+  "openRequirements": [
+    {
+      "id": "SCREEN-009",
+      "classification": "B",
+      "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection",
+      "remainingAction": "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after verifying the preserved storefront changes. No approved real policy publication occurred in this batch.",
+      "loc": "T4R10C7",
+      "ord": 16
+    },
+    {
+      "id": "SCREEN-012",
+      "classification": "B",
+      "requirement": "Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification",
+      "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
+      "loc": "T4R13C7",
+      "ord": 19
+    },
+    {
+      "id": "DOD-001",
+      "classification": "E",
+      "requirement": "Clear primary action",
+      "remainingAction": "Audit the primary action on every applicable screen after feature verification; review the preserved pending storefront changes.",
+      "loc": "T5R2C2",
+      "ord": 105
+    },
+    {
+      "id": "DOD-003",
+      "classification": "E",
+      "requirement": "Responsive desktop/tablet/mobile",
+      "remainingAction": "Verify desktop/tablet/phone layout on every applicable screen; review the preserved pending storefront changes.",
+      "loc": "T5R2C2",
+      "ord": 107
+    },
+    {
+      "id": "DOD-004",
+      "classification": "E",
+      "requirement": "Keyboard/focus usability",
+      "remainingAction": "Verify keyboard paths, accessible names and focus recovery on every applicable screen; review the preserved pending storefront changes.",
+      "loc": "T5R2C2",
+      "ord": 108
+    },
+    {
+      "id": "DOD-043",
+      "classification": "C",
+      "requirement": "browser/device",
+      "remainingAction": "Run and record the actual supported browser and physical-device matrix.",
+      "loc": "T5R8C2",
+      "ord": 147
+    },
+    {
+      "id": "DOD-044",
+      "classification": "A",
+      "requirement": "performance",
+      "remainingAction": "Trace configured performance budgets, measure applicable screens and APIs, and resolve measured regressions.",
+      "loc": "T5R8C2",
+      "ord": 148
+    },
+    {
+      "id": "TEMPLATE-001",
+      "classification": "D",
+      "requirement": "Pass",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R19C2",
+      "ord": 162
+    },
+    {
+      "id": "TEMPLATE-002",
+      "classification": "D",
+      "requirement": "Fail",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R19C2",
+      "ord": 163
+    },
+    {
+      "id": "TEMPLATE-003",
+      "classification": "D",
+      "requirement": "N/A",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R19C2",
+      "ord": 164
+    },
+    {
+      "id": "TEMPLATE-004",
+      "classification": "D",
+      "requirement": "Pass",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R20C2",
+      "ord": 165
+    },
+    {
+      "id": "TEMPLATE-005",
+      "classification": "D",
+      "requirement": "Fail",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R20C2",
+      "ord": 166
+    },
+    {
+      "id": "TEMPLATE-006",
+      "classification": "D",
+      "requirement": "N/A",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R20C2",
+      "ord": 167
+    },
+    {
+      "id": "TEMPLATE-007",
+      "classification": "D",
+      "requirement": "Pass",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R21C2",
+      "ord": 168
+    },
+    {
+      "id": "TEMPLATE-008",
+      "classification": "D",
+      "requirement": "Fail",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R21C2",
+      "ord": 169
+    },
+    {
+      "id": "TEMPLATE-009",
+      "classification": "D",
+      "requirement": "N/A",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R21C2",
+      "ord": 170
+    },
+    {
+      "id": "TEMPLATE-010",
+      "classification": "D",
+      "requirement": "Pass",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R22C2",
+      "ord": 171
+    },
+    {
+      "id": "TEMPLATE-011",
+      "classification": "D",
+      "requirement": "Fail",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R22C2",
+      "ord": 172
+    },
+    {
+      "id": "TEMPLATE-012",
+      "classification": "D",
+      "requirement": "N/A",
+      "remainingAction": "Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form.",
+      "loc": "T14R22C2",
+      "ord": 173
+    },
+    {
+      "id": "SEC-010",
+      "classification": "B",
+      "requirement": "Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live.",
+      "remainingAction": "Repair the local Docker startup failure to exercise the existing restore verifier; then restore an actual off-site backup, prove external monitoring/alert delivery, assign named security-alert owners and record DR/incident rehearsals. Syntax and missing-input refusal are partial evidence only.",
+      "loc": "P85",
+      "ord": 183
+    },
+    {
+      "id": "LIVE-001",
+      "classification": "C",
+      "requirement": "All P0 screens approved by Product Owner and QA.",
+      "remainingAction": "Obtain actual Product Owner and QA approval for every P0 screen.",
+      "loc": "P92",
+      "ord": 184
+    },
+    {
+      "id": "LIVE-002",
+      "classification": "C",
+      "requirement": "Responsive behavior validated on supported devices/browsers.",
+      "remainingAction": "Record supported browser and real-device validation.",
+      "loc": "P93",
+      "ord": 185
+    },
+    {
+      "id": "LIVE-003",
+      "classification": "B",
+      "requirement": "Empty/error/loading states complete; user guidance and policy links published.",
+      "remainingAction": "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after verifying the preserved storefront changes, and publish approved launch policy links. This two-component run does not prove all screen states.",
+      "loc": "P94",
+      "ord": 186
+    },
+    {
+      "id": "LIVE-010",
+      "classification": "B",
+      "requirement": "Seller verification SOP, inspection SOP, dispute SOP and finance reconciliation SOP operational.",
+      "remainingAction": "Verify SOP coverage; obtain operational use evidence for seller verification, inspection, disputes and reconciliation.",
+      "loc": "P104",
+      "ord": 193
+    },
+    {
+      "id": "LIVE-011",
+      "classification": "B",
+      "requirement": "SLAs, escalation owners and admin exception queues defined.",
+      "remainingAction": "Verify SLA and exception-queue software; assign named escalation owners.",
+      "loc": "P105",
+      "ord": 194
+    },
+    {
+      "id": "LIVE-012",
+      "classification": "C",
+      "requirement": "Support team trained using real UAT scenarios.",
+      "remainingAction": "Train actual support staff using real UAT scenarios and record attendance/results.",
+      "loc": "P106",
+      "ord": 195
+    },
+    {
+      "id": "LIVE-013",
+      "classification": "C",
+      "requirement": "Penetration/security testing issues resolved per release criteria.",
+      "remainingAction": "Obtain external penetration/security testing and resolve findings against release criteria.",
+      "loc": "P108",
+      "ord": 196
+    },
+    {
+      "id": "LIVE-014",
+      "classification": "C",
+      "requirement": "Privacy/terms/seller/buyer/inspection policies approved by qualified legal/compliance counsel for launch markets.",
+      "remainingAction": "Obtain qualified counsel approval of all launch-market policies.",
+      "loc": "P109",
+      "ord": 197
+    },
+    {
+      "id": "LIVE-015",
+      "classification": "B",
+      "requirement": "Backup/restore, incident response and privileged access review tested.",
+      "remainingAction": "Run the complete restore verifier after local Docker repair, perform an incident rehearsal and obtain the real privileged-access review. No restore or human access review was performed in batch 6.",
+      "loc": "P110",
+      "ord": 198
+    },
+    {
+      "id": "LIVE-016",
+      "classification": "C",
+      "requirement": "Payment, payout, logistics, notification, storage and inspection integrations production-tested.",
+      "remainingAction": "Test all listed integrations with real production providers and record results.",
+      "loc": "P112",
+      "ord": 199
+    },
+    {
+      "id": "LIVE-017",
+      "classification": "B",
+      "requirement": "Webhook retries, reconciliation and outage fallback validated.",
+      "remainingAction": "Local adapter/refund/payout/tracking outage tests passed (4 files/51 tests); conduct and record the required staging provider-outage exercise with actual configured providers. Local injected adapters and fake sockets are not staging evidence.",
+      "loc": "P113",
+      "ord": 200
+    },
+    {
+      "id": "LIVE-018",
+      "classification": "B",
+      "requirement": "Production credentials/secrets rotated and monitored.",
+      "remainingAction": "Verify rotation/monitoring controls; rotate actual production credentials and record monitoring evidence.",
+      "loc": "P114",
+      "ord": 201
+    },
+    {
+      "id": "LIVE-019",
+      "classification": "B",
+      "requirement": "Master data loaded and approved.",
+      "remainingAction": "Verify readiness checks; obtain business approval of loaded master data.",
+      "loc": "P116",
+      "ord": 202
+    },
+    {
+      "id": "LIVE-020",
+      "classification": "B",
+      "requirement": "Critical event analytics validated against source transactions.",
+      "remainingAction": "Verify transaction reconciliation controls; validate critical analytics against production traffic.",
+      "loc": "P117",
+      "ord": 203
+    },
+    {
+      "id": "SIGNOFF-001",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R2C3",
+      "ord": 205
+    },
+    {
+      "id": "SIGNOFF-002",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R2C3",
+      "ord": 206
+    },
+    {
+      "id": "SIGNOFF-003",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R3C3",
+      "ord": 207
+    },
+    {
+      "id": "SIGNOFF-004",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R3C3",
+      "ord": 208
+    },
+    {
+      "id": "SIGNOFF-005",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R4C3",
+      "ord": 209
+    },
+    {
+      "id": "SIGNOFF-006",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R4C3",
+      "ord": 210
+    },
+    {
+      "id": "SIGNOFF-007",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R5C3",
+      "ord": 211
+    },
+    {
+      "id": "SIGNOFF-008",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R5C3",
+      "ord": 212
+    },
+    {
+      "id": "SIGNOFF-009",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R6C3",
+      "ord": 213
+    },
+    {
+      "id": "SIGNOFF-010",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R6C3",
+      "ord": 214
+    },
+    {
+      "id": "SIGNOFF-011",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R7C3",
+      "ord": 215
+    },
+    {
+      "id": "SIGNOFF-012",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R7C3",
+      "ord": 216
+    },
+    {
+      "id": "SIGNOFF-013",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R8C3",
+      "ord": 217
+    },
+    {
+      "id": "SIGNOFF-014",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R8C3",
+      "ord": 218
+    },
+    {
+      "id": "SIGNOFF-015",
+      "classification": "D",
+      "requirement": "Approve",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R9C3",
+      "ord": 219
+    },
+    {
+      "id": "SIGNOFF-016",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R9C3",
+      "ord": 220
+    },
+    {
+      "id": "SIGNOFF-017",
+      "classification": "D",
+      "requirement": "Go Live",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R10C3",
+      "ord": 221
+    },
+    {
+      "id": "SIGNOFF-018",
+      "classification": "D",
+      "requirement": "Hold",
+      "remainingAction": "Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices.",
+      "loc": "T19R10C3",
+      "ord": 222
+    },
+    {
+      "id": "JOURNEY-010",
+      "classification": "B",
+      "requirement": "Verify Indian manufacturer/OEM before selling. Checks: PAN/GST/CIN/Udyam/IEC as applicable; bank validation; beneficial owner/contact; factory proof; export capability; sanctions/restriction screening as required by policy.",
+      "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
+      "loc": "T23R4C5",
+      "ord": 250
+    },
+    {
+      "id": "ENH-001",
+      "classification": "A",
+      "requirement": "User describes need in plain language; AI converts it into filters/specifications and a draft RFQ.",
+      "remainingAction": "Prove plain-language sourcing becomes filters/specifications and an editable draft RFQ, with confirmation and failure coverage.",
+      "loc": "T33R2C5",
+      "ord": 308
+    },
+    {
+      "id": "ENH-002",
+      "classification": "A",
+      "requirement": "AI summarizes differences only from verified catalog/quote data and links every conclusion to source fields.",
+      "remainingAction": "Prove comparison uses verified catalogue/quote fields and links every conclusion to its source.",
+      "loc": "T33R3C5",
+      "ord": 309
+    },
+    {
+      "id": "ENH-003",
+      "classification": "E",
+      "requirement": "Home changes for guest, B2B buyer, B2C buyer, seller and returning user.",
+      "remainingAction": "Verify guest/B2B/B2C/seller/returning persona home behavior after verifying the preserved storefront changes.",
+      "loc": "T33R4C5",
+      "ord": 310
+    },
+    {
+      "id": "ENH-004",
+      "classification": "A",
+      "requirement": "One search can find product, supplier, RFQ, order, invoice, shipment or help depending on role.",
+      "remainingAction": "Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; review the preserved pending header changes.",
+      "loc": "T33R5C5",
+      "ord": 311
+    },
+    {
+      "id": "ENH-005",
+      "classification": "A",
+      "requirement": "Persistent actions: Create RFQ, Upload Image, Ask AI, Reorder, Track Order, Contact Support.",
+      "remainingAction": "Verify persistent RFQ/image/AI/reorder/tracking/support actions across applicable roles; review the preserved pending storefront changes.",
+      "loc": "T33R6C5",
+      "ord": 312
+    },
+    {
+      "id": "ENH-008",
+      "classification": "A",
+      "requirement": "Explain match using capacity, MOQ, certifications, destination eligibility and response record; avoid opaque ranking.",
+      "remainingAction": "Verify explainable capacity/MOQ/certificate/destination/response matching and missing-data behavior; review the preserved pending supplier panels.",
+      "loc": "T33R9C5",
+      "ord": 315
+    },
+    {
+      "id": "ENH-015",
+      "classification": "A",
+      "requirement": "Step-by-step mapping for PO, order acknowledgement, invoice, shipment and status with sandbox test.",
+      "remainingAction": "Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test.",
+      "loc": "T33R16C5",
+      "ord": 322
+    },
+    {
+      "id": "ENH-016",
+      "classification": "A",
+      "requirement": "Upload Excel/CSV requirements or SKU list to create multi-line RFQ/order.",
+      "remainingAction": "Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation.",
+      "loc": "T33R17C5",
+      "ord": 323
+    },
+    {
+      "id": "ENH-018",
+      "classification": "A",
+      "requirement": "Rank operational tasks by deadline and business impact, not merely dashboard metrics.",
+      "remainingAction": "Verify individual operational tasks ranked by deadline and business impact, with deterministic ties.",
+      "loc": "T33R19C5",
+      "ord": 325
+    },
+    {
+      "id": "ENH-019",
+      "classification": "A",
+      "requirement": "One queue for failed payment, missing doc, inspection NCR, late shipment, settlement mismatch and integration failure.",
+      "remainingAction": "Verify one scoped queue covers all six named payment/document/inspection/shipment/settlement/integration exception types.",
+      "loc": "T33R20C5",
+      "ord": 326
+    },
+    {
+      "id": "ENH-020",
+      "classification": "A",
+      "requirement": "Bundle low-priority alerts; immediately escalate inspection fail, payment risk, shipping delay and RFQ expiry.",
+      "remainingAction": "Verify low-priority bundling and immediate critical inspection/payment/shipping/RFQ escalation, including deduplication.",
+      "loc": "T33R21C5",
+      "ord": 327
+    },
+    {
+      "id": "ENH-022",
+      "classification": "A",
+      "requirement": "Inline prompts explain importer details, labeling or documents needed for selected destination.",
+      "remainingAction": "Verify destination-dependent importer, label and document guidance in checkout and RFQ with compliance enforcement.",
+      "loc": "T33R23C5",
+      "ord": 329
+    },
+    {
+      "id": "ENH-027",
+      "classification": "A",
+      "requirement": "Interactive quantity slider displays tier price, lead-time/capacity effect and estimated landed cost.",
+      "remainingAction": "Verify quantity slider tier pricing, lead time/capacity and landed estimate using exact money; review the preserved pending product-page changes.",
+      "loc": "T33R28C5",
+      "ord": 334
+    },
+    {
+      "id": "ENH-030",
+      "classification": "A",
+      "requirement": "Visible countdowns for quote response, inspection assignment, report issuance, shipment readiness and dispute handling.",
+      "remainingAction": "Verify visible RFQ/inspection/report/shipment/dispute countdowns, overdue states and time boundaries.",
+      "loc": "T33R31C5",
+      "ord": 337
+    },
+    {
+      "id": "ENH-032",
+      "classification": "A",
+      "requirement": "Explain fields, suggest values from existing verified data, but require user confirmation.",
+      "remainingAction": "Verify complex-form explanations and verified-data suggestions require explicit user confirmation.",
+      "loc": "T33R33C5",
+      "ord": 339
+    },
+    {
+      "id": "DYNAMIC-001",
+      "classification": "E",
+      "requirement": "Header: Logo | Universal Search | Country/Language/Currency | Seller Hub | Messages/Notifications | Profile | Cart.",
+      "remainingAction": "Verify every required header entry and role permission after verifying the preserved storefront changes.",
+      "loc": "P146",
+      "ord": 340
+    },
+    {
+      "id": "DYNAMIC-002",
+      "classification": "E",
+      "requirement": "Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search).",
+      "remainingAction": "Verify hero text, AI input and all four mode chips after verifying the preserved storefront changes.",
+      "loc": "P147",
+      "ord": 341
+    },
+    {
+      "id": "DYNAMIC-003",
+      "classification": "E",
+      "requirement": "Trust strip: Verified manufacturers | Independent inspection | Buyer protection / controlled payment | Global logistics.",
+      "remainingAction": "Verify all four trust statements and their substantiation after verifying the preserved storefront changes.",
+      "loc": "P148",
+      "ord": 342
+    },
+    {
+      "id": "DYNAMIC-004",
+      "classification": "A",
+      "requirement": "Personalized task row for signed-in user: quotes awaiting decision, inspection status, shipments, payments, repeat orders.",
+      "remainingAction": "Verify signed-in quote/inspection/shipment/payment/repeat-order tasks and isolation; review the preserved pending home changes.",
+      "loc": "P149",
+      "ord": 343
+    },
+    {
+      "id": "DYNAMIC-005",
+      "classification": "E",
+      "requirement": "AI sourcing assistant with examples and “Create RFQ from this conversation”.",
+      "remainingAction": "Verify sourcing examples and conversation-to-RFQ flow against ENH-001; review the preserved pending home changes.",
+      "loc": "P150",
+      "ord": 344
+    },
+    {
+      "id": "DYNAMIC-007",
+      "classification": "E",
+      "requirement": "B2B tools: Request Private Label/OEM | Upload Bulk Requirement | Landed Cost | Schedule Cart | ERP Integration.",
+      "remainingAction": "Verify OEM/bulk/landed-cost/schedule/ERP tools separately against their dependent feature rows; review the preserved pending home changes.",
+      "loc": "P152",
+      "ord": 346
+    },
+    {
+      "id": "DYNAMIC-010",
+      "classification": "B",
+      "requirement": "Footer: Help, policies, inspection policy, buyer/seller terms, privacy, prohibited products, support and company information.",
+      "remainingAction": "Verify every footer link after verifying the preserved storefront changes completes; approved policy content remains required.",
+      "loc": "P155",
+      "ord": 349
+    }
+  ],
+  "current": {
+    "checked": 290,
+    "open": 74,
+    "total": 364
+  },
+  "completed": [
+    {
+      "ids": [
+        "DYNAMIC-002"
+      ],
+      "batch": 16,
+      "review": "Approved after fixes"
+    }
+  ]
+}

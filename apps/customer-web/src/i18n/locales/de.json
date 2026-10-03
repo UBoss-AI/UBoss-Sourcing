@@ -8401,5 +8401,17 @@
   "discovery.capability": "Fähigkeit des Lieferanten",
   "discovery.didYouMean": "Meinten Sie? Wählen Sie einen Vorschlag für eine neue Suche.",
   "discovery.browse": "Katalog durchsuchen",
-  "discovery.hint": "Einige passende öffentliche Einträge werden angezeigt. Präzisieren Sie Ihre Wörter für weitere Treffer. Fähigkeiten sind Angaben des Lieferanten; die Suche bestätigt keine Erfüllung."
+  "discovery.hint": "Einige passende öffentliche Einträge werden angezeigt. Präzisieren Sie Ihre Wörter für weitere Treffer. Fähigkeiten sind Angaben des Lieferanten; die Suche bestätigt keine Erfüllung.",
+  "sourcingShortcuts.label": "Schnellzugriff für die Beschaffung",
+  "sourcingShortcuts.manufacturers": "Beschaffen Sie bei verifizierten indischen Herstellern",
+  "sourcingShortcuts.reviewBasis": "Verifizierung durch diesen Marktplatz dokumentiert; Indien ist ihr Registrierungsland.",
+  "sourcingShortcuts.product": "Produkt",
+  "sourcingShortcuts.supplier": "Lieferant",
+  "sourcingShortcuts.rfq": "Angebotsanfrage",
+  "sourcingShortcuts.rfqUnavailable": "Angebotsanfragen sind hier nicht verfügbar",
+  "sourcingShortcuts.imageUnavailable": "Bildsuche ist hier nicht verfügbar",
+  "sourcingShortcuts.directoryTitle": "Lieferanten finden",
+  "sourcingShortcuts.directoryHint": "Genehmigte Lieferanten mit aktiven Produkten. Bis zu 24 öffentliche Treffer werden angezeigt; verfeinern Sie den öffentlichen Namen für weitere Treffer.",
+  "sourcingShortcuts.nameSearch": "Öffentlicher Lieferantenname",
+  "sourcingShortcuts.directoryEmpty": "Keine genehmigten Lieferanten gefunden. Verwenden Sie weniger Wörter oder löschen Sie die Suche."
 }

@@ -1101,9 +1101,9 @@ the panel, the fixed positioning, and the per-tab conversation it kept in
 customer, a conversation history that belongs to the *account* rather than to
 the browser tab.
 
-**Image search is the one thing behind the wall.** The camera button on the
-front page's search bar spends the operator's AI provider budget on every
-press, and unlike a chat message there is no cheap version of it — a vision
+**Image search requires customer sign-in.** The Image Search shortcut above the
+front-page search bar opens the photograph dialog. Sending a photograph spends
+the operator's AI provider budget; unlike a chat message there is no cheap version of it — a vision
 call is the most expensive single request this API makes. So it sits behind the
 session, and a guest is offered a way in rather than a file picker that ends in
 a 401. Browsing, searching and filtering the catalogue stay open to everybody.
@@ -1798,14 +1798,14 @@ customer to confirm, resolving a support request needs a resolution code, and
 the public config carries `captcha` (provider and site key) and
 `features.customerMfa`.
 
-The bar carries four controls:
+Search controls and the image shortcut:
 
 | Control | What it does |
 |---|---|
 | Text input | Enter submits, as does the Search button |
 | Clear | Empties the box without submitting |
 | Microphone | Dictates into the box using the browser's own speech engine |
-| Camera | Opens image search — see below |
+| Image Search shortcut (camera, above the bar) | Opens image search — see below |
 
 **Voice search never submits.** The transcript lands in the box and stops
 there; the customer reads what was heard and presses Search themselves. Speech
@@ -1881,10 +1881,10 @@ composer for the question they were going to ask about it — "is this the one
 that fits a 10 Fr port?" against a picture of the thing. That was already true
 for an uploaded picture; it is now true for one taken on the spot.
 
-**A capability the operator has not configured is absent, not disabled.** On a
-deployment with no AI provider there is no AI item and no camera button —
-and with only one item left, no row above the bar either, because one item is a
-label pretending to be a choice.
+**The shortcuts explain unavailable capabilities.** Home and Products remain
+real destinations. The AI link appears only when the operator enables it. RFQ
+and Image Search shortcuts show unavailable wording when their features are
+off, without a link or button that would lead to a dead end.
 
 ## The headline, and the line that changes under it
 
@@ -9591,6 +9591,8 @@ the session guard. It is rate limited to **12 in five minutes**, well below the
 chat endpoint, because a vision call is the most expensive single request this
 API makes and nobody legitimately photographs ten products a minute.
 
+
+**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The Indian manufacturer statement is shown only after the existing shared public supplier read (up to eight records) includes a MANUFACTURER registered in India with a valid recorded verification date. It means recorded marketplace verification and registered location, not independent factory certification or a fulfilment guarantee. The bounded read may leave the statement absent even if another manufacturer exists beyond its result limit. The statement space stays reserved while loading or after refusal, including before styles load. No supplier cards or newly verified supplier section is restored to the homepage. Twelve new labels are translated in all eight customer locales.
 
 **Public catalogue discovery (HOME-009).** The home search offers labelled product,
 category, approved supplier and supplier-declared capability links after the buyer

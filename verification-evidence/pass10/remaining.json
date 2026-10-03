@@ -1102,9 +1102,10 @@
       "priority": "—",
       "requirement": "Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search).",
       "classification": "E",
-      "remainingAction": "Verify hero text, AI input and all four mode chips after verifying the preserved storefront changes.",
-      "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "remainingAction": "None for sourcing hero shortcuts. Broader private search, AI/RFQ composition and persona tasks stay separate.",
+      "status": "VERIFIED",
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "evidence": "verification-evidence/pass10/batch-16.json"
     },
     {
       "id": "DYNAMIC-003",
@@ -1234,8 +1235,8 @@
     }
   ],
   "current": {
-    "checked": 289,
-    "open": 75,
+    "checked": 290,
+    "open": 74,
     "total": 364
   },
   "baselineCounts": {
@@ -1338,7 +1339,7 @@
       "total": 32
     },
     "DYNAMIC": {
-      "checked": 3,
+      "checked": 4,
       "total": 10
     },
     "UAT": {
@@ -1416,7 +1417,6 @@
     "ENH-030",
     "ENH-032",
     "DYNAMIC-001",
-    "DYNAMIC-002",
     "DYNAMIC-003",
     "DYNAMIC-004",
     "DYNAMIC-005",

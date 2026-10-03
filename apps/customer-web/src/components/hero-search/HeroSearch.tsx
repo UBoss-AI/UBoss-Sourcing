@@ -66,13 +66,14 @@
  * capability the operator has not switched on. Home and Products are not
  * optional, so unlike before there is always a row.
  */
+import { SourcingShortcuts } from './SourcingShortcuts';
 import { DiscoveryMatches } from '@/components/catalog/DiscoveryMatches';
 import { rememberCatalogueSearch } from '@/lib/recent-catalogue-searches';
 import { useCallback, useRef, useState } from 'react';
 import { track } from '@/lib/analytics';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
-import { CameraIcon, CloseIcon, MicIcon, SearchIcon, SparkIcon } from '@/components/icons';
+import { CloseIcon, MicIcon, SearchIcon, SparkIcon } from '@/components/icons';
 import { Spinner } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { AI_MODE_PATH, setPendingQuestion } from '@/lib/ai-mode';
@@ -295,6 +296,7 @@ export function HeroSearch(): React.JSX.Element {
     <div className="mt-8 w-full max-w-2xl">
       {/* Home and Products are always there, so the row always is. Only the AI
           item comes and goes with what the operator has configured. */}
+      <SourcingShortcuts term={term} onImageSearch={() => { setIsImageDialogOpen(true); }} />
       <SearchModes hasAi={hasAi} term={term} onLeaveForAi={leaveForAi} />
 
       <div>
@@ -355,23 +357,6 @@ export function HeroSearch(): React.JSX.Element {
           <div className="mt-1 flex items-center justify-between gap-2 px-2 pb-1.5">
             {/* Left: the ways of searching that are not typing. */}
             <div className="flex min-w-0 items-center gap-1">
-              {hasImageSearch && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsImageDialogOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-brand-soft hover:text-brand"
-                >
-                  <CameraIcon className="h-[1.15rem] w-[1.15rem] shrink-0" />
-                  {/* The label is hidden on the narrowest screens, where the
-                      bar has to hold four controls. The accessible name comes
-                      from the `sr-only` span, so it never disappears. */}
-                  <span className="hidden sm:inline">{t('heroSearch.imageSearch')}</span>
-                  <span className="sr-only sm:hidden">{t('heroSearch.imageSearch')}</span>
-                </button>
-              )}
-
               {voice.isSupported && (
                 <button
                   type="button"

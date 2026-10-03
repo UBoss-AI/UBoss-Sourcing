@@ -4923,3 +4923,9 @@ capabilities, with shared word/maintained-synonym matching in the product grid.
 It includes optional tab-local recent searches, explicit spelling suggestions,
 empty-result recovery and retry, while retaining public/market/seller visibility.
 Search analytics count submissions without sending query text or identifiers.
+
+The sourcing hero offers Product, Supplier, RFQ and Image Search shortcuts. Typed
+words remain editable at their destination; unavailable features say so. The
+Indian manufacturer wording requires an actual approved public manufacturer
+registered in India with a valid recorded verification date. Supplier browsing has its own public page, bounded to 24
+name matches with retry and empty guidance.

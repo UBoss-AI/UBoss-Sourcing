@@ -8510,5 +8510,17 @@
   "discovery.capability": "Capacità del fornitore",
   "discovery.didYouMean": "Forse intendevi? Scegli un suggerimento per cercare di nuovo.",
   "discovery.browse": "Sfoglia il catalogo",
-  "discovery.hint": "Sono mostrati alcuni record pubblici corrispondenti. Affina le parole per altri risultati. Le capacità sono dichiarate dal fornitore; questa ricerca non ne conferma la realizzazione."
+  "discovery.hint": "Sono mostrati alcuni record pubblici corrispondenti. Affina le parole per altri risultati. Le capacità sono dichiarate dal fornitore; questa ricerca non ne conferma la realizzazione.",
+  "sourcingShortcuts.label": "Scorciatoie per gli acquisti",
+  "sourcingShortcuts.manufacturers": "Acquista da produttori indiani verificati",
+  "sourcingShortcuts.reviewBasis": "Verifica registrata da questo marketplace; l’India è il loro paese di registrazione.",
+  "sourcingShortcuts.product": "Prodotto",
+  "sourcingShortcuts.supplier": "Fornitore",
+  "sourcingShortcuts.rfq": "Richiesta di preventivo",
+  "sourcingShortcuts.rfqUnavailable": "Le richieste di preventivo non sono disponibili qui",
+  "sourcingShortcuts.imageUnavailable": "La ricerca per immagine non è disponibile qui",
+  "sourcingShortcuts.directoryTitle": "Trova un fornitore",
+  "sourcingShortcuts.directoryHint": "Fornitori approvati con prodotti attivi. Sono mostrati fino a 24 risultati pubblici; precisa il nome pubblico per altri risultati.",
+  "sourcingShortcuts.nameSearch": "Nome pubblico del fornitore",
+  "sourcingShortcuts.directoryEmpty": "Nessun fornitore approvato trovato. Prova meno parole o cancella la ricerca."
 }

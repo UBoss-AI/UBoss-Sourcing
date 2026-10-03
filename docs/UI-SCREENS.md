@@ -639,7 +639,7 @@ call fails, everything below counts as off.
 | `customerAutopay` | Whether the Autopay card in the sourcing hub opens `/account/autopay` or explains "Autopay is not offered on this deployment…". True only when the server settings `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on (both off by default) |
 | `customerErp` | Whether the ERP Integration card opens `/account/integrations/erp` or explains "Connecting your own purchasing system is not offered on this deployment…" (server setting `FEATURE_CUSTOMER_ERP`, off by default) |
 | `assistant.allowsGuests` | Whether AI Mode answers somebody who is not signed in (server setting `ASSISTANT_ALLOW_GUESTS`, off by default) |
-| `imageSearch` | The camera button on the front page search and in AI Mode |
+| `imageSearch` | The Image Search shortcut (camera) above the front-page search and the image control in AI Mode |
 | `buyerCompanies` | The Individual and Company tabs on `/login`, `/register/company`, `/select-company`, "Company accounts" in the account area and menu, the "Buying for" switch and the company status bar (server setting `FEATURE_BUYER_COMPANIES`, on by default) |
 | `supportTickets` | Whether the Support page offers the **Raise a ticket** form (server setting `FEATURE_SUPPORT_TICKETS`, on by default). Off, the page shows only the published contacts; **Your tickets** stays, and existing tickets can still be answered |
 
@@ -691,8 +691,9 @@ browse.
      name, and a line that changes ("Source with Intelligence" / "Deliver with
      Confidence").
    - **The search module**: tabs **Home**, **AI Assistant** (when switched on)
-     and **Products**; the search box ("Search the catalogue"); a camera
-     button for **Image search** (when switched on); a microphone for **Search
+     and **Products**; Product, Supplier, RFQ and Image Search shortcuts above
+     the bar, with unavailable wording for switched-off RFQ/image features;
+     the search box ("Search the catalogue"); a microphone for **Search
      by voice** (when the browser can); and **Search**.
    - One sentence under the strapline: "Source direct from verified suppliers
      in {country}, priced in your currency and ordered online." when every
@@ -8226,3 +8227,5 @@ Up to eight submitted searches are kept in optional browser-tab session storage,
 can refill the editable input, and have a Clear control. They are never sent to
 analytics: search_submitted remains a privacy-respecting daily counter without
 query text or identifiers. No private account, RFQ, order or invoice search is added.
+
+**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The Indian manufacturer statement is shown only after the existing shared public supplier read (up to eight records) includes a MANUFACTURER registered in India with a valid recorded verification date. It means recorded marketplace verification and registered location, not independent factory certification or a fulfilment guarantee. The bounded read may leave the statement absent even if another manufacturer exists beyond its result limit. The statement space stays reserved while loading or after refusal, including before styles load. No supplier cards or newly verified supplier section is restored to the homepage. Twelve new labels are translated in all eight customer locales.

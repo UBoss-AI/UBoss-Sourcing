@@ -8510,5 +8510,17 @@
   "discovery.capability": "Capacidad del proveedor",
   "discovery.didYouMean": "¿Querías decir? Elige una sugerencia para buscar de nuevo.",
   "discovery.browse": "Explorar el catálogo",
-  "discovery.hint": "Se muestran algunos registros públicos coincidentes. Ajusta las palabras para ver otras coincidencias. Las capacidades las declara el proveedor; esta búsqueda no confirma el cumplimiento."
+  "discovery.hint": "Se muestran algunos registros públicos coincidentes. Ajusta las palabras para ver otras coincidencias. Las capacidades las declara el proveedor; esta búsqueda no confirma el cumplimiento.",
+  "sourcingShortcuts.label": "Accesos de abastecimiento",
+  "sourcingShortcuts.manufacturers": "Compre a fabricantes indios verificados",
+  "sourcingShortcuts.reviewBasis": "Verificación registrada por este mercado; India es su país de registro.",
+  "sourcingShortcuts.product": "Producto",
+  "sourcingShortcuts.supplier": "Proveedor",
+  "sourcingShortcuts.rfq": "Solicitud de cotización",
+  "sourcingShortcuts.rfqUnavailable": "Las solicitudes de cotización no están disponibles aquí",
+  "sourcingShortcuts.imageUnavailable": "La búsqueda por imagen no está disponible aquí",
+  "sourcingShortcuts.directoryTitle": "Buscar un proveedor",
+  "sourcingShortcuts.directoryHint": "Proveedores aprobados con productos activos. Se muestran hasta 24 coincidencias públicas; precise el nombre público para otras coincidencias.",
+  "sourcingShortcuts.nameSearch": "Nombre público del proveedor",
+  "sourcingShortcuts.directoryEmpty": "No se encontraron proveedores aprobados. Pruebe con menos palabras o borre la búsqueda."
 }

@@ -206,6 +206,8 @@ export const router = createBrowserRouter([
         ...publicRoute(() => import('@/pages/AiModePage').then((m) => m.AiModePage)),
       },
 
+      { path: 'suppliers', ...publicRoute(() => import('@/pages/SupplierDirectoryPage').then((m) => m.SupplierDirectoryPage)) },
+
       // --- Buying: activated customers only ---------------------------------
       { path: 'cart', ...customerRoute(() => import('@/pages/CartPage').then((m) => m.CartPage)) },
       // The inspection agency portal (checklist Master rows 45-54).
