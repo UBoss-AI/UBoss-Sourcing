@@ -1118,7 +1118,6 @@ function renderCustomer(context: AssistantCustomerContext): string {
   lines.push(`- name: ${context.fullName}`);
   if (context.organization !== null) lines.push(`- organisation: ${context.organization}`);
   if (context.department !== null) lines.push(`- department: ${context.department}`);
-  if (context.customerCode !== null) lines.push(`- account number: ${context.customerCode}`);
   if (context.preferredCurrency !== null) {
     lines.push(`- quotes prices in: ${context.preferredCurrency}`);
   }

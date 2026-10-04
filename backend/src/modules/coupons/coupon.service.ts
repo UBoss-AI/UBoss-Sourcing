@@ -278,6 +278,30 @@ export async function recordRedemption(
     discountMinor: Minor;
   },
 ): Promise<void> {
+  // The limits were checked when the cart was priced, outside this
+  // transaction - so two checkouts fired at once both passed that check and
+  // both redeemed a once-per-customer coupon. Lock the coupon row and count
+  // again here, where the redemption is written, so racing requests queue.
+  await tx.$queryRaw`SELECT id FROM coupons WHERE id = ${input.couponId} FOR UPDATE`;
+  const limits = await tx.coupon.findUniqueOrThrow({
+    where: { id: input.couponId },
+    select: { usageLimit: true, perCustomerLimit: true },
+  });
+  if (limits.usageLimit !== null) {
+    const used = await tx.couponRedemption.count({ where: { couponId: input.couponId } });
+    if (used >= limits.usageLimit) {
+      throw conflict(ErrorCode.COUPON_USAGE_LIMIT_REACHED, `Coupon ${input.codeSnapshot} has been fully claimed.`);
+    }
+  }
+  if (limits.perCustomerLimit !== null && input.customerProfileId !== null) {
+    const used = await tx.couponRedemption.count({
+      where: { couponId: input.couponId, customerProfileId: input.customerProfileId },
+    });
+    if (used >= limits.perCustomerLimit) {
+      throw conflict(ErrorCode.COUPON_USAGE_LIMIT_REACHED, `You have already used coupon ${input.codeSnapshot}.`);
+    }
+  }
+
   await tx.couponRedemption.create({
     data: {
       id: newId(),

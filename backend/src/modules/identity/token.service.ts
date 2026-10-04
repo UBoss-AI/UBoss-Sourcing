@@ -34,7 +34,7 @@ export type TokenPurpose =
 const TOKEN_TTL_HOURS: Readonly<Record<TokenPurpose, number>> = Object.freeze({
   INVITATION: 168, // 7 days - a business buyer may not check mail immediately.
   EMAIL_VERIFICATION: 48,
-  PASSWORD_RESET: 1, // Short: a reset link in an inbox is a standing key.
+  PASSWORD_RESET: 0.25, // 15 minutes. Short: a reset link in an inbox is a standing key.
   // Changing the address the account signs in with. Two hours, which is long
   // enough to walk to another machine and short enough that an abandoned
   // change does not sit live in a mailbox for a week. Deliberately not the 48

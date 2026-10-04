@@ -553,7 +553,7 @@ Every prefix also has password reset:
 
 | Endpoint | Body | Answer |
 |---|---|---|
-| `POST {prefix}/password/forgot` | `{ email }` | `202` with a neutral message. 5 per 15 minutes |
+| `POST {prefix}/password/forgot` | `{ email }` | `202` with a neutral message. 3 per hour |
 | `POST {prefix}/password/reset` | `{ token, newPassword }` | `200 { passwordReset: true }`. Ends every session |
 
 ## The buyer context: buying for yourself or for a company
@@ -1326,7 +1326,8 @@ than let through, so brute-force protection never silently switches off.
 |---|---|
 | Global, every route | `RATE_LIMIT_GLOBAL_PER_MINUTE` per minute, default **300** |
 | Sign-in and refresh | `RATE_LIMIT_LOGIN_PER_15MIN` per 15 minutes, default **10** |
-| Password forgot / reset | 5 / 10 per 15 minutes |
+| Password forgot / reset | 3 per hour / 10 per 15 minutes |
+| Admin MFA enrolment verify | 10 per 15 minutes |
 | Customer register | 5 per hour |
 | Checkout | 20 per 5 minutes |
 | Payment session | 20 per 5 minutes |

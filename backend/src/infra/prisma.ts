@@ -30,6 +30,14 @@ function createAdapter(url = connectionUrl(), poolSize = env.DB_POOL_SIZE): Pris
     // Asia/Calcutta, so pinning the session zone stops the driver applying a
     // local-time offset on the way in or out.
     timezone: 'Z',
+    // Production (deploy/mariadb/uboss.cnf) and CI run strict; a stock XAMPP
+    // install does not, and silently truncates a value too long for its
+    // column. A test that wrote 36 characters into a CHAR(32) passed here and
+    // failed in CI. Pinning the session mode makes every machine refuse it.
+    sessionVariables: {
+      sql_mode:
+        'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE',
+    },
     ...parseConnectionUrl(url),
   });
 }

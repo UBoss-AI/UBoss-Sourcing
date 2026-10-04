@@ -462,7 +462,7 @@ export function authRoutes(kind: UserKind) {
        * confirms this session, accepting either an authenticator code or a
        * one-time recovery code.
        */
-      app.post('/mfa/verify', { preHandler: requireAuthenticated('ADMIN') }, async (request, reply) => {
+      app.post('/mfa/verify', { preHandler: requireAuthenticated('ADMIN'), config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } }, async (request, reply) => {
         const body = z
           .object({
             code: z.string().trim().min(6).max(16),
@@ -766,7 +766,7 @@ export function authRoutes(kind: UserKind) {
      */
     app.post(
       '/password/forgot',
-      { config: { rateLimit: { max: 5, timeWindow: '15 minutes' } } },
+      { config: { rateLimit: { max: 3, timeWindow: '1 hour' } } },
       async (request, reply) => {
         const body = forgotPasswordSchema.parse(request.body);
         const context = requestContext(request);

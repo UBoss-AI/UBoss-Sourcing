@@ -5036,7 +5036,7 @@ attempts: "Too many attempts. Wait a few minutes before trying again."
 
 **On the screen.** **Email address** and **Email me a link**. It always says
 the same thing, whether or not the address exists: "If that address belongs to
-a staff account, a reset link is on its way. It expires in an hour…". So the
+a staff account, a reset link is on its way. It expires in 15 minutes…". So the
 page cannot be used to find out who works here.
 
 **API call:** `POST /api/v1/admin/auth/password/forgot`

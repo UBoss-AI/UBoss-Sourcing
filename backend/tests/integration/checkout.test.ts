@@ -15,12 +15,14 @@ import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import {
   addItem,
+  applyCoupon,
   clearCart,
   removeItem,
   resolveCart,
   toCartView,
   updateItemQuantity,
 } from '../../src/modules/cart/cart.service.js';
+import { createCoupon } from '../../src/modules/coupons/coupon.service.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
 import {
   IdempotencyScope,
@@ -538,6 +540,36 @@ describe('checkout idempotency', () => {
     // Neither outcome may produce a second order.
     expect(results.some((r) => r.status === 'fulfilled')).toBe(true);
     expect(await prisma.order.count()).toBe(1);
+  });
+
+  // The attacker's version: two different keys at once, carrying a coupon
+  // limited to one use per customer. The cart lock must serialise them, and
+  // the loser must not get a second discounted order.
+  it('a once-per-customer coupon cannot be redeemed twice by racing two keys', async () => {
+    await createCoupon(
+      {
+        code: 'ONCEONLY',
+        name: 'Once only',
+        discountPercent: '50.00',
+        scope: 'ALL_PRODUCTS',
+        status: 'ACTIVE',
+        perCustomerLimit: 1,
+        minimums: ['INR', 'EUR', 'USD'].map((currencyCode) => ({ currencyCode, minOrderMinor: 0n })),
+      },
+      adminActor.userId,
+    );
+    try {
+      await addItem(customerProfileId, { productId, quantity: 20 });
+      await applyCoupon(customerProfileId, 'ONCEONLY');
+      const body = { shippingAddressId: addressId, paymentMode: 'ONLINE' as const };
+
+      await Promise.allSettled([runCheckout('race-a', body), runCheckout('race-b', body)]);
+
+      expect(await prisma.couponRedemption.count()).toBeLessThanOrEqual(1);
+    } finally {
+      await prisma.couponRedemption.deleteMany({});
+      await prisma.coupon.deleteMany({ where: { code: 'ONCEONLY' } });
+    }
   });
 });
 

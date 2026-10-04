@@ -18,7 +18,7 @@ const ids: string[] = [];
 let integrationId = '';
 beforeAll(async () => {
   integrationId = newId();
-  await prisma.carrierIntegration.create({ data: { id: integrationId, provider: 'DHL', name: 'Tracking poll test carrier', state: 'ACTIVE', isActive: true, webhookPathToken: `poll-test-${integrationId}` } });
+  await prisma.carrierIntegration.create({ data: { id: integrationId, provider: 'DHL', name: 'Tracking poll test carrier', state: 'ACTIVE', isActive: true, webhookPathToken: `poll${integrationId}` } });
 });
 beforeEach(() => { mutable.FEATURE_LOGISTICS_PORTAL = true; });
 afterAll(async () => {
