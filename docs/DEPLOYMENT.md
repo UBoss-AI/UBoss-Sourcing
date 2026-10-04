@@ -465,7 +465,7 @@ Do not let these collapse into one number in a planning conversation.
 
 ### 5.3 Load-test scenarios
 
-**No load-testing tool is present in the repository** **[VR]**. Use **k6**:
+**Scenarios 1–3 are scripted** in `scripts/load/k6-storefront.js` (usage is in its header). The others, checkout first, are not scripted yet. Use **k6**:
 it is a single static binary (no Node or Python runtime to install on a box that
 has neither spare RAM nor spare cores), its scripts are JavaScript so they read
 like the application, it emits p95/p99 natively, and it can run from a machine
