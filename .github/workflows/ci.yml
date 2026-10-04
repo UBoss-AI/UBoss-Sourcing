@@ -506,7 +506,9 @@ jobs:
       # this job, which costs more than the advisories it would have caught.
       - name: npm audit
         working-directory: ${{ matrix.project }}
-        run: npm audit --audit-level=high
+        # Same threshold, minus the advisories with no fixed release that
+        # scripts/audit-gate.mjs names and explains.
+        run: node "${{ github.workspace }}/scripts/audit-gate.mjs"
 
       # A software bill of materials, kept for 90 days. It is what answers "were
       # we running the affected version on the day of the advisory?" - and it is
