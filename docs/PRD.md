@@ -1848,6 +1848,17 @@ width, and carries one "Messages and notifications" entry for a signed-in
 customer: a bell whose badge is unread messages plus unread notifications,
 opening links to both with their own counts (checklist DYNAMIC-001). Built.
 
+**Home B2B tools (DYNAMIC-007).** Below the task row, "Tools for business
+buying" (`components/home/HomeB2bTools.tsx`) shows five tiles, each opening a
+screen that already exists: **Request private label / OEM** (the ENH-024 RFQ
+template, `/account/rfqs/new?template=oem`, with no product so the buyer names
+it; needs `features.rfq`), **Upload bulk requirement** (the cart's CSV/Excel
+SKU list upload, ENH-016), **Landed cost** (`/tools/landed-cost`), **Schedule
+cart** (`/account/schedules`; needs `features.recurringOrders`) and **ERP
+integration** (`/account/integrations/erp`; needs `features.customerErp`). A
+tool switched off in the deployment shows "Not offered on this marketplace at
+the moment" and no link. No new endpoint. Built.
+
 **Home task row (DYNAMIC-004).** A signed-in buyer's home page shows "Your next
 steps": quotes waiting for their decision, open inspection jobs (new
 `GET /account/inspections`, their own orders only, soonest first), shipments on

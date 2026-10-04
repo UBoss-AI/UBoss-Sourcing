@@ -184,7 +184,11 @@ function RfqForm({
       ? {
           ...EMPTY_REQUIREMENT,
           categoryId: params.get('categoryId'),
-          title: (isOem ? t('rfq.oem.prefilledTitle', { name: params.get('title') ?? '' }) : params.get('title') ?? '').slice(0, 200),
+          // From the home page's OEM tool there is no product yet, so the buyer names it.
+          title: (isOem
+            ? params.get('title') === null ? '' : t('rfq.oem.prefilledTitle', { name: params.get('title') ?? '' })
+            : params.get('title') ?? ''
+          ).slice(0, 200),
           specs: isOem ? [{ key: t('rfq.oem.branding'), value: '' }, { key: t('rfq.oem.packaging'), value: '' }] : [],
           // From a plain-language description (ENH-001): a starting point the buyer edits and sends.
           specification: params.get('specification')?.slice(0, 5000) ?? null,

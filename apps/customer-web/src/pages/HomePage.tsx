@@ -53,6 +53,7 @@ import { HomeBanners } from '@/components/home/ContentBlocks';
 import { HomeQuickStart } from '@/components/home/HomeQuickStart';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { AssuranceExplainer, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
+import { HomeB2bTools } from '@/components/home/HomeB2bTools';
 import { ValueProposition } from '@/components/home/ValueProposition';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
@@ -562,6 +563,9 @@ export function HomePage(): React.JSX.Element {
       */}
         {/* The signed-in buyer's own next steps (DYNAMIC-004). */}
         <HomeTaskRow />
+        {/* Private label / OEM, bulk SKU list, landed cost, schedule cart and
+            ERP, each opening its existing screen (DYNAMIC-007). */}
+        <HomeB2bTools />
         <CollectionShelves />
 
         {/* What buying from the shopper's selected country means, and how the

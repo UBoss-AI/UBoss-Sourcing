@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-34.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-35.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 308
-- Entire document unchecked: 56
+- Entire document checked: 309
+- Entire document unchecked: 55
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 11 batch 34, DYNAMIC-001 implemented, verified and ticked.
+- Last completed work: Pass 11 batch 35, DYNAMIC-007 implemented, verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -109,7 +109,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | DYNAMIC-003 | E | Verified in Pass 11 batch 33: four substantiated trust statements, including approved-carrier delivery reach, on home and /assurance. |
 | DYNAMIC-004 | A | Verified in Pass 10 batch 30: signed-in home task row for quotes, inspections, shipments, payments and repeat orders, scoped to the buyer. |
 | DYNAMIC-005 | E | Verified in Pass 10 batch 32: AI Mode examples and the conversation-to-RFQ draft, in the browser against the dev stack. |
-| DYNAMIC-007 | E | Still open: no Private Label/OEM, Upload Bulk Requirement or Landed Cost tool on home. |
+| DYNAMIC-007 | E | Verified in Pass 11 batch 35: home OEM, bulk upload, landed cost, schedule cart and ERP tiles, each to its real screen or marked not offered. |
 | DYNAMIC-010 | B | Verify every footer link after the active storefront task completes; approved policy content remains required. |
 | UAT-UI-002 | A | Verified in Pass 10 batch 12: original image retained through match/product/draft, explicit attach/discard, failed upload retry and send guard. |
 | UAT-UI-007 | A | Verified in Pass 10 batch 2 for outbound marketplace order to buyer ERP PO; no remaining action for the chosen software scenario. |
@@ -225,6 +225,8 @@ Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the 
 **Batch 33 — implemented, verified and ticked: DYNAMIC-003.** Home "How buying here is protected" now carries all four trust statements, each only when the deployment substantiates it: supplier review (verified-supplier count), payment confirmed by the provider, inspection before dispatch (an in-force inspection rule), and a new global-logistics line - "Carriers the marketplace has approved deliver to N countries" - shown only when active, unarchived marketplace carriers' active, non-exclusion delivery regions cover more than one country (GET /catalog/assurance gains logistics.activeCarriers and logistics.deliveryCountries). /assurance gains a "Delivery across borders" step stating the reach, or one country, or no approved carriers. Tests: catalog-assurance integration (suspended carrier, exclusion region and seller carriers do not count), HomeTrustBlocks and AssurancePage; customer-web verify 1924/1924. Headless Chrome against the dev stack (5 carriers, 4 countries; a temporary buyer-requested inspection rule proved the inspection line, then removed): verification-evidence/pass11/dyn003 (flow.mjs, results.json, shots), no horizontal scroll at 320/1280.
 
 **Batch 34 — implemented, verified and ticked: DYNAMIC-001.** Storefront header now reads, left to right: logo, Search everything (icon to /find, which searches products, suppliers, help and the signed-in buyer's own records), appearance, country/language/currency, Seller Hub / Become a seller, Messages and notifications (signed-in customers only: one bell whose badge is unread preorder-chat replies plus unread notifications, both server-counted, opening links to /account/messages and /account/notifications with their own counts; Escape closes and returns focus), account, cart. Role permission: a guest sees search but no inbox and gets Sign in; a seller's notifications stay in Seller Hub. Below 400px the appearance control steps out so the brand keeps its room. Tests: chrome.test.tsx (4 new), customer-web verify 1928/1928. Headless Chrome against the dev stack, guest and the seeded buyer at 320/375/768/1280: every entry present, none clipped, no horizontal scroll; Tab reaches the inbox, Enter opens both links, Escape closes with focus back; the search icon lands on /find: verification-evidence/pass11/dyn001 (flow.mjs, results.json, shots).
+
+**Batch 35 — implemented, verified and ticked: DYNAMIC-007.** Home "Tools for business buying" shows five tiles, each opening a screen that already exists: Request private label / OEM (the ENH-024 RFQ template, now also openable without a product so the buyer names it; needs requests for quotation), Upload bulk requirement (the cart's CSV/Excel SKU list upload, ENH-016), Landed cost (/tools/landed-cost), Schedule cart (/account/schedules; needs repeat purchases) and ERP integration (/account/integrations/erp; needs the buyer ERP flag). A switched-off tool says "Not offered on this marketplace at the moment" and has no link. Tests: HomeB2bTools.test.tsx (links when on, no link when off); customer-web tests 1930/1930, typecheck and lint clean. Headless Chrome against the dev stack, signed in as the seeded buyer (rfq, repeat purchases and ERP all on): five tiles at 320/768/1280 with no horizontal scroll, and every destination opens its screen (RFQ form, cart with the file upload, landed-cost calculator, schedules, ERP integration): verification-evidence/pass11/dyn007 (flow.mjs, results.json, shots).
 
 Still open in 17.2-17.4: JOURNEY-010 (bank validation needs the production payout provider), JOURNEY-019 (sample-to-final-inspection link needs RFQ purchase orders to become fulfilable orders).
 

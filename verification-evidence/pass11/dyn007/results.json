@@ -1,0 +1,40 @@
+{
+  "signIn": "/",
+  "config": {
+    "rfq": true,
+    "recurringOrders": true,
+    "customerErp": true
+  },
+  "tiles-320": [
+    "/account/rfqs/new?template=oem | Request private label / OEM / A quotation request set up for your branding, packaging, dra",
+    "/cart | Upload bulk requirement / Upload a CSV or Excel list of SKUs and quantities to fill your c",
+    "/tools/landed-cost | Landed cost / Estimate what goods cost once freight, duty and tax are added.",
+    "/account/schedules | Schedule cart / Repeat a basket on a schedule, reviewed before every order.",
+    "/account/integrations/erp | ERP integration / Connect your own purchasing system to send orders and receive documents."
+  ],
+  "overflow-320": false,
+  "tiles-768": [
+    "/account/rfqs/new?template=oem | Request private label / OEM / A quotation request set up for your branding, packaging, dra",
+    "/cart | Upload bulk requirement / Upload a CSV or Excel list of SKUs and quantities to fill your c",
+    "/tools/landed-cost | Landed cost / Estimate what goods cost once freight, duty and tax are added.",
+    "/account/schedules | Schedule cart / Repeat a basket on a schedule, reviewed before every order.",
+    "/account/integrations/erp | ERP integration / Connect your own purchasing system to send orders and receive documents."
+  ],
+  "overflow-768": false,
+  "tiles-1280": [
+    "/account/rfqs/new?template=oem | Request private label / OEM / A quotation request set up for your branding, packaging, dra",
+    "/cart | Upload bulk requirement / Upload a CSV or Excel list of SKUs and quantities to fill your c",
+    "/tools/landed-cost | Landed cost / Estimate what goods cost once freight, duty and tax are added.",
+    "/account/schedules | Schedule cart / Repeat a basket on a schedule, reviewed before every order.",
+    "/account/integrations/erp | ERP integration / Connect your own purchasing system to send orders and receive documents."
+  ],
+  "overflow-1280": false,
+  "destinations": {
+    "/account/rfqs/new?template=oem": "/account/rfqs/new | New request for quotation | upload:false",
+    "/cart": "/cart | Your cart is empty | upload:true",
+    "/tools/landed-cost": "/tools/landed-cost | Landed cost calculator | upload:false",
+    "/account/schedules": "/account/schedules | No repeat purchases yet | upload:false",
+    "/account/integrations/erp": "/account/integrations/erp | ERP integration | upload:false"
+  },
+  "consoleErrors": []
+}
