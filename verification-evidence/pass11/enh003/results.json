@@ -1,0 +1,137 @@
+{
+  "guest-new-320": {
+    "persona": "guest",
+    "returning": "false",
+    "heading": "New here? Start in three ways",
+    "links": [
+      "/register Create an account",
+      "/suppliers Browse suppliers",
+      "/sell Sell on Gloviaa Mart"
+    ],
+    "overflow": false
+  },
+  "guest-new-1280": {
+    "persona": "guest",
+    "returning": "false",
+    "heading": "New here? Start in three ways",
+    "links": [
+      "/register Create an account",
+      "/suppliers Browse suppliers",
+      "/sell Sell on Gloviaa Mart"
+    ],
+    "overflow": false
+  },
+  "viewed": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+  "guest-returning-320": {
+    "persona": "guest",
+    "returning": "true",
+    "heading": "Welcome back. Pick up where you left off",
+    "links": [
+      "/product/firstcry-toys-for-kids-t-001-s3ch85 Continue with FirstCry, Toys for Kids, T-001",
+      "/login Sign in",
+      "/suppliers Browse suppliers",
+      "/sell Sell on Gloviaa Mart"
+    ],
+    "overflow": false
+  },
+  "guest-returning-1280": {
+    "persona": "guest",
+    "returning": "true",
+    "heading": "Welcome back. Pick up where you left off",
+    "links": [
+      "/product/firstcry-toys-for-kids-t-001-s3ch85 Continue with FirstCry, Toys for Kids, T-001",
+      "/login Sign in",
+      "/suppliers Browse suppliers",
+      "/sell Sell on Gloviaa Mart"
+    ],
+    "overflow": false
+  },
+  "signIn": "/",
+  "sellerMe": {
+    "status": "APPROVED",
+    "isTrading": true
+  },
+  "context": {
+    "kind": "INDIVIDUAL"
+  },
+  "companies": [
+    {
+      "id": "01M3KFB5VB078FKZAHP1D6BWMN",
+      "name": "Northwind Fastenings Ltd",
+      "status": "DRAFT"
+    }
+  ],
+  "buyer-as-is-320": {
+    "persona": "seller",
+    "returning": "false",
+    "heading": "You also sell here",
+    "links": [
+      "/seller/dashboard Open Seller Hub",
+      "/seller/orders Orders to fulfil",
+      "/seller/listings Your listings"
+    ],
+    "overflow": false
+  },
+  "buyer-as-is-1280": {
+    "persona": "seller",
+    "returning": "false",
+    "heading": "You also sell here",
+    "links": [
+      "/seller/dashboard Open Seller Hub",
+      "/seller/orders Orders to fulfil",
+      "/seller/listings Your listings"
+    ],
+    "overflow": false
+  },
+  "plainSignIn": "/ ",
+  "plain-private-320": {
+    "persona": "private",
+    "returning": "false",
+    "heading": "Your own purchases",
+    "links": [
+      "/account/orders Your orders",
+      "/account/wishlist Saved items",
+      "/account/companies Buy for a company"
+    ],
+    "overflow": false
+  },
+  "plain-private-1280": {
+    "persona": "private",
+    "returning": "false",
+    "heading": "Your own purchases",
+    "links": [
+      "/account/orders Your orders",
+      "/account/wishlist Saved items",
+      "/account/companies Buy for a company"
+    ],
+    "overflow": false
+  },
+  "plainCompany": {
+    "name": "Persona Proof Trading GmbH",
+    "status": "APPROVED"
+  },
+  "plainSwitch": 200,
+  "plain-business-320": {
+    "persona": "business",
+    "returning": "false",
+    "heading": "Buying for Persona Proof Trading GmbH",
+    "links": [
+      "/account/rfqs/new Request quotes",
+      "/cart Upload a SKU list",
+      "/account/companies/01M425BD0HH1Y8XFBEHBWAA6XN Company and team"
+    ],
+    "overflow": false
+  },
+  "plain-business-1280": {
+    "persona": "business",
+    "returning": "false",
+    "heading": "Buying for Persona Proof Trading GmbH",
+    "links": [
+      "/account/rfqs/new Request quotes",
+      "/cart Upload a SKU list",
+      "/account/companies/01M425BD0HH1Y8XFBEHBWAA6XN Company and team"
+    ],
+    "overflow": false
+  },
+  "consoleErrors": []
+}

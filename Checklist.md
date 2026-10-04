@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-35.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-36.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 309
-- Entire document unchecked: 55
+- Entire document checked: 310
+- Entire document unchecked: 54
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 11 batch 35, DYNAMIC-007 implemented, verified and ticked.
+- Last completed work: Pass 11 batch 36, ENH-003 implemented, verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -84,7 +84,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | JOURNEY-010 | B | Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation. |
 | ENH-001 | A | Verified in Pass 10 batch 28: plain-language request parsed into filters/specifications and an editable, unsent RFQ draft. |
 | ENH-002 | A | Verified in Pass 10 batch 26: comparison summary built only from quote fields, each conclusion linked to its source cell. |
-| ENH-003 | E | Still open: home does not differ for B2B vs B2C buyers or for sellers. |
+| ENH-003 | E | Verified in Pass 11 batch 36: home differs for guest, private buyer, business buyer, trading seller and returning visitor. |
 | ENH-004 | A | Verified in Pass 10 batch 29: one search page covers products, suppliers, the buyer's own orders/invoices/shipments/RFQs and help, scoped by role. |
 | ENH-005 | A | Verified in Pass 10 batch 25: persistent quick-action dock with RFQ, image, AI, reorder, tracking and support, gated by feature and role. |
 | ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
@@ -227,6 +227,8 @@ Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the 
 **Batch 34 — implemented, verified and ticked: DYNAMIC-001.** Storefront header now reads, left to right: logo, Search everything (icon to /find, which searches products, suppliers, help and the signed-in buyer's own records), appearance, country/language/currency, Seller Hub / Become a seller, Messages and notifications (signed-in customers only: one bell whose badge is unread preorder-chat replies plus unread notifications, both server-counted, opening links to /account/messages and /account/notifications with their own counts; Escape closes and returns focus), account, cart. Role permission: a guest sees search but no inbox and gets Sign in; a seller's notifications stay in Seller Hub. Below 400px the appearance control steps out so the brand keeps its room. Tests: chrome.test.tsx (4 new), customer-web verify 1928/1928. Headless Chrome against the dev stack, guest and the seeded buyer at 320/375/768/1280: every entry present, none clipped, no horizontal scroll; Tab reaches the inbox, Enter opens both links, Escape closes with focus back; the search icon lands on /find: verification-evidence/pass11/dyn001 (flow.mjs, results.json, shots).
 
 **Batch 35 — implemented, verified and ticked: DYNAMIC-007.** Home "Tools for business buying" shows five tiles, each opening a screen that already exists: Request private label / OEM (the ENH-024 RFQ template, now also openable without a product so the buyer names it; needs requests for quotation), Upload bulk requirement (the cart's CSV/Excel SKU list upload, ENH-016), Landed cost (/tools/landed-cost), Schedule cart (/account/schedules; needs repeat purchases) and ERP integration (/account/integrations/erp; needs the buyer ERP flag). A switched-off tool says "Not offered on this marketplace at the moment" and has no link. Tests: HomeB2bTools.test.tsx (links when on, no link when off); customer-web tests 1930/1930, typecheck and lint clean. Headless Chrome against the dev stack, signed in as the seeded buyer (rfq, repeat purchases and ERP all on): five tiles at 320/768/1280 with no horizontal scroll, and every destination opens its screen (RFQ form, cart with the file upload, landed-cost calculator, schedules, ERP integration): verification-evidence/pass11/dyn007 (flow.mjs, results.json, shots).
+
+**Batch 36 — implemented, verified and ticked: ENH-003.** Home now changes by persona, decided only from facts the storefront holds. Guest: Create an account, Browse suppliers, Sell here. Private buyer (signed in, buying for themselves): orders, saved items, Buy for a company. Business buyer (company buyer context): "Buying for {company}" with Request quotes (only when RFQs are on), Upload a SKU list, Company and team. Seller whose account is trading (GET /sellers/me): Seller Hub, orders to fulfil, listings; an application in review is not treated as a seller. Returning visitor (this browser viewed a product or supplier before): "Welcome back", a first link to what they last looked at, and for a guest Sign in instead of Create an account. Nothing renders until the session and seller read answer. Tests: HomePersona.test.tsx (7, all five personas, the RFQ switch and both returning cases); customer-web verify 1937/1937. Headless Chrome against the dev stack at 320 and 1280, no horizontal scroll: guest new and returning (after viewing a real product), the seeded buyer (trading seller -> seller persona), and a temporary plain buyer with one approved company shown as private then, after switching buyer context, as business; the temporary buyer and company were removed afterwards: verification-evidence/pass11/enh003 (flow.mjs, results.json, shots).
 
 Still open in 17.2-17.4: JOURNEY-010 (bank validation needs the production payout provider), JOURNEY-019 (sample-to-final-inspection link needs RFQ purchase orders to become fulfilable orders).
 

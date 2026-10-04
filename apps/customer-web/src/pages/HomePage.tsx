@@ -54,6 +54,7 @@ import { HomeQuickStart } from '@/components/home/HomeQuickStart';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { AssuranceExplainer, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
 import { HomeB2bTools } from '@/components/home/HomeB2bTools';
+import { HomePersona } from '@/components/home/HomePersona';
 import { ValueProposition } from '@/components/home/ValueProposition';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
@@ -542,6 +543,9 @@ export function HomePage(): React.JSX.Element {
         {/* Buyer and supplier paths, and this browser's recent activity, which
             the shopper can hide (JOURNEY-001). */}
         <HomeQuickStart />
+        {/* What changes with who is looking: guest, business buyer, private
+            buyer, seller, and somebody coming back (ENH-003). */}
+        <HomePersona />
 
         {/* "Verified suppliers" and "Newly verified suppliers" were here. They
             are the operator's view now, on the admin console's Sellers

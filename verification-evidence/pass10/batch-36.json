@@ -1,0 +1,15 @@
+{
+  "batch": 36,
+  "ids": [
+    "ENH-003"
+  ],
+  "before": {
+    "checked": 309,
+    "unchecked": 55
+  },
+  "after": {
+    "checked": 310,
+    "unchecked": 54
+  },
+  "evidence": "Home now changes by persona, decided only from facts the storefront holds. Guest: Create an account, Browse suppliers, Sell here. Private buyer (signed in, buying for themselves): orders, saved items, Buy for a company. Business buyer (company buyer context): \"Buying for {company}\" with Request quotes (only when RFQs are on), Upload a SKU list, Company and team. Seller whose account is trading (GET /sellers/me): Seller Hub, orders to fulfil, listings; an application in review is not treated as a seller. Returning visitor (this browser viewed a product or supplier before): \"Welcome back\", a first link to what they last looked at, and for a guest Sign in instead of Create an account. Nothing renders until the session and seller read answer. Tests: HomePersona.test.tsx (7, all five personas, the RFQ switch and both returning cases); customer-web verify 1937/1937. Headless Chrome against the dev stack at 320 and 1280, no horizontal scroll: guest new and returning (after viewing a real product), the seeded buyer (trading seller -> seller persona), and a temporary plain buyer with one approved company shown as private then, after switching buyer context, as business; the temporary buyer and company were removed afterwards: verification-evidence/pass11/enh003 (flow.mjs, results.json, shots)."
+}

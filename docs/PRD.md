@@ -1848,6 +1848,22 @@ width, and carries one "Messages and notifications" entry for a signed-in
 customer: a bell whose badge is unread messages plus unread notifications,
 opening links to both with their own counts (checklist DYNAMIC-001). Built.
 
+**Home by persona (ENH-003).** Under the quick start, `components/home/HomePersona.tsx`
+changes with who is looking, decided only from facts the storefront already
+holds. A **guest** gets Create an account, Browse suppliers and Sell here. A
+**private buyer** (signed in, buyer context INDIVIDUAL) gets their orders,
+saved items and, when buyer companies are on, Buy for a company. A **business
+buyer** (buyer context COMPANY) sees "Buying for {company}" with Request quotes
+(only when RFQs are on), Upload a SKU list and Company and team. A **seller**
+whose account is trading (`GET /sellers/me`, the header's own read and cache)
+gets Seller Hub, orders to fulfil and listings; an application still in review
+is not a seller here. A **returning** visitor (this browser viewed a product or
+supplier before, `lib/recently-viewed`) sees "Welcome back." and a first link
+back to what they last looked at, on top of whichever of the four applies;
+a returning guest is offered Sign in instead of Create an account.
+Nothing renders until the session and the seller read have answered, so the
+panel never switches persona in front of the person. No new endpoint. Built.
+
 **Home B2B tools (DYNAMIC-007).** Below the task row, "Tools for business
 buying" (`components/home/HomeB2bTools.tsx`) shows five tiles, each opening a
 screen that already exists: **Request private label / OEM** (the ENH-024 RFQ
