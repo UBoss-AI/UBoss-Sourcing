@@ -2893,6 +2893,16 @@
       "status": "VERIFIED",
       "evidence": "Pass 11 batch 36: ENH-003. Home now changes by persona, decided only from facts the storefront holds. Guest: Create an account, Browse suppliers, Sell here. Private buyer (signed in, buying for themselves): orders, saved items, Buy for a company. Business buyer (company buyer context): \"Buying for {company}\" with Request quotes (only when RFQs are on), Upload a SKU list, Company and team. Seller whose account is trading (GET /sellers/me): Seller Hub, orders to fulfil, listings; an application in review is not treated as a seller. Returning visitor (this browser viewed a product or supplier before): \"Welcome back\", a first link to what they last looked at, and for a guest Sign in instead of Create an account. Nothing renders until the session and seller read answer. Tests: HomePersona.test.tsx (7, all five personas, the RFQ switch and both returning cases); customer-web verify 1937/1937. Headless Chrome against the dev stack at 320 and 1280, no horizontal scroll: guest new and returning (after viewing a real product), the seeded buyer (trading seller -> seller persona), and a temporary plain buyer with one approved company shown as private then, after switching buyer context, as business; the temporary buyer and company were removed afterwards: verification-evidence/pass11/enh003 (flow.mjs, results.json, shots).",
       "verifiedAt": "2026-10-04 (pass 11)"
+    },
+    {
+      "id": "DOD-003",
+      "status": "FIXED_AND_VERIFIED",
+      "evidence": "Pass 12 batch 37: headless Chrome harness at 320/768/1440 - admin 10 screens and Seller Hub 8 screens, no page-level horizontal scroll after fixing the Seller Hub phone rail, carrier brand lockup and admin Sellers grid; carrier portal 10 screens checked by hand by the owner at the same widths (2026-10-04), all pass. Evidence: verification-evidence/pass12/dod."
+    },
+    {
+      "id": "DOD-004",
+      "status": "FIXED_AND_VERIFIED",
+      "evidence": "Pass 12 batch 37: axe WCAG 2.0/2.1 A+AA 0 violations and visible focus on every Tab stop for admin (10 screens) and Seller Hub (8 screens); carrier portal keyboard walk and accessibility scan checked by hand by the owner (2026-10-04), all pass. Evidence: verification-evidence/pass12/dod."
     }
   ],
   "pendingBoxes": []
