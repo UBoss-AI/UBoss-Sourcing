@@ -13557,7 +13557,8 @@ seconds (at once when the browser is back online). On reconnecting it asks for
 everything after the last sequence it holds and merges on the sequence. A
 one-minute safety poll catches anything lost between processes.
 
-**Several API processes.** With `REALTIME_BUS_DRIVER=database`, events cross
+**Several API processes.** Production refuses to start unless
+`REALTIME_BUS_DRIVER=database`. With it, events cross
 processes through the `realtime_events` table - references only, polled every
 `REALTIME_BUS_POLL_MS`, deleted within minutes - and each process reports how
 many staff who can reply are connected, so "the team is available" is true

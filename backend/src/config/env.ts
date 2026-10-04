@@ -2483,6 +2483,16 @@ const envSchema = z
             'audit trail is exactly what the separate grants exist to prevent.',
         });
       }
+      if (value.REALTIME_BUS_DRIVER !== 'database') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['REALTIME_BUS_DRIVER'],
+          message:
+            'must be "database" in production. The memory bus only reaches sockets in the same ' +
+            'process, so with several API instances (deploy/systemd/uboss-api@.service) or ' +
+            'events raised by the worker, chat messages silently fail to arrive.',
+        });
+      }
       if (!value.FEATURE_ADMIN_MFA) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

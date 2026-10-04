@@ -79,6 +79,7 @@ function productionEnv(overrides: Record<string, string | undefined> = {}): Reco
     EMAIL_FROM_ADDRESS: 'orders@example.com',
 
     STORAGE_DRIVER: 's3',
+    REALTIME_BUS_DRIVER: 'database',
     S3_BUCKET: 'uboss-media',
     S3_ACCESS_KEY_ID: 'not-a-real-access-key-id',
     S3_SECRET_ACCESS_KEY: 'not-a-real-secret-access-key',

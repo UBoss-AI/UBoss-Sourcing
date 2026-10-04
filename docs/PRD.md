@@ -3287,6 +3287,7 @@ and has no route that reads these conversations.
   back. After a dropped connection the page reconnects with backoff and fetches
   everything after its last sequence. Typing and presence are never stored.
   Several API processes share events through `REALTIME_BUS_DRIVER=database`.
+  Production refuses to start with any other value.
 - **Status.** Built.
 
 ### FR-PCH-006 — The Preorder Chats inbox
