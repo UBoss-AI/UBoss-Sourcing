@@ -1,0 +1,85 @@
+{
+ "ranAt": "2026-10-04T04:48:28.182Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "darkClass": "|",
+   "page": "admin-sellers",
+   "path": "/sellers",
+   "w": 320,
+   "finalPath": "/sellers",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Sellers"
+   ],
+   "title": "Gloviaa Mart Admin",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "admin-sellers-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "admin-sellers",
+   "path": "/sellers",
+   "w": 768,
+   "finalPath": "/sellers",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Sellers"
+   ],
+   "title": "Gloviaa Mart Admin",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "admin-sellers-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "admin-sellers",
+   "path": "/sellers",
+   "w": 1440,
+   "finalPath": "/sellers",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Sellers"
+   ],
+   "title": "Gloviaa Mart Admin",
+   "axe": [],
+   "focus": [
+    "Every applicationWaiting for",
+    "Trading or registered name",
+    "Seller applications",
+    "Verified suppliers",
+    "Newly verified suppliers",
+    "body",
+    "Skip to content",
+    "Gloviaa Mart — Source with I",
+    "Dashboard",
+    "Categories",
+    "Products",
+    "Inventory",
+    "Warehouses",
+    "Coupons"
+   ],
+   "jsErrors": [],
+   "shot": "admin-sellers-1440.png"
+  }
+ ]
+}

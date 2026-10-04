@@ -60,8 +60,18 @@ async function loginWith(base, l) {
   await cmd('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
   await go(base + l.path);
   for (let i = 0; i < 40 && !(await evalJs('!!document.querySelector("input[type=email]")')); i++) await sleep(250);
-  await fill(`set(document.querySelector('input[type=email]'), ${JSON.stringify(l.email)}); set(document.querySelector('input[type=password]'), ${JSON.stringify(l.password)});`);
+  if (await evalJs('!!document.querySelector("input[type=email]")')) await fill(`set(document.querySelector('input[type=email]'), ${JSON.stringify(l.email)}); set(document.querySelector('input[type=password]'), ${JSON.stringify(l.password)});`);
   await sleep(4000);
+  // Two-step sign-in: wait for a person to write the current code into codeFile.
+  if (l.codeFile && await evalJs('!!document.querySelector("input[autocomplete=one-time-code]")')) {
+    try { fs.unlinkSync(l.codeFile); } catch {}
+    process.stdout.write('WAITING FOR CODE in ' + l.codeFile + String.fromCharCode(10));
+    while (!fs.existsSync(l.codeFile)) await sleep(500);
+    await sleep(300);
+    const code = fs.readFileSync(l.codeFile, 'utf8').trim(); fs.unlinkSync(l.codeFile);
+    await fill(`set(document.querySelector('input[autocomplete=one-time-code]'), ${JSON.stringify(code)});`);
+    await sleep(4000);
+  }
   if (l.hubPath) {
     await go(base + l.hubPath);
     if (await evalJs('!!document.querySelector("input[autocomplete=current-password]")')) { await fill(`set(document.querySelector('input[autocomplete=current-password]'), ${JSON.stringify(l.hubPassword)});`); await sleep(3000); }

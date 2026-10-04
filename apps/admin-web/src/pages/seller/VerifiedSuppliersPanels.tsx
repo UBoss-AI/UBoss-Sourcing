@@ -105,7 +105,7 @@ export function VerifiedSuppliersPanels(): React.JSX.Element {
   const total = all.data?.total ?? 0;
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5">
       <Card
         title={t('adminVerifiedSuppliers.title')}
         description={

@@ -1,5 +1,5 @@
 {
- "ranAt": "2026-10-04T03:48:37.539Z",
+ "ranAt": "2026-10-04T04:43:52.941Z",
  "browser": "Chrome/153.0.8010.48",
  "axe": "4.13.0",
  "results": [
@@ -16,9 +16,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 7,
    "h1": [
-    "Two-step sign-in required"
+    "Dashboard"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -36,9 +36,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 7,
    "h1": [
-    "Two-step sign-in required"
+    "Dashboard"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -56,27 +56,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 7,
    "h1": [
-    "Two-step sign-in required"
+    "Dashboard"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Last 30 days",
+    "Refresh",
+    "Approvals30.3%",
+    "Payments242.3%",
+    "Inventory94190.8%",
+    "Logistics00%",
+    "Platform676.5%",
+    "Risk and compliance10.1%",
+    "Past their deadline00%",
+    "View as a table",
+    "Explain this chart",
+    "Which operational queue need",
+    "Ask",
+    "Low stock941Products at or b"
    ],
    "jsErrors": [],
    "shot": "admin-home-1440.png"
@@ -91,9 +91,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Orders"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -111,9 +111,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Orders"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -131,27 +131,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Orders"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Order number or customer",
+    "Any statusPending PaymentPen",
+    "Any sourceWebsiteRecurringCr",
+    "Orders",
+    "UB-2026-000071",
+    "UB-2026-000070",
+    "UB-2026-000069",
+    "UB-2026-000068",
+    "UB-2026-000067",
+    "UB-2026-000066",
+    "UB-2026-000065",
+    "UB-2026-000064",
+    "UB-2026-000063",
+    "UB-2026-000062"
    ],
    "jsErrors": [],
    "shot": "admin-orders-1440.png"
@@ -166,9 +166,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 29,
    "h1": [
-    "Two-step sign-in required"
+    "Products"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -186,9 +186,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 29,
    "h1": [
-    "Two-step sign-in required"
+    "Products"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -206,27 +206,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 29,
    "h1": [
-    "Two-step sign-in required"
+    "Products"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
+    "Bulk import",
+    "Currency pricing",
+    "New product",
+    "Name or SKU",
+    "All categoriesMedical Device",
+    "Any statusDraftActiveInactiv",
+    "Any visibilityPublishedNot p",
+    "0.00",
+    "99700.00",
+    "Any stockIn stockOut of stoc",
+    "Any timeLast 7 daysLast 30 d",
+    "Any attributeActionAdhesiveA",
     "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "INPUT"
    ],
    "jsErrors": [],
    "shot": "admin-products-1440.png"
@@ -241,9 +241,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Customers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -261,9 +261,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Customers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -281,27 +281,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Customers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "New customer",
+    "Name, email or organisation",
+    "Any statusActiveInvitedAwait",
+    "Customers",
+    "Rfq pending",
+    "Rfq delta",
+    "Rfq gamma",
+    "Rfq beta",
+    "Rfq alpha",
+    "Rfq viewer",
+    "Rfq owner",
+    "Rfq rival",
+    "Rfq buyer",
+    "Scroll Test Buyer"
    ],
    "jsErrors": [],
    "shot": "admin-customers-1440.png"
@@ -313,12 +313,17 @@
    "w": 320,
    "finalPath": "/sellers",
    "cw": 320,
-   "sw": 320,
-   "hScroll": false,
-   "over": [],
-   "smallTargets": 0,
+   "sw": 541,
+   "hScroll": true,
+   "over": [
+    "section.rounded-lg border bg-surface shadow-card right=541",
+    "header.flex flex-wrap items-start justify-betwe right=540",
+    "div.min-w-0 right=520",
+    "h2.text-title-xs text-ink right=520"
+   ],
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Sellers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -336,9 +341,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Sellers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -356,27 +361,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Sellers"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
+    "Every applicationWaiting for",
+    "Trading or registered name",
+    "Seller applications",
+    "Verified suppliers",
+    "Newly verified suppliers",
     "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Skip to content",
+    "Gloviaa Mart — Source with I",
+    "Dashboard",
+    "Categories",
+    "Products",
+    "Inventory",
+    "Warehouses",
+    "Coupons"
    ],
    "jsErrors": [],
    "shot": "admin-sellers-1440.png"
@@ -391,9 +396,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 2,
    "h1": [
-    "Two-step sign-in required"
+    "Inventory"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -411,9 +416,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 2,
    "h1": [
-    "Two-step sign-in required"
+    "Inventory"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -431,27 +436,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 2,
    "h1": [
-    "Two-step sign-in required"
+    "Inventory"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
+    "Product name or SKU",
     "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Stock levels",
+    "Receive stock for DEMO-ENGY-",
+    "Adjust stock for DEMO-ENGY-E",
+    "Receive stock for DEMO-ENGY-",
+    "Adjust stock for DEMO-ENGY-E",
+    "Receive stock for DEMO-PHON-",
+    "Adjust stock for DEMO-PHON-T",
+    "Receive stock for DEMO-TOYS-",
+    "Adjust stock for DEMO-TOYS-G",
+    "Receive stock for DEMO-PHON-",
+    "Adjust stock for DEMO-PHON-R",
+    "Receive stock for DEMO-BULD-"
    ],
    "jsErrors": [],
    "shot": "admin-inventory-1440.png"
@@ -466,9 +471,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Payments"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -486,9 +491,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Payments"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -506,27 +511,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 26,
    "h1": [
-    "Two-step sign-in required"
+    "Payments"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Any statusCapturedCreatedPen",
+    "Payments",
+    "UB-2026-000071",
+    "Reconcile UB-2026-000071 wit",
+    "Refund UB-2026-000071",
+    "UB-2026-000070",
+    "Reconcile UB-2026-000070 wit",
+    "Refund UB-2026-000070",
+    "UB-2026-000069",
+    "Reconcile UB-2026-000069 wit",
+    "Refund UB-2026-000069",
+    "UB-2026-000068",
+    "Reconcile UB-2026-000068 wit",
+    "UB-2026-000067"
    ],
    "jsErrors": [],
    "shot": "admin-payments-1440.png"
@@ -541,9 +546,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Listing review"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -561,9 +566,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Listing review"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -581,27 +586,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Listing review"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
+    "Waiting for review",
+    "Appeals",
+    "Word or phrase",
+    "Why it is not allowed",
+    "Severity",
     "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Skip to content",
+    "Gloviaa Mart — Source with I",
+    "Dashboard",
+    "Categories",
+    "Products",
+    "Inventory",
+    "Warehouses",
+    "Coupons"
    ],
    "jsErrors": [],
    "shot": "admin-listing-review-1440.png"
@@ -616,9 +621,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Categories"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -636,9 +641,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Categories"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -656,27 +661,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Categories"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "New category",
+    "Categories",
+    "Edit Medical Devices",
+    "Archive Medical Devices",
+    "Edit ABG Kit",
+    "Archive ABG Kit",
+    "Edit ABG Syringe",
+    "Archive ABG Syringe",
+    "Edit Adult diaper",
+    "Archive Adult diaper",
+    "Edit Closed IV Cannula",
+    "Archive Closed IV Cannula",
+    "Edit DC Flush Syringe(Swab C",
+    "Archive DC Flush Syringe(Swa"
    ],
    "jsErrors": [],
    "shot": "admin-categories-1440.png"
@@ -691,9 +696,9 @@
    "sw": 320,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Coupons"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -711,9 +716,9 @@
    "sw": 768,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Coupons"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
@@ -731,27 +736,27 @@
    "sw": 1440,
    "hScroll": false,
    "over": [],
-   "smallTargets": 0,
+   "smallTargets": 1,
    "h1": [
-    "Two-step sign-in required"
+    "Coupons"
    ],
    "title": "Gloviaa Mart Admin",
    "axe": [],
    "focus": [
-    "Verify and continue",
-    "Sign out",
+    "New coupon",
+    "Coupons",
+    "Edit CWD7B7C3",
+    "Archive CWD7B7C3",
+    "Edit FEYYFFQA",
+    "Archive FEYYFFQA",
     "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu",
-    "INPUT",
-    "Verify and continue",
-    "Sign out",
-    "body",
-    "EnglishNederlandsFrançaisDeu"
+    "Skip to content",
+    "Gloviaa Mart — Source with I",
+    "Dashboard",
+    "Categories",
+    "Products",
+    "Inventory",
+    "Warehouses"
    ],
    "jsErrors": [],
    "shot": "admin-coupons-1440.png"

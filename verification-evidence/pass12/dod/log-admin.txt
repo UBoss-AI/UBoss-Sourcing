@@ -1,3 +1,4 @@
+WAITING FOR CODE in C:/Users/HP/Desktop/code-admin.txt
 admin-home@320 hScroll=false axe=0
 admin-home@768 hScroll=false axe=0
 admin-home@1440 hScroll=false axe=0
@@ -10,7 +11,7 @@ admin-products@1440 hScroll=false axe=0
 admin-customers@320 hScroll=false axe=0
 admin-customers@768 hScroll=false axe=0
 admin-customers@1440 hScroll=false axe=0
-admin-sellers@320 hScroll=false axe=0
+admin-sellers@320 hScroll=true axe=0
 admin-sellers@768 hScroll=false axe=0
 admin-sellers@1440 hScroll=false axe=0
 admin-inventory@320 hScroll=false axe=0
