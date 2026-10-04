@@ -17097,6 +17097,7 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 | `BUYER_PROTECTION_POLICY` |  |
 | `PROHIBITED_PRODUCTS` |  |
 | `RETURNS_POLICY` | How returns work: the window, what can be returned, refunds or replacements. |
+| `STAFF_TERMS` | Terms for the operator's own staff, shown on the admin console's sign-in and agreed to on every sign-in. No acceptance is recorded for this kind: the tick gates the sign-in form and is never sent to the server. |
 
 <a id="enum-legaldocumentstatus"></a>
 

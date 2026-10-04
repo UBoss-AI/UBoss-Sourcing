@@ -1666,6 +1666,7 @@ bullets([
   'Leaving or reloading that page issues a new square code and the one already scanned stops working, so the page asks the person to finish in one go.',
   'The application can require a location reading before opening staff routes. The location is a security record, not a rule that decides whether a person is allowed.',
   'The sign-in location appears in the session/top bar and can create an admin notification, helping the business notice unexpected staff logins.',
+  'Before signing in, staff tick a box to agree to the terms. If the business has written staff terms, clicking the box opens them in a window instead of ticking it. The I agree button only works once the person has scrolled to the end, and only that button ticks the box. If the business has not written staff terms yet, a simple tick box is shown instead, so nobody is ever locked out. Staff agree again every time they sign in, and nothing is stored.',
   'New staff can receive a temporary password. They must choose their own password before they can use normal admin routes.',
   'Staff can use password recovery without exposing whether an email address exists.',
 ]);
@@ -2252,7 +2253,7 @@ table(['Settings group', 'Examples of what it controls'], [
   ['Shipping and delivery policy', 'Delivery-related configuration and customer-facing policy information.'],
   ['Notifications', 'Email/notification settings and delivery behaviour.'],
   ['Appearance and policy links', 'Brand-facing configuration and links such as terms or privacy documents.'],
-  ['Legal documents', 'Write the Terms and Conditions buyers agree to, and the separate terms for delivery companies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. The list shows which version applies today and how many people agreed to each, never who.'],
+  ['Legal documents', 'Write the Terms and Conditions buyers agree to, the separate terms for delivery companies, and the terms your own staff agree to when they sign in. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. The list shows which version applies today and how many people agreed to each, never who.'],
   ['Feature configuration', 'Which optional customer/admin capabilities appear in a specific deployment.'],
 ], [3000, 7000]);
 h2('12.2a Is everything ready to go live?');

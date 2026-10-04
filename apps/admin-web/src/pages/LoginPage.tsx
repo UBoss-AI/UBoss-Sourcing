@@ -12,13 +12,21 @@
  * by several staff accounts behind nothing but a password, so a tick carried
  * forward would be one person's acceptance shown to the next.
  *
+ * What the tick agrees to is the operator's own staff terms (`STAFF_TERMS`,
+ * written under Settings → Legal documents). When a version is published the
+ * box works as it does on the storefront: ticking it opens the terms, "I
+ * agree" is enabled only once the text has been read to the end, and only "I
+ * agree" ticks the box. When none is published - or the terms cannot be
+ * fetched - the plain tick box stands in. A missing document must never lock
+ * the operator's staff out of the console that publishes it.
+ *
  * The frame is `AuthSplit`, the same one the storefront and the logistics
  * portal sign in through: from `lg` up the form takes the right half and a
  * turning earth takes the left. The panel is decoration and `aria-hidden` —
  * every word and control on this screen is in the column beside it, and the
  * page is finished on a narrow window and on a machine with no WebGL.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -27,6 +35,8 @@ import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { Button, Field, Spinner } from '@/components/ui';
 import { DemoLoginPanel } from '@/components/DemoLoginPanel';
+import { TermsAgreementField } from '@/components/legal/TermsAgreementField';
+import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
 import {
   AuthCard,
   AuthDivider,
@@ -85,7 +95,7 @@ export function LoginPage(): React.JSX.Element {
   const { user, isLoading, login } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [formError, setFormError] = useState<string | null>(null);
 
   // A flag, not a rendered sentence: somebody who has just failed to sign in
@@ -108,11 +118,21 @@ export function LoginPage(): React.JSX.Element {
 
   const policies = Object.entries(config.data?.business.policyLinks ?? {});
 
+  // The staff terms in force, in the language the screen is read in. While
+  // they load, and once they have arrived, the box opens them; with none
+  // published or the request failed, the plain box below stands in.
+  const staffTerms = useCurrentTerms('STAFF_TERMS', language);
+  const usesTermsDialog = staffTerms.state.status === 'loading' || staffTerms.state.status === 'ready';
+  // The id of the document agreed to in the dialog. Kept on this screen only:
+  // `acceptedTerms` below is what gates the submit, and neither is sent.
+  const [agreedDocumentId, setAgreedDocumentId] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     setFocus,
-    formState: { errors, isSubmitting },
+    setValue,
+    formState: { errors, isSubmitting, isSubmitted },
   } = useForm<FormValues>({
     resolver: zodResolver(buildSchema(t)),
     // Never pre-ticked. `false` is not assignable to the `true` the schema
@@ -124,6 +144,22 @@ export function LoginPage(): React.JSX.Element {
   useEffect(() => {
     setFocus('email');
   }, [setFocus]);
+
+  // Changing between the dialog and the plain box starts the tick over: a
+  // tick given to one is not a tick given to the other.
+  useEffect(() => {
+    setAgreedDocumentId(null);
+    setValue('acceptedTerms', false as never);
+  }, [usesTermsDialog, setValue]);
+
+  const onAgreementChange = useCallback(
+    (documentId: string | null): void => {
+      setAgreedDocumentId(documentId);
+      // `true` only through I agree in the dialog; null is an untick.
+      setValue('acceptedTerms', (documentId !== null) as never, { shouldValidate: isSubmitted });
+    },
+    [setValue, isSubmitted],
+  );
 
   if (isLoading) {
     return (
@@ -252,13 +288,24 @@ export function LoginPage(): React.JSX.Element {
               had `text-brand` — the exact drift a shared component exists to
               stop. The policies still come from this app's own `/config`
               query; only the markup is shared. */}
-          <AuthTermsCheckbox
-            label={t('auth.login.acceptTerms')}
-            policies={policies}
-            error={errors.acceptedTerms?.message}
-            errorId="login-terms-error"
-            {...register('acceptedTerms')}
-          />
+          {usesTermsDialog ? (
+            <TermsAgreementField
+              terms={staffTerms}
+              value={agreedDocumentId}
+              onChange={onAgreementChange}
+              policies={policies}
+              error={errors.acceptedTerms?.message}
+              errorId="login-terms-error"
+            />
+          ) : (
+            <AuthTermsCheckbox
+              label={t('auth.login.acceptTerms')}
+              policies={policies}
+              error={errors.acceptedTerms?.message}
+              errorId="login-terms-error"
+              {...register('acceptedTerms')}
+            />
+          )}
 
           {/* `size="lg"`, matching the storefront: its submit is the large
               one, and a button a step smaller on an otherwise identical card

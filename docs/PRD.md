@@ -56,6 +56,7 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.8 | 2026-09-28 | Seller commission invoices: the new §5.14a (FR-CINV-001 to FR-CINV-012) — the operator's own A6 invoice to a seller for the platform commission, with credit notes, numbering, tax presentation, single-use downloads and public verification; **Finance → Commission invoices** and the order-detail card; seven `commission_invoice.*` / `commission_credit_note.*` permissions (§3.3.1); the commission invoice status model (§7.16); BR-CINV-001 to BR-CINV-004; gap G13 and question Q15 |
 | 1.9 | 2026-09-28 | Terms and Conditions at sign-up: the Terms dialog that alone can tick the sign-up box, read-to-the-end, and server-checked acceptance of the exact version in force for storefront sign-up and both invitation activations (FR-IDN-017); versioned, immutable legal documents written and published in **Administration → Legal documents**, the public `/legal/terms` page and PDF (FR-IDN-018); `legal_document.read`, `.write`, `.publish`; error codes `TERMS_ACCEPTANCE_REQUIRED`, `TERMS_VERSION_OUTDATED`, `TERMS_DOCUMENT_UNAVAILABLE`, `LEGAL_DOCUMENT_IMMUTABLE`, `LEGAL_DOCUMENT_VERSION_EXISTS` |
 | 1.10 | 2026-10-02 | Admin governance (JOURNEY-060, 061, 062, 064, 065, 067, LIVE-011): the Command Center's risk and SLA groups, maker-checker for critical account actions (`critical_action_approval`), record history and staff messages, listing moderation flags, evidence requests, appeals and destination blocks (FR-SEL-007), label rules and rule history, the integration monitor and outage banners, content approval, preview, versions and conflict checks, and the exception queues with SLAs and owner roles (FR-SET-003, FR-SET-004, FR-SET-006 to FR-SET-009) |
+| 1.11 | 2026-10-04 | Staff terms at console sign-in: the new legal-document kind `STAFF_TERMS`, written by the operator; once published, the console's sign-in tick opens it in the read-to-the-end dialog, and with none published the plain tick stays (FR-IDN-005) |
 
 ### Keeping this document true
 
@@ -821,6 +822,7 @@ How each requirement is written:
   operator's own policy links from **Settings → Policy links**.
 - **Acceptance criteria.** Never pre-ticked, never remembered; a deployment with no links still requires the tick. Customers accept *terms of business*; staff accept *terms of use*.
 - **Rules.** It is a client-side gate and a reminder of the standing agreement recorded at registration or activation; it is **not** a new stored consent per sign-in.
+- **Staff terms on the console.** The operator may publish staff terms (legal-document kind `STAFF_TERMS`, FR-IDN-018). When a version is in force, the console's box reads *I have read and agree to the Staff Terms* and behaves like the sign-up box in FR-IDN-017, criteria 1 to 4: ticking it opens the text in a dialog, **I agree** is enabled only at the end of the text, and only **I agree** ticks it. The tick is still not sent and nothing is recorded; staff agree again on every sign-in. With no staff terms published - or if they cannot be fetched - the plain *I accept the terms of use* box is shown instead, so a missing document never stops staff signing in.
 - **Status.** Built.
 
 ### FR-IDN-017 — Terms and Conditions accepted when an account is opened
@@ -2132,6 +2134,8 @@ No API shape, permission, schema or provider decision changes.
      after, older versions still readable.
   2. Only the two terms kinds can be accepted at sign-up; the kind is always
      chosen by the server, so a policy can never stand in for the terms.
+     The staff terms (`STAFF_TERMS`, FR-IDN-005) are a third kind of
+     document: shown at console sign-in, never recorded, never listed here.
   3. `GET /api/v1/legal/in-force?locale=` returns titles and links (never
      bodies) for the buyer terms and the policies; the carrier terms are not
      listed.

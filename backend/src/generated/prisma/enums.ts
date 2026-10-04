@@ -2941,7 +2941,8 @@ export const LegalDocumentKind = {
   INSPECTION_POLICY: 'INSPECTION_POLICY',
   BUYER_PROTECTION_POLICY: 'BUYER_PROTECTION_POLICY',
   PROHIBITED_PRODUCTS: 'PROHIBITED_PRODUCTS',
-  RETURNS_POLICY: 'RETURNS_POLICY'
+  RETURNS_POLICY: 'RETURNS_POLICY',
+  STAFF_TERMS: 'STAFF_TERMS'
 } as const
 
 export type LegalDocumentKind = (typeof LegalDocumentKind)[keyof typeof LegalDocumentKind]

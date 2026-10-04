@@ -21137,6 +21137,10 @@ enum LegalDocumentKind {
   PROHIBITED_PRODUCTS
   /// How returns work: the window, what can be returned, refunds or replacements.
   RETURNS_POLICY
+  /// Terms for the operator's own staff, shown on the admin console's sign-in
+  /// and agreed to on every sign-in. No acceptance is recorded for this kind:
+  /// the tick gates the sign-in form and is never sent to the server.
+  STAFF_TERMS
 }
 
 enum LegalDocumentStatus {

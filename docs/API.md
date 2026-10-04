@@ -526,6 +526,15 @@ link is redeemed, so the person agrees to the current version and sends again.
 A link for another surface (a customer's link posted to the carrier portal) is
 refused as `TOKEN_INVALID` before it is spent, too.
 
+**Staff terms.** The console's sign-in asks
+`GET /api/v1/legal/current?kind=STAFF_TERMS&locale=…` the same way, before
+anybody is signed in, and shows the answer in the same read-to-the-end dialog.
+Nothing is sent back: `POST /api/v1/admin/auth/login` still takes only an email
+and a password, and no acceptance is stored. A 503
+`TERMS_DOCUMENT_UNAVAILABLE` here means only that the operator has not
+published staff terms; the console then shows a plain tick box and signing in
+goes on as before.
+
 Public, and needing no session:
 
 | Endpoint | Answer |

@@ -369,7 +369,11 @@ production, because their passwords are printed to a log.
 The storefront is browsable without signing in; the sign-in wall sits at the
 cart, which is where the backend puts it. On the admin sign-in page, tick the
 Terms checkbox — and allow the browser's location prompt, or the session will
-not finish (see [Configuration](#configuration)).
+not finish (see [Configuration](#configuration)). Once the operator publishes
+**Staff terms** in **Administration → Legal documents**, that box opens them
+in the same read-to-the-end dialog the storefront uses, and only **I agree**
+ticks it; with none published it stays a plain tick box. Either way it is
+asked on every sign-in and nothing is recorded.
 
 **Then every staff account meets the second factor.** The first time one
 reaches it the console shows a **QR code** — scan it with any authenticator

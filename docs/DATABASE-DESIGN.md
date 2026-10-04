@@ -5318,7 +5318,7 @@ person agreed to. The operator writes them; the software supplies none.
 
 | Model | Table | One row is |
 |---|---|---|
-| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement or policy in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced. `kind` is one of the two terms that are accepted at sign-up (`PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`) or a published policy that is only read (`SELLER_TERMS`, `PRIVACY_POLICY`, `RETURNS_POLICY` — added 29 Sep 2026 —, `BUYER_PROTECTION_POLICY`, `INSPECTION_POLICY`, `PROHIBITED_PRODUCTS`) |
+| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement or policy in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced. `kind` is one of the two terms that are accepted at sign-up (`PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`) or a published policy that is only read (`SELLER_TERMS`, `PRIVACY_POLICY`, `RETURNS_POLICY` — added 29 Sep 2026 —, `BUYER_PROTECTION_POLICY`, `INSPECTION_POLICY`, `PROHIBITED_PRODUCTS`), or `STAFF_TERMS` — added 4 Oct 2026 by `20261103100000_legal_staff_terms` — which the console's sign-in shows its staff and which no `consent_records` row ever names |
 | [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | with `purpose` `PLATFORM_TERMS` or `LOGISTICS_PARTNER_TERMS`: one person's acceptance of one `legal_documents` row |
 
 ```mermaid
@@ -5351,7 +5351,10 @@ erDiagram
 **Kinds.** `PLATFORM_TERMS` is accepted by buyers: somebody signing up on the
 storefront (individually, or as the first step of registering a company) and an
 invited customer activating their account. `LOGISTICS_PARTNER_TERMS` is accepted
-by a carrier's staff activating a portal account. Seller Hub agreements live in
+by a carrier's staff activating a portal account. `STAFF_TERMS` is read by the
+operator's own staff on the console's sign-in screen and agreed to on every
+sign-in, but that agreement is never stored: it gates the form and is not sent.
+Seller Hub agreements live in
 `seller_agreement_acceptances` ([5.17](#517-seller-hub)), and a company
 application's declarations are the other `consent_records` purposes.
 

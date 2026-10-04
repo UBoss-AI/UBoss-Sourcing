@@ -40,8 +40,20 @@ export const POLICY_KINDS = [
 ] as const;
 export type PolicyKindName = (typeof POLICY_KINDS)[number];
 
+/**
+ * The terms the operator's own staff agree to on the admin console's sign-in.
+ *
+ * Neither of the lists above. Not a sign-up agreement: the console asks for a
+ * tick on every sign-in and nothing is recorded, so no consent record ever
+ * names this kind and it is not a `TermsKindName`. Not a policy either:
+ * it is for staff, so the storefront's help hub (`listDocumentsInForce`) never
+ * lists it. Read through `GET /legal/current?kind=STAFF_TERMS`, which the
+ * sign-in screen calls before anybody is signed in.
+ */
+export const STAFF_TERMS_KIND = 'STAFF_TERMS' as const;
+
 /** Every kind the legal-document service manages. */
-export const LEGAL_DOCUMENT_KINDS = [...TERMS_KINDS, ...POLICY_KINDS] as const;
+export const LEGAL_DOCUMENT_KINDS = [...TERMS_KINDS, ...POLICY_KINDS, STAFF_TERMS_KIND] as const;
 export type LegalDocumentKindName = (typeof LEGAL_DOCUMENT_KINDS)[number];
 
 export function isTermsKind(kind: string): kind is TermsKindName {

@@ -17,10 +17,12 @@ export type LegalDocumentKind =
   | 'RETURNS_POLICY'
   | 'BUYER_PROTECTION_POLICY'
   | 'INSPECTION_POLICY'
-  | 'PROHIBITED_PRODUCTS';
+  | 'PROHIBITED_PRODUCTS'
+  | 'STAFF_TERMS';
 /**
- * The two terms kinds are accepted at sign-up; the rest are published
+ * The two terms kinds are accepted at sign-up; the next six are published
  * policies, shown in the storefront's help and policies hub (Master row 9).
+ * `STAFF_TERMS` is what this console's own sign-in shows its staff.
  */
 export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
   'PLATFORM_TERMS',
@@ -31,6 +33,7 @@ export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
   'BUYER_PROTECTION_POLICY',
   'INSPECTION_POLICY',
   'PROHIBITED_PRODUCTS',
+  'STAFF_TERMS',
 ];
 
 export type LegalDocumentStatus = 'DRAFT' | 'PUBLISHED';
@@ -82,6 +85,38 @@ export const legalDocumentsApi = {
   },
   publish: (id: string): Promise<LegalDocument> => api.post<LegalDocument>(`/admin/legal-documents/${id}/publish`),
 };
+
+/**
+ * The published document in force for a kind, as `GET /legal/current` returns
+ * it. Public: the sign-in screen asks for the staff terms before anybody is
+ * signed in.
+ */
+export interface CurrentLegalDocument {
+  document: {
+    id: string;
+    kind: LegalDocumentKind;
+    version: string;
+    locale: string;
+    title: string;
+    body: string;
+    changeSummary: string | null;
+    effectiveAt: string;
+    publishedAt: string;
+    contentSha256: string;
+  };
+  requestedLocale: string;
+  /** Not published in the reader's language; `document.locale` says which it is in. */
+  isFallback: boolean;
+}
+
+/**
+ * The version in force now, in the reader's language where it is published.
+ * Rejects with `ApiError` code `TERMS_DOCUMENT_UNAVAILABLE` when none is.
+ */
+export function fetchCurrentTerms(kind: LegalDocumentKind, locale: string): Promise<CurrentLegalDocument> {
+  const query = new URLSearchParams({ kind, locale });
+  return api.get<CurrentLegalDocument>(`/legal/current?${query.toString()}`, { retryOnUnauthorised: false });
+}
 
 /** The public PDF of a published document - the same file a customer downloads. */
 export function legalDocumentPdfUrl(id: string): string {

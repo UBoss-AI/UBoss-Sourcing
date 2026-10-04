@@ -5019,13 +5019,32 @@ Local screenshot of the sign-in page: `12-admin-login.png`.
 
 **On the screen.** The split sign-in layout with the earth on the left from
 `lg` up. The language picker at the top. **Email address**, **Password**, and
-"I accept the terms of use" (never ticked in advance), with links to the
-operator's policies. **Sign in →** and **Forgot your password?**. A "No account
+the terms tick (never ticked in advance), with links to the operator's
+policies. **Sign in →** and **Forgot your password?**.
+
+The terms tick depends on whether the operator has published **staff terms**
+(Legal documents → *Staff terms*):
+
+- **Published.** "I have read and agree to the *Staff Terms*." Ticking the
+  box, pressing Space or Enter on it, or clicking the words opens the staff
+  terms in a dialog: title, version, date in force, language, the full text
+  in one scrolling area, **Download PDF**, and **Cancel** / **I agree** in a
+  footer that stays in view. **I agree** stays disabled, with "Read all terms
+  before accepting.", until the end of the text has been in view; only
+  **I agree** ticks the box. Under the box: "Open the terms, read them to the
+  end and agree.", then "You agreed to version … You agree again each time
+  you sign in." The operator's other policies are linked on their own line.
+- **Not published, or not reachable.** The plain "I accept the terms of use"
+  box, with the policy links beside it.
+
+Either way the tick is required to sign in and is not sent to the server. A "No account
 yet?" note: staff accounts are created by an administrator. After too many
 attempts: "Too many attempts. Wait a few minutes before trying again."
 
 **API calls:** `GET /api/v1/config` (the policy links),
-`POST /api/v1/admin/auth/login`, `GET /api/v1/admin/auth/me`
+`GET /api/v1/legal/current?kind=STAFF_TERMS&locale=…` (the staff terms; 503
+means none are published), `POST /api/v1/admin/auth/login`,
+`GET /api/v1/admin/auth/me`
 
 #### `/forgot-password` — Reset your password
 
@@ -7060,7 +7079,9 @@ and one for the **Logistics partner terms**: version, language, **Draft** or
 it applies from, the date it was published, and how many people accepted it
 (never who). A red alert when no buyer Terms are in force - storefront sign-up
 and invited-customer activation are refused until there are - and an amber one
-when no carrier terms are. **New version**.
+when no carrier terms are. A table for each published policy, and one for
+the **Staff terms**, which the console's own sign-in shows; with none in force
+the sign-in shows a plain tick box, so there is no alert for it. **New version**.
 
 **On the screen (a draft).** **Document**, **Language** (the eight the system
 speaks), **Version** (for example 2026-10-01; the same name for each language

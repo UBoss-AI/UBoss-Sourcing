@@ -1774,9 +1774,10 @@ per-line result instead of stopping at the first refusal. `/sitemap.xml` lists
 `Organization` JSON-LD. The account dropdown has a Security entry that opens
 `/account/profile#security`.
 
-**Help, policies and legal.** The legal-document service now manages eight
+**Help, policies and legal.** The legal-document service now manages nine
 kinds (`domain/legal-document.ts`): the two `TERMS_KINDS` that are accepted at
-sign-up, and six `POLICY_KINDS` that are only read. They share one pipeline —
+sign-up, six `POLICY_KINDS` that are only read, and `STAFF_TERMS` (the panel's
+sign-in, below). They share one pipeline —
 draft, publish, hash, never edit — because a returns policy a buyer later
 argues about needs the same "these exact words, in force on that date" proof as
 the terms. `assertAcceptableTerms` takes `TermsKindName` only, and the kind is
@@ -10185,11 +10186,46 @@ Four things about it are deliberate:
 - **The wording differs by surface, on purpose.** A customer accepts *terms of
   business* (`auth.login.acceptTerms` in `apps/customer-web`, the same
   sentence the sign-up form uses); a member of staff accepts *terms of use*
-  (the same key in `apps/admin-web`). Staff are not buying anything.
+  (the same key in `apps/admin-web`). Staff are not buying anything. Once the
+  operator publishes staff terms, the panel's box names them instead - see
+  the next section.
 
 The storefront’s three consent ticks — sign-in, sign-up and invitation
 activation — are one component, `components/AcceptTermsCheckbox.tsx`, so the
 sentence and the links cannot drift apart between the screens.
+
+### The staff terms on the panel's sign-in
+
+The operator can write terms for their own staff: the legal-document kind
+`STAFF_TERMS`, written and published under **Settings → Legal documents** like
+any other kind (migration `20261103100000_legal_staff_terms` added it to
+`legal_documents.kind`). When a version is in force, the panel's `/login` box
+works the way the storefront's sign-up box does: it reads "I have read and
+agree to the *Staff Terms*", clicking it (or Space, Enter, or the words) opens
+the text in a dialog, **I agree** is enabled only once the end of the text has
+been in view, and only **I agree** ticks the box. The pieces are copies of the
+storefront's - `apps/admin-web/src/components/legal/` (`TermsAgreementField`,
+`TermsAcceptanceDialog`, `LegalDocumentBody`, `useCurrentTerms`,
+`useReadToEnd`) - on the panel's own `Modal`, which gained `bodyRef` and
+`bodyLabel` for it.
+
+Three rules hold it in place:
+
+- **It is still only a gate.** The tick sets `acceptedTerms`, which the form
+  requires and does not send. `POST /admin/auth/login` is unchanged, no
+  consent row is written, and staff agree again on every sign-in.
+  `STAFF_TERMS` is deliberately not a `TermsKindName`, so
+  `assertAcceptableTerms` can never be handed it, and it is not a policy, so
+  `GET /legal/in-force` (the storefront's help hub) never lists it.
+- **The screen asks the server, before anybody is signed in.**
+  `GET /legal/current?kind=STAFF_TERMS&locale=…` is public, in the language
+  the screen is read in, with the usual English fallback.
+- **A missing document never locks anybody out.** If nothing is published the
+  endpoint answers 503 `TERMS_DOCUMENT_UNAVAILABLE`, and the panel shows the
+  plain **I accept the terms of use** tick from the section above. A request
+  that fails for any other reason does the same. The storefront refuses to
+  open accounts without Terms; the panel cannot refuse its own staff, because
+  they are the people who would publish the missing document.
 
 ### Agreeing to the Terms and Conditions when an account is opened
 
