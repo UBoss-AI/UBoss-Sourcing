@@ -530,7 +530,7 @@ function RailLink({
         aria-disabled="true"
         title={t('seller.nav.lockedHint')}
         className={cx(
-          'flex flex-col items-center gap-1 rounded-lg px-3 py-2.5 text-xxs font-medium',
+          'flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2.5 text-xxs font-medium',
           'cursor-not-allowed text-ink-subtle opacity-60',
           'lg:flex-row lg:gap-3 lg:px-3 lg:py-2.5 lg:text-sm',
         )}
@@ -546,7 +546,7 @@ function RailLink({
       to={item.to}
       className={({ isActive }) =>
         cx(
-          'flex flex-col items-center gap-1 rounded-lg px-3 py-2.5 text-xxs font-medium transition-colors',
+          'flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2.5 text-xxs font-medium transition-colors',
           'lg:flex-row lg:gap-3 lg:px-3 lg:py-2.5 lg:text-sm',
           isActive
             ? 'bg-brand-soft text-brand'
@@ -1036,7 +1036,7 @@ export function SellerLayout(): React.JSX.Element {
       {/* ---- The rail ---------------------------------------------------- */}
       <aside
         className={cx(
-          'order-2 border-t border-border bg-surface lg:order-1 lg:w-60 lg:shrink-0 lg:border-r lg:border-t-0',
+          'order-2 min-w-0 border-t border-border bg-surface lg:order-1 lg:w-60 lg:shrink-0 lg:border-r lg:border-t-0',
           // Sticky on a phone so the rail is reachable without scrolling to the
           // bottom of a three-hundred-row listings table.
           'sticky bottom-0 z-20 lg:static',
@@ -1060,7 +1060,7 @@ export function SellerLayout(): React.JSX.Element {
 
         <nav
           aria-label={t('seller.nav.sellerHub')}
-          className="flex items-stretch justify-around gap-1 px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:px-3 lg:py-0"
+          className="relative flex min-w-0 items-stretch gap-1 overflow-x-auto px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:overflow-visible lg:px-3 lg:py-0"
         >
           {NAV_ITEMS.filter(
             (item) =>

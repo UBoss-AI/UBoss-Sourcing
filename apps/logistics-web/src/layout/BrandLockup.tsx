@@ -79,7 +79,7 @@ export function BrandLockup({
     <span
       role="img"
       aria-label={`${PRODUCT_BRAND} — ${PRODUCT_TAGLINE}`}
-      className="flex h-10 shrink-0 items-center gap-3 px-2"
+      className="flex h-10 min-w-0 max-w-full items-center gap-3 px-2"
     >
       <EarthMark initial={PRODUCT_INITIAL} size="sm" />
       {collapsible ? (
