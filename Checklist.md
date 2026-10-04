@@ -31,8 +31,8 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | SCREEN-009 | B | Verify required policy routes and visible links; publish launch-market counsel-approved content. |
 | SCREEN-012 | B | Verify KYB fields, authorization and evidence flow; obtain real bank and legal verification results. |
 | DOD-001 | E | Audit the primary action on every applicable screen after feature verification; include the preserved storefront work; no other writer is active. |
-| DOD-003 | E | Still open: admin, Seller Hub and logistics screens have no layout sweep. |
-| DOD-004 | E | Still open: admin, Seller Hub and logistics screens have no keyboard/axe sweep. |
+| DOD-003 | E | Admin (10 screens) and Seller Hub (8) swept at 320/768/1440 and fixed (batch 37). Carrier portal inner screens skipped for now: two-step sign-in needs a carrier authenticator. |
+| DOD-004 | E | Admin and Seller Hub: axe 0 and visible focus on every swept screen (batch 37). Carrier portal inner screens skipped for now, same reason as DOD-003. |
 | DOD-043 | C | Run and record the actual supported browser and physical-device matrix. |
 | DOD-044 | A | Trace configured performance budgets, measure applicable screens and APIs, and resolve measured regressions. |
 | TEMPLATE-001 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
