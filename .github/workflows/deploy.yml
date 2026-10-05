@@ -99,6 +99,11 @@ jobs:
           ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
 
       - name: Build the API
+        # prisma generate reads prisma.config.ts, which refuses to load without a
+        # DATABASE_URL. Generating the client never connects, so a placeholder is
+        # enough; the real address lives only in the server's .env.
+        env:
+          DATABASE_URL: mysql://build:unused@127.0.0.1:3306/unused
         run: |
           set -euo pipefail
           cd backend
