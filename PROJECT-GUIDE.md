@@ -1612,24 +1612,20 @@ pages and supplier pages use this list; the catalogue and its facet counts
 take the same `seller` filter, and a supplier who is later suspended leaves an
 old link showing an empty grid rather than products nobody can buy from them.
 
-**The home page no longer lists suppliers.** It used to show a "Verified
-suppliers" row and a "Newly verified suppliers" block. Both moved to the admin
+**The home page makes no supplier claim.** It used to show a "Verified
+suppliers" row and a "Newly verified suppliers" block; both moved to the admin
 console's Sellers screen (see *Verified suppliers on the Sellers screen*
-below). The storefront keeps only the sentence under the strapline
-(`components/home/ValueProposition.tsx`, which was `VerifiedSuppliers.tsx`, and
-`lib/verified-suppliers.ts`). Its read is now `GET /catalog/suppliers?limit=1`,
-because it needs the country list, not a page of cards; the home page no longer
-asks for `sort=newest`. With suppliers all registered in one country it reads
-"Source direct from verified suppliers in India, …"; with several countries it
-names none; with no suppliers it is the neutral "Everything your business
-orders, in one place". The API reports every verified supplier's country
-regardless of the page size, so "in India" is never said because the one
-supplier returned happened to be Indian. The three wordings share one grid
-cell, so the line is the same height from the first frame and the search bar
-never moves; the two not shown are `aria-hidden`. On a seller's own shop front
+below). It then kept one sentence under the strapline, "Source direct from
+verified suppliers …", and a hidden "Source from verified Indian
+manufacturers" line above the search shortcuts. Both are gone: the home page
+reads no supplier list at all, and the shortcuts and search bar sit directly
+under "Your Integrated B2B B2C Platform" with no space held open for a line
+that might appear. `GET /catalog/suppliers` still serves the supplier
+directory, search, category and supplier pages. On a seller's own shop front
 the list is empty: a seller's shop does not advertise its competitors.
-`tests/integration/catalog-suppliers.test.ts` and
-`components/home/ValueProposition.test.tsx` hold these rules.
+`tests/integration/catalog-suppliers.test.ts` holds those rules, and
+`components/hero-search/SourcingShortcuts.test.tsx` holds that the hero makes
+no supplier claim.
 
 **Verified suppliers on the Sellers screen.** The admin console's Sellers
 screen (`/sellers`, `pages/SellersPage.tsx`) shows two cards under the
@@ -9638,7 +9634,7 @@ chat endpoint, because a vision call is the most expensive single request this
 API makes and nobody legitimately photographs ten products a minute.
 
 
-**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The Indian manufacturer statement is shown only after the existing bounded shared public supplier read includes a MANUFACTURER registered in India with a valid recorded verification date. It means recorded marketplace verification and registered location, not independent factory certification or a fulfilment guarantee. The bounded read may leave the statement absent even if another manufacturer exists beyond its result limit. The statement space stays reserved while loading or after refusal, including before styles load. No supplier cards or newly verified supplier section is restored to the homepage. Twelve new labels are translated in all eight customer locales.
+**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The hero makes no supplier claim: the Indian manufacturer statement that used to sit above the shortcuts, and the space reserved for it, were removed, so the shortcuts sit directly under the platform line. No supplier cards or newly verified supplier section is on the homepage. Twelve new labels are translated in all eight customer locales.
 
 **Public catalogue discovery (HOME-009).** The home search offers labelled product,
 category, approved supplier and supplier-declared capability links after the buyer

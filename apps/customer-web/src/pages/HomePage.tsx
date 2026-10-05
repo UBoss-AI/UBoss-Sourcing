@@ -55,7 +55,6 @@ import { InlineProducts } from '@/components/home/InlineProducts';
 import { AssuranceExplainer, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
 import { HomeB2bTools } from '@/components/home/HomeB2bTools';
 import { HomePersona } from '@/components/home/HomePersona';
-import { ValueProposition } from '@/components/home/ValueProposition';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
 import { BrandName } from '@/components/BrandName';
@@ -336,10 +335,6 @@ function Greeting(): React.JSX.Element {
               <p className="greeting-platform mt-4 text-base leading-relaxed text-ink-muted sm:text-lg">
                 {t('greeting.platformLine')}
               </p>
-
-              {/* What this marketplace is, in one sentence - naming verified
-                  suppliers only when there are some. See ValueProposition. */}
-              <ValueProposition />
 
               {/*
                * The search module, where two call-to-action buttons used to be.

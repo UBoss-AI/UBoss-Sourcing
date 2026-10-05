@@ -701,12 +701,6 @@ browse.
      the bar, with unavailable wording for switched-off RFQ/image features;
      the search box ("Search the catalogue"); a microphone for **Search
      by voice** (when the browser can); and **Search**.
-   - One sentence under the strapline: "Source direct from verified suppliers
-     in {country}, priced in your currency and ordered online." when every
-     verified supplier is in one country, the same without the country when
-     they are in several, and "Everything your business orders, in one place"
-     when there are none. All three sit in one grid cell so the line never
-     changes height.
    - For a guest: "Ordering needs an account. Sign in to order".
    - Small chips: "Priced in …", "Order online, any time", "Repeat purchase
      scheduling" (when switched on).
@@ -8423,4 +8417,4 @@ can refill the editable input, and have a Clear control. They are never sent to
 analytics: search_submitted remains a privacy-respecting daily counter without
 query text or identifiers. No private account, RFQ, order or invoice search is added.
 
-**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The Indian manufacturer statement is shown only after the existing bounded shared public supplier read includes a MANUFACTURER registered in India with a valid recorded verification date. It means recorded marketplace verification and registered location, not independent factory certification or a fulfilment guarantee. The bounded read may leave the statement absent even if another manufacturer exists beyond its result limit. The statement space stays reserved while loading or after refusal, including before styles load. No supplier cards or newly verified supplier section is restored to the homepage. Twelve new labels are translated in all eight customer locales.
+**Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The hero makes no supplier claim: the Indian manufacturer statement that used to sit above the shortcuts, and the space reserved for it, were removed, so the shortcuts sit directly under the platform line. No supplier cards or newly verified supplier section is on the homepage. Twelve new labels are translated in all eight customer locales.
