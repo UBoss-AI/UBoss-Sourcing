@@ -1,0 +1,168 @@
+# =============================================================================
+# Push-to-live for a Docker Compose install - the three front ends.
+#
+# Every push to `main` runs CI. When CI finishes green, this builds that exact
+# commit's customer, admin and logistics sites and puts them live. A red CI run
+# deploys nothing. It can also be started by hand (Actions -> Deploy front ends
+# (Docker) -> Run workflow).
+#
+# The API, worker and media containers are NOT updated by this workflow yet;
+# their image is built on the server.
+#
+# BEFORE THE FIRST RUN (deploy-docker/README.md walks through each one)
+#
+#   Server:        bash setup.sh "ssh-ed25519 AAAA... uboss-deploy"
+#   Environment:   production (required reviewers off for push-to-live)
+#   Secrets:       DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER, DEPLOY_KNOWN_HOSTS
+#   Variables:     CUSTOMER_API_BASE, ADMIN_API_BASE, LOGISTICS_API_BASE,
+#                  CUSTOMER_SITE_URL
+#
+# The key is restricted on the server to one program, uboss-deploy-gate, which
+# accepts only `receive <release>` and `activate <release>`.
+# =============================================================================
+name: Deploy front ends (Docker)
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # The commit CI tested, not whatever main points at by now.
+  RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+concurrency:
+  group: deploy-docker-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the front ends
+    runs-on: ubuntu-24.04
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+
+      # VITE_* values are BAKED INTO THE BUNDLE at build time.
+      - name: Build
+        env:
+          CUSTOMER_API_BASE: ${{ vars.CUSTOMER_API_BASE }}
+          ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
+          LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+          CUSTOMER_SITE_URL: ${{ vars.CUSTOMER_SITE_URL }}
+        run: |
+          set -euo pipefail
+          for v in CUSTOMER_API_BASE ADMIN_API_BASE LOGISTICS_API_BASE CUSTOMER_SITE_URL; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is not set. Add it under Settings -> Secrets and variables -> Actions -> Variables."
+              exit 1
+            fi
+          done
+          ( cd apps/customer-web  && npm ci && VITE_API_BASE_URL="$CUSTOMER_API_BASE" VITE_PUBLIC_SITE_URL="$CUSTOMER_SITE_URL" npm run build )
+          ( cd apps/admin-web     && npm ci && VITE_API_BASE_URL="$ADMIN_API_BASE"     npm run build )
+          ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
+
+      # Source maps are the full source of the admin console and carrier portal.
+      - name: Strip source maps
+        run: |
+          find apps/*/dist -name '*.map' -delete
+          find apps/*/dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
+
+      - name: Package and checksum
+        run: |
+          set -euo pipefail
+          tar -czf "uboss-web-${RELEASE_SHA}.tgz" apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
+          sha256sum "uboss-web-${RELEASE_SHA}.tgz" > "uboss-web-${RELEASE_SHA}.tgz.sha256"
+          cat "uboss-web-${RELEASE_SHA}.tgz.sha256"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: web-release-${{ env.RELEASE_SHA }}
+          path: |
+            uboss-web-*.tgz*
+            apps/*/dist/index.html
+          retention-days: 30
+
+  deploy:
+    name: Put live
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: production
+
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: web-release-${{ env.RELEASE_SHA }}
+
+      # Pinned host key, never accept-new.
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          for v in DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS DEPLOY_HOST DEPLOY_USER; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret $v is not set for the production environment."
+              exit 1
+            fi
+          done
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY"     > ~/.ssh/uboss_deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/uboss_deploy ~/.ssh/known_hosts
+
+      - name: Upload and activate
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          SSH=(ssh -i ~/.ssh/uboss_deploy -o IdentitiesOnly=yes -o BatchMode=yes
+               -o StrictHostKeyChecking=yes -o ServerAliveInterval=30
+               "$DEPLOY_USER@$DEPLOY_HOST")
+          NAME="uboss-web-${RELEASE_SHA}.tgz"
+          "${SSH[@]}" "receive $NAME.sha256" < "$NAME.sha256"
+          "${SSH[@]}" "receive $NAME"        < "$NAME"
+          "${SSH[@]}" "activate $NAME"
+
+      # From outside, against the public addresses: each site must now serve
+      # the index.html this run built.
+      - name: Check the live sites serve this build
+        env:
+          CUSTOMER_SITE_URL: ${{ vars.CUSTOMER_SITE_URL }}
+          ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
+          LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+        run: |
+          set -euo pipefail
+          check() {
+            local app="$1" url="${2%/}/"
+            local want got
+            want=$(grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' "apps/$app/dist/index.html" | head -1)
+            got=$(curl -fsS --max-time 20 -H 'Cache-Control: no-cache' "$url" | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
+            if [ "$want" != "$got" ]; then
+              echo "::error::$url serves $got, expected $want"
+              return 1
+            fi
+            echo "$url serves $want"
+          }
+          check customer-web  "$CUSTOMER_SITE_URL"
+          check admin-web     "${ADMIN_API_BASE%/api/v1}"
+          check logistics-web "${LOGISTICS_API_BASE%/api/v1}"

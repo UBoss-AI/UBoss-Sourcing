@@ -4,12 +4,11 @@
 # Companion to deploy-vps/ (deploy-activate.sh, setup-deploy-user.sh and the
 # beginner guide in deploy-vps/README.md). deploy.yml is left as it was.
 #
-# AUTOMATIC ON MAIN, AFTER CI PASSES. Every push to `main` runs CI; when CI
-# finishes green, this workflow builds that exact commit and deploys it to
-# production. A red CI run deploys nothing. It can still be started by hand
-# (Actions -> Deploy to VPS -> Run workflow), which is how staging is reached.
-# If REQUIRED REVIEWERS are set on `production` in Settings -> Environments,
-# each automatic deploy waits for that approval; remove them for push-to-live.
+# MANUAL ONLY. `workflow_dispatch` - no push deploys anything. It is for the
+# systemd layout in Depoly_on_VPS.md (/srv/uboss). A Docker Compose install
+# deploys on push with deploy-docker.yml instead. Production must have
+# REQUIRED REVIEWERS set in Settings -> Environments; that approval is the
+# only gate this workflow has.
 #
 # It never sends `.env` (that lives only in /srv/uboss/shared/.env on the
 # server), never prints a secret, and has no `set -x`.
@@ -37,11 +36,6 @@
 name: Deploy to VPS
 
 on:
-  # Push-to-live: runs when CI completes on main; the job below checks it passed.
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -69,11 +63,6 @@ jobs:
   build:
     name: Build the release artifact
     runs-on: ubuntu-24.04
-    # Automatic runs only for a green CI run triggered by a push to main.
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.event == 'push')
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

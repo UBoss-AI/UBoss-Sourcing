@@ -246,11 +246,9 @@ Replace `YOURDOMAIN.COM` with your real domain:
 
 ## Step 9: Run an update
 
-**Automatic:** push to `main`. GitHub runs **CI** first (about 10–15 minutes). When CI is green, **Deploy to VPS** starts by itself and puts that exact commit live. If CI is red, nothing is deployed — fix it and push again.
+Whenever there is new code on GitHub that you want live:
 
-> If `production` has **required reviewers** (Step 6), each automatic deploy stops at **Waiting for review** until someone approves it (step 5 below). Remove the reviewers if you want a push to go live with nobody clicking anything.
-
-**By hand** (for `staging`, or to redeploy without a new push):
+> Running the Docker Compose install instead? It goes live on every push to `main` — see `deploy-docker/README.md`.
 
 1. Open your project on **github.com** and click **Actions** (top menu).
 2. On the left, click **Deploy to VPS**.
