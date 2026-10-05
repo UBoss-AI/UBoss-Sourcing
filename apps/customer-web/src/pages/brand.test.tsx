@@ -161,6 +161,8 @@ describe('the header lockup', () => {
     const service = document.querySelector('.brand-wordmark .brand-name-service');
     expect(service?.textContent).toBe('Mart');
     expect(service?.className).toContain('font-sans');
+    // A light, lowercase "mart" under the parent brand; the text stays "Mart".
+    expect(service?.className).toMatch(/font-light.*lowercase/);
     expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
@@ -245,6 +247,8 @@ describe('the greeting headline', () => {
     expect(parent?.className).not.toContain('font-sans');
     expect(service?.textContent).toBe('Mart');
     expect(service?.className).toContain('font-sans');
+    // A light, lowercase "mart" under the parent brand; the text stays "Mart".
+    expect(service?.className).toMatch(/font-light.*lowercase/);
     // Text, on the same line: one heading that reads "Gloviaa Mart".
     expect(headline().querySelector('img, svg')).toBeNull();
     expect(headline().querySelector('br')).toBeNull();

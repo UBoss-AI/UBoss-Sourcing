@@ -97,7 +97,7 @@ lockup, so all three read identically in all eight languages. The word "Gloviaa 
 wherever it is the brand is set in its own bundled script face, Dancing
 Script Bold, and so is the tagline under it, so both look the same on every
 device and in all three applications. In the wordmark only "Gloviaa" is in
-the script; "Mart" is set beside it in Inter, smaller and semibold, on the same
+the script; "Mart" is set beside it in Inter, smaller, light and lowercase ("mart"), on the same
 baseline, like a parent brand naming a service — it is still plain text and
 reads "Gloviaa Mart". On a
 deployment with its own business name, that name is set in the ordinary face

@@ -74,8 +74,9 @@ Where each one appears:
 **"Mart" is set in a second face.** Wherever the wordmark "Gloviaa Mart" is
 drawn — the storefront header (from 640px), the greeting headline, the
 storefront footer heading, and the admin and logistics lockups — "Gloviaa"
-stays in the script face and only "Mart" is set in Inter (already loaded, no
-new font), at 0.62em, semibold, on the same baseline. It reads like a parent
+stays in the script face and only "Mart" is set in Inter (already loaded; the
+light 300 weight is added to its request), at 0.62em, light and shown
+lowercase as "mart", on the same baseline. It reads like a parent
 brand naming one of its services. It is plain text, so a screen reader and a
 copy-paste still get "Gloviaa Mart". The storefront draws it with
 `components/BrandName.tsx`; the admin console and the logistics portal each
@@ -1956,7 +1957,7 @@ The greeting opens on four lines, and none of them moves:
 | Line | What it is |
 |---|---|
 | The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
-| The headline | The shop's configured name. Fixed. Nothing cycles after it. When the name is "Gloviaa Mart", "Gloviaa" is in the script wordmark face and "Mart" in Inter at 0.62em (see *What the product is called*) |
+| The headline | The shop's configured name. Fixed. Nothing cycles after it. When the name is "Gloviaa Mart", "Gloviaa" is in the script wordmark face and "Mart" in light Inter at 0.62em, shown lowercase as "mart" (see *What the product is called*) |
 | The tagline | **Source with Intelligence \| Deliver with Confidence** — `PRODUCT_TAGLINE` from `lib/brand.ts`, in the script face. Fixed, not translated. Only when the name is "Gloviaa Mart" |
 | The platform line | `greeting.platformLine` — "Your Integrated B2B B2C Platform". Fixed, translated into all eight languages |
 

@@ -246,7 +246,7 @@ gloves run the same code. See Appendix A for where older text still says
 
 | Name | What it is | Translated? |
 |---|---|---|
-| **Gloviaa Mart** | The product. Where it is the brand, "Gloviaa" is set in its own script face (Dancing Script Bold) and "Mart" in Inter at 0.62em, semibold, on the same baseline, like a parent brand naming a service. Plain text; it reads "Gloviaa Mart". A deployment with its own name is drawn in one face | Never |
+| **Gloviaa Mart** | The product. Where it is the brand, "Gloviaa" is set in its own script face (Dancing Script Bold) and "Mart" in Inter at 0.62em, light and shown lowercase as "mart", on the same baseline, like a parent brand naming a service. Plain text; it reads "Gloviaa Mart". A deployment with its own name is drawn in one face | Never |
 | **Gloviaa** | The one-word name. Used only where two words do not fit or do not belong: the label on the greeting page's globe, and the storefront header on a phone (under 640px). Never "Glovia", "Glovia Mart" or "Gloviaa Market" | Never |
 | **Source with Intelligence \| Deliver with Confidence** | The product's tagline (it replaced "The Way to the Global Sourcing"). Set in the same script face as the name (Dancing Script Bold), so the two look the same on every device. Shown in the storefront header (from 1024px), the home hero, the About page heading, the admin rail and the logistics portal | Never |
 | **Powered by UBOSS** | The attribution, as small print | Never |

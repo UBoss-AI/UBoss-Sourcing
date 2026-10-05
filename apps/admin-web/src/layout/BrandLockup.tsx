@@ -41,7 +41,7 @@ import { EarthMark } from '@/components/EarthMark';
 import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 
 /**
- * "Gloviaa" in the script, "Mart" in Inter a step smaller on the same
+ * "Gloviaa" in the script, "mart" in light lowercase Inter a step smaller on the same
  * baseline — a parent brand naming one of its services. The same treatment as
  * the storefront's `components/BrandName.tsx`.
  */
@@ -49,7 +49,7 @@ function BrandName(): React.JSX.Element {
   return (
     <>
       {PRODUCT_SHORT_NAME}{' '}
-      <span className="brand-name-service font-sans text-[0.62em] font-semibold tracking-tight">
+      <span className="brand-name-service font-sans text-[0.62em] font-light lowercase tracking-tight">
         {PRODUCT_BRAND.slice(PRODUCT_SHORT_NAME.length).trim()}
       </span>
     </>

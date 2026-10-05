@@ -1,6 +1,6 @@
 /**
  * "Gloviaa Mart", set the way the product names itself everywhere it appears
- * as a wordmark: "Gloviaa" in the surrounding script face, "Mart" in Inter,
+ * as a wordmark: "Gloviaa" in the surrounding script face, "Mart" in Inter light and lowercase ("mart"),
  * the interface face, a step smaller and on the same baseline — the way a
  * parent brand names one of its services.
  *
@@ -21,7 +21,7 @@ export function BrandName(): React.JSX.Element {
   return (
     <>
       <span className="brand-name-parent">{PRODUCT_SHORT_NAME}</span>{' '}
-      <span className="brand-name-service font-sans text-[0.62em] font-semibold tracking-tight">
+      <span className="brand-name-service font-sans text-[0.62em] font-light lowercase tracking-tight">
         {PRODUCT_SERVICE_NAME}
       </span>
     </>

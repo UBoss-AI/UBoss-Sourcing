@@ -63,6 +63,8 @@ describe('the console’s brand lockup', () => {
     expect(screen.getByText(whole(PRODUCT_BRAND)).className).toContain('font-brand');
     // Only "Mart" leaves the script, for the interface face.
     expect(screen.getByText('Mart').className).toContain('font-sans');
+    // Shown as a light, lowercase "mart"; the text itself stays "Mart".
+    expect(screen.getByText('Mart').className).toMatch(/font-light.*lowercase/);
     expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
