@@ -28,9 +28,7 @@ import {
   type FactoryInput,
 } from '@/lib/factories';
 import { fetchSellerDocuments } from '@/lib/seller';
-
-export const FACTORIES_KEY = ['seller', 'factories'] as const;
-export const CERTIFICATIONS_KEY = ['seller', 'certifications'] as const;
+import { CERTIFICATIONS_KEY, FACTORIES_KEY } from './factory-query-keys';
 
 type Errors = Record<string, TranslationKey>;
 

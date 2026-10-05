@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useI18n } from '@/i18n/i18n-context';
 
-export const SERVICE_STATUS_KEY = ['service-status'] as const;
+const SERVICE_STATUS_KEY = ['service-status'] as const;
 
 async function readStatus(): Promise<{ paymentsDegraded: boolean }> {
   try {

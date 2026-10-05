@@ -63,7 +63,8 @@ import {
   type AddressDraft,
 } from './application-logic';
 import { AddressFields, CountrySelect, FormAlert } from './application-parts';
-import { ONBOARDING_STEPS, OnboardingSteps, type OnboardingStep } from './OnboardingSteps';
+import { OnboardingSteps } from './OnboardingSteps';
+import { ONBOARDING_STEPS, type OnboardingStep } from './onboarding-steps';
 
 const STEPS = ONBOARDING_STEPS;
 

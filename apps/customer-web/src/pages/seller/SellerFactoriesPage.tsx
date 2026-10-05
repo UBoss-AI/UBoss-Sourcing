@@ -42,14 +42,8 @@ import {
   type Factory,
   type FactoryStatus,
 } from '@/lib/factories';
-import {
-  CERTIFICATIONS_KEY,
-  CertificationDialog,
-  EvidenceDialog,
-  FACTORIES_KEY,
-  FactoryDialog,
-  MachinesDialog,
-} from './FactoryDialogs';
+import { CertificationDialog, EvidenceDialog, FactoryDialog, MachinesDialog } from './FactoryDialogs';
+import { CERTIFICATIONS_KEY, FACTORIES_KEY } from './factory-query-keys';
 
 const FACTORY_TONE: Record<FactoryStatus, BadgeTone> = {
   NOT_SUBMITTED: 'neutral',

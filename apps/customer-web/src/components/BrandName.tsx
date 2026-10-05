@@ -15,7 +15,7 @@
 import { PRODUCT_BRAND, PRODUCT_SHORT_NAME } from '@/lib/brand';
 
 /** "Mart": the part of the name after the parent brand. */
-export const PRODUCT_SERVICE_NAME = PRODUCT_BRAND.slice(PRODUCT_SHORT_NAME.length).trim();
+const PRODUCT_SERVICE_NAME = PRODUCT_BRAND.slice(PRODUCT_SHORT_NAME.length).trim();
 
 export function BrandName(): React.JSX.Element {
   return (

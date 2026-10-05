@@ -12,7 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate, TranslationKey } from '@/i18n/i18n-context';
-import type { OnboardingStep } from './OnboardingSteps';
+import type { OnboardingStep } from './onboarding-steps';
 import { ApiError } from '@/lib/api';
 import {
   companyQueryKey,

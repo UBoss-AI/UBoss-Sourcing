@@ -33,17 +33,7 @@
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
-
-export const ONBOARDING_STEPS = [
-  'applicant',
-  'business',
-  'identifiers',
-  'addresses',
-  'documents',
-  'review',
-] as const;
-
-export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
+import { ONBOARDING_STEPS, type OnboardingStep } from './onboarding-steps';
 
 type StepState = 'complete' | 'current' | 'attention' | 'upcoming';
 
