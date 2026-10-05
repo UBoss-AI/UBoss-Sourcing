@@ -53,7 +53,9 @@ folder is not `/srv/gloviaa`, put its path after the key.
 
 ```bash
 curl -fsSL -o /root/uboss-deploy-setup.sh https://raw.githubusercontent.com/UBoss-AI/UBoss-Sourcing/main/deploy-docker/setup.sh
+curl -fsSL -o /root/activate-backend.sh https://raw.githubusercontent.com/UBoss-AI/UBoss-Sourcing/main/deploy-docker/activate-backend.sh
 less /root/uboss-deploy-setup.sh
+less /root/activate-backend.sh
 bash /root/uboss-deploy-setup.sh "PASTE-THE-ssh-ed25519-LINE-HERE" /srv/gloviaa
 ```
 
@@ -109,12 +111,12 @@ The admin and carrier site addresses are taken from their `..._API_BASE` with
 
 ## Step 4: Push
 
-Push to `main`. Watch **Actions**: **CI**, then **Deploy front ends (Docker)**.
+Push to `main`. Watch **Actions**: **CI**, then **Deploy Gloviaa (Docker)**.
 
 ✅ **Done when:** every step is green, including **Check the live sites serve
 this build**.
 
-To deploy without a new push: **Actions → Deploy front ends (Docker) → Run
+To deploy without a new push: **Actions → Deploy Gloviaa (Docker) → Run
 workflow**.
 
 ---
