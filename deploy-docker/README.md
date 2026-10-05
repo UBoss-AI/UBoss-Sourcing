@@ -8,19 +8,28 @@ sites from `apps/customer-web/dist`, `apps/admin-web/dist` and
 After this one-time setup, **every push to `main` goes live by itself**:
 
 1. GitHub runs **CI** (the tests). If CI fails, nothing is deployed.
-2. When CI is green, **Deploy front ends (Docker)** builds the three sites from
-   that exact commit and sends them to the server.
-3. The server checks the file is the one GitHub built, saves a backup of what
-   is live, and swaps the new sites in. Nothing restarts.
+2. When CI is green, **Deploy Gloviaa (Docker)** builds the three sites and the
+   backend from that exact commit and sends them to the server.
+3. The server validates the checksum and archive paths, builds an API image
+   tagged with that commit, takes an encrypted offsite backup, applies Prisma
+   migrations and database grants, and restarts the API, worker and media services.
+   It waits for API readiness before switching the frontend pages.
 4. GitHub then opens each site from outside and checks it serves the new build.
 
-**What it does not update yet:** the API, worker and media containers. Their
-image is built on the server from `Dockerfile.api`; a change to `backend/`
-still has to be rebuilt there by hand.
+Production secrets, database volumes, user accounts, uploaded files, DNS and
+gateway configuration remain on the server. A failing API startup reverts the
+application image; database migrations are not automatically undone. Migrations
+must therefore remain compatible with the preceding application version. This
+workflow does not apply changes to server provisioning scripts or infrastructure.
+
+Installed production target: `/srv/gloviaa` on `187.126.114.141`. The workflow
+checks the exact asset fingerprint served by all three public sites. The server
+records the last successful commit in `/srv/gloviaa/DEPLOYED_REVISION`.
 
 | File | What it is |
 |---|---|
 | `setup.sh` | Run once on the server, as root. |
+| `activate-backend.sh` | Installed root-owned by setup; backs up, migrates and activates the API image. |
 | `../.github/workflows/deploy-docker.yml` | The workflow that runs after every green CI on `main`. |
 
 The systemd layout in `Depoly_on_VPS.md` uses `deploy-vps/` instead.

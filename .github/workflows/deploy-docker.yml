@@ -1,13 +1,14 @@
 # =============================================================================
-# Push-to-live for a Docker Compose install - the three front ends.
+# Push-to-live for Gloviaa's Docker Compose install.
 #
 # Every push to `main` runs CI. When CI finishes green, this builds that exact
 # commit's customer, admin and logistics sites and puts them live. A red CI run
 # deploys nothing. It can also be started by hand (Actions -> Deploy front ends
 # (Docker) -> Run workflow).
 #
-# The API, worker and media containers are NOT updated by this workflow yet;
-# their image is built on the server.
+# Builds the three frontends and backend. The server builds a revision-tagged
+# API image, backs up production, migrates, and checks readiness before the
+# frontends switch. Production environment files remain on the VPS.
 #
 # BEFORE THE FIRST RUN (deploy-docker/README.md walks through each one)
 #
@@ -20,7 +21,7 @@
 # The key is restricted on the server to one program, uboss-deploy-gate, which
 # accepts only `receive <release>` and `activate <release>`.
 # =============================================================================
-name: Deploy front ends (Docker)
+name: Deploy Gloviaa (Docker)
 
 on:
   workflow_run:
@@ -42,7 +43,7 @@ permissions:
 
 jobs:
   build:
-    name: Build the front ends
+    name: Build Gloviaa
     runs-on: ubuntu-24.04
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -77,16 +78,29 @@ jobs:
           ( cd apps/admin-web     && npm ci && VITE_API_BASE_URL="$ADMIN_API_BASE"     npm run build )
           ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
 
+      - name: Build the backend
+        env:
+          DATABASE_URL: mysql://build:unused@127.0.0.1:3306/unused
+        run: |
+          set -euo pipefail
+          cd backend
+          npm ci
+          npx prisma generate
+          npm run build
+
       # Source maps are the full source of the admin console and carrier portal.
       - name: Strip source maps
         run: |
-          find apps/*/dist -name '*.map' -delete
-          find apps/*/dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
+          find apps/*/dist backend/dist -name '*.map' -delete
+          find apps/*/dist backend/dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
 
       - name: Package and checksum
         run: |
           set -euo pipefail
-          tar -czf "uboss-web-${RELEASE_SHA}.tgz" apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
+          tar -czf "uboss-web-${RELEASE_SHA}.tgz" \
+            apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist \
+            backend/dist backend/prisma backend/prisma.config.ts \
+            backend/package.json backend/package-lock.json
           sha256sum "uboss-web-${RELEASE_SHA}.tgz" > "uboss-web-${RELEASE_SHA}.tgz.sha256"
           cat "uboss-web-${RELEASE_SHA}.tgz.sha256"
 
@@ -166,3 +180,4 @@ jobs:
           check customer-web  "$CUSTOMER_SITE_URL"
           check admin-web     "${ADMIN_API_BASE%/api/v1}"
           check logistics-web "${LOGISTICS_API_BASE%/api/v1}"
+          curl -fsS --max-time 20 "${CUSTOMER_SITE_URL%/}/health/ready"

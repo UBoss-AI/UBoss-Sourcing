@@ -101,15 +101,40 @@ in="$STATE/incoming"
 
 exec 9>"$STATE/lock"; flock -n 9 || { echo "another deploy is running"; exit 3; }
 
-( cd "$in" && sha256sum --check --strict --status "$name.sha256" ) || { echo "checksum mismatch"; exit 4; }
-
 work=$(mktemp -d "$STATE/work.XXXXXX"); trap 'rm -rf "$work"' EXIT
-tar -xzf "$in/$name" -C "$work" --no-same-owner --no-same-permissions
+cp "$in/$name" "$work/release.tgz"
+expected=$(head -c 200 "$in/$name.sha256" | awk 'NR==1{print $1}')
+[[ "$expected" =~ ^[0-9a-f]{64}$ ]] || { echo "invalid checksum"; exit 4; }
+actual=$(sha256sum "$work/release.tgz" | awk '{print $1}')
+[[ "$expected" == "$actual" ]] || { echo "checksum mismatch"; exit 4; }
+# Validate before extraction: an uploaded archive must never write outside
+# the three frontend directories, even when activation runs as root.
+python3 - "$work/release.tgz" <<'PY'
+import sys, tarfile
+from pathlib import PurePosixPath
+roots = [f'apps/{app}/dist' for app in ('customer-web', 'admin-web', 'logistics-web')] + ['backend/dist', 'backend/prisma']
+files = {'backend/prisma.config.ts', 'backend/package.json', 'backend/package-lock.json'}
+with tarfile.open(sys.argv[1], 'r:gz') as archive:
+    for member in archive.getmembers():
+        path = PurePosixPath(member.name)
+        if path.is_absolute() or '..' in path.parts or not (member.isfile() or member.isdir()):
+            raise SystemExit('Unsafe archive entry refused')
+        if member.name not in files and not any(member.name.rstrip('/') == root or member.name.startswith(root + '/') for root in roots):
+            raise SystemExit('Unexpected archive path refused')
+PY
+tar -xzf "$work/release.tgz" -C "$work" --no-same-owner --no-same-permissions
 [ -z "$(find "$work" -type l -print -quit)" ] || { echo "release contains links; refused"; exit 4; }
 apps="customer-web admin-web logistics-web"
 for a in $apps; do
   [ -f "$work/apps/$a/dist/index.html" ] || { echo "release is missing apps/$a/dist"; exit 4; }
 done
+
+if [ -d "$work/backend/dist" ]; then
+  for required in backend/package.json backend/package-lock.json backend/prisma.config.ts backend/dist/http/server.js; do
+    [ -f "$work/$required" ] || { echo "Backend release incomplete: $required"; exit 4; }
+  done
+  /usr/local/sbin/gloviaa-backend-activate "$work" "${name:10:40}"
+fi
 
 # Back up what is live now, keep the newest ten.
 backup="$STATE/backups/web-$(date -u +%Y%m%d-%H%M%S).tgz"
@@ -120,16 +145,20 @@ ls -1t "$STATE"/backups/web-*.tgz | tail -n +11 | xargs -r rm -f
 # replaced directory would never be seen. New assets land before index.html
 # points at them, and old ones go only after, so a page mid-load still works.
 for a in $apps; do
-  rsync -a --delete-after --exclude index.html "$work/apps/$a/dist/" "$COMPOSE_DIR/apps/$a/dist/"
-  install -m 0644 "$work/apps/$a/dist/index.html" "$COMPOSE_DIR/apps/$a/dist/index.html"
+  # Keep old hashed assets so already-open pages can finish loading.
+  rsync -a --exclude index.html "$work/apps/$a/dist/" "$COMPOSE_DIR/apps/$a/dist/"
+  install -m 0644 "$work/apps/$a/dist/index.html" "$COMPOSE_DIR/apps/$a/dist/.index.html.next"
+  mv -f "$COMPOSE_DIR/apps/$a/dist/.index.html.next" "$COMPOSE_DIR/apps/$a/dist/index.html"
 done
 
 rm -f "$in/$name" "$in/$name.sha256"
+printf '%s\n' "${name:10:40}" > "$COMPOSE_DIR/DEPLOYED_REVISION"
 echo "OK live: $name (previous version saved in $backup)"
 ACT
 
 chmod 0755 /usr/local/bin/uboss-deploy-gate /usr/local/sbin/uboss-docker-activate
 chown root:root /usr/local/bin/uboss-deploy-gate /usr/local/sbin/uboss-docker-activate
+install -m 0755 -o root -g root "$(dirname "${BASH_SOURCE[0]}")/activate-backend.sh" /usr/local/sbin/gloviaa-backend-activate
 
 # --- sudo: exactly one program -----------------------------------------------
 tmp=$(mktemp)
