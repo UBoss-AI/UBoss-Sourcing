@@ -98,17 +98,17 @@ afterEach(() => {
 });
 
 describe('newly verified suppliers', () => {
-  it('is not on the home page, and the page never asks for the newest suppliers', async () => {
+  it('is not on the home page, and the page never asks for suppliers', async () => {
     serve({
       newest: [supplier({ slug: 'fresh-co', displayName: 'Fresh Co', verifiedAt: daysAgo(10) })],
     });
     renderHome();
-    await settled('/catalog/suppliers');
+    await settled('/catalog/products');
 
     expect(screen.queryByRole('region', { name: 'Newly verified suppliers' })).not.toBeInTheDocument();
     expect(screen.queryByText('Fresh Co')).not.toBeInTheDocument();
     const supplierReads = fetchMock.mock.calls.map((call) => String(call[0])).filter((url) => url.includes('/catalog/suppliers'));
-    expect(supplierReads.some((url) => url.includes('sort=newest'))).toBe(false);
+    expect(supplierReads).toHaveLength(0);
   });
 });
 
