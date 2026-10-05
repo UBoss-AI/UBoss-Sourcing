@@ -20,6 +20,51 @@ Wait until it finishes before you paste the next one. It has finished when you s
 
 ---
 
+## How long it takes
+
+About **3 to 4 hours** the first time. You can stop after any part, and carry on later from the next one.
+
+## Track your progress
+
+Tick each part as you finish it:
+
+- [ ] Get Backblaze and the other things ready
+- [ ] Part 1: Set up the server in Hostinger
+- [ ] Part 2: Connect to the server
+- [ ] Part 3: Update the server and make it safe
+- [ ] Part 4: Install the programs
+- [ ] Part 5: Create the database
+- [ ] Part 6: Download the project and fill in the settings
+- [ ] Part 7: Build the app
+- [ ] Part 8: Start the app
+- [ ] Part 9: Point your domain at the server
+- [ ] Part 10: Configure nginx
+- [ ] Part 11: Turn on https
+- [ ] Part 12: Check that everything works
+- [ ] Part 13: Before real customers arrive
+- [ ] Part 14: Turn on automatic backups
+
+## Words you will see
+
+| Word | What it means |
+|---|---|
+| **VPS / server** | A computer in Hostinger's building that runs your website all day, every day |
+| **Terminal** | The black window where you type commands |
+| **SSH** | The way your computer connects to the server's terminal |
+| **root** | The server's main administrator account. It can do anything. |
+| **Command** | One line you paste into the terminal, followed by Enter |
+| **Domain** | Your website name, for example `gloviaamart.com` |
+| **Subdomain** | A name in front of the domain, for example `shop.gloviaamart.com` |
+| **DNS** | The internet's address book. It turns a name into your server's IP address. |
+| **IP address** | Your server's number on the internet, for example `123.45.67.89` |
+| **Database** | Where all the orders, users and products are stored |
+| **nginx** | The program that shows your websites to visitors |
+| **SSL / https** | The padlock in the browser. It keeps visitors' data safe. |
+| **Settings file (`.env`)** | One file that holds every password and setting the app needs |
+| **Bucket** | A storage folder in Backblaze |
+
+---
+
 ## What you need before you begin
 
 Tick each one off:
@@ -340,213 +385,186 @@ ss -ltn | grep 3306
 
 ## Part 6: Download the project and fill in the settings
 
-**What you will do:** copy the project from GitHub onto the server, then create its settings file.
+**What you will do:** copy the project onto the server, then give it your passwords and settings.
+**Time:** about 20 minutes.
 
-Go to the app folder:
+### Step 6.1: Download the project
 
-```bash
-cd /srv/uboss
-```
-
-Download the project. Put your GitHub username and repository name in the address.
+Paste this. Put your GitHub username in place of `YOUR_GITHUB_USERNAME`:
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/UBoss-Sourcing.git repo
+cd /srv/uboss && git clone https://github.com/YOUR_GITHUB_USERNAME/UBoss-Sourcing.git repo
 ```
 
-- When it asks for a **Username**: type your GitHub username.
-- When it asks for a **Password**: paste your **personal access token**, not your GitHub password.
+It asks two questions:
+- **Username:** type your GitHub username, then press **Enter**.
+- **Password:** paste your **GitHub token** (it starts with `github_pat_`), then press **Enter**. Nothing appears while you paste. That is normal.
 
-✅ **Done when:** it ends with `done.`, and running `ls` shows a folder called `repo`.
+✅ **Done when:** the last line says `done.`
 
-**Create the settings file.** Start by copying the example:
+❌ If it says `Authentication failed`, the token is wrong or has expired. Make a new one (see "Get the other things ready") and try again.
+
+### Step 6.2: Make four secret keys
+
+Paste this **one** command. It prints 4 long random codes:
 
 ```bash
-cp repo/backend/.env.example shared/.env
+for i in 1 2 3 4; do openssl rand -hex 32; done
 ```
 
-Make it private, so that only the app can read it:
+Keep them for the next step.
+
+### Step 6.3: Fill in your settings sheet in Notepad
+
+1. Open **Notepad** on your computer.
+2. Copy this sheet into it.
+3. Replace every `<...>` with your own value. Take the passwords from your password manager, and the 4 secret keys from Step 6.2.
+
+```
+NODE_ENV=production
+DATABASE_URL=mysql://uboss_app:<CHANGE_ME_1>@localhost:3306/uboss
+DATABASE_MAINTENANCE_URL=mysql://uboss_maintenance:<CHANGE_ME_3>@localhost:3306/uboss
+MIGRATE_DATABASE_URL=mysql://uboss_migrate:<CHANGE_ME_2>@localhost:3306/uboss
+CUSTOMER_WEB_ORIGIN=https://shop.<YOURDOMAIN.COM>
+ADMIN_WEB_ORIGIN=https://admin.<YOURDOMAIN.COM>
+LOGISTICS_WEB_ORIGIN=https://carriers.<YOURDOMAIN.COM>
+COOKIE_SECURE=true
+REALTIME_BUS_DRIVER=database
+QUEUE_DRIVER=database
+SESSION_COOKIE_SECRET=<secret key 1>
+ACCESS_TOKEN_SECRET=<secret key 2>
+REFRESH_TOKEN_SECRET=<secret key 3>
+SECRETS_ENCRYPTION_KEY=<secret key 4>
+STORAGE_DRIVER=s3
+S3_ENDPOINT=https://s3.eu-central-003.backblazeb2.com
+S3_REGION=eu-central-003
+S3_BUCKET=gloviaa-uploads-123
+S3_ACCESS_KEY_ID=<Backblaze keyID>
+S3_SECRET_ACCESS_KEY=<Backblaze applicationKey>
+S3_FORCE_PATH_STYLE=true
+S3_SSE=AES256
+EMAIL_DRIVER=smtp
+SMTP_HOST=<for example smtp.hostinger.com>
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=<your email address>
+SMTP_PASSWORD=<your email password>
+STRIPE_SECRET_KEY=<sk_live_...>
+```
+
+✅ **Done when:** there is **no `<` or `>` left anywhere** in the sheet.
+
+### Step 6.4: Create the settings file
+
+This command copies the example settings file into place, then makes it private so only the app can read it:
 
 ```bash
-chmod 600 shared/.env && chown uboss:uboss shared/.env
+cp /srv/uboss/repo/backend/.env.example /srv/uboss/shared/.env && chmod 600 /srv/uboss/shared/.env && chown uboss:uboss /srv/uboss/shared/.env
 ```
 
-**Make the app's secret keys.** Run this command **four times**, and write down each result:
+### Step 6.5: Paste your sheet at the end of the file
+
+You **don't need to search** for anything. Anything written at the **bottom** of the file replaces the same setting higher up.
+
+1. Open the file:
+
+   ```bash
+   nano /srv/uboss/shared/.env
+   ```
+
+2. Jump to the very end: press **Ctrl + End**. If that does nothing, hold **Page Down** until you reach the end.
+3. Press **Enter** twice, to start a new empty line.
+4. In Notepad, press **Ctrl + A**, then **Ctrl + C**, to copy your whole sheet.
+5. In the terminal, **right-click** to paste it.
+6. Save and close: press **Ctrl + X**, then **Y**, then **Enter**.
+
+### Step 6.6: Check it
+
+Paste this. It shows the important lines, with the passwords hidden:
 
 ```bash
-openssl rand -hex 32
+grep -E '^(NODE_ENV|STORAGE_DRIVER|EMAIL_DRIVER|COOKIE_SECURE|REALTIME_BUS_DRIVER|S3_BUCKET)=' /srv/uboss/shared/.env | tail -6
 ```
 
-**Open the settings file:**
+✅ **Done when:** it shows `production`, `s3`, `smtp`, `true`, `database` and `gloviaa-uploads-123`.
 
-```bash
-nano shared/.env
-```
+Now close Notepad **without saving**.
 
-The file is long. For each setting below:
-1. Press **Ctrl + W**, type the name (for example `NODE_ENV=`), and press **Enter**.
-2. Delete the old value after the `=` and type the new one.
-
-| Find this | Change it to |
-|---|---|
-| `NODE_ENV=` | `production` |
-| `DATABASE_URL=` | `mysql://uboss_app:CHANGE_ME_1@localhost:3306/uboss` |
-| `DATABASE_MAINTENANCE_URL=` | `mysql://uboss_maintenance:CHANGE_ME_3@localhost:3306/uboss` |
-| `CUSTOMER_WEB_ORIGIN=` | `https://shop.YOURDOMAIN.COM` |
-| `ADMIN_WEB_ORIGIN=` | `https://admin.YOURDOMAIN.COM` |
-| `LOGISTICS_WEB_ORIGIN=` | `https://carriers.YOURDOMAIN.COM` |
-| `COOKIE_SECURE=` | `true` |
-| `REALTIME_BUS_DRIVER=` | `database` |
-| `QUEUE_DRIVER=` | `database` |
-| `SESSION_COOKIE_SECRET=` | your 1st secret key |
-| `ACCESS_TOKEN_SECRET=` | your 2nd secret key |
-| `REFRESH_TOKEN_SECRET=` | your 3rd secret key |
-| `SECRETS_ENCRYPTION_KEY=` | your 4th secret key |
-| `STORAGE_DRIVER=` | `s3` |
-| `S3_ENDPOINT=` | `https://s3.eu-central-003.backblazeb2.com` |
-| `S3_REGION=` | `eu-central-003` |
-| `S3_BUCKET=` | `gloviaa-uploads-123` |
-| `S3_ACCESS_KEY_ID=` | your Backblaze **keyID** |
-| `S3_SECRET_ACCESS_KEY=` | your Backblaze **applicationKey** |
-| `S3_FORCE_PATH_STYLE=` | `true` |
-| `S3_SSE=` | `AES256` |
-| `EMAIL_DRIVER=` | `smtp`, then fill in every `SMTP_` line with your email details |
-| `STRIPE_` lines | your **live** Stripe keys (keys starting `sk_test_` are refused) |
-| `MALWARE_SCANNER_DRIVER=` | read the comment just above this line in the file, and choose the ClamAV option |
-
-> **Backblaze on the server, the short version.** In this same file:
-> 1. The `S3_` lines are exactly as in the table above. The endpoint, region and bucket are already the right values for you.
-> 2. Put your **keyID** after `S3_ACCESS_KEY_ID=`, and your **applicationKey** after `S3_SECRET_ACCESS_KEY=`. Take both from your password manager.
-> 3. Set `STORAGE_DRIVER=s3`.
->
-> That is all the app needs. Backups are connected separately, in Part 14.
-
-Then go to the **very bottom** of the file and add this line:
-
-```
-MIGRATE_DATABASE_URL=mysql://uboss_migrate:CHANGE_ME_2@localhost:3306/uboss
-```
-
-Save and close: **Ctrl + X**, then **Y**, then **Enter**.
-
-> 💡 **Don't worry about getting everything perfect.** If a setting is wrong, the app refuses to start and tells you which one. You will see that in Part 8.
+> 💡 **If a setting is wrong**, the app refuses to start in Part 8, and tells you which one. Open the file again (Step 6.5), go to the end, fix that line, and save.
 
 ---
 
 ## Part 7: Build the app
 
-**What you will do:** turn the project's code into a finished app that is ready to run.
+**What you will do:** turn the code into a finished app. Mostly this means pasting and waiting.
+**Time:** about 30–40 minutes, mostly waiting.
 
-Load the settings into this window, so the next commands can use them:
+> **Before you start:** in every block below, replace `YOURDOMAIN.COM` with your real domain. The easiest way is to copy the block into Notepad, use **Edit → Replace**, then copy it back.
+
+### Step 7.1: Build the backend
+
+Paste this whole block at once. It:
+- loads your settings
+- installs the parts the backend needs
+- builds the backend
+- creates the database tables
+- locks down the database accounts
+- adds the starting data (currencies, countries and so on)
+
+**It takes 10–15 minutes.** Don't close the window.
 
 ```bash
 set -a; . /srv/uboss/shared/.env; set +a
-```
-
-### 7a. The backend (the "brain")
-
-Go into the backend folder:
-
-```bash
 cd /srv/uboss/repo/backend
-```
-
-Install its parts and build it. This takes **5–10 minutes**; wait for it to finish.
-
-```bash
 npm ci && npm run build
-```
-
-Create the database tables:
-
-```bash
 DATABASE_URL="$MIGRATE_DATABASE_URL" npx prisma migrate deploy
-```
-
-✅ It ends with *"All migrations have been successfully applied"*.
-
-> ⚠️ **Never** run `prisma migrate dev` on the server. It can damage the database.
-
-Set the safe permissions on the database accounts:
-
-```bash
 bash /srv/uboss/repo/deploy/scripts/apply-grants.sh
-```
-
-✅ It ends with green `+` lines.
-❌ If it says *"the audit maintenance account does not exist"*, you missed a line in Part 5. Go back and create that account, then run this command again.
-
-Add the starting data: currencies, countries and so on. Without it, no product can be priced.
-
-```bash
 npm run db:reference
 ```
 
-### 7b. The three websites
+✅ **Done when:**
+- you see *"All migrations have been successfully applied"*
+- you see green `+` lines from the grants step
+- the block ends with no red `error`
 
-Each website is built separately, and each is told its own address. Put your domain in place of `YOURDOMAIN.COM`.
+❌ **Common problems:**
 
-**The shop.** Install its parts first:
+| You see | What to do |
+|---|---|
+| `Access denied for user 'uboss_migrate'` | The `CHANGE_ME_2` password in your sheet doesn't match Part 5. Fix it in the settings file (Step 6.5), then paste this block again. |
+| `the audit maintenance account does not exist` | You skipped a line in Part 5. Redo Part 5, then paste this block again. |
+| `npm ERR!` | Copy the last 10 lines, and ask for help. |
 
-```bash
-cd /srv/uboss/repo/apps/customer-web && npm ci
-```
+> ⚠️ **Never** run `prisma migrate dev` on the server. Always `migrate deploy`.
 
-```bash
-VITE_API_BASE_URL=https://shop.YOURDOMAIN.COM/api/v1 VITE_PUBLIC_SITE_URL=https://shop.YOURDOMAIN.COM npm run build
-```
+### Step 7.2: Build the three websites
 
-**The admin panel:**
-
-```bash
-cd /srv/uboss/repo/apps/admin-web && npm ci
-```
-
-```bash
-VITE_API_BASE_URL=https://admin.YOURDOMAIN.COM/api/v1 npm run build
-```
-
-**The carrier portal:**
+Paste this whole block (with your domain filled in). It builds the shop, the admin panel and the carrier portal, one after another. **It takes about 10 minutes.**
 
 ```bash
-cd /srv/uboss/repo/apps/logistics-web && npm ci
+cd /srv/uboss/repo/apps/customer-web && npm ci && VITE_API_BASE_URL=https://shop.YOURDOMAIN.COM/api/v1 VITE_PUBLIC_SITE_URL=https://shop.YOURDOMAIN.COM npm run build
+cd /srv/uboss/repo/apps/admin-web && npm ci && VITE_API_BASE_URL=https://admin.YOURDOMAIN.COM/api/v1 npm run build
+cd /srv/uboss/repo/apps/logistics-web && npm ci && VITE_API_BASE_URL=https://carriers.YOURDOMAIN.COM/api/v1 npm run build
 ```
 
-```bash
-VITE_API_BASE_URL=https://carriers.YOURDOMAIN.COM/api/v1 npm run build
-```
+✅ **Done when:** you see `✓ built in ...` **three times**.
 
-✅ Each build ends with a line like `✓ built in 40s`.
+### Step 7.3: Put the finished app in place
 
-### 7c. Move the finished app into place
+This copies the finished backend and the three websites into the folder the server runs from:
 
 ```bash
 cd /srv/uboss
-```
-
-```bash
 rsync -a --delete repo/backend/ current/backend/
-```
-
-```bash
 rsync -a --delete repo/apps/customer-web/dist/ current/customer-web/
-```
-
-```bash
 rsync -a --delete repo/apps/admin-web/dist/ current/admin-web/
-```
-
-```bash
 rsync -a --delete repo/apps/logistics-web/dist/ current/logistics-web/
-```
-
-Give the app user ownership of everything:
-
-```bash
 chown -R uboss:uboss /srv/uboss
+ls current
 ```
 
----
+✅ **Done when:** the last line shows four names: `admin-web`, `backend`, `customer-web` and `logistics-web`.
+
 
 ## Part 8: Start the app
 

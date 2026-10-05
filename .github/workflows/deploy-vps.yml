@@ -1,0 +1,184 @@
+# =============================================================================
+# Deploy to the VPS - build a release in GitHub, hand it to the server.
+#
+# Companion to deploy-vps/ (deploy-activate.sh, setup-deploy-user.sh and the
+# beginner guide in deploy-vps/README.md). deploy.yml is left as it was.
+#
+# MANUAL ONLY. `workflow_dispatch` - no push deploys anything. Production must
+# have REQUIRED REVIEWERS set in Settings -> Environments; that approval is the
+# only gate this workflow has.
+#
+# It never sends `.env` (that lives only in /srv/uboss/shared/.env on the
+# server), never prints a secret, and has no `set -x`.
+#
+# BEFORE THE FIRST RUN (deploy-vps/README.md walks through each one)
+#
+#   Server:        sudo bash /srv/uboss/repo/deploy-vps/setup-deploy-user.sh
+#   Environments:  staging, production (production: required reviewers)
+#   Secrets:       DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER, DEPLOY_KNOWN_HOSTS
+#   Variables:     CUSTOMER_API_BASE, ADMIN_API_BASE, LOGISTICS_API_BASE,
+#                  CUSTOMER_SITE_URL, SMOKE_URL
+#
+# The key is a dedicated ed25519 key for the `deploy` user, restricted on the
+# server to one program:
+#
+#   restrict,command="/srv/uboss/bin/deploy-activate" ssh-ed25519 AAAA...
+#
+# HOW THE FILE GETS THERE
+#
+# Not scp. With a forced command, sshd runs deploy-activate instead of the scp
+# or sftp server, so a copy never happens. The artifact and its checksum are
+# streamed over stdin to `receive <name>` - which deploy-activate accepts only
+# for names matching uboss-<40 hex>.tgz[.sha256].
+# =============================================================================
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Where to deploy
+        required: true
+        default: production
+        type: choice
+        options: [staging, production]
+
+# One deployment at a time, never cancelled halfway.
+concurrency:
+  group: deploy-vps-${{ inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the release artifact
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+
+      # VITE_* values are BAKED INTO THE BUNDLE at build time. A wrong one means
+      # every visitor's browser calls an API on its own machine.
+      - name: Build the front ends
+        env:
+          CUSTOMER_API_BASE: ${{ vars.CUSTOMER_API_BASE }}
+          ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
+          LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+          CUSTOMER_SITE_URL: ${{ vars.CUSTOMER_SITE_URL }}
+        run: |
+          set -euo pipefail
+          for v in CUSTOMER_API_BASE ADMIN_API_BASE LOGISTICS_API_BASE CUSTOMER_SITE_URL; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is not set. Add it under Settings -> Secrets and variables -> Actions -> Variables."
+              exit 1
+            fi
+          done
+
+          ( cd apps/customer-web  && npm ci && VITE_API_BASE_URL="$CUSTOMER_API_BASE" VITE_PUBLIC_SITE_URL="$CUSTOMER_SITE_URL" npm run build )
+          ( cd apps/admin-web     && npm ci && VITE_API_BASE_URL="$ADMIN_API_BASE"     npm run build )
+          ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
+
+      - name: Build the API
+        run: |
+          set -euo pipefail
+          cd backend
+          npm ci
+          npx prisma generate
+          npm run build
+
+      # Source maps are the full source of the admin console and carrier portal.
+      - name: Strip front-end source maps
+        run: |
+          find apps/*/dist -name '*.map' -delete
+          find apps/*/dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
+
+      # prisma.config.ts is required: Prisma 7 has no `url` in the schema.
+      - name: Package and checksum
+        run: |
+          set -euo pipefail
+          tar -czf "uboss-${GITHUB_SHA}.tgz" \
+            backend/dist backend/prisma backend/prisma.config.ts \
+            backend/package.json backend/package-lock.json \
+            apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
+          sha256sum "uboss-${GITHUB_SHA}.tgz" > "uboss-${GITHUB_SHA}.tgz.sha256"
+          cat "uboss-${GITHUB_SHA}.tgz.sha256"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vps-release-${{ github.sha }}
+          path: uboss-*.tgz*
+          retention-days: 30
+
+  deploy:
+    name: Activate on ${{ inputs.environment }}
+    needs: build
+    runs-on: ubuntu-24.04
+
+    # The approval gate - required reviewers on `production`.
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: vps-release-${{ github.sha }}
+
+      # Pinned host key, never accept-new: the first machine to answer on that
+      # address would otherwise receive the release.
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          for v in DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS DEPLOY_HOST DEPLOY_USER; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret $v is not set for the '${{ inputs.environment }}' environment."
+              exit 1
+            fi
+          done
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY"     > ~/.ssh/uboss_deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/uboss_deploy ~/.ssh/known_hosts
+
+      - name: Upload and activate
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          SSH=(ssh -i ~/.ssh/uboss_deploy -o IdentitiesOnly=yes -o BatchMode=yes
+               -o StrictHostKeyChecking=yes -o ServerAliveInterval=30
+               "$DEPLOY_USER@$DEPLOY_HOST")
+          NAME="uboss-${GITHUB_SHA}.tgz"
+
+          "${SSH[@]}" "receive $NAME.sha256" < "$NAME.sha256"
+          "${SSH[@]}" "receive $NAME"        < "$NAME"
+
+          # Verifies the checksum, unpacks, backs up if there are migrations,
+          # migrates, swaps, restarts one API at a time, and rolls itself back
+          # if the new release fails its health checks.
+          "${SSH[@]}" "activate $NAME"
+
+      # From outside the machine, against the public address - a script that
+      # declares itself healthy is not evidence.
+      - name: Smoke test
+        env:
+          SMOKE_URL: ${{ vars.SMOKE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SMOKE_URL" ]; then
+            echo "::error::SMOKE_URL is required for every deployment."
+            exit 1
+          fi
+          curl -fsS --max-time 10 "${SMOKE_URL%/}/health/live"  >/dev/null
+          curl -fsS --max-time 20 "${SMOKE_URL%/}/health/ready" >/dev/null
+          echo "health checks pass"
