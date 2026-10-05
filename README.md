@@ -1162,7 +1162,11 @@ take, rather than marking it dead and silently losing the work.
 </details>
 
 **Shared by all three web apps.** The appearance switch in the top bar offers
-*match my device*, *light* and *dark*, remembered per browser. When a whole
+*match my device*, *light* and *dark*, remembered per browser. **Dark is the
+default**: anybody who has not chosen sees the dark theme, whatever their
+device is set to. On the dark theme the storefront home page's hero is a
+black sky with slowly drifting stars; everything below it keeps the blue
+ground. When a whole
 screen cannot be shown, each app shows the same full-page error: a status
 numeral with a ghost for its zero, plain words, and the ways onward. There are
 ten kinds, from 404 and 403 to offline and "a newer version is available". It

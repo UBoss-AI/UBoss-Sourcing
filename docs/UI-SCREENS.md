@@ -170,8 +170,9 @@ appear only when the app is built with `VITE_DEMO_LOGINS` set.
   | Green, amber, red | Success, warning, danger (badges, messages) |
 
 - **Light and dark.** The appearance control (storefront header, admin and
-  logistics top bars) has three choices: **Match my device** (the default),
-  **Light** and **Dark**. The choice is kept in the browser under
+  logistics top bars) has three choices: **Match my device**, **Light** and
+  **Dark** (the default — anybody who has not chosen sees dark, whatever the
+  device says). The choice is kept in the browser under
   `uboss.theme`, not on the account, because it belongs to the screen being
   used. From tablet width up it is a round pill of three icons. A border
   rings the chosen one and springs across when the choice changes, or jumps
@@ -547,7 +548,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    |---|---|---|
    | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **Source with Intelligence \| Deliver with Confidence** (15px, from 1024px), in their own bright colour tokens. From 640px up, "Gloviaa" is in the script face and "Mart" in Inter, smaller (0.62em), light and shown lowercase as "mart", on the same baseline; it still reads "Gloviaa Mart". The footer heading draws the name the same way. A store with its own name is drawn in one face | Goes to `/` |
    | Search everything | A magnifier icon, no words. Its accessible name is "Search everything". Every width, guest or signed in | Opens `/find` |
-   | Appearance | Match my device, Light, Dark. One cycling button on phones; not shown below 400px, where the device's own setting applies | Kept in this browser only |
+   | Appearance | Match my device, Light, Dark. One cycling button on phones; not shown below 400px, where the default (dark) or the last choice applies | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
    | About | A circled "i" icon, with no words. Its accessible name is "About {marketplace}". Shown from 1024px up only; narrower, the footer's link leads to the same page | Opens `/about` |
@@ -711,6 +712,11 @@ browse.
      their cards usually explain rather than link. The turning globe they surround is
      labelled **Gloviaa** alone — never "Gloviaa Mart", the tagline or
      "Powered by UBOSS".
+   - **The ground**: on the dark theme the greeting is black with a field of
+     slowly drifting stars that move away from the pointer (still under
+     reduced motion), fading into the usual blue ground before **Shop by
+     category**; on the light theme it is white and blue with the same stars
+     as faint dark points.
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.

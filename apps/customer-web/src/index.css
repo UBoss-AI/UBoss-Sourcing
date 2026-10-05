@@ -1044,7 +1044,7 @@
    * reason a part-to-whole chart is worth drawing.
    */
   .console-arc-muted {
-    opacity: 0.55;
+    opacity: 0.4;
   }
 
   /*
@@ -1640,5 +1640,43 @@ dialog[open] {
   body:has([data-legal-print]) {
     background: #fff;
     color: #000;
+  }
+}
+
+/*
+ * The home page's star field (`components/greeting/GalaxyStars.tsx`).
+ *
+ * On the dark palette the hero's ground is black, as in the original Galaxy.
+ * Only the hero's: the layer is sized to the greeting section, so the
+ * categories and product cards below keep the normal blue ground. On the light
+ * palette the ground stays white and blue (the headline is dark ink and would
+ * vanish on black), and the canvas is inverted with its hue turned back, so
+ * the same stars come out as faint dark, blue-leaning points.
+ */
+:root[data-theme='dark'] .galaxy-ground {
+  background: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .galaxy-ground {
+    background: #000;
+  }
+}
+
+.galaxy-stars canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+:root[data-theme='light'] .galaxy-stars {
+  filter: invert(1) hue-rotate(180deg);
+  opacity: 0.4;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .galaxy-stars {
+    filter: invert(1) hue-rotate(180deg);
+    opacity: 0.4;
   }
 }

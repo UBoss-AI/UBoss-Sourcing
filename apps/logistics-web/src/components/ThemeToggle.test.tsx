@@ -105,15 +105,17 @@ describe('the appearance control', () => {
     expect(segment(DARK)).toBeInTheDocument();
   });
 
-  it('starts on the device, and says which option that is', () => {
+  it('starts on dark, whatever the device says, and says which option that is', () => {
+    stubMatchMedia(false);
     renderToggle();
 
-    expect(segment(DEVICE)).toHaveAttribute('aria-checked', 'true');
+    expect(segment(DARK)).toHaveAttribute('aria-checked', 'true');
     expect(segment(LIGHT)).toHaveAttribute('aria-checked', 'false');
-    expect(segment(DARK)).toHaveAttribute('aria-checked', 'false');
+    expect(segment(DEVICE)).toHaveAttribute('aria-checked', 'false');
 
-    // Nothing written. The stylesheet's media query is in charge.
-    expect(stamped()).toBeNull();
+    // Stamped, because dark is the default palette; but not stored, because
+    // nobody chose it.
+    expect(stamped()).toBe('dark');
     expect(stored()).toBeNull();
   });
 
@@ -150,6 +152,7 @@ describe('the appearance control', () => {
   });
 
   it('does not stamp a theme when the device is the one asking for dark', () => {
+    window.localStorage.setItem('uboss.theme', 'system');
     stubMatchMedia(true);
     renderToggle();
 
@@ -170,13 +173,13 @@ describe('the appearance control', () => {
   });
 
   it('ignores a stored value that is not one of the three', () => {
-    // Somebody else's key collision, or a half-written value. Falling back to
-    // the device is the answer that cannot be wrong.
+    // Somebody else's key collision, or a half-written value. Treated as no
+    // choice at all, so the default applies.
     window.localStorage.setItem('uboss.theme', 'midnight');
     renderToggle();
 
-    expect(stamped()).toBeNull();
-    expect(segment(DEVICE)).toHaveAttribute('aria-checked', 'true');
+    expect(stamped()).toBe('dark');
+    expect(segment(DARK)).toHaveAttribute('aria-checked', 'true');
   });
 });
 
@@ -216,7 +219,7 @@ describe('the pill, from the keyboard', () => {
 
     // Looking is not choosing: nothing was repainted on the way across.
     expect(stored()).toBeNull();
-    expect(segment(DEVICE)).toHaveAttribute('aria-checked', 'true');
+    expect(segment(DARK)).toHaveAttribute('aria-checked', 'true');
   });
 
   it('chooses the focused option with Enter or Space', async () => {
@@ -269,7 +272,7 @@ describe('the compact form, for a header with 44px left in it', () => {
     // An icon alone cannot say either of those, and this is the only control
     // in the band with no visible label at the width it appears at.
     expect(compact()).toHaveAccessibleName(
-      'Appearance: Match my device. Press to change it.',
+      'Appearance: Dark theme. Press to change it.',
     );
   });
 
@@ -277,18 +280,20 @@ describe('the compact form, for a header with 44px left in it', () => {
     const user = userEvent.setup();
     renderToggle();
 
+    // Starts on dark, the default. Round the ring rather than stopping on
+    // dark, so the device option is still reachable on the form that cannot
+    // show three segments.
+    await user.click(compact());
+    expect(stored()).toBe('system');
+    expect(stamped()).toBeNull();
+
     await user.click(compact());
     expect(stored()).toBe('light');
+    expect(stamped()).toBe('light');
 
     await user.click(compact());
     expect(stored()).toBe('dark');
     expect(stamped()).toBe('dark');
-
-    // Round the ring rather than stopping on dark, so the device option is
-    // still reachable on the form that cannot show three segments.
-    await user.click(compact());
-    expect(stored()).toBe('system');
-    expect(stamped()).toBeNull();
   });
 
   it('agrees with the pill, because there is one preference', async () => {

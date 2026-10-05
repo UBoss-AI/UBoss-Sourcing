@@ -4,7 +4,9 @@
  * Where the answer comes from, most specific first:
  *
  *   1. A choice made in this browser (`localStorage`, `uboss.theme`).
- *   2. The operating system, via `prefers-color-scheme`.
+ *   2. Dark. A first visit, or a browser that cannot remember, always opens
+ *      on the dark palette. The operating system is followed only once
+ *      somebody picks "Match my device" in the appearance control.
  *
  * There is deliberately no third step and no server round trip. A theme is a
  * property of the screen somebody is looking at, not of their account: the
@@ -57,10 +59,12 @@ function readStored(): ThemePreference {
     if (raw === 'light' || raw === 'dark' || raw === 'system') return raw;
   } catch {
     // A private window, cleared site data, or a browser refusing storage.
-    // Following the machine is the right answer when we cannot remember.
+    // Falls through to the default below.
   }
 
-  return 'system';
+  // Nobody has chosen yet: dark, whatever the machine says. Shared with the
+  // inline script in index.html, which stamps the same answer before paint.
+  return 'dark';
 }
 
 /** True when the operating system is asking for dark. */

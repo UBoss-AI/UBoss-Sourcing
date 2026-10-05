@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The colour of the mobile browser's own toolbar. White, to match the
-         sticky header directly under it; ThemeProvider rewrites this to the
-         dark surface when the dark palette is in force. -->
-    <meta name="theme-color" content="#ffffff" />
+    <!-- The colour of the mobile browser's own toolbar. The dark surface,
+         because dark is the default palette; ThemeProvider rewrites this to
+         white when somebody chooses the light one. -->
+    <meta name="theme-color" content="#141e30" />
     <!-- Per-route title and description are set at runtime; this is the
          fallback a crawler sees before the app boots. -->
     <title>Gloviaa Mart</title>
@@ -30,9 +30,10 @@
       head is the whole fix, and it is the reason src/app/ThemeProvider.tsx
       does not try to do this job itself.
 
-      It writes nothing when the choice is "system" (or when there is no
-      choice, or storage is unreadable): the absence of `data-theme` is what
-      hands the decision to the `prefers-color-scheme` block in index.css, and
+      With no stored choice (a first visit, or storage refused) it stamps
+      "dark": dark is the default palette. It writes nothing only when the
+      stored choice is "system": the absence of `data-theme` is what hands
+      the decision to the `prefers-color-scheme` block in index.css, and
       writing the resolved value there would freeze a visitor into whichever
       theme their machine happened to be in at that moment.
 
@@ -42,9 +43,10 @@
     <script>
       try {
         var t = localStorage.getItem('uboss.theme');
-        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        if (t !== 'system') document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
       } catch (e) {
-        /* Storage refused. The operating system's setting still applies. */
+        /* Storage refused. Dark, the default, still applies. */
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     </script>
   </head>

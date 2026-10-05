@@ -385,9 +385,15 @@ three, and Enter or Space picks the focused one. The same control, from
 
 | Preference | What it means | What is on `<html>` |
 |---|---|---|
-| **Match my device** (the default) | Follow `prefers-color-scheme`, now and later | nothing |
+| **Match my device** | Follow `prefers-color-scheme`, now and later | nothing |
 | **Light** | This site is light, whatever the machine says | `data-theme="light"` |
-| **Dark** | This site is dark, whatever the machine says | `data-theme="dark"` |
+| **Dark** (the default) | This site is dark, whatever the machine says | `data-theme="dark"` |
+
+**Dark is the default in all three apps.** A visitor who has never chosen — a
+first visit, a private window, cleared site data, or storage the browser
+refuses — gets dark, whatever their machine is set to. Nothing is written to
+`localStorage` for them; `data-theme="dark"` is stamped because no choice
+exists. The device is followed only once somebody picks **Match my device**.
 
 The empty cell is load-bearing. `data-theme` is **not** a cache of the theme on
 screen: its *absence* is what hands the decision to the
@@ -407,7 +413,8 @@ product.
 
 **The first paint is handled in `index.html`, not in React.** A six-line
 blocking script in the head stamps the attribute before the document is
-painted. React mounts *after* the first paint, so a provider structurally
+painted (with no stored choice it stamps `dark`, the default). React mounts
+*after* the first paint, so a provider structurally
 cannot prevent the white flash a dark-themed visitor would otherwise get on
 every page load — the one bug that makes a dark theme feel bolted on.
 `src/app/ThemeProvider.tsx` adopts whatever that script decided and owns it
@@ -2064,7 +2071,16 @@ in `pages/HomePage.tsx`, drawn once behind the whole page rather than inside
 the greeting. The greeting is no longer a rounded, bordered card: it is a
 full-width band with the reading measure (`max-w-content`) on its content
 only, and the categories, shelves and catalogue below it sit on the same
-ground. `StoreLayout` gives the `/` route the full width with no padding for
+ground. **On the dark palette the greeting alone is a black sky with moving
+stars.** `components/greeting/GalaxyStars.tsx` (adapted from React Bits'
+Galaxy, on the `ogl` WebGL library) draws a transparent star field on a layer
+sized to the greeting section; `.galaxy-ground` in `index.css` makes that layer
+black. It fades out over its last 7rem, so the categories and product cards
+below sit on the usual blue ground with no seam. The stars drift away from the pointer, freeze
+on one frame under reduced motion, and draw nothing where WebGL is missing. On
+the light palette the ground stays white and blue (the headline's dark ink
+would vanish on black) and the same stars are inverted into faint dark
+points. `StoreLayout` gives the `/` route the full width with no padding for
 this — its usual `py-6 sm:py-8` is what left a strip of the body's sunken
 colour between the header and the card. The WebGL stage stays inside the
 greeting (one canvas, one globe) and fades out over its last 7rem, so its floor

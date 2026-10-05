@@ -60,6 +60,7 @@ import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
 import { BrandName } from '@/components/BrandName';
 import { cx } from '@/lib/cx';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
+import { GalaxyStars } from '@/components/greeting/GalaxyStars';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
 import { CategoryCarousel } from '@/components/catalog/CategoryCarousel';
@@ -212,6 +213,37 @@ function Greeting(): React.JSX.Element {
      * orbits are allowed to run past the hub's square.
      */
     <section data-stage={stageActive ? 'on' : 'off'} className="relative overflow-hidden">
+      {/*
+       * The hero's night sky: on the dark palette a black ground with moving
+       * stars, as in the original Galaxy, and on the light palette the stars
+       * alone as faint dark points (see `.galaxy-ground` in index.css). Sized
+       * to this section, not the page, so the sections below keep the normal
+       * blue ground; it fades out over the last 7rem, like the stage, so the
+       * black hands over to the blue without a seam.
+       */}
+      <div
+        aria-hidden="true"
+        className="galaxy-ground pointer-events-none absolute inset-0"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
+          maskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
+        }}
+      >
+        <GalaxyStars
+          className="galaxy-stars absolute inset-0"
+          mouseRepulsion
+          mouseInteraction
+          density={1}
+          glowIntensity={0.3}
+          saturation={0}
+          hueShift={140}
+          twinkleIntensity={0.3}
+          rotationSpeed={0.1}
+          repulsionStrength={2}
+          starSpeed={0.5}
+          speed={1}
+        />
+      </div>
       {/*
        * The stage spans the full width with the section, and fades out over
        * its last few rem. Without the fade the canvas's floor and particle
