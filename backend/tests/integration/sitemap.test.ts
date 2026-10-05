@@ -98,6 +98,16 @@ describe('the sitemap', () => {
     expect(response.body).toContain('<urlset');
   });
 
+  it('names the catalogue and its categories at the addresses the storefront serves', async () => {
+    // The storefront routes are /products and /category/:slug. A sitemap that
+    // names any other address sends a crawler to the "not found" page.
+    const body = (await fetchSitemap()).body;
+
+    expect(body).toContain('/products</loc>');
+    expect(body).toContain(`/category/${SLUG_PREFIX}-tools</loc>`);
+    expect(body).not.toContain('/catalog');
+  });
+
   it('lists a published product', async () => {
     expect((await fetchSitemap()).body).toContain(`/product/${liveSlug}`);
   });

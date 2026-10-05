@@ -1199,12 +1199,13 @@
 
 .tilt {
   /*
-   * 1000px of perspective on a ~300px card is a shallow, expensive-looking
-   * lens. Shorter and six degrees starts to look like a fairground mirror;
-   * longer and the tilt stops reading as depth at all.
+   * No transform at rest. The tilt below is a 3D transform, and a 3D
+   * transform gives its element a GPU layer of its own whether or not it is
+   * leaning, so a grid of resting cards was dozens of layers (59 on the home
+   * page) that every scroll frame had to hand to the compositor. `none`
+   * interpolates with the tilted list, so the lean still eases in and out.
    */
-  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
-    scale3d(var(--tilt-scale, 1), var(--tilt-scale, 1), 1);
+  transform: none;
   /*
    * Short enough to feel attached to the pointer, long enough that the return
    * to rest is a movement rather than a snap. The hook writes at most once per
@@ -1216,6 +1217,13 @@
 .tilt:hover,
 .tilt:focus-within {
   --tilt-scale: 1.012;
+  /*
+   * 1000px of perspective on a ~300px card is a shallow, expensive-looking
+   * lens. Shorter and six degrees starts to look like a fairground mirror;
+   * longer and the tilt stops reading as depth at all.
+   */
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+    scale3d(var(--tilt-scale, 1), var(--tilt-scale, 1), 1);
 }
 
 /*
@@ -1290,7 +1298,9 @@
  * differently for no reason anybody can see.
  */
 @media (prefers-reduced-motion: reduce) {
-  .tilt {
+  .tilt,
+  .tilt:hover,
+  .tilt:focus-within {
     transform: none;
     transition: none;
   }
@@ -1679,4 +1689,22 @@ dialog[open] {
     filter: invert(1) hue-rotate(180deg);
     opacity: 0.4;
   }
+}
+
+/*
+ * Hover effects hold still while the page scrolls.
+ *
+ * Scrolling slides cards under a stationary pointer, so every card that
+ * passes under it would start its hover: the glare's blurred halo begins its
+ * drift (a repaint every frame) and the sheen fades in, then out again a few
+ * frames later. None of that is something the visitor asked for, and on a
+ * slower machine it is what made scrolling a grid stutter. `data-scrolling`
+ * is on <html> only for the length of a gesture (lib/scroll-activity.ts), so
+ * the effects come back the moment the page comes to rest under the pointer.
+ */
+html[data-scrolling] .glare-layer,
+html[data-scrolling] .tilt-sheen {
+  opacity: 0 !important;
+  animation: none !important;
+  transition: none !important;
 }

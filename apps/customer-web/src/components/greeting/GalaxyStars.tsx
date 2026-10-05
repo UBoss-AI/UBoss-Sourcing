@@ -17,6 +17,17 @@
  *   - **Still under reduced motion, and silent without WebGL.** A visitor who
  *     asked for less movement gets one frozen frame; a browser (or jsdom) with
  *     no WebGL context gets nothing, rather than an error on the home page.
+ *   - **Paused when it cannot be seen or would cost the scroll.** Off screen,
+ *     in a hidden tab, or during a scroll gesture (`lib/scroll-activity.ts`)
+ *     it holds its last frame and draws nothing. The clock it animates by only
+ *     advances while it draws, so the field resumes where it stopped rather
+ *     than jumping ahead.
+ *   - **Drawn at a fraction of the screen's resolution.** The fragment shader
+ *     is the expensive part — four layers of nine star cells for every pixel —
+ *     and the stars are soft glows, so drawing well under one shaded pixel per
+ *     CSS pixel and letting the browser scale it up costs nothing visible.
+ *     Measured on the live hero, this field alone accounted for most of the
+ *     long tasks during a scroll.
  *
  * The stars are light-on-transparent, which disappears on the light palette's
  * white. There the canvas is inverted and its hue turned back, so the same
@@ -25,6 +36,10 @@
 import { Color, Mesh, Program, Renderer, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
 import { usePrefersReducedMotion } from '@/lib/reduced-motion';
+import { isScrolling, subscribeScrollActivity } from '@/lib/scroll-activity';
+
+/** Shaded pixels per CSS pixel. See "Drawn at a fraction" above. */
+const RENDER_SCALE = 0.6;
 
 const vertexShader = `
 attribute vec2 uv;
@@ -220,7 +235,7 @@ export function GalaxyStars({
 
     let renderer: Renderer;
     try {
-      renderer = new Renderer({ alpha: true, premultipliedAlpha: false });
+      renderer = new Renderer({ alpha: true, premultipliedAlpha: false, dpr: RENDER_SCALE });
     } catch {
       // No WebGL here. The page's own backdrop is the whole picture.
       return undefined;
@@ -234,6 +249,7 @@ export function GalaxyStars({
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
 
+    const pointer = { x: 0, y: 0, fresh: false };
     const targetMouse = { x: 0.5, y: 0.5 };
     const smoothMouse = { x: 0.5, y: 0.5 };
     let targetActive = 0;
@@ -284,11 +300,46 @@ export function GalaxyStars({
     resize();
 
     let frame = 0;
+    let onScreen = true;
+    let elapsed = 0;
+    let last: number | null = null;
+
     const update = (t: number): void => {
       frame = requestAnimationFrame(update);
 
-      uniforms.uTime.value = t * 0.001;
-      uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10;
+      if (!onScreen || document.hidden || isScrolling()) {
+        // Hold the last frame. Forgetting `last` means the pause does not
+        // count as time passing when the loop picks up again.
+        last = null;
+        return;
+      }
+
+      // Capped, so a frame after a long stall moves the field one step rather
+      // than leaping.
+      elapsed += last === null ? 0 : Math.min(t - last, 100);
+      last = t;
+
+      uniforms.uTime.value = elapsed * 0.001;
+      uniforms.uStarSpeed.value = (elapsed * 0.001 * starSpeed) / 10;
+
+      // The pointer is read here, once per drawn frame, rather than in the
+      // pointermove handler: measuring the container there would force a
+      // layout on every move of the mouse.
+      if (pointer.fresh) {
+        pointer.fresh = false;
+        const rect = container.getBoundingClientRect();
+        const inside =
+          pointer.x >= rect.left &&
+          pointer.x <= rect.right &&
+          pointer.y >= rect.top &&
+          pointer.y <= rect.bottom;
+
+        targetActive = inside ? 1 : 0;
+        if (inside) {
+          targetMouse.x = (pointer.x - rect.left) / rect.width;
+          targetMouse.y = 1 - (pointer.y - rect.top) / rect.height;
+        }
+      }
 
       const lerp = 0.05;
       smoothMouse.x += (targetMouse.x - smoothMouse.x) * lerp;
@@ -303,18 +354,9 @@ export function GalaxyStars({
     };
 
     const onPointerMove = (event: PointerEvent): void => {
-      const rect = container.getBoundingClientRect();
-      const inside =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom;
-
-      targetActive = inside ? 1 : 0;
-      if (inside) {
-        targetMouse.x = (event.clientX - rect.left) / rect.width;
-        targetMouse.y = 1 - (event.clientY - rect.top) / rect.height;
-      }
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      pointer.fresh = true;
     };
 
     const onPointerLeave = (): void => {
@@ -322,6 +364,17 @@ export function GalaxyStars({
     };
 
     const interactive = mouseInteraction && !reducedMotion;
+
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries[0]?.isIntersecting ?? false;
+      },
+      { threshold: 0 },
+    );
+    visibility.observe(container);
+    // Subscribing is what keeps the shared scroll listener alive; the loop
+    // reads `isScrolling()` itself, so there is nothing to do on a change.
+    const stopWatchingScroll = subscribeScrollActivity(() => undefined);
 
     if (reducedMotion) {
       // One still frame, a few seconds in so the layers have spread out.
@@ -340,6 +393,8 @@ export function GalaxyStars({
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      visibility.disconnect();
+      stopWatchingScroll();
       if (interactive) {
         window.removeEventListener('pointermove', onPointerMove);
         document.documentElement.removeEventListener('pointerleave', onPointerLeave);

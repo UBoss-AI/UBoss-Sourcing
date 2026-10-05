@@ -20,6 +20,7 @@ import { RequireCustomer } from '@/auth/RequireCustomer';
 import { StoreLayout } from '@/layout/StoreLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { HomeRedirect } from './HomeRedirect';
+import { CatalogRedirect } from './CatalogRedirect';
 import { RouteErrorPage } from './RouteErrorPage';
 import { RouteFallback } from './RouteFallback';
 
@@ -114,6 +115,9 @@ export const router = createBrowserRouter([
        * case, so `/Home` is caught here too.
        */
       { path: 'home', element: <HomeRedirect /> },
+      // Addresses an older sitemap gave search engines. See CatalogRedirect.
+      { path: 'catalog', element: <CatalogRedirect /> },
+      { path: 'catalog/:slug', element: <CatalogRedirect /> },
       {
         path: 'products',
         ...publicRoute(() => import('@/pages/CatalogPage').then((m) => m.CatalogPage)),

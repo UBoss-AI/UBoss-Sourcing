@@ -1023,6 +1023,7 @@ shows any kind on demand; a production build does not contain that route.
 |---|---|---|
 | `/` | Home. The only home page, and where every sign-in lands, Individual or Company | No |
 | `/home` | Not a page. A permanent redirect (301) to `/` that keeps the query string, for old bookmarks and links | No |
+| `/catalog`, `/catalog/:slug` | Not pages. Redirects to `/products` and `/category/:slug` (`app/CatalogRedirect.tsx`), for the addresses an older sitemap gave search engines | No |
 | `/products` | All products | No |
 | `/category/:slug` | One category | No |
 | `/search` | Search results | No |
@@ -2080,7 +2081,31 @@ below sit on the usual blue ground with no seam. The stars drift away from the p
 on one frame under reduced motion, and draw nothing where WebGL is missing. On
 the light palette the ground stays white and blue (the headline's dark ink
 would vanish on black) and the same stars are inverted into faint dark
-points. `StoreLayout` gives the `/` route the full width with no padding for
+points.
+
+**The hero's decoration stops for a scroll.** The globe, the star field and
+the sourcing hub's orbits each redraw every frame, and the hub's orbiting cards
+are frosted glass, so each frame also re-blurs whatever moves behind them.
+Measured with the CPU slowed 4x, that left only about one scroll frame in six
+on time. Now `lib/scroll-activity.ts` keeps one passive scroll listener and
+puts `data-scrolling` on `<html>` for the length of a gesture (until 160ms
+after the last scroll event); all three pause for it and when off screen, and
+pick up where they stopped. The globe sets its `frameloop` to `never`, the
+stars skip drawing (their clock only advances while they draw, so nothing
+jumps), and the hub pauses its CSS animations through `getAnimations()`
+rather than a CSS rule — an attribute-keyed rule restyled the whole page each
+time scrolling started or stopped. The same attribute hides the product
+cards' hover glare and sheen during a scroll, so cards sliding under a still
+pointer do not start their hover. Three more costs went with it: the stars
+draw at 0.6 shaded pixels per CSS pixel; `.tilt` has no transform at rest (a
+3D transform gave every resting card its own GPU layer, 59 on the home page);
+and `useRouteScroll` records the scroll position when a scroll comes to rest
+(and on any press or key) rather than reading `scrollY` every frame, which
+forced a layout per frame. Result, same machine and data, CPU slowed 4x: on
+time frames went from about 15% to about 80% on a laptop-sized window, and
+from about 65% to about 96% on a phone-sized one.
+
+`StoreLayout` gives the `/` route the full width with no padding for
 this — its usual `py-6 sm:py-8` is what left a strip of the body's sunken
 colour between the header and the card. The WebGL stage stays inside the
 greeting (one canvas, one globe) and fades out over its last 7rem, so its floor

@@ -75,10 +75,19 @@ void i18n
     resources: { [DEFAULT_LANGUAGE]: { [NAMESPACE]: en } },
 
     detection: {
-      // localStorage first: an explicit choice outranks what the browser
+      // `?lang=` first: it is the address of a page in one language. The
+      // sitemap and every page's hreflang links name each translation as
+      // `?lang=de` and so on, and a search engine follows those with no saved
+      // choice and an English browser. Without this every one of them served
+      // English, which tells a crawler the "German" page is a copy of the
+      // English one. A person who arrives through such a link gets that
+      // language, and it is remembered like a choice they made.
+      //
+      // Then localStorage: an explicit choice outranks what the browser
       // happens to be configured for. `navigator` is the suggestion that puts
       // a Polish buyer on a Polish storefront before they touch anything.
-      order: ['localStorage', 'navigator'],
+      order: ['querystring', 'localStorage', 'navigator'],
+      lookupQuerystring: 'lang',
       lookupLocalStorage: STORAGE_KEY,
       caches: ['localStorage'],
     },

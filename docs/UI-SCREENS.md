@@ -653,6 +653,7 @@ call fails, everything below counts as off.
 |---|---|---|
 | `/` | Home | Anybody |
 | `/home` | Not a page. A permanent redirect (301) to `/`, keeping the query string, for old links. Every sign-in, individual or company, lands on `/` | Anybody |
+| `/catalog`, `/catalog/:slug` | Not pages. Redirect to `/products` and `/category/:slug`, keeping the query string, for addresses an older sitemap gave search engines | Anybody |
 | `/products` | All products | Anybody |
 | `/category/:slug` | One category | Anybody |
 | `/search` | Search results (old links) | Anybody |
@@ -717,6 +718,10 @@ browse.
      reduced motion), fading into the usual blue ground before **Shop by
      category**; on the light theme it is white and blue with the same stars
      as faint dark points.
+   - **Still while scrolling**: the globe, the stars and the hub's orbits
+     pause for the length of a scroll and while off screen, and carry on from
+     where they stopped. Product cards do not start their hover glare while
+     the page is scrolling under the pointer.
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.

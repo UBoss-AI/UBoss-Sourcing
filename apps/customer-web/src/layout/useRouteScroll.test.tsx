@@ -146,11 +146,11 @@ describe('useRouteScroll', () => {
 
   it('returns Back to where the previous page was left', async () => {
     const router = renderApp();
-    // Scrolled down the form; the hook remembers it as the window scrolls.
+    // Scrolled down the form; the hook remembers it once the scroll rests.
     scrollY = 750;
     await act(async () => {
       window.dispatchEvent(new Event('scroll'));
-      await new Promise((resolve) => requestAnimationFrame(() => { resolve(undefined); }));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
     await act(async () => {
       await router.navigate('/check-email');
@@ -161,6 +161,21 @@ describe('useRouteScroll', () => {
       await router.navigate(-1);
     });
     expect(scrollCalls.at(-1)).toEqual({ top: 750, behavior: 'instant' });
+  });
+
+  it('remembers the position at the press that navigates, before the scroll has rested', async () => {
+    const router = renderApp();
+    scrollY = 640;
+    // No time to rest: the link is pressed straight after the scroll.
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('pointerdown'));
+      await router.navigate('/check-email');
+    });
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(scrollCalls.at(-1)).toEqual({ top: 640, behavior: 'instant' });
   });
 
   it('opens a page reached by Back at its top when it had never been scrolled', async () => {

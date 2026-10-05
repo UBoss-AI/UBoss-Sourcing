@@ -124,6 +124,20 @@ describe('cleanup', () => {
     expect(document.head.querySelectorAll('[data-seo]')).toHaveLength(0);
   });
 
+  it("removes index.html's static sharing tags, so a parser never meets two og:title", () => {
+    const fallback = document.createElement('meta');
+    fallback.setAttribute('property', 'og:title');
+    fallback.content = 'Generic site title';
+    fallback.setAttribute('data-seo-static', '');
+    document.head.appendChild(fallback);
+
+    const cleanup = applySeoTags(base());
+
+    expect(document.head.querySelectorAll('meta[property="og:title"]')).toHaveLength(1);
+    expect(document.head.querySelector('meta[property="og:title"]')).not.toBe(fallback);
+    cleanup();
+  });
+
   it('does not touch tags it did not write', () => {
     const font = document.createElement('link');
     font.rel = 'preconnect';

@@ -49,6 +49,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { BoxIcon, ChevronRightIcon, CloseIcon } from '@/components/icons';
 import { PRODUCT_SHORT_NAME } from '@/lib/brand';
 import { cx } from '@/lib/cx';
+import { isScrolling, subscribeScrollActivity } from '@/lib/scroll-activity';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import {
@@ -513,6 +514,66 @@ interface SourcingHubProps {
   stageRef?: RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * Pause the hub's animations when they would cost the page something: while
+ * it is off screen, and for the length of a scroll gesture.
+ *
+ * Paused through the Web Animations API — `getAnimations()` on the hub, then
+ * `pause()` or `play()` on each — rather than by a CSS rule. A rule keyed on
+ * an attribute was tried first, and toggling it made the browser restyle the
+ * whole page at the start and end of every scroll, about 18ms each time on a
+ * fast laptop, which cost more than it saved. Pausing an animation object
+ * restyles nothing. Each one holds its frame and carries on from it, so the
+ * orbit and its counter-rotation stay in step and nothing visibly resets.
+ *
+ * Why it matters: the four cards are frosted glass that orbit, so every frame
+ * re-blurs whatever moves behind them, and several of the lighter pieces are
+ * SVG, which the browser animates on the same thread that runs the page.
+ * Measured on the live hero, these animations were the largest cost to
+ * scrolling once the WebGL layers were accounted for.
+ */
+function useHubPause(rootRef: RefObject<HTMLDivElement | null>): void {
+  useEffect(() => {
+    const root = rootRef.current;
+    if (root === null) return undefined;
+
+    // jsdom has neither; the hub then simply never pauses.
+    if (typeof root.getAnimations !== 'function') return undefined;
+
+    let onScreen = true;
+    let paused = false;
+
+    const settle = (): void => {
+      const next = !onScreen || isScrolling();
+      if (next === paused) return;
+      paused = next;
+
+      for (const animation of root.getAnimations({ subtree: true })) {
+        if (next) animation.pause();
+        else if (animation.playState === 'paused') animation.play();
+      }
+    };
+
+    const stopWatchingScroll = subscribeScrollActivity(settle);
+    const visibility =
+      typeof IntersectionObserver === 'function'
+        ? new IntersectionObserver(
+            (entries) => {
+              onScreen = entries[0]?.isIntersecting ?? true;
+              settle();
+            },
+            { threshold: 0 },
+          )
+        : null;
+    visibility?.observe(root);
+
+    return () => {
+      visibility?.disconnect();
+      stopWatchingScroll();
+    };
+  }, [rootRef]);
+}
+
 export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Element {
   const { t } = useI18n();
   const { features } = useStorefront();
@@ -522,6 +583,7 @@ export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Elem
   const [note, setNote] = useState<HubNote | null>(null);
 
   useHubParallax(rootRef);
+  useHubPause(rootRef);
 
   /* One attribute, no render. `orchestration.css` reads it to brighten the
      spoke belonging to whichever node the pointer or the focus ring is on. */

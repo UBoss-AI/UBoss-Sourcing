@@ -47,6 +47,9 @@ import { NavigationType, useLocation, useNavigationType } from 'react-router-dom
 /** How long a POP keeps trying to reach a saved position while content loads. */
 const RESTORE_WINDOW_MS = 1500;
 
+/** How long a scroll has to rest before its position is remembered. */
+const SAVE_AFTER_MS = 120;
+
 /** Saved window positions by history-entry key. Module scope: one app, one history. */
 const saved = new Map<string, number>();
 
@@ -92,20 +95,35 @@ export function useRouteScroll(
     };
   }, []);
 
-  // Remember where each entry was left, as it is scrolled.
+  // Remember where each entry was left, once each scroll comes to rest.
+  //
+  // Not on every frame: reading `scrollY` makes the browser bring layout up to
+  // date there and then, so a read per frame did a forced layout per frame
+  // for the whole of every scroll. Measured on the home page, this listener
+  // was the largest piece of script running during a scroll. The resting
+  // position is the one that matters. A press or a key is what starts a
+  // navigation, so the position is also taken then, in case somebody clicks a
+  // link within the moment before the timer fires; `pagehide` covers leaving
+  // the site.
   useEffect(() => {
-    let frame = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const record = (): void => {
+      saved.set(keyRef.current, window.scrollY);
+    };
     const onScroll = (): void => {
-      if (frame !== 0) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        saved.set(keyRef.current, window.scrollY);
-      });
+      clearTimeout(timer);
+      timer = setTimeout(record, SAVE_AFTER_MS);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('pointerdown', record, { capture: true, passive: true });
+    window.addEventListener('keydown', record, { capture: true, passive: true });
+    window.addEventListener('pagehide', record);
     return () => {
       window.removeEventListener('scroll', onScroll);
-      if (frame !== 0) cancelAnimationFrame(frame);
+      window.removeEventListener('pointerdown', record, { capture: true });
+      window.removeEventListener('keydown', record, { capture: true });
+      window.removeEventListener('pagehide', record);
+      clearTimeout(timer);
     };
   }, []);
 

@@ -52,6 +52,9 @@
  *   - **Off-screen is paused.** An `IntersectionObserver` stops the loop the
  *     moment the hero leaves the viewport and starts it again when it returns.
  *   - **A hidden tab is paused.** `visibilitychange`, for the same reason.
+ *   - **Scrolling is paused.** The loop holds its frame for the length of a
+ *     scroll gesture (`lib/scroll-activity.ts`), so the scroll gets the
+ *     whole machine; it resumes a moment after the gesture ends.
  *   - **Reduced motion renders one frame.** Not a slower animation — one
  *     frame, then nothing. Somebody who asked for no motion gets a still
  *     image, which is what they asked for.
@@ -63,6 +66,7 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react';
 import type { GlobeAnchor } from '@/components/ui/3d-globe';
 import { prefersLightMedia } from '@/lib/light-media';
+import { isScrolling, subscribeScrollActivity } from '@/lib/scroll-activity';
 
 const EarthScene = lazy(() => import('./EarthScene'));
 
@@ -307,7 +311,7 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
     let onScreen = true;
 
     const settle = (): void => {
-      if (!onScreen || document.hidden) {
+      if (!onScreen || document.hidden || isScrolling()) {
         setFrameloop('never');
 
         return;
@@ -331,10 +335,12 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
     // Somebody who turns reduced motion on mid-visit gets a still frame from
     // the next moment, rather than at the next page load.
     reducedMotion.addEventListener('change', settle);
+    const stopWatchingScroll = subscribeScrollActivity(settle);
 
     settle();
 
     return () => {
+      stopWatchingScroll();
       intersection.disconnect();
       document.removeEventListener('visibilitychange', settle);
       reducedMotion.removeEventListener('change', settle);

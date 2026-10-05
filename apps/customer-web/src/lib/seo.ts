@@ -142,6 +142,13 @@ export interface SeoTags {
  * into whatever chat client the link is pasted into.
  */
 export function applySeoTags(tags: SeoTags): () => void {
+  // index.html carries a site-wide set of sharing tags, marked
+  // `data-seo-static`, for the link-preview fetchers that never run this code
+  // (chat apps, social networks). Once this code runs it writes each page's
+  // own, and the static set has to go: a parser that meets two `og:title`
+  // tags takes the first, which would be the generic one.
+  for (const element of document.head.querySelectorAll('[data-seo-static]')) element.remove();
+
   if (tags.noIndex === true) return () => undefined;
 
   const cleanups: (() => void)[] = [];
@@ -330,6 +337,22 @@ export function breadcrumbJsonLd(entries: BreadcrumbEntry[]): Record<string, unk
       name: entry.name,
       item: canonicalUrl(entry.path),
     })),
+  };
+}
+
+/**
+ * The site itself, for the home page.
+ *
+ * What Google reads to choose the name it shows above a result ("site name"),
+ * so it is the trading name exactly as the header shows it, at the origin
+ * every canonical on the site points at.
+ */
+export function websiteJsonLd(input: { name: string }): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: input.name,
+    url: `${siteOrigin()}/`,
   };
 }
 

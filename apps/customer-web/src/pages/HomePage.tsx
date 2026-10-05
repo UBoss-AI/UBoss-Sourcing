@@ -41,7 +41,7 @@
  *     `components/greeting/orchestration.css`.
  */
 import { HomeTaskRow } from '@/components/home/HomeTaskRow';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
@@ -69,6 +69,7 @@ import { formatNumber } from '@/lib/format';
 import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { applyJsonLd, organizationJsonLd, websiteJsonLd } from '@/lib/seo';
 import type { CategoryNode } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -528,6 +529,24 @@ export function HomePage(): React.JSX.Element {
     },
     business.displayName,
   );
+
+  // Who runs this site, for search engines: the name shown above a result and
+  // the organisation behind it. On the home page only, which is where both
+  // describe the page itself rather than something on it.
+  const homeDescription = t('home.catalogueDescription', { store: business.displayName });
+  const logoUrl = business.logo?.url ?? null;
+  useEffect(() => {
+    const cleanups = [
+      applyJsonLd('home-website', websiteJsonLd({ name: business.displayName })),
+      applyJsonLd(
+        'home-organization',
+        organizationJsonLd({ name: business.displayName, description: homeDescription, logoUrl }),
+      ),
+    ];
+    return () => {
+      for (const cleanup of cleanups) cleanup();
+    };
+  }, [business.displayName, homeDescription, logoUrl]);
 
   /*
    * The product list is simply on the page.

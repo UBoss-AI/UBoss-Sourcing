@@ -138,11 +138,17 @@ export function registerSitemapRoutes(app: FastifyInstance): Promise<void> {
       }),
     ]);
 
+    // Each path is a storefront route, exactly as apps/customer-web's router
+    // spells it: `/products` for the catalogue and `/category/:slug` for a
+    // department. These once read `/catalog` and `/catalog/:slug`, which the
+    // storefront does not serve, so every category in the sitemap sent a
+    // crawler to a "not found" page marked noindex. The storefront now
+    // redirects those old addresses, but the sitemap names the real ones.
     const entries: SitemapEntry[] = [
       { path: '/', lastModified: null, priority: '1.0', changeFrequency: 'daily' },
-      { path: '/catalog', lastModified: null, priority: '0.9', changeFrequency: 'daily' },
+      { path: '/products', lastModified: null, priority: '0.9', changeFrequency: 'daily' },
       ...categories.map((category) => ({
-        path: `/catalog/${category.slug}`,
+        path: `/category/${category.slug}`,
         lastModified: category.updatedAt,
         priority: '0.8',
         changeFrequency: 'weekly',

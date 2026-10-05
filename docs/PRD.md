@@ -1916,7 +1916,7 @@ does not persist an unsaved image. No image URL or bytes enter the request URL.
 - **Statement.** Product pages publish canonical and `hreflang` tags for all
   eight languages, Open Graph/Twitter cards, `Product`/`Offer` structured data,
   a `robots.txt` and `GET /api/v1/sitemap.xml` from the live catalogue.
-- **Rules.** A converted (approximate) price publishes **no** Offer. The sitemap needs `CUSTOMER_WEB_PUBLIC_URL`. The sitemap also lists each listed supplier's page (`/suppliers/:slug`, the same suppliers that have a page), and that page publishes `Organization` structured data (name, address of the page, website, country; never a rating).
+- **Rules.** A converted (approximate) price publishes **no** Offer. The sitemap needs `CUSTOMER_WEB_PUBLIC_URL`. The sitemap names storefront routes exactly: `/products` and `/category/:slug` (it once wrote `/catalog` forms, which the storefront did not serve; those now redirect). `?lang=<code>` opens a page in that language, so each `hreflang` alternate serves its own language. The home page publishes `WebSite` and `Organization` structured data. `index.html` carries site-wide sharing tags for preview fetchers that do not run JavaScript; the app removes them when it writes the page's own. The interface font is self-hosted. The sitemap also lists each listed supplier's page (`/suppliers/:slug`, the same suppliers that have a page), and that page publishes `Organization` structured data (name, address of the page, website, country; never a rating).
 - **Status.** Built. **Limitation:** single-page app — chat clients that fetch raw HTML (Slack, WhatsApp, LinkedIn) see only fallback tags; server rendering is not built.
 
 ### FR-SRCH-008 — Home page, sourcing globe and feature cards
@@ -1924,7 +1924,9 @@ does not persist an unsaved image. No image URL or bytes enter the request URL.
 - **Statement.** The home page carries a search module, a department rail,
   curated shelves, an animated sourcing globe (maps ship with the build) and
   feature cards (assistant, autopay, schedule, ERP), each a real button that
-  opens its screen or explains why it cannot.
+  opens its screen or explains why it cannot. The decoration (globe, stars,
+  hub animations) pauses for the length of a scroll gesture and while off
+  screen, so scrolling never competes with it.
 - **Rules.** A card never links somewhere the person cannot go. A feature this deployment has switched off shows a note instead of a link, to guests and customers alike: the public config reports `features.customerAutopay` (true only when `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on) and `features.customerErp` (`FEATURE_CUSTOMER_ERP`); a config without them counts as off. Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
 - **Status.** Built. Until 29 Sep 2026 the Autopay and ERP cards linked to their pages even when those features were off, which left the customer at a dead end.
 

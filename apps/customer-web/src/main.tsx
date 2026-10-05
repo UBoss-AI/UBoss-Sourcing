@@ -12,9 +12,21 @@ import { ErrorBoundary } from '@/app/ErrorBoundary';
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/app/router';
 import { ToastProvider } from '@/components/toast';
+import { subscribeScrollActivity } from '@/lib/scroll-activity';
+// The interface face, served from this site rather than from Google Fonts: a
+// stylesheet on another host blocks the first paint while a second and third
+// connection are opened, and a European visitor's address would be handed to
+// Google on every page view. One variable file per script covers every weight;
+// each script's file is fetched only when a page contains its characters.
+import '@fontsource-variable/inter';
 // The wordmark's face, Latin Bold only: "Gloviaa Mart" is the one thing set in it.
 import '@fontsource/dancing-script/latin-700.css';
 import './index.css';
+
+// For the life of the page: keeps `data-scrolling` on <html> during a scroll
+// gesture, which index.css uses to hold hover effects still so the scroll is
+// never competing with them. See lib/scroll-activity.ts.
+subscribeScrollActivity(() => undefined);
 
 const container = document.getElementById('root');
 

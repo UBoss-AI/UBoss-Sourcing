@@ -14,12 +14,19 @@
       name="description"
       content="Industrial and business supplies, sourced and delivered. Browse the catalogue, order online and set up repeat purchases."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
+    <!-- What a shared link previews with, for the fetchers that read this file
+         and never run the app (chat apps, social networks). The app replaces
+         these with each page's own the moment it starts; see applySeoTags in
+         src/lib/seo.ts, which removes everything marked data-seo-static. -->
+    <meta data-seo-static property="og:type" content="website" />
+    <meta data-seo-static property="og:site_name" content="Gloviaa Mart" />
+    <meta data-seo-static property="og:title" content="Gloviaa Mart" />
+    <meta
+      data-seo-static
+      property="og:description"
+      content="Industrial and business supplies, sourced and delivered. Browse the catalogue, order online and set up repeat purchases."
     />
+    <meta data-seo-static name="twitter:card" content="summary" />
     <!--
       The theme, before the first paint.
 

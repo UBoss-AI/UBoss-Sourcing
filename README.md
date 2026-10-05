@@ -4242,7 +4242,22 @@ honest limitation.
   same visibility rules the shop uses, with language alternates per entry. A
   product that is unpublished or archived leaves the sitemap in the same
   moment it leaves the shop. It needs `CUSTOMER_WEB_PUBLIC_URL` to know the
-  storefront's own hostname.
+  storefront's own hostname. It names the catalogue as `/products` and each
+  department as `/category/:slug`; the `/catalog` forms an older version
+  wrote now redirect there.
+- **Each translation has its own address.** `?lang=de` (and the other seven)
+  opens the page in that language. That is what the sitemap's and each page's
+  `hreflang` alternates point at, so a search engine sees eight languages
+  rather than eight copies of the English page.
+- **The home page says who the site is**, with `WebSite` and `Organization`
+  structured data, which is what Google reads for the site name above a
+  result.
+- **Sharing tags in `index.html`** for link previews in chat apps and social
+  networks, which never run the app. The app replaces them with each page's
+  own as it starts.
+- **The interface font is served by the shop itself**, not by Google Fonts: no
+  render-blocking stylesheet from another host, and no visitor's address sent
+  to Google on every page view.
 
 **The limitation, stated plainly:** this is a single-page application, so all
 of the above is written into the head after the app boots. Google and Bing
