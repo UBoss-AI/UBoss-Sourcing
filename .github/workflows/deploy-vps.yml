@@ -4,9 +4,12 @@
 # Companion to deploy-vps/ (deploy-activate.sh, setup-deploy-user.sh and the
 # beginner guide in deploy-vps/README.md). deploy.yml is left as it was.
 #
-# MANUAL ONLY. `workflow_dispatch` - no push deploys anything. Production must
-# have REQUIRED REVIEWERS set in Settings -> Environments; that approval is the
-# only gate this workflow has.
+# AUTOMATIC ON MAIN, AFTER CI PASSES. Every push to `main` runs CI; when CI
+# finishes green, this workflow builds that exact commit and deploys it to
+# production. A red CI run deploys nothing. It can still be started by hand
+# (Actions -> Deploy to VPS -> Run workflow), which is how staging is reached.
+# If REQUIRED REVIEWERS are set on `production` in Settings -> Environments,
+# each automatic deploy waits for that approval; remove them for push-to-live.
 #
 # It never sends `.env` (that lives only in /srv/uboss/shared/.env on the
 # server), never prints a secret, and has no `set -x`.
@@ -34,6 +37,11 @@
 name: Deploy to VPS
 
 on:
+  # Push-to-live: runs when CI completes on main; the job below checks it passed.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -43,9 +51,15 @@ on:
         type: choice
         options: [staging, production]
 
+# The commit CI tested (automatic) or the one chosen (manual), and where it
+# goes. An automatic run has no inputs, so it always means production.
+env:
+  RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+  TARGET_ENV: ${{ inputs.environment || 'production' }}
+
 # One deployment at a time, never cancelled halfway.
 concurrency:
-  group: deploy-vps-${{ inputs.environment }}
+  group: deploy-vps-${{ inputs.environment || 'production' }}
   cancel-in-progress: false
 
 permissions:
@@ -55,9 +69,17 @@ jobs:
   build:
     name: Build the release artifact
     runs-on: ubuntu-24.04
+    # Automatic runs only for a green CI run triggered by a push to main.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The tested commit, not whatever main points at by now.
+          ref: ${{ env.RELEASE_SHA }}
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -102,31 +124,31 @@ jobs:
       - name: Package and checksum
         run: |
           set -euo pipefail
-          tar -czf "uboss-${GITHUB_SHA}.tgz" \
+          tar -czf "uboss-${RELEASE_SHA}.tgz" \
             backend/dist backend/prisma backend/prisma.config.ts \
             backend/package.json backend/package-lock.json \
             apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
-          sha256sum "uboss-${GITHUB_SHA}.tgz" > "uboss-${GITHUB_SHA}.tgz.sha256"
-          cat "uboss-${GITHUB_SHA}.tgz.sha256"
+          sha256sum "uboss-${RELEASE_SHA}.tgz" > "uboss-${RELEASE_SHA}.tgz.sha256"
+          cat "uboss-${RELEASE_SHA}.tgz.sha256"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: vps-release-${{ github.sha }}
+          name: vps-release-${{ env.RELEASE_SHA }}
           path: uboss-*.tgz*
           retention-days: 30
 
   deploy:
-    name: Activate on ${{ inputs.environment }}
+    name: Activate on ${{ inputs.environment || 'production' }}
     needs: build
     runs-on: ubuntu-24.04
 
     # The approval gate - required reviewers on `production`.
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environment || 'production' }}
 
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: vps-release-${{ github.sha }}
+          name: vps-release-${{ env.RELEASE_SHA }}
 
       # Pinned host key, never accept-new: the first machine to answer on that
       # address would otherwise receive the release.
@@ -140,7 +162,7 @@ jobs:
           set -euo pipefail
           for v in DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS DEPLOY_HOST DEPLOY_USER; do
             if [ -z "${!v}" ]; then
-              echo "::error::Secret $v is not set for the '${{ inputs.environment }}' environment."
+              echo "::error::Secret $v is not set for the '$TARGET_ENV' environment."
               exit 1
             fi
           done
@@ -158,7 +180,7 @@ jobs:
           SSH=(ssh -i ~/.ssh/uboss_deploy -o IdentitiesOnly=yes -o BatchMode=yes
                -o StrictHostKeyChecking=yes -o ServerAliveInterval=30
                "$DEPLOY_USER@$DEPLOY_HOST")
-          NAME="uboss-${GITHUB_SHA}.tgz"
+          NAME="uboss-${RELEASE_SHA}.tgz"
 
           "${SSH[@]}" "receive $NAME.sha256" < "$NAME.sha256"
           "${SSH[@]}" "receive $NAME"        < "$NAME"
