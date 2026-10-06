@@ -97,6 +97,24 @@ export interface SupplierProfile {
     issuedOn: string | null;
     expiresOn: string | null;
     verifiedAt: string | null;
+    /**
+     * What was actually checked, in words a buyer can rely on: the evidence
+     * was reviewed, or it was confirmed with the issuer or an official
+     * register. Never "authentic" - an uploaded file proves nothing by itself.
+     */
+    verificationBadge: 'EVIDENCE_REVIEWED' | 'VERIFIED_WITH_ISSUER_OR_REGISTER';
+  }[];
+  /**
+   * The categories this supplier is qualified to sell in, from the Audit
+   * Console - each for one supply role and market, and nothing wider. Only
+   * current qualifications; never the documents behind them.
+   */
+  qualifications: {
+    category: string;
+    supplyRole: string;
+    destinationMarket: string | null;
+    qualifiedAt: string | null;
+    expiresAt: string | null;
   }[];
 }
 
@@ -159,7 +177,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
 
   const today = new Date(now.toISOString().slice(0, 10));
 
-  const [trust, verifiedFactories, allFactories, certifications, offers, inspectionSummary] = await Promise.all([
+  const [trust, verifiedFactories, allFactories, certifications, offers, inspectionSummary, qualifications] = await Promise.all([
     prisma.sellerTrustProfile.findUnique({
       where: { sellerAccountId: account.id },
       select: {
@@ -205,6 +223,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
         issuedOn: true,
         expiresOn: true,
         verifiedAt: true,
+        verificationOutcome: true,
       },
     }),
     prisma.sellerOffer.findMany({
@@ -213,6 +232,16 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
       distinct: ['productId'],
     }),
     inspectionSummaryFor(account.id, now),
+    prisma.complianceCase.findMany({
+      where: {
+        sellerAccountId: account.id,
+        level: 'SELLER_CATEGORY',
+        status: 'QUALIFIED',
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      orderBy: { decidedAt: 'desc' },
+      select: { supplyRole: true, destinationMarket: true, decidedAt: true, expiresAt: true, category: { select: { name: true } } },
+    }),
   ]);
   const score = env.FEATURE_PRODUCT_REVIEWS ? await sellerScore(account.id) : null;
 
@@ -255,6 +284,15 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
       issuedOn: dateOnly(certificate.issuedOn),
       expiresOn: dateOnly(certificate.expiresOn),
       verifiedAt: certificate.verifiedAt?.toISOString() ?? null,
+      verificationBadge:
+        certificate.verificationOutcome === 'VERIFIED' ? ('VERIFIED_WITH_ISSUER_OR_REGISTER' as const) : ('EVIDENCE_REVIEWED' as const),
+    })),
+    qualifications: qualifications.map((row) => ({
+      category: row.category.name,
+      supplyRole: row.supplyRole,
+      destinationMarket: row.destinationMarket === '' ? null : row.destinationMarket,
+      qualifiedAt: row.decidedAt?.toISOString() ?? null,
+      expiresAt: row.expiresAt?.toISOString() ?? null,
     })),
   };
 }

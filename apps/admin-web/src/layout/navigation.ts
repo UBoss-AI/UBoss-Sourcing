@@ -482,6 +482,13 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        labelKey: 'nav.auditConsole',
+        to: '/audit-console',
+        icon: AuditIcon,
+        permissions: [Permission.AUDIT_CONSOLE_MANAGE],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.disputes',
         to: '/disputes',
         icon: DataProtectionIcon,

@@ -6976,7 +6976,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 
 ## Inspection agency dashboard
 
-Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
+Agency members open the Audit Console (`/dashboard`; formerly the storefront's `/inspection`) to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
 
 Duplicate-producing inspection writes use the existing central replay policy with a required request key. Customer privacy exports include RFQ purchase-order contracts, e-acceptance, amounts and approval decisions for their own requests.
 
@@ -7029,7 +7029,7 @@ The code was trusted in every case below. On 2026-09-24 the other source was cor
 
 ## Inspection packaging and label checks
 
-The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
+The agency's job screen in the Audit Console (`/jobs/:id`; formerly the storefront's `/inspection/jobs/:id/packaging`) shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
 
 
 ## Corrective evidence and linked re-inspection
@@ -7167,3 +7167,74 @@ analytics: search_submitted remains a privacy-respecting daily counter without
 query text or identifiers. No private account, RFQ, order or invoice search is added.
 
 **Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The hero makes no supplier claim: the Indian manufacturer statement that used to sit above the shortcuts, and the space reserved for it, were removed, so the shortcuts sit directly under the platform line. No supplier cards or newly verified supplier section is on the homepage. Twelve new labels are translated in all eight customer locales.
+
+## Audit Console — compliance qualification and inspection (built, behind `FEATURE_AUDIT_CONSOLE`)
+
+A fourth application (`apps/audit-web`) for inspectors, inspection agencies
+and the marketplace's compliance staff. Off by default.
+
+### FR-AUD-001 — Separate, invitation-only sign-in — built, behind a flag
+
+- Users of type `AUDIT`; cookies `uboss_audit_*`.
+- Invited only, by an admin with `audit_console.manage` (admin `/audit-console`).
+  Invitations last `AUDIT_INVITE_TTL_HOURS` (default 48).
+- A one-time code (TOTP) for every role (`FEATURE_AUDIT_MFA`, default on;
+  production refuses it off).
+- Roles: `SUPERVISOR`, `COMPLIANCE_REVIEWER` (marketplace staff); `AGENCY_ADMIN`,
+  `COORDINATOR`, `INSPECTOR`, `QA_REVIEWER` (agency).
+- Agency inspection routes moved from `/api/v1/inspection/agency` to
+  `/api/v1/audit/agency`. The storefront's agency pages now show a "moved"
+  notice.
+
+### FR-AUD-010 — Compliance requirements — built; rules not approved
+
+- Versioned rules by category, market or product. A rule needs a second
+  person to approve it (maker-checker).
+- 53 researched rules ship as `DRAFT` (`backend/src/seed/compliance-requirements.draft.json`,
+  sources in `docs/compliance/REGULATORY-SOURCES.md`). **None is approved.**
+  A qualified person must review each one.
+
+### FR-AUD-011 — Compliance documents — built
+
+- Seller certificates have a review workflow: `DRAFT` → … → `APPROVED`,
+  `REJECTED`, `EXPIRED`, `SUSPENDED`.
+- The reviewer records the verification method and outcome. The system never
+  states a document is "authentic".
+- **Not built:** a live adapter to any official register. Checks are manual.
+
+### FR-AUD-012 — Qualification and product cases — built
+
+- A case is evaluated against approved rules. `CONDITIONAL` and `UNRESOLVED`
+  need a written determination.
+- A document change or expiry triggers re-review.
+
+### FR-AUD-013 — Listing gate — built, behind `COMPLIANCE_QUALIFICATION_ENFORCEMENT`
+
+- `OFF` (default), `WARN`, `ENFORCE`. Applies only to a new listing or the
+  first activation of an offer. Live offers are never switched off; they go to
+  a backfill review list.
+- Seller Hub `/seller/compliance`; the supplier page shows scoped
+  qualifications and certificate badges.
+
+### FR-AUD-020 — Inspection depth — built
+
+- Stage (`RAW_MATERIAL`, `DURING_PRODUCTION`, `PRE_SHIPMENT`, `RECEIVING`);
+  only pre-shipment releases goods.
+- Scope `FULL` (acceptance number zero) or `SAMPLE`; agency kind
+  `THIRD_PARTY`, `INTERNAL`, `SELLER_SELF`.
+- Exact-decimal quantity record with reconciliation and an honest sample
+  statement; defects with unit references (units vs occurrences); lab samples
+  with chain of custody; checklist kinds and mandatory / lab / equipment flags.
+- Result `INCONCLUSIVE` and status `ON_HOLD`, which holds the goods.
+- Report PDF for agency, staff, admin, seller and buyer per the visibility
+  policy. Corrections keep the original as superseded.
+- Sub-lot release: a supervisor requests, an admin approves, one dispatch,
+  never the whole lot.
+- Console notifications. Sampling table labelled MIL-STD-105E / ANSI Z1.4,
+  not ISO 2859-1.
+- Carrier portal shows inspection released or held.
+
+### Not provided by the software
+
+Legal advice, agency accreditation and the legal standing of a report. Those
+come from the agency and the law.

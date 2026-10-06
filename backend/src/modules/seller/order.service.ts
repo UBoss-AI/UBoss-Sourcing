@@ -53,6 +53,7 @@ import {
 } from './inventory.service.js';
 import { syncOrderWithSellerGroups } from './order-split.service.js';
 import { assertInspectionGateOpen } from '../../domain/inspection-gate.js';
+import { consumeSubLotForDispatch } from '../inspection/sublot.service.js';
 import { assertComplianceOpen } from '../../domain/compliance-hold.js';
 import { evaluateSellerOrderCompliance } from '../compliance/destination-compliance.service.js';
 import {
@@ -825,7 +826,24 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
     // guards, so it is asked before anything is dispatched, not only when the
     // last line goes and the group moves to SHIPPED.
     const inspectionGate = await evaluateSellerOrderGate(tx, group.id);
-    assertInspectionGateOpen(inspectionGate, 'SELLER_ORDER', { from: group.status, to: 'SHIPPED' });
+    // A whole lot that is held (failed, inconclusive, or a finding still
+    // open) may still send ONE approved, identified sub-lot - exactly what
+    // that release lists, once. Anything else meets the gate as before.
+    const subLotReleased =
+      !inspectionGate.open &&
+      (inspectionGate.reason === 'FAILED' || inspectionGate.reason === 'INCONCLUSIVE' || inspectionGate.reason === 'BLOCKING_NCR_OPEN') &&
+      (await consumeSubLotForDispatch(tx, {
+        sellerOrderGroupId: group.id,
+        contents:
+          input.contents ??
+          group.lines
+            .map((line) => ({ orderItemId: line.orderItemId, quantity: line.quantity - line.fulfilledQuantity }))
+            .filter((entry) => entry.quantity > 0),
+        dispatchRef: shipmentId,
+      }));
+    if (!subLotReleased) {
+      assertInspectionGateOpen(inspectionGate, 'SELLER_ORDER', { from: group.status, to: 'SHIPPED' });
+    }
     assertComplianceOpen(await evaluateSellerOrderCompliance(tx, group.id), { from: group.status, to: 'SHIPPED' });
 
     const contents =

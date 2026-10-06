@@ -20704,7 +20704,7 @@ UBoss-Software/
 
 ## Inspection agency dashboard
 
-Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
+Agency members open the Audit Console (`/dashboard`; formerly the storefront's `/inspection`) to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
 
 Inspection creates that can duplicate jobs, findings, evidence, shipment bindings or setup records require an `Idempotency-Key`. The agency and admin clients send it; the existing central replay mechanism returns the original successful response for a retry. Saved answers and state transitions retain their service guards. Customer privacy exports now include the immutable RFQ purchase order, signature, amounts and approval decisions under the customer's RFQ requests; they omit other members' user identifiers.
 
@@ -20849,7 +20849,7 @@ is never used.
 
 ## Inspection packaging and label checks
 
-The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
+The agency's job screen in the Audit Console (`/jobs/:id`; formerly the storefront's `/inspection/jobs/:id/packaging`) shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
 
 
 ## Corrective evidence and linked re-inspection
@@ -20904,3 +20904,113 @@ Inspection requirement views also expose the server gate as allowed plus a reada
 - **CMS (JOURNEY-067).** `modules/settings/content-block.service.ts`: DRAFT → PENDING_APPROVAL → PUBLISHED with a different approver, `content_block_versions` and restore, preview for a country, language and moment, and conflict checks (blocking: archived coupon, coupon ends before the block starts).
 - **Exception queues (LIVE-011).** `modules/governance/exception-queues.definitions.ts` (every queue, default SLA hours, owner and escalation roles) and `exception-queue.service.ts` (settings in `exception_queue_settings`); screen `/operations/exception-queues`. Owners are roles; naming people is the operator's job (`docs/INCIDENT-READINESS.md` §3a).
 - Migration `20261101100000_admin_governance_moderation_cms`. Tests: `tests/unit/admin-governance.test.ts`, `tests/integration/governance-maker-checker.test.ts`, `tests/integration/listing-moderation-appeals.test.ts`, additions to `country-rules-rate-cards-content.test.ts` and `dashboard-tenancy.test.ts`.
+
+## Audit Console
+
+The Audit Console is a fourth web application, `apps/audit-web`, on port
+`5176` in development. It is where inspectors, inspection agencies and the
+marketplace's own compliance staff work. It has its own sign-in, separate from
+the storefront, the admin console and the carrier portal.
+
+**Switched off by default.** `FEATURE_AUDIT_CONSOLE=false` answers every
+`/api/v1/audit/*` route with `FEATURE_DISABLED` and nobody can be invited.
+Booking an inspection, the dispatch gate and release work either way.
+
+### Who signs in, and how
+
+- Accounts are `users.type = AUDIT`. Session cookies are `uboss_audit_*`, so a
+  console session sits beside a shop or admin session in one browser.
+- **Invitation only.** An admin with `audit_console.manage` invites people from
+  the admin console's `/audit-console` page. The link lasts
+  `AUDIT_INVITE_TTL_HOURS` (default 48) and opens the console's `/activate`.
+- **A one-time code (TOTP) is required for every role** while
+  `FEATURE_AUDIT_MFA=true`, the default. Production refuses to start with it
+  off. Until the second step passes, only `/auth/me` and `/auth/mfa/*` answer.
+- Roles. Marketplace staff: `SUPERVISOR` and `COMPLIANCE_REVIEWER`. Agency
+  members: `AGENCY_ADMIN`, `COORDINATOR`, `INSPECTOR`, `QA_REVIEWER`. Whose
+  data a request sees comes from the session's membership, never from an id in
+  the request.
+
+### What moved
+
+The agency's inspection routes moved from `/api/v1/inspection/agency/*` to
+`/api/v1/audit/agency/*`. The storefront's agency pages (`/inspection/...`)
+are gone; they now show a notice that says the work has moved to the Audit
+Console. Sellers and buyers still see inspections on their orders as before.
+
+### Module A — compliance qualification
+
+- **Requirements** (`compliance_requirements`). A rule says which document or
+  check a seller needs, for a category, market or product. Rules are
+  versioned. A rule takes effect only after a second person approves it
+  (maker-checker: whoever wrote it cannot approve it).
+- **53 draft rules** ship in `backend/src/seed/compliance-requirements.draft.json`,
+  each with its source in `docs/compliance/REGULATORY-SOURCES.md`. They are
+  research, not legal advice, and they stay `DRAFT` until a qualified person
+  reviews and approves each one.
+- **Documents** are the existing `seller_certifications` rows, now with a
+  review workflow: `DRAFT` → submitted → under review → `APPROVED` or
+  `REJECTED`, then `EXPIRED` or `SUSPENDED`. A reviewer records how it was
+  checked (verification method) and what was found (outcome). The system never
+  calls a document "authentic"; it records what was checked.
+- **Cases** (`compliance_cases`, history in `compliance_events`). A seller
+  qualification case or a product case is evaluated against the approved
+  rules. A `CONDITIONAL` or `UNRESOLVED` result needs a written determination
+  by a reviewer. A changed or expired document re-opens review.
+- **Listing gate** — `COMPLIANCE_QUALIFICATION_ENFORCEMENT`:
+  `OFF` (default; shown, never blocks), `WARN` (the seller is told what is
+  missing), `ENFORCE` (a new listing or the first activation of an offer in a
+  category with an approved mandatory rule needs a qualification). Live offers
+  are never switched off; they go to a **backfill** list in the console.
+- Sellers see their requirements, documents and cases in Seller Hub at
+  `/seller/compliance`. The supplier page shows qualifications for the scope
+  they cover and certificate badges.
+
+### Module B — inspection, deeper
+
+- **Stage**: `RAW_MATERIAL`, `DURING_PRODUCTION`, `PRE_SHIPMENT`, `RECEIVING`.
+  Only a pre-shipment inspection can release goods for dispatch.
+- **Scope**: `FULL` (every unit; acceptance number zero) or `SAMPLE`.
+- **Agency kind**: `THIRD_PARTY`, `INTERNAL` or `SELLER_SELF`. The report says
+  which, so a seller's own check is never shown as independent.
+- **Quantity record** (`inspection_quantity_records`): exact decimals for
+  ordered, presented, inspected and so on, with a reconciliation. The report's
+  sample statement says plainly how much was looked at.
+- **Defects** carry unit references, so "3 units" and "5 occurrences" are kept
+  apart.
+- **Lab samples** (`inspection_lab_samples`) with a chain of custody.
+- Checklist items have a kind and flags: mandatory, needs a lab, needs
+  equipment.
+- A new result **`INCONCLUSIVE`** and a new status **`ON_HOLD`**. On hold, the
+  goods are held: they cannot be dispatched.
+- **Report PDF**, visible to the agency, staff, admin, seller and buyer as the
+  report's visibility policy allows. A correction makes a new report and keeps
+  the original, marked superseded.
+- **Sub-lot release** (`inspection_sublot_releases`): a supervisor asks to
+  release part of a lot, an admin approves it, and it covers one dispatch.
+  It never releases the whole lot.
+- **Notifications** to console users are stored in `audit_notifications`.
+- The sampling table is labelled **MIL-STD-105E / ANSI Z1.4**, which is what it
+  is. It is not ISO 2859-1.
+
+### Elsewhere
+
+- Admin console: `/audit-console` (people and access), fixes to the inspection
+  console, sub-lot approvals, and release-evidence upload.
+- Carrier portal: a consignment shows whether inspection **released** or
+  **held** the goods.
+- Migrations: `20261104100000_audit_console`, `20261104100100_inspection_on_hold`.
+- Settings: `FEATURE_AUDIT_CONSOLE`, `AUDIT_WEB_ORIGIN`, `AUDIT_WEB_PUBLIC_URL`
+  (required when the console is on), `AUDIT_INVITE_TTL_HOURS`,
+  `FEATURE_AUDIT_MFA`, `COMPLIANCE_QUALIFICATION_ENFORCEMENT`. Hosting it on
+  its own domain is in `docs/DEPLOYMENT.md` §11.13.
+
+### What is not done
+
+- No rule is approved. All 53 are drafts that a person qualified in each
+  market must review before the gate means anything.
+- There is no live link to any official register. Reviewers check certificates
+  by hand and record how.
+- The software does not give legal advice and does not accredit anybody. An
+  agency's accreditation, and the legal weight of a report, come from the
+  agency and the law, not from this system.

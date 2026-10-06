@@ -86,11 +86,15 @@ const REQUIRED_SERVICE: Record<string, string> = {
  * first successful response under (route, key) and plays it back.
  */
 const REQUIRED_CENTRAL: Record<string, string> = {
-  [`POST ${P}/inspection/agency/jobs/:id/defects`]: 'Creates an NCR; replay must not count the same defect twice.',
-  [`POST ${P}/inspection/agency/jobs/:id/binding`]: 'Creates shipment binding and release records; replay must not release twice.',
-  [`POST ${P}/inspection/agency/defects/:id/reclassify`]: 'Records an evidenced severity decision; replay must not create another decision.',
-  [`POST ${P}/inspection/agency/jobs/:id/evidence`]: 'Stores private evidence; replay must not duplicate the file.',
+  [`POST ${P}/audit/agency/jobs/:id/defects`]: 'Creates an NCR; replay must not count the same defect twice.',
+  [`POST ${P}/audit/agency/jobs/:id/binding`]: 'Creates shipment binding and release records; replay must not release twice.',
+  [`POST ${P}/audit/agency/defects/:id/reclassify`]: 'Records an evidenced severity decision; replay must not create another decision.',
+  [`POST ${P}/audit/agency/jobs/:id/evidence`]: 'Stores private evidence; replay must not duplicate the file.',
   [`POST ${P}/seller/inspection/jobs/:id/evidence`]: 'Stores private seller evidence; replay must not duplicate the file.',
+  [`POST ${P}/admin/inspection/requirements/:id/evidence`]: 'Stores private release evidence; replay must not duplicate the file.',
+  [`POST ${P}/audit/agency/jobs/:id/lab-samples/:sampleId/custody`]: 'Appends a hand-over to a chain of custody; replay must not record the same hand-over twice.',
+  [`POST ${P}/audit/jobs/:id/sublot-releases`]: 'Asks for a sub-lot release; replay returns the first request instead of asking twice.',
+  [`POST ${P}/audit/checklists`]: 'Creates an inspection plan version; replay must not create a second plan.',
   [`POST ${P}/admin/inspection/jobs`]: 'Books a job; replay returns the original booking.',
   [`POST ${P}/admin/inspection/agencies`]: 'Registers an agency; replay must not create a second agency.',
   [`POST ${P}/admin/inspection/rules`]: 'Creates an inspection rule; replay must not apply the rule twice.',
@@ -261,16 +265,36 @@ const HARMLESS_CREATE_WORDS = new Set([
  */
 const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   {
+    reason: 'Audit Console: saves the one quantity record, laboratory result or applicability determination for its job, sample or requirement code; repeating the body leaves the same values.',
+    routes: ['audit/agency/jobs/:id/quantities', 'audit/agency/jobs/:id/lab-samples/:sampleId/result', 'audit/cases/:id/determinations'],
+  },
+  {
+    reason: 'Audit Console: a unique key refuses the repeat - a sample code per job, a rule code, one case per seller scope (asking again returns the same case), a console account per email address.',
+    routes: ['audit/agency/jobs/:id/lab-samples', 'audit/rules', 'audit/cases', 'seller/compliance/cases', 'admin/inspection/members/:id/move-to-console'],
+  },
+  {
+    reason: 'Audit Console: moves one record through its state machine (a report correction claims the report it supersedes; a case or document asks for changes; a rule is revised or withdrawn; a seller answers or withdraws); a repeat finds it already moved and is refused.',
+    routes: ['audit/agency/reports/:id/correct', 'audit/cases/:id/request-changes', 'audit/documents/:id/request-changes', 'audit/rules/:id/revise', 'audit/rules/:id/retire', 'seller/compliance/cases/:id/respond'],
+  },
+  {
+    reason: 'Audit Console: replaces an activation link (the previous one stops working) or marks notifications read; a repeat leaves one live link and the same read state.',
+    routes: ['audit/agency/team/members/:id/resend-invitation', 'admin/audit-console/people/:id/resend-invitation', 'audit/notifications/read-all'],
+  },
+  {
+    reason: 'Loads the dated research as draft rules; a code already present is skipped, so a repeat creates nothing.',
+    routes: ['audit/rules/import-research'],
+  },
+  {
     reason: 'Claims each seller balance under a row lock and sends it with a provider idempotency key derived from the payout; a repeat finds nothing available.',
     routes: ['admin/finance/payouts/run'],
   },
   {
     reason: 'Replaces the saved declaration, checklist answer, sampling record, readiness or corrective action for the same record; repeating the body leaves the same business values.',
-    routes: ['inspection/agency/jobs/:id/conflict', 'inspection/agency/jobs/:id/checks', 'inspection/agency/jobs/:id/sampling', 'seller/inspection/jobs/:id/readiness', 'seller/inspection/defects/:id/capa'],
+    routes: ['audit/agency/jobs/:id/conflict', 'audit/agency/jobs/:id/checks', 'audit/agency/jobs/:id/sampling', 'seller/inspection/jobs/:id/readiness', 'seller/inspection/defects/:id/capa'],
   },
   {
     reason: 'Returns or signs a submitted report through the job state machine, or requests an inspection/release once; the service refuses a repeat after the state has moved.',
-    routes: ['inspection/agency/jobs/:id/report/return', 'inspection/agency/jobs/:id/report/sign', 'inspection/buyer/orders/:id/request', 'inspection/buyer/orders/:id/book', 'admin/inspection/requirements/:id/conditional-release'],
+    routes: ['audit/agency/jobs/:id/report/return', 'audit/agency/jobs/:id/report/sign', 'inspection/buyer/orders/:id/request', 'inspection/buyer/orders/:id/book', 'admin/inspection/requirements/:id/conditional-release'],
   },
   {
     reason: 'Recomputes the requirement under the current rules and raises it only when needed; a repeat cannot lower the gate.',
@@ -282,7 +306,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   },
   {
     reason: 'The unique agency/invoice-number constraint refuses a duplicate invoice.',
-    routes: ['inspection/agency/jobs/:id/invoice'],
+    routes: ['audit/agency/jobs/:id/invoice'],
   },
   {
     reason: 'Replays the immutable purchase order for the awarded RFQ; unique RFQ and quote constraints prevent a second contract, including concurrent requests.',

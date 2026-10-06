@@ -52,6 +52,11 @@ export type InspectionReportMinAggregateOutputType = {
   signedByMemberId: string | null
   signedByName: string | null
   publishedToBuyerAt: Date | null
+  limitations: string | null
+  correctsReportId: string | null
+  correctionReason: string | null
+  supersededAt: Date | null
+  supersededByReportId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +79,11 @@ export type InspectionReportMaxAggregateOutputType = {
   signedByMemberId: string | null
   signedByName: string | null
   publishedToBuyerAt: Date | null
+  limitations: string | null
+  correctsReportId: string | null
+  correctionReason: string | null
+  supersededAt: Date | null
+  supersededByReportId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -98,6 +108,11 @@ export type InspectionReportCountAggregateOutputType = {
   signedByMemberId: number
   signedByName: number
   publishedToBuyerAt: number
+  limitations: number
+  correctsReportId: number
+  correctionReason: number
+  supersededAt: number
+  supersededByReportId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -130,6 +145,11 @@ export type InspectionReportMinAggregateInputType = {
   signedByMemberId?: true
   signedByName?: true
   publishedToBuyerAt?: true
+  limitations?: true
+  correctsReportId?: true
+  correctionReason?: true
+  supersededAt?: true
+  supersededByReportId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -152,6 +172,11 @@ export type InspectionReportMaxAggregateInputType = {
   signedByMemberId?: true
   signedByName?: true
   publishedToBuyerAt?: true
+  limitations?: true
+  correctsReportId?: true
+  correctionReason?: true
+  supersededAt?: true
+  supersededByReportId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -176,6 +201,11 @@ export type InspectionReportCountAggregateInputType = {
   signedByMemberId?: true
   signedByName?: true
   publishedToBuyerAt?: true
+  limitations?: true
+  correctsReportId?: true
+  correctionReason?: true
+  supersededAt?: true
+  supersededByReportId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -287,6 +317,11 @@ export type InspectionReportGroupByOutputType = {
   signedByMemberId: string | null
   signedByName: string | null
   publishedToBuyerAt: Date | null
+  limitations: string | null
+  correctsReportId: string | null
+  correctionReason: string | null
+  supersededAt: Date | null
+  supersededByReportId: string | null
   createdAt: Date
   updatedAt: Date
   _count: InspectionReportCountAggregateOutputType | null
@@ -334,6 +369,11 @@ export type InspectionReportWhereInput = {
   signedByMemberId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   signedByName?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   publishedToBuyerAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  limitations?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctsReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctionReason?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  supersededByReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
   job?: Prisma.XOR<Prisma.InspectionJobScalarRelationFilter, Prisma.InspectionJobWhereInput>
@@ -359,6 +399,11 @@ export type InspectionReportOrderByWithRelationInput = {
   signedByMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   signedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedToBuyerAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  limitations?: Prisma.SortOrderInput | Prisma.SortOrder
+  correctsReportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  correctionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededByReportId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   job?: Prisma.InspectionJobOrderByWithRelationInput
@@ -389,6 +434,11 @@ export type InspectionReportWhereUniqueInput = Prisma.AtLeast<{
   signedByMemberId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   signedByName?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   publishedToBuyerAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  limitations?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctsReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctionReason?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  supersededByReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
   job?: Prisma.XOR<Prisma.InspectionJobScalarRelationFilter, Prisma.InspectionJobWhereInput>
@@ -414,6 +464,11 @@ export type InspectionReportOrderByWithAggregationInput = {
   signedByMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   signedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedToBuyerAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  limitations?: Prisma.SortOrderInput | Prisma.SortOrder
+  correctsReportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  correctionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededByReportId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.InspectionReportCountOrderByAggregateInput
@@ -446,6 +501,11 @@ export type InspectionReportScalarWhereWithAggregatesInput = {
   signedByMemberId?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
   signedByName?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
   publishedToBuyerAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InspectionReport"> | Date | string | null
+  limitations?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
+  correctsReportId?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
+  correctionReason?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
+  supersededAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InspectionReport"> | Date | string | null
+  supersededByReportId?: Prisma.StringNullableWithAggregatesFilter<"InspectionReport"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionReport"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionReport"> | Date | string
 }
@@ -469,6 +529,11 @@ export type InspectionReportCreateInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   job: Prisma.InspectionJobCreateNestedOneWithoutReportsInput
@@ -494,6 +559,11 @@ export type InspectionReportUncheckedCreateInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -517,6 +587,11 @@ export type InspectionReportUpdateInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.InspectionJobUpdateOneRequiredWithoutReportsNestedInput
@@ -542,6 +617,11 @@ export type InspectionReportUncheckedUpdateInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -566,6 +646,11 @@ export type InspectionReportCreateManyInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -589,6 +674,11 @@ export type InspectionReportUpdateManyMutationInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -613,6 +703,11 @@ export type InspectionReportUncheckedUpdateManyInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -658,6 +753,11 @@ export type InspectionReportCountOrderByAggregateInput = {
   signedByMemberId?: Prisma.SortOrder
   signedByName?: Prisma.SortOrder
   publishedToBuyerAt?: Prisma.SortOrder
+  limitations?: Prisma.SortOrder
+  correctsReportId?: Prisma.SortOrder
+  correctionReason?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
+  supersededByReportId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -684,6 +784,11 @@ export type InspectionReportMaxOrderByAggregateInput = {
   signedByMemberId?: Prisma.SortOrder
   signedByName?: Prisma.SortOrder
   publishedToBuyerAt?: Prisma.SortOrder
+  limitations?: Prisma.SortOrder
+  correctsReportId?: Prisma.SortOrder
+  correctionReason?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
+  supersededByReportId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -706,6 +811,11 @@ export type InspectionReportMinOrderByAggregateInput = {
   signedByMemberId?: Prisma.SortOrder
   signedByName?: Prisma.SortOrder
   publishedToBuyerAt?: Prisma.SortOrder
+  limitations?: Prisma.SortOrder
+  correctsReportId?: Prisma.SortOrder
+  correctionReason?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
+  supersededByReportId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -783,6 +893,11 @@ export type InspectionReportCreateWithoutJobInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -806,6 +921,11 @@ export type InspectionReportUncheckedCreateWithoutJobInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -859,6 +979,11 @@ export type InspectionReportScalarWhereInput = {
   signedByMemberId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   signedByName?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   publishedToBuyerAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  limitations?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctsReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  correctionReason?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"InspectionReport"> | Date | string | null
+  supersededByReportId?: Prisma.StringNullableFilter<"InspectionReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InspectionReport"> | Date | string
 }
@@ -882,6 +1007,11 @@ export type InspectionReportCreateManyJobInput = {
   signedByMemberId?: string | null
   signedByName?: string | null
   publishedToBuyerAt?: Date | string | null
+  limitations?: string | null
+  correctsReportId?: string | null
+  correctionReason?: string | null
+  supersededAt?: Date | string | null
+  supersededByReportId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -905,6 +1035,11 @@ export type InspectionReportUpdateWithoutJobInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -928,6 +1063,11 @@ export type InspectionReportUncheckedUpdateWithoutJobInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -951,6 +1091,11 @@ export type InspectionReportUncheckedUpdateManyWithoutJobInput = {
   signedByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedToBuyerAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  limitations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctsReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  correctionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supersededByReportId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -977,6 +1122,11 @@ export type InspectionReportSelect<ExtArgs extends runtime.Types.Extensions.Inte
   signedByMemberId?: boolean
   signedByName?: boolean
   publishedToBuyerAt?: boolean
+  limitations?: boolean
+  correctsReportId?: boolean
+  correctionReason?: boolean
+  supersededAt?: boolean
+  supersededByReportId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   job?: boolean | Prisma.InspectionJobDefaultArgs<ExtArgs>
@@ -1004,11 +1154,16 @@ export type InspectionReportSelectScalar = {
   signedByMemberId?: boolean
   signedByName?: boolean
   publishedToBuyerAt?: boolean
+  limitations?: boolean
+  correctsReportId?: boolean
+  correctionReason?: boolean
+  supersededAt?: boolean
+  supersededByReportId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InspectionReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "revision" | "status" | "result" | "summary" | "computationJson" | "contentJson" | "contentHash" | "signature" | "submittedAt" | "submittedByMemberId" | "returnedAt" | "returnedByMemberId" | "returnReason" | "signedAt" | "signedByMemberId" | "signedByName" | "publishedToBuyerAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionReport"]>
+export type InspectionReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "revision" | "status" | "result" | "summary" | "computationJson" | "contentJson" | "contentHash" | "signature" | "submittedAt" | "submittedByMemberId" | "returnedAt" | "returnedByMemberId" | "returnReason" | "signedAt" | "signedByMemberId" | "signedByName" | "publishedToBuyerAt" | "limitations" | "correctsReportId" | "correctionReason" | "supersededAt" | "supersededByReportId" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionReport"]>
 export type InspectionReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.InspectionJobDefaultArgs<ExtArgs>
 }
@@ -1048,6 +1203,19 @@ export type $InspectionReportPayload<ExtArgs extends runtime.Types.Extensions.In
     signedByMemberId: string | null
     signedByName: string | null
     publishedToBuyerAt: Date | null
+    /**
+     * What the inspection could not establish, in the inspector's words.
+     */
+    limitations: string | null
+    /**
+     * A correction of an issued report. The report it corrects is kept,
+     * unchanged, and marked superseded; a correction can never change the
+     * result - that takes a re-inspection.
+     */
+    correctsReportId: string | null
+    correctionReason: string | null
+    supersededAt: Date | null
+    supersededByReportId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["inspectionReport"]>
@@ -1439,6 +1607,11 @@ export interface InspectionReportFieldRefs {
   readonly signedByMemberId: Prisma.FieldRef<"InspectionReport", 'String'>
   readonly signedByName: Prisma.FieldRef<"InspectionReport", 'String'>
   readonly publishedToBuyerAt: Prisma.FieldRef<"InspectionReport", 'DateTime'>
+  readonly limitations: Prisma.FieldRef<"InspectionReport", 'String'>
+  readonly correctsReportId: Prisma.FieldRef<"InspectionReport", 'String'>
+  readonly correctionReason: Prisma.FieldRef<"InspectionReport", 'String'>
+  readonly supersededAt: Prisma.FieldRef<"InspectionReport", 'DateTime'>
+  readonly supersededByReportId: Prisma.FieldRef<"InspectionReport", 'String'>
   readonly createdAt: Prisma.FieldRef<"InspectionReport", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"InspectionReport", 'DateTime'>
 }

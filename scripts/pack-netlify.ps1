@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds the three front ends and packs each one into a zip you can drop
+    Builds the four front ends and packs each one into a zip you can drop
     onto Netlify.
 
 .DESCRIPTION
@@ -32,7 +32,7 @@
     the UI, useless for signing in.
 
 .PARAMETER Apps
-    Which of the three to pack. All of them by default.
+    Which applications to pack. All four by default.
 
 .PARAMETER OutDir
     Where the zips are written. Defaults to output/netlify, which is
@@ -55,8 +55,8 @@
 param(
     [string] $ApiOrigin,
 
-    [ValidateSet('customer-web', 'admin-web', 'logistics-web')]
-    [string[]] $Apps = @('customer-web', 'admin-web', 'logistics-web'),
+    [ValidateSet('customer-web', 'admin-web', 'logistics-web', 'audit-web')]
+    [string[]] $Apps = @('customer-web', 'admin-web', 'logistics-web', 'audit-web'),
 
     [string] $OutDir,
 

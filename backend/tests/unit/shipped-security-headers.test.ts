@@ -31,6 +31,7 @@ const HEADER_SOURCES = [
   'apps/customer-web/netlify.toml',
   'apps/admin-web/netlify.toml',
   'apps/logistics-web/netlify.toml',
+  'apps/audit-web/netlify.toml',
   'deploy/netlify-combined.toml',
 ] as const;
 
@@ -198,7 +199,9 @@ describe('the sign-in rate limit at the edge covers every surface', () => {
    * `/api/v1/auth/...`, which is the storefront. The admin console signs in at
    * `/api/v1/admin/auth/login` and the carrier portal at
    * `/api/v1/logistics/auth/login`, so the two accounts that can refund an
-   * order or move a consignment were held to the general limit instead.
+   * order or move a consignment were held to the general limit instead. The
+   * Audit Console signs in at `/api/v1/audit/auth/login` and is held to the
+   * same limit.
    */
   const SIGN_IN_PATHS = [
     '/api/v1/auth/login',
@@ -206,9 +209,12 @@ describe('the sign-in rate limit at the edge covers every surface', () => {
     '/api/v1/logistics/auth/login',
     '/api/v1/auth/password/reset',
     '/api/v1/admin/auth/password/change',
+    '/api/v1/audit/auth/login',
+    '/api/v1/audit/auth/password/forgot',
+    '/api/v1/audit/auth/password/reset',
   ];
 
-  const ORDINARY_PATHS = ['/api/v1/orders', '/api/v1/catalog/products', '/api/v1/seller/listings'];
+  const ORDINARY_PATHS = ['/api/v1/orders', '/api/v1/catalog/products', '/api/v1/seller/listings', '/api/v1/audit/jobs'];
 
   it('matches every sign-in path and no ordinary one', () => {
     const conf = read('deploy/nginx/uboss.conf');

@@ -765,7 +765,15 @@ export const ModelName = {
   MasterDataEntry: 'MasterDataEntry',
   RiskRule: 'RiskRule',
   RiskSignal: 'RiskSignal',
-  AnalyticsDailyCount: 'AnalyticsDailyCount'
+  AnalyticsDailyCount: 'AnalyticsDailyCount',
+  AuditStaffMember: 'AuditStaffMember',
+  AuditNotification: 'AuditNotification',
+  ComplianceRequirement: 'ComplianceRequirement',
+  ComplianceCase: 'ComplianceCase',
+  ComplianceEvent: 'ComplianceEvent',
+  InspectionQuantityRecord: 'InspectionQuantityRecord',
+  InspectionLabSample: 'InspectionLabSample',
+  InspectionSubLotRelease: 'InspectionSubLotRelease'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -781,7 +789,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "notificationPreference" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "savedSearch" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "teamAccessReview" | "staffAccessReview" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketRuleVersion" | "marketLandedCostRate" | "marketProfile" | "contentBlock" | "contentBlockVersion" | "adminPendingAction" | "exceptionQueueSetting" | "listingProhibitedTerm" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "tradeComplianceOverride" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent" | "rfqMessage" | "orderMessage" | "messageReport" | "rfqQuote" | "rfqQuoteVersion" | "rfqPurchaseOrder" | "rfqPurchaseOrderApproval" | "rfqSample" | "masterDataEntry" | "riskRule" | "riskSignal" | "analyticsDailyCount"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "notificationPreference" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "savedSearch" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "teamAccessReview" | "staffAccessReview" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketRuleVersion" | "marketLandedCostRate" | "marketProfile" | "contentBlock" | "contentBlockVersion" | "adminPendingAction" | "exceptionQueueSetting" | "listingProhibitedTerm" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "tradeComplianceOverride" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent" | "rfqMessage" | "orderMessage" | "messageReport" | "rfqQuote" | "rfqQuoteVersion" | "rfqPurchaseOrder" | "rfqPurchaseOrderApproval" | "rfqSample" | "masterDataEntry" | "riskRule" | "riskSignal" | "analyticsDailyCount" | "auditStaffMember" | "auditNotification" | "complianceRequirement" | "complianceCase" | "complianceEvent" | "inspectionQuantityRecord" | "inspectionLabSample" | "inspectionSubLotRelease"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -25139,6 +25147,534 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AuditStaffMember: {
+      payload: Prisma.$AuditStaffMemberPayload<ExtArgs>
+      fields: Prisma.AuditStaffMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuditStaffMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuditStaffMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.AuditStaffMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuditStaffMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        findMany: {
+          args: Prisma.AuditStaffMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>[]
+        }
+        create: {
+          args: Prisma.AuditStaffMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        createMany: {
+          args: Prisma.AuditStaffMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AuditStaffMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        update: {
+          args: Prisma.AuditStaffMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuditStaffMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuditStaffMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AuditStaffMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditStaffMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.AuditStaffMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuditStaffMember>
+        }
+        groupBy: {
+          args: Prisma.AuditStaffMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditStaffMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuditStaffMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditStaffMemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    AuditNotification: {
+      payload: Prisma.$AuditNotificationPayload<ExtArgs>
+      fields: Prisma.AuditNotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuditNotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuditNotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.AuditNotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuditNotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        findMany: {
+          args: Prisma.AuditNotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>[]
+        }
+        create: {
+          args: Prisma.AuditNotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        createMany: {
+          args: Prisma.AuditNotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AuditNotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        update: {
+          args: Prisma.AuditNotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuditNotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuditNotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AuditNotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditNotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.AuditNotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuditNotification>
+        }
+        groupBy: {
+          args: Prisma.AuditNotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditNotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuditNotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditNotificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComplianceRequirement: {
+      payload: Prisma.$ComplianceRequirementPayload<ExtArgs>
+      fields: Prisma.ComplianceRequirementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComplianceRequirementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComplianceRequirementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        findFirst: {
+          args: Prisma.ComplianceRequirementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComplianceRequirementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        findMany: {
+          args: Prisma.ComplianceRequirementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>[]
+        }
+        create: {
+          args: Prisma.ComplianceRequirementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        createMany: {
+          args: Prisma.ComplianceRequirementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComplianceRequirementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        update: {
+          args: Prisma.ComplianceRequirementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComplianceRequirementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComplianceRequirementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComplianceRequirementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceRequirementPayload>
+        }
+        aggregate: {
+          args: Prisma.ComplianceRequirementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComplianceRequirement>
+        }
+        groupBy: {
+          args: Prisma.ComplianceRequirementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceRequirementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComplianceRequirementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceRequirementCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComplianceCase: {
+      payload: Prisma.$ComplianceCasePayload<ExtArgs>
+      fields: Prisma.ComplianceCaseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComplianceCaseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComplianceCaseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        findFirst: {
+          args: Prisma.ComplianceCaseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComplianceCaseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        findMany: {
+          args: Prisma.ComplianceCaseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>[]
+        }
+        create: {
+          args: Prisma.ComplianceCaseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        createMany: {
+          args: Prisma.ComplianceCaseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComplianceCaseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        update: {
+          args: Prisma.ComplianceCaseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        deleteMany: {
+          args: Prisma.ComplianceCaseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComplianceCaseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComplianceCaseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceCasePayload>
+        }
+        aggregate: {
+          args: Prisma.ComplianceCaseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComplianceCase>
+        }
+        groupBy: {
+          args: Prisma.ComplianceCaseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceCaseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComplianceCaseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceCaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComplianceEvent: {
+      payload: Prisma.$ComplianceEventPayload<ExtArgs>
+      fields: Prisma.ComplianceEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComplianceEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComplianceEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ComplianceEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComplianceEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        findMany: {
+          args: Prisma.ComplianceEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>[]
+        }
+        create: {
+          args: Prisma.ComplianceEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        createMany: {
+          args: Prisma.ComplianceEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComplianceEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        update: {
+          args: Prisma.ComplianceEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComplianceEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComplianceEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComplianceEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComplianceEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ComplianceEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComplianceEvent>
+        }
+        groupBy: {
+          args: Prisma.ComplianceEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComplianceEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComplianceEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    InspectionQuantityRecord: {
+      payload: Prisma.$InspectionQuantityRecordPayload<ExtArgs>
+      fields: Prisma.InspectionQuantityRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InspectionQuantityRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InspectionQuantityRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.InspectionQuantityRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InspectionQuantityRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        findMany: {
+          args: Prisma.InspectionQuantityRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>[]
+        }
+        create: {
+          args: Prisma.InspectionQuantityRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        createMany: {
+          args: Prisma.InspectionQuantityRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.InspectionQuantityRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        update: {
+          args: Prisma.InspectionQuantityRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.InspectionQuantityRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InspectionQuantityRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.InspectionQuantityRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionQuantityRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.InspectionQuantityRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInspectionQuantityRecord>
+        }
+        groupBy: {
+          args: Prisma.InspectionQuantityRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionQuantityRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InspectionQuantityRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionQuantityRecordCountAggregateOutputType> | number
+        }
+      }
+    }
+    InspectionLabSample: {
+      payload: Prisma.$InspectionLabSamplePayload<ExtArgs>
+      fields: Prisma.InspectionLabSampleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InspectionLabSampleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InspectionLabSampleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        findFirst: {
+          args: Prisma.InspectionLabSampleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InspectionLabSampleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        findMany: {
+          args: Prisma.InspectionLabSampleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>[]
+        }
+        create: {
+          args: Prisma.InspectionLabSampleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        createMany: {
+          args: Prisma.InspectionLabSampleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.InspectionLabSampleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        update: {
+          args: Prisma.InspectionLabSampleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        deleteMany: {
+          args: Prisma.InspectionLabSampleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InspectionLabSampleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.InspectionLabSampleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionLabSamplePayload>
+        }
+        aggregate: {
+          args: Prisma.InspectionLabSampleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInspectionLabSample>
+        }
+        groupBy: {
+          args: Prisma.InspectionLabSampleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionLabSampleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InspectionLabSampleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionLabSampleCountAggregateOutputType> | number
+        }
+      }
+    }
+    InspectionSubLotRelease: {
+      payload: Prisma.$InspectionSubLotReleasePayload<ExtArgs>
+      fields: Prisma.InspectionSubLotReleaseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InspectionSubLotReleaseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InspectionSubLotReleaseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        findFirst: {
+          args: Prisma.InspectionSubLotReleaseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InspectionSubLotReleaseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        findMany: {
+          args: Prisma.InspectionSubLotReleaseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>[]
+        }
+        create: {
+          args: Prisma.InspectionSubLotReleaseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        createMany: {
+          args: Prisma.InspectionSubLotReleaseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.InspectionSubLotReleaseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        update: {
+          args: Prisma.InspectionSubLotReleaseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        deleteMany: {
+          args: Prisma.InspectionSubLotReleaseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InspectionSubLotReleaseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.InspectionSubLotReleaseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InspectionSubLotReleasePayload>
+        }
+        aggregate: {
+          args: Prisma.InspectionSubLotReleaseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInspectionSubLotRelease>
+        }
+        groupBy: {
+          args: Prisma.InspectionSubLotReleaseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionSubLotReleaseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InspectionSubLotReleaseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InspectionSubLotReleaseCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -32060,6 +32596,7 @@ export const InspectionAgencyScalarFieldEnum = {
   affiliatedSellerIdsJson: 'affiliatedSellerIdsJson',
   independenceStatement: 'independenceStatement',
   independenceDeclaredAt: 'independenceDeclaredAt',
+  kind: 'kind',
   dailyCapacity: 'dailyCapacity',
   defaultFeeMinor: 'defaultFeeMinor',
   feeCurrency: 'feeCurrency',
@@ -32130,6 +32667,10 @@ export const InspectionJobScalarFieldEnum = {
   kind: 'kind',
   reinspectionOfJobId: 'reinspectionOfJobId',
   status: 'status',
+  stage: 'stage',
+  scopeMethod: 'scopeMethod',
+  timezone: 'timezone',
+  qaReviewerMemberId: 'qaReviewerMemberId',
   bookedByParty: 'bookedByParty',
   bookedById: 'bookedById',
   bookedByLabel: 'bookedByLabel',
@@ -32201,6 +32742,9 @@ export const InspectionCheckResultScalarFieldEnum = {
   outcome: 'outcome',
   measuredValue: 'measuredValue',
   note: 'note',
+  equipmentRef: 'equipmentRef',
+  equipmentCalibratedUntil: 'equipmentCalibratedUntil',
+  labReportEvidenceId: 'labReportEvidenceId',
   recordedByMemberId: 'recordedByMemberId',
   recordedAt: 'recordedAt',
   createdAt: 'createdAt',
@@ -32220,6 +32764,8 @@ export const InspectionDefectScalarFieldEnum = {
   requirementRef: 'requirementRef',
   description: 'description',
   defectQuantity: 'defectQuantity',
+  unitRefsJson: 'unitRefsJson',
+  checkItemCode: 'checkItemCode',
   status: 'status',
   recordedByMemberId: 'recordedByMemberId',
   recordedAt: 'recordedAt',
@@ -32293,6 +32839,11 @@ export const InspectionReportScalarFieldEnum = {
   signedByMemberId: 'signedByMemberId',
   signedByName: 'signedByName',
   publishedToBuyerAt: 'publishedToBuyerAt',
+  limitations: 'limitations',
+  correctsReportId: 'correctsReportId',
+  correctionReason: 'correctionReason',
+  supersededAt: 'supersededAt',
+  supersededByReportId: 'supersededByReportId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -32515,6 +33066,28 @@ export const SellerCertificationScalarFieldEnum = {
   issuedOn: 'issuedOn',
   expiresOn: 'expiresOn',
   documentId: 'documentId',
+  reviewStatus: 'reviewStatus',
+  documentType: 'documentType',
+  issuingCountry: 'issuingCountry',
+  legalEntityName: 'legalEntityName',
+  categoryScopeIdsJson: 'categoryScopeIdsJson',
+  productScopeIdsJson: 'productScopeIdsJson',
+  modelScope: 'modelScope',
+  requirementCodesJson: 'requirementCodesJson',
+  noExpiryReason: 'noExpiryReason',
+  verificationMethod: 'verificationMethod',
+  verificationOutcome: 'verificationOutcome',
+  verificationSource: 'verificationSource',
+  reviewMessage: 'reviewMessage',
+  internalNote: 'internalNote',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  reviewStartedAt: 'reviewStartedAt',
+  suspendedAt: 'suspendedAt',
+  suspendedReason: 'suspendedReason',
+  revision: 'revision',
+  supersedesId: 'supersedesId',
+  supersededAt: 'supersededAt',
   state: 'state',
   verifiedAt: 'verifiedAt',
   verifiedByUserId: 'verifiedByUserId',
@@ -33706,6 +34279,217 @@ export const AnalyticsDailyCountScalarFieldEnum = {
 } as const
 
 export type AnalyticsDailyCountScalarFieldEnum = (typeof AnalyticsDailyCountScalarFieldEnum)[keyof typeof AnalyticsDailyCountScalarFieldEnum]
+
+
+export const AuditStaffMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  status: 'status',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  competenceCategoryIdsJson: 'competenceCategoryIdsJson',
+  invitedByUserId: 'invitedByUserId',
+  activatedAt: 'activatedAt',
+  disabledAt: 'disabledAt',
+  disabledReason: 'disabledReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuditStaffMemberScalarFieldEnum = (typeof AuditStaffMemberScalarFieldEnum)[keyof typeof AuditStaffMemberScalarFieldEnum]
+
+
+export const AuditNotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  link: 'link',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuditNotificationScalarFieldEnum = (typeof AuditNotificationScalarFieldEnum)[keyof typeof AuditNotificationScalarFieldEnum]
+
+
+export const ComplianceRequirementScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  ruleVersion: 'ruleVersion',
+  status: 'status',
+  name: 'name',
+  description: 'description',
+  requiredEvidence: 'requiredEvidence',
+  obligation: 'obligation',
+  level: 'level',
+  categoryIdsJson: 'categoryIdsJson',
+  includeDescendants: 'includeDescendants',
+  supplyRolesJson: 'supplyRolesJson',
+  originCountriesJson: 'originCountriesJson',
+  destinationMarketsJson: 'destinationMarketsJson',
+  riskClassesJson: 'riskClassesJson',
+  productTypeNote: 'productTypeNote',
+  intendedUseNote: 'intendedUseNote',
+  applicability: 'applicability',
+  applicabilityNote: 'applicabilityNote',
+  expiryKind: 'expiryKind',
+  reviewMonths: 'reviewMonths',
+  sourceUrl: 'sourceUrl',
+  sourceTitle: 'sourceTitle',
+  sourcePublisher: 'sourcePublisher',
+  lastReviewedOn: 'lastReviewedOn',
+  confidence: 'confidence',
+  importedFrom: 'importedFrom',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  draftedByUserId: 'draftedByUserId',
+  draftedByLabel: 'draftedByLabel',
+  submittedAt: 'submittedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  retiredAt: 'retiredAt',
+  supersedesId: 'supersedesId',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceRequirementScalarFieldEnum = (typeof ComplianceRequirementScalarFieldEnum)[keyof typeof ComplianceRequirementScalarFieldEnum]
+
+
+export const ComplianceCaseScalarFieldEnum = {
+  id: 'id',
+  caseNumber: 'caseNumber',
+  level: 'level',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  supplyRole: 'supplyRole',
+  destinationMarket: 'destinationMarket',
+  factoryId: 'factoryId',
+  status: 'status',
+  requestedByParty: 'requestedByParty',
+  requestedById: 'requestedById',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  reviewStartedAt: 'reviewStartedAt',
+  decidedAt: 'decidedAt',
+  sellerMessage: 'sellerMessage',
+  internalNote: 'internalNote',
+  determinationsJson: 'determinationsJson',
+  decisionSnapshotJson: 'decisionSnapshotJson',
+  expiresAt: 'expiresAt',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceCaseScalarFieldEnum = (typeof ComplianceCaseScalarFieldEnum)[keyof typeof ComplianceCaseScalarFieldEnum]
+
+
+export const ComplianceEventScalarFieldEnum = {
+  id: 'id',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  summary: 'summary',
+  sellerVisible: 'sellerVisible',
+  dataJson: 'dataJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceEventScalarFieldEnum = (typeof ComplianceEventScalarFieldEnum)[keyof typeof ComplianceEventScalarFieldEnum]
+
+
+export const InspectionQuantityRecordScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  unit: 'unit',
+  orderedQuantity: 'orderedQuantity',
+  declaredQuantity: 'declaredQuantity',
+  verifiedQuantity: 'verifiedQuantity',
+  countingMethod: 'countingMethod',
+  countingNote: 'countingNote',
+  packagingJson: 'packagingJson',
+  sampledQuantity: 'sampledQuantity',
+  functionallyTestedQuantity: 'functionallyTestedQuantity',
+  testedConformingQuantity: 'testedConformingQuantity',
+  testedNonconformingQuantity: 'testedNonconformingQuantity',
+  damagedQuantity: 'damagedQuantity',
+  packagingObservations: 'packagingObservations',
+  labelingObservations: 'labelingObservations',
+  damageObservations: 'damageObservations',
+  recordedByMemberId: 'recordedByMemberId',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionQuantityRecordScalarFieldEnum = (typeof InspectionQuantityRecordScalarFieldEnum)[keyof typeof InspectionQuantityRecordScalarFieldEnum]
+
+
+export const InspectionLabSampleScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  sampleCode: 'sampleCode',
+  description: 'description',
+  quantity: 'quantity',
+  unit: 'unit',
+  sealNumber: 'sealNumber',
+  takenAt: 'takenAt',
+  takenByMemberId: 'takenByMemberId',
+  laboratoryName: 'laboratoryName',
+  laboratoryAccreditation: 'laboratoryAccreditation',
+  custodyJson: 'custodyJson',
+  labReportEvidenceId: 'labReportEvidenceId',
+  resultSummary: 'resultSummary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionLabSampleScalarFieldEnum = (typeof InspectionLabSampleScalarFieldEnum)[keyof typeof InspectionLabSampleScalarFieldEnum]
+
+
+export const InspectionSubLotReleaseScalarFieldEnum = {
+  id: 'id',
+  requirementId: 'requirementId',
+  jobId: 'jobId',
+  reportId: 'reportId',
+  subLotCode: 'subLotCode',
+  lotReference: 'lotReference',
+  quantity: 'quantity',
+  unit: 'unit',
+  linesJson: 'linesJson',
+  reason: 'reason',
+  state: 'state',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  requestedAt: 'requestedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  consumedAt: 'consumedAt',
+  consumedByRef: 'consumedByRef',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionSubLotReleaseScalarFieldEnum = (typeof InspectionSubLotReleaseScalarFieldEnum)[keyof typeof InspectionSubLotReleaseScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -38007,6 +38791,8 @@ export const InspectionJobOrderByRelevanceFieldEnum = {
   requirementId: 'requirementId',
   agencyId: 'agencyId',
   reinspectionOfJobId: 'reinspectionOfJobId',
+  timezone: 'timezone',
+  qaReviewerMemberId: 'qaReviewerMemberId',
   bookedById: 'bookedById',
   bookedByLabel: 'bookedByLabel',
   language: 'language',
@@ -38046,6 +38832,8 @@ export const InspectionCheckResultOrderByRelevanceFieldEnum = {
   requirement: 'requirement',
   measuredValue: 'measuredValue',
   note: 'note',
+  equipmentRef: 'equipmentRef',
+  labReportEvidenceId: 'labReportEvidenceId',
   recordedByMemberId: 'recordedByMemberId'
 } as const
 
@@ -38059,6 +38847,7 @@ export const InspectionDefectOrderByRelevanceFieldEnum = {
   ncrNumber: 'ncrNumber',
   requirementRef: 'requirementRef',
   description: 'description',
+  checkItemCode: 'checkItemCode',
   recordedByMemberId: 'recordedByMemberId',
   reclassifiedByMemberId: 'reclassifiedByMemberId',
   reclassificationReason: 'reclassificationReason',
@@ -38105,7 +38894,11 @@ export const InspectionReportOrderByRelevanceFieldEnum = {
   returnedByMemberId: 'returnedByMemberId',
   returnReason: 'returnReason',
   signedByMemberId: 'signedByMemberId',
-  signedByName: 'signedByName'
+  signedByName: 'signedByName',
+  limitations: 'limitations',
+  correctsReportId: 'correctsReportId',
+  correctionReason: 'correctionReason',
+  supersededByReportId: 'supersededByReportId'
 } as const
 
 export type InspectionReportOrderByRelevanceFieldEnum = (typeof InspectionReportOrderByRelevanceFieldEnum)[keyof typeof InspectionReportOrderByRelevanceFieldEnum]
@@ -38251,6 +39044,17 @@ export const SellerCertificationOrderByRelevanceFieldEnum = {
   issuer: 'issuer',
   scope: 'scope',
   documentId: 'documentId',
+  issuingCountry: 'issuingCountry',
+  legalEntityName: 'legalEntityName',
+  modelScope: 'modelScope',
+  noExpiryReason: 'noExpiryReason',
+  verificationSource: 'verificationSource',
+  reviewMessage: 'reviewMessage',
+  internalNote: 'internalNote',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  suspendedReason: 'suspendedReason',
+  supersedesId: 'supersedesId',
   verifiedByUserId: 'verifiedByUserId',
   rejectionReason: 'rejectionReason'
 } as const
@@ -39046,6 +39850,141 @@ export const AnalyticsDailyCountOrderByRelevanceFieldEnum = {
 } as const
 
 export type AnalyticsDailyCountOrderByRelevanceFieldEnum = (typeof AnalyticsDailyCountOrderByRelevanceFieldEnum)[keyof typeof AnalyticsDailyCountOrderByRelevanceFieldEnum]
+
+
+export const AuditStaffMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  invitedByUserId: 'invitedByUserId',
+  disabledReason: 'disabledReason'
+} as const
+
+export type AuditStaffMemberOrderByRelevanceFieldEnum = (typeof AuditStaffMemberOrderByRelevanceFieldEnum)[keyof typeof AuditStaffMemberOrderByRelevanceFieldEnum]
+
+
+export const AuditNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  link: 'link',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  dedupeKey: 'dedupeKey'
+} as const
+
+export type AuditNotificationOrderByRelevanceFieldEnum = (typeof AuditNotificationOrderByRelevanceFieldEnum)[keyof typeof AuditNotificationOrderByRelevanceFieldEnum]
+
+
+export const ComplianceRequirementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  requiredEvidence: 'requiredEvidence',
+  productTypeNote: 'productTypeNote',
+  intendedUseNote: 'intendedUseNote',
+  applicabilityNote: 'applicabilityNote',
+  sourceUrl: 'sourceUrl',
+  sourceTitle: 'sourceTitle',
+  sourcePublisher: 'sourcePublisher',
+  confidence: 'confidence',
+  importedFrom: 'importedFrom',
+  draftedByUserId: 'draftedByUserId',
+  draftedByLabel: 'draftedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decisionNote: 'decisionNote',
+  supersedesId: 'supersedesId'
+} as const
+
+export type ComplianceRequirementOrderByRelevanceFieldEnum = (typeof ComplianceRequirementOrderByRelevanceFieldEnum)[keyof typeof ComplianceRequirementOrderByRelevanceFieldEnum]
+
+
+export const ComplianceCaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  caseNumber: 'caseNumber',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  destinationMarket: 'destinationMarket',
+  factoryId: 'factoryId',
+  requestedByParty: 'requestedByParty',
+  requestedById: 'requestedById',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  sellerMessage: 'sellerMessage',
+  internalNote: 'internalNote'
+} as const
+
+export type ComplianceCaseOrderByRelevanceFieldEnum = (typeof ComplianceCaseOrderByRelevanceFieldEnum)[keyof typeof ComplianceCaseOrderByRelevanceFieldEnum]
+
+
+export const ComplianceEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  summary: 'summary'
+} as const
+
+export type ComplianceEventOrderByRelevanceFieldEnum = (typeof ComplianceEventOrderByRelevanceFieldEnum)[keyof typeof ComplianceEventOrderByRelevanceFieldEnum]
+
+
+export const InspectionQuantityRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  countingMethod: 'countingMethod',
+  countingNote: 'countingNote',
+  packagingObservations: 'packagingObservations',
+  labelingObservations: 'labelingObservations',
+  damageObservations: 'damageObservations',
+  recordedByMemberId: 'recordedByMemberId'
+} as const
+
+export type InspectionQuantityRecordOrderByRelevanceFieldEnum = (typeof InspectionQuantityRecordOrderByRelevanceFieldEnum)[keyof typeof InspectionQuantityRecordOrderByRelevanceFieldEnum]
+
+
+export const InspectionLabSampleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  sampleCode: 'sampleCode',
+  description: 'description',
+  sealNumber: 'sealNumber',
+  takenByMemberId: 'takenByMemberId',
+  laboratoryName: 'laboratoryName',
+  laboratoryAccreditation: 'laboratoryAccreditation',
+  labReportEvidenceId: 'labReportEvidenceId',
+  resultSummary: 'resultSummary'
+} as const
+
+export type InspectionLabSampleOrderByRelevanceFieldEnum = (typeof InspectionLabSampleOrderByRelevanceFieldEnum)[keyof typeof InspectionLabSampleOrderByRelevanceFieldEnum]
+
+
+export const InspectionSubLotReleaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requirementId: 'requirementId',
+  jobId: 'jobId',
+  reportId: 'reportId',
+  subLotCode: 'subLotCode',
+  lotReference: 'lotReference',
+  reason: 'reason',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decisionNote: 'decisionNote',
+  consumedByRef: 'consumedByRef'
+} as const
+
+export type InspectionSubLotReleaseOrderByRelevanceFieldEnum = (typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum)[keyof typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum]
 
 
 
@@ -41050,6 +41989,13 @@ export type EnumInspectionAgencyStatusFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'InspectionAgencyKind'
+ */
+export type EnumInspectionAgencyKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionAgencyKind'>
+    
+
+
+/**
  * Reference to a field of type 'InspectionAgencyRole'
  */
 export type EnumInspectionAgencyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionAgencyRole'>
@@ -41081,6 +42027,20 @@ export type EnumInspectionJobKindFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'InspectionJobStatus'
  */
 export type EnumInspectionJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'InspectionStage'
+ */
+export type EnumInspectionStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionStage'>
+    
+
+
+/**
+ * Reference to a field of type 'InspectionScopeMethod'
+ */
+export type EnumInspectionScopeMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionScopeMethod'>
     
 
 
@@ -41179,6 +42139,34 @@ export type EnumInspectionInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInp
  * Reference to a field of type 'CertificateExpiryPolicy'
  */
 export type EnumCertificateExpiryPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertificateExpiryPolicy'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceDocumentStatus'
+ */
+export type EnumComplianceDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceDocumentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceDocumentType'
+ */
+export type EnumComplianceDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceDocumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceVerificationMethod'
+ */
+export type EnumComplianceVerificationMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceVerificationMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceVerificationOutcome'
+ */
+export type EnumComplianceVerificationOutcomeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceVerificationOutcome'>
     
 
 
@@ -41515,6 +42503,83 @@ export type EnumRiskSeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'RiskSignalStatus'
  */
 export type EnumRiskSignalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RiskSignalStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditStaffRole'
+ */
+export type EnumAuditStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditStaffRole'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditMemberStatus'
+ */
+export type EnumAuditMemberStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditMemberStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceRuleStatus'
+ */
+export type EnumComplianceRuleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceRuleStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceObligation'
+ */
+export type EnumComplianceObligationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceObligation'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceLevel'
+ */
+export type EnumComplianceLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceApplicability'
+ */
+export type EnumComplianceApplicabilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceApplicability'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceExpiryKind'
+ */
+export type EnumComplianceExpiryKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceExpiryKind'>
+    
+
+
+/**
+ * Reference to a field of type 'SupplyRole'
+ */
+export type EnumSupplyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupplyRole'>
+    
+
+
+/**
+ * Reference to a field of type 'ComplianceCaseStatus'
+ */
+export type EnumComplianceCaseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComplianceCaseStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'QuantityUnit'
+ */
+export type EnumQuantityUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QuantityUnit'>
+    
+
+
+/**
+ * Reference to a field of type 'SubLotReleaseState'
+ */
+export type EnumSubLotReleaseStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubLotReleaseState'>
     
 
 
@@ -42044,6 +43109,14 @@ export type GlobalOmitConfig = {
   riskRule?: Prisma.RiskRuleOmit
   riskSignal?: Prisma.RiskSignalOmit
   analyticsDailyCount?: Prisma.AnalyticsDailyCountOmit
+  auditStaffMember?: Prisma.AuditStaffMemberOmit
+  auditNotification?: Prisma.AuditNotificationOmit
+  complianceRequirement?: Prisma.ComplianceRequirementOmit
+  complianceCase?: Prisma.ComplianceCaseOmit
+  complianceEvent?: Prisma.ComplianceEventOmit
+  inspectionQuantityRecord?: Prisma.InspectionQuantityRecordOmit
+  inspectionLabSample?: Prisma.InspectionLabSampleOmit
+  inspectionSubLotRelease?: Prisma.InspectionSubLotReleaseOmit
 }
 
 /* Types for Logging */

@@ -52,6 +52,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Going live](#going-live) | The ordered checklist |
 | [Verifying a change](#verifying-a-change) | What each project gates on |
 | [The rules this system is built on](#the-rules-this-system-is-built-on) | Enforced in code, not by convention |
+| [Audit Console](#audit-console) | Inspectors, agencies and compliance staff: the fourth application, behind a flag |
 | [Documentation](#documentation) | Which file answers which question |
 
 ---
@@ -172,11 +173,12 @@ is the worker that does everything nobody is waiting for.
 | `apps/admin-web/` | Staff console | `5173` |
 | `apps/customer-web/` | Customer storefront, and the Seller Hub inside it | `5174` |
 | `apps/logistics-web/` | Carrier portal. Only where `FEATURE_LOGISTICS_PORTAL=true` | `5175` |
+| `apps/audit-web/` | Audit Console for inspectors, agencies and compliance staff. Only where `FEATURE_AUDIT_CONSOLE=true` | `5176` |
 | `scripts/` | Stack launcher, translation, catalogue and document tooling | — |
 
 The frontends are separate applications rather than sections of one because
 each is signed into by different people on a different hostname. They use
-distinct session cookie names (`uboss_admin_*`, `uboss_shop_*`), so a staff
+distinct session cookie names (`uboss_admin_*`, `uboss_shop_*`, `uboss_audit_*`), so a staff
 member and a customer can be signed in at once in the same browser — a cookie's
 identity ignores the port, and shared names meant signing into one silently
 signed you out of the other.
@@ -213,6 +215,7 @@ Once it is up:
 | **Storefront** (customers, sellers) | <http://localhost:5174> |
 | **Admin console** (staff) | <http://localhost:5173> |
 | **Logistics portal** (carriers) | <http://localhost:5175> |
+| **Audit Console** (inspectors, agencies, compliance staff; only with `FEATURE_AUDIT_CONSOLE=true`) | <http://localhost:5176> |
 | API | <http://localhost:4000> |
 | Readiness, with dependency checks | <http://localhost:4000/health/ready> |
 | Metrics (Prometheus) | <http://localhost:4000/metrics> |
@@ -4897,6 +4900,51 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 
 ---
 
+## Audit Console
+
+A fourth application, `apps/audit-web` (port `5176`), for inspectors,
+inspection agencies and the marketplace's own compliance staff. **Off unless
+`FEATURE_AUDIT_CONSOLE=true`.** Hosting it on its own domain is in
+`docs/DEPLOYMENT.md` §11.13.
+
+- **Its own sign-in.** Invitation only, from the admin console's
+  `/audit-console` page (permission `audit_console.manage`). Every role must
+  use a one-time code from an authenticator app. Cookies are `uboss_audit_*`.
+- **Roles.** Marketplace staff: Supervisor, Compliance reviewer. Agency:
+  Agency admin, Coordinator, Inspector, QA reviewer.
+- **Agency work moved here.** The storefront's agency pages now say the work
+  has moved; the agency API is now `/api/v1/audit/agency`.
+- **Compliance qualification.** Versioned requirements per category, market
+  or product, approved by a second person. Seller certificates are reviewed
+  (method and outcome recorded) and can be approved, rejected, expired or
+  suspended. Seller and product cases are evaluated against approved rules.
+  Sellers see all of it in Seller Hub at `/seller/compliance`; the supplier
+  page shows qualifications and certificate badges.
+- **Inspection depth.** Stage (only pre-shipment releases goods), full or
+  sample scope, agency kind (third party, internal, seller self-check), exact
+  quantity reconciliation, defects by unit, lab samples with chain of custody,
+  an inconclusive result and an on-hold status that holds the goods, a report
+  PDF, corrections that keep the original, and part-lot release (supervisor
+  asks, admin approves, one dispatch).
+
+| Variable | What it does |
+|---|---|
+| `FEATURE_AUDIT_CONSOLE` | The whole console. Default `false` |
+| `AUDIT_WEB_ORIGIN` | The console's exact origin, for CORS. Development `http://localhost:5176` |
+| `AUDIT_WEB_PUBLIC_URL` | Where invitation and reset links point. Required when the console is on |
+| `AUDIT_INVITE_TTL_HOURS` | How long an invitation lasts. Default `48` |
+| `FEATURE_AUDIT_MFA` | One-time code for every console role. Default `true`; production refuses `false` |
+| `COMPLIANCE_QUALIFICATION_ENFORCEMENT` | `OFF` (default: shown, never blocks), `WARN` (tells the seller what is missing), `ENFORCE` (a new listing or first offer activation needs a qualification). Live offers are never switched off; they go to a review list |
+
+**What it does not do.** The 53 compliance rules that ship
+(`backend/src/seed/compliance-requirements.draft.json`, sources in
+`docs/compliance/REGULATORY-SOURCES.md`) are drafts: none is approved, and a
+qualified person must review each one. There is no live link to an official
+register; certificates are checked by hand. The software gives no legal
+advice and accredits nobody. The sampling table is MIL-STD-105E / ANSI Z1.4,
+not ISO 2859-1.
+
+
 ## Documentation
 
 | File | Answers |
@@ -4910,6 +4958,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | **[`docs/DATABASE-DESIGN.md`](docs/DATABASE-DESIGN.md)** | Why the database is shaped as it is: the principles, each domain with its diagram, and the life of an order in rows |
 | **[`docs/API.md`](docs/API.md)** | How to call the API: signing in, permissions, money, errors, webhooks, and worked examples |
 | **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
+| [`docs/compliance/REGULATORY-SOURCES.md`](docs/compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with |
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |
 | `backend/docs/HANDOFF.md` | Environment details, the MariaDB constraints that shaped the schema, the full endpoint map, and what is deliberately not built |
@@ -4959,12 +5008,12 @@ actually on".
 
 ### Inspection agency dashboard
 
-The agency portal shows assignments, acceptance/report deadlines, overdue work, member verification and credential expiry, report links and invoices. Invoice visibility requires agency invoice permission; inspectors see only their assigned jobs.
+The agency screens, now in the Audit Console (see "Audit Console"), show assignments, acceptance/report deadlines, overdue work, member verification and credential expiry, report links and invoices. Invoice visibility requires agency invoice permission; inspectors see only their assigned jobs.
 
 
 ## Inspection packaging and label checks
 
-The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
+The agency's job screen in the Audit Console (`/jobs/:id`; formerly the storefront's `/inspection/jobs/:id/packaging`) shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
 
 
 ## Corrective evidence and linked re-inspection

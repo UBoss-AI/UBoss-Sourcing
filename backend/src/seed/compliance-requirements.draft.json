@@ -1,0 +1,1849 @@
+[
+  {
+    "code": "IN-MD-RISK-CLASS",
+    "name": "India medical device risk class (A/B/C/D)",
+    "description": "Every medical device sold in India has a risk class: A (low), B (low-moderate), C (moderate-high) or D (high). The class decides which licence is needed and who grants it. Only the Central Licensing Authority classifies devices; CDSCO publishes risk-classification lists that change over time.",
+    "requiredEvidence": "The CDSCO risk class for this device, with the entry in the published CDSCO classification list (or the CDSCO classification letter if the device is not listed).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "All product lines under medical-devices, except where a borderline rule marks the item as possibly a drug.",
+    "intendedUseNote": "Class follows the intended use stated by the manufacturer on label and IFU.",
+    "applicability": "APPLIES",
+    "applicabilityNote": "CDSCO FAQ (CDSCO/FAQ/MD/01/2024) Q74-Q78: four classes; only the CLA classifies; unlisted devices need a classification request. Indicative published entries (not checked line by line for each of our products): hypodermic syringes, IV cannulae, nasogastric (Ryles) tubes and suction catheters appear as Class B; adult incontinence diapers and non-sterile examination gloves appear in the Class A (non-sterile, non-measuring) list. The full classification-wise list PDF was too large to load in this review, so other mappings are not confirmed.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-MFG-LICENCE-AB",
+    "name": "India manufacturing licence, Class A (sterile or measuring) and Class B (Form MD-5)",
+    "description": "A company that makes Class A (other than non-sterile, non-measuring) or Class B medical devices in India needs a manufacturing licence from the State Licensing Authority where the factory is. This also applies when the devices are made only for export.",
+    "requiredEvidence": "Manufacturing licence in Form MD-5 (or loan licence MD-6) naming the device(s) and site, plus proof the five-yearly retention fee has been paid.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [
+      "IN"
+    ],
+    "destinationMarkets": [],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies when the device is India Class B, or Class A that is sterile or has a measuring function. Licences are perpetual subject to a retention fee every five years (CDSCO FAQ Q55). Export-only manufacture still needs a licence marked \"For Export only\" (FAQ Q87). Class B sites are audited by a CDSCO-registered notified body before grant (FAQ Q81, Q83). Form numbers are from CDSCO material found in search; the Rules text itself was not opened in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-MFG-LICENCE-CD",
+    "name": "India manufacturing licence, Class C and Class D (Form MD-9)",
+    "description": "A company that makes Class C or Class D medical devices in India needs a manufacturing licence from the Central Licensing Authority (DCGI). The site is inspected before the licence is granted.",
+    "requiredEvidence": "Manufacturing licence in Form MD-9 (or loan licence MD-10) naming the device(s) and site, plus proof of retention fee payment.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [
+      "IN"
+    ],
+    "destinationMarkets": [],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only when the India risk class is C or D. CLA handles Class C/D manufacture (FAQ Q6, Q80); inspection within 60 days of application (FAQ Q27). Perpetual subject to five-yearly retention fee (FAQ Q55). Which of our product lines are C or D is not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-CLASS-A-NSNM-REGISTRATION",
+    "name": "India registration of Class A non-sterile, non-measuring devices",
+    "description": "Class A devices that are neither sterile nor measuring do not need a manufacturing or import licence. The manufacturer or importer must still register them on the CDSCO Medical Devices online portal and follow the labelling rules.",
+    "requiredEvidence": "System-generated registration number from the CDSCO Medical Devices online portal for the device.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only if the device is India Class A and non-sterile and non-measuring (exemption notified by G.S.R. 777(E) dated 14.10.2022; CDSCO FAQ Q69-Q72; registration under Chapter IIIB per the CDSCO Class A list). No fee for the registration number (FAQ Q71). Adult incontinence diapers and non-sterile examination gloves are on that list.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Risk%20based%20classification%20list%20of%20Class%20A(non-sterile%20and%20non-measuring)%20medical%20device.pdf",
+    "sourceTitle": "Risk classification list of Class A (non-sterile and non-measuring) medical devices (F. No. MED-16014(12)/1/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-IMPORT-LICENCE",
+    "name": "India import licence for medical devices (Form MD-15)",
+    "description": "Anyone importing medical devices into India for sale needs an import licence from the Central Licensing Authority, applied for in Form MD-14 and granted in Form MD-15. The importer acts for the overseas manufacturer under a power of attorney.",
+    "requiredEvidence": "Import licence in Form MD-15 covering the device, manufacturer and site; power of attorney from the overseas manufacturer; the importer's wholesale licence, MD-42 registration or manufacturing licence.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only when the device is made outside India and imported for sale in India. Most sellers here are Indian manufacturers, so it does not apply to them. Class A non-sterile non-measuring imports need registration instead (FAQ Q88). Perpetual subject to retention fee (FAQ Q55). A change of Indian agent needs a fresh licence (FAQ Q104). Note: originCountries cannot express \"not India\", so a reviewer must apply this by origin.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-SALE-REGISTRATION",
+    "name": "India registration to sell or distribute medical devices (Form MD-42)",
+    "description": "A trader who only stocks, sells or distributes medical devices in India needs a registration certificate in Form MD-42 from the State Licensing Authority. A wholesale drug licence also covers this.",
+    "requiredEvidence": "Registration certificate in Form MD-42, or a wholesale licence under the Drugs and Cosmetics Rules, 1945 (Form 20B/21B/21C).",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "DISTRIBUTOR"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "CDSCO FAQ Q143-Q148: MD-42 for traders dealing only in medical devices; perpetual with retention fee every five years. Not confirmed in this review: whether Class A non-sterile non-measuring devices are exempt from this sale registration. A reviewer must confirm before applying it to those items.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-MD-QMS-FIFTH-SCHEDULE",
+    "name": "India quality management system for device manufacturers (Fifth Schedule)",
+    "description": "Under the Medical Devices Rules, a licensed manufacturer must run a quality management system that meets the Fifth Schedule, and signs an undertaking saying the site complies. Importers must submit a quality certificate.",
+    "requiredEvidence": "Signed Fifth Schedule compliance undertaking submitted with the licence application, and the QMS certificate or audit outcome relied on by the licensing authority.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Part of every licensed (not registration-only) device: CDSCO FAQ Q39, Q85, Q101. Does not apply as a licence condition to Class A non-sterile non-measuring devices, which are exempt from the licensing chapters. Whether an ISO 13485 certificate alone satisfies the Fifth Schedule was not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-MD-ADULT-DIAPER-CLASS-A",
+    "name": "Adult diapers as India Class A medical devices",
+    "description": "CDSCO lists \"Adult Incontinence Pants/Diaper\" as a Class A non-sterile, non-measuring medical device. Such products need portal registration and device labelling, not a licence.",
+    "requiredEvidence": "CDSCO Class A registration number for the product, and a label that meets Chapter VI of the Medical Devices Rules.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "adult-diaper"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "Disposable adult undergarment that collects urine and faeces.",
+    "intendedUseNote": "Listed use: for an incontinent adult patient. A product marketed with no medical purpose may fall outside device rules; the reviewer decides from the label.",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Entry 24 of the CDSCO Class A (non-sterile, non-measuring) list. Conditional only on the product's intended use matching that entry.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Risk%20based%20classification%20list%20of%20Class%20A(non-sterile%20and%20non-measuring)%20medical%20device.pdf",
+    "sourceTitle": "Risk classification list of Class A (non-sterile and non-measuring) medical devices",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-MD-BORDERLINE-DRUG-PREFILLED",
+    "name": "India: drug or device? Prefilled heparin, citrate and sterile water products",
+    "description": "Some of our product lines contain a medicine or a solution in a syringe or container. In India these may be regulated as drugs under the Drugs and Cosmetics Act rather than as medical devices, which changes the licence needed.",
+    "requiredEvidence": "Written regulatory status from the manufacturer with the licence actually held (drug manufacturing/import licence or medical device licence), checked by a qualified reviewer.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "prefilled-heparin-syringe",
+      "sodium-citrate-prefilled-syringe",
+      "sterile-water",
+      "sterile-water-with-10-glycerine",
+      "flush-syringe"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "Prefilled syringes and sterile liquids.",
+    "intendedUseNote": "The decisive question is the intended use and whether the contents act as a medicine (for example heparin as an anticoagulant, water for injection) or only as a mechanical aid (for example balloon inflation, catheter flushing).",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "Not resolved in this review. Heparin and water for injection are typically medicines; saline flush and lock solutions are marketed as devices in some markets. No CDSCO document fetched here settles the status of these specific products. Do not apply a device licence rule to them until a reviewer decides.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 6
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/opencms/en/Acts-and-rules/Medical-Devices-Rules/",
+    "sourceTitle": "Medical Devices Rules, 2017 and amendments",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "LOW"
+  },
+  {
+    "code": "IN-MD-DISINFECTANT-FOR-DEVICES",
+    "name": "India: disinfectants for medical devices are regulated as devices",
+    "description": "In India, only disinfectants intended to disinfect medical devices are regulated under the Medical Devices Rules. General cleaning disinfectants are not covered by these rules.",
+    "requiredEvidence": "The device licence or registration that covers the disinfectant or disinfecting product, or a statement that its intended use is not the disinfection of medical devices.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "disinfection-sterilisation",
+      "disinfectant-cap",
+      "dc-flush-syringe-swab-cap"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "Applies when the product is intended to disinfect medical devices (for example a cap that disinfects an IV connector).",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "CDSCO FAQ Q57. The risk class of disinfectant caps was not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDFAQ1324.pdf",
+    "sourceTitle": "Frequently Asked Questions on Medical Devices Rules, 2017 (CDSCO/FAQ/MD/01/2024)",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "QMS-ISO-13485-CERTIFICATE",
+    "name": "ISO 13485 certificate (quality management system)",
+    "description": "ISO 13485 is a standard for quality management systems used by medical device makers. A certificate shows that an accredited body audited the company's quality system. It is evidence about the company's processes, not an approval of any product, and it is not a licence to sell.",
+    "requiredEvidence": "ISO 13485 certificate showing the certified company, sites, scope, certification body, accreditation body and expiry date.",
+    "obligation": "OPTIONAL_QUALIFICATION",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Treated as a qualification buyers and regulators commonly ask for. It does not replace a CDSCO licence, an EU notified-body certificate or a declaration of conformity. The iso.org page for the standard returned HTTP 403 in this review, so the edition status was not re-checked.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 36
+    },
+    "sourceUrl": "https://www.iso.org/standard/59752.html",
+    "sourceTitle": "ISO 13485 - Medical devices - Quality management systems",
+    "sourcePublisher": "International Organization for Standardization (ISO)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "QMS-IAF-CERTSEARCH-CHECK",
+    "name": "Check management-system certificates in IAF CertSearch",
+    "description": "IAF CertSearch is a database of accredited management-system certificates. A match confirms the certificate exists and shows its status (active, suspended, withdrawn or expired). No match means \"unable to verify\", not fraud, because not every certification body uploads its data.",
+    "requiredEvidence": "IAF CertSearch result (status and expiry date) saved with the date checked, or a note that no match was found and how the certificate was otherwise checked (for example with the certification body directly).",
+    "obligation": "OPTIONAL_QUALIFICATION",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "The database holds only accredited certifications, and participation by certification bodies is not universal (IAF CertSearch FAQ). It cannot confirm product conformity, licences, or non-accredited certificates. Bulk matching needs a paid tier.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://support.iafcertsearch.org/verifiers/getting-started/certificate-verification-guide",
+    "sourceTitle": "IAF CertSearch - Certificate verification guide",
+    "sourcePublisher": "IAF CertSearch (International Accreditation Forum)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-RISK-CLASS",
+    "name": "EU MDR device class (I, Is, Im, Ir, IIa, IIb, III)",
+    "description": "Every medical device placed on the EU market has a class set by the manufacturer using the rules in Annex VIII of Regulation (EU) 2017/745. The class decides whether a notified body must be involved.",
+    "requiredEvidence": "Class and the Annex VIII rule applied, as stated in the technical documentation and the EU declaration of conformity.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Class is the manufacturer's responsibility under MDR. This review did not classify individual product lines. Many of our lines are supplied sterile, which on its own takes a Class I device into \"Is\" with notified body involvement.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-DOC-CE",
+    "name": "EU declaration of conformity and CE marking for medical devices",
+    "description": "Before a medical device is placed on the EU market, the manufacturer draws up an EU declaration of conformity (Article 19) and puts the CE marking on it (Article 20). Where a notified body is involved, its number goes next to the CE marking.",
+    "requiredEvidence": "Signed EU declaration of conformity naming the device, class, conformity route and, if any, the notified body and certificate number; product label or photo showing the CE marking.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Applies to every class. The declaration must be kept up to date, so it is reviewed rather than expiring.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-NB-CERTIFICATE",
+    "name": "EU notified body certificate for medical devices",
+    "description": "For devices above plain Class I, and for Class I devices that are sterile, measure, or are reusable surgical instruments, a notified body must take part in conformity assessment and issue a certificate. Certificates last at most five years (Article 56).",
+    "requiredEvidence": "Notified body certificate covering the device, with certificate number, scope, notified body number and expiry date. The notified body should be checked in NANDO for MDR designation.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [
+      "I_STERILE",
+      "I_MEASURING",
+      "I_REUSABLE_SURGICAL",
+      "IIA",
+      "IIB",
+      "III"
+    ],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Article 52(7): for Class Is, Im and Ir the notified body covers only the sterility, metrology or reuse aspects. Plain Class I (non-sterile, non-measuring, not reusable surgical) is self-declared and needs no notified body certificate. Legacy MDD certificates may still be valid under transition rules; this review did not check the transition regulation.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices (Articles 52 and 56)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-AUTHORISED-REP",
+    "name": "EU authorised representative for non-EU device manufacturers",
+    "description": "A manufacturer outside the EU, such as one in India, can place devices on the EU market only if it has designated a single authorised representative established in the EU under a written mandate (Article 11).",
+    "requiredEvidence": "Signed written mandate with the EU authorised representative, its name and address, and its EUDAMED actor registration number (SRN).",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "AUTHORISED_REPRESENTATIVE"
+    ],
+    "originCountries": [
+      "IN"
+    ],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Applies to all device classes when the manufacturer is not established in the EU. The authorised representative is jointly liable with the manufacturer for defective devices.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices (Article 11)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-IMPORTER-CHECKS",
+    "name": "EU importer checks for medical devices",
+    "description": "The EU importer must check, before placing a device on the market, that it is CE marked, has a declaration of conformity, that the manufacturer is identified and has an authorised representative, that it is labelled with IFU, and has a UDI where required. The importer adds its own name and address (Article 13).",
+    "requiredEvidence": "Importer checklist record for the device, the importer's EUDAMED registration, and a label showing the importer's details.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Applies to whoever first places a non-EU device on the EU market. The buyer may be the importer; the platform does not take this role.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices (Article 13)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-DISTRIBUTOR-CHECKS",
+    "name": "EU distributor checks for medical devices",
+    "description": "A distributor must check before supplying a device that it is CE marked, has a declaration of conformity, carries the required label and IFU, and that importer and UDI requirements were met (Article 14).",
+    "requiredEvidence": "Distributor verification record per device or lot.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "DISTRIBUTOR"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Article 14 allows a sampling approach that is representative of the devices supplied.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices (Article 14)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-MD-UDI-EUDAMED",
+    "name": "EU UDI and EUDAMED registration for medical devices",
+    "description": "Devices need a Unique Device Identifier (Article 27). Manufacturers, authorised representatives and importers register as actors, and devices are registered, in EUDAMED. The actor, UDI/device, notified body/certificate and market surveillance modules became mandatory on 28 May 2026.",
+    "requiredEvidence": "Basic UDI-DI and UDI-DI for the device, the actor SRN of each economic operator, and the EUDAMED device registration record.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER",
+      "AUTHORISED_REPRESENTATIVE"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Mandatory modules confirmed on the Commission EUDAMED page. Transitional periods for devices already on the market and for legacy devices exist; their exact dates were not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://health.ec.europa.eu/medical-devices-eudamed/overview_en",
+    "sourceTitle": "EUDAMED overview",
+    "sourcePublisher": "European Commission, DG Health and Food Safety",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-MD-LABEL-IFU-LANGUAGE",
+    "name": "EU device label and instructions for use",
+    "description": "Each device must carry the label and instructions for use required by MDR Annex I, in the official language(s) set by the member state where it reaches the user.",
+    "requiredEvidence": "Label artwork and IFU for each destination language.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "medical-devices"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER",
+      "DISTRIBUTOR"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "APPLIES",
+    "applicabilityNote": "Required language depends on the destination member state. Importers and distributors check it (Articles 13 and 14).",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-IVD-SPECIMEN-RECEPTACLE",
+    "name": "EU: ABG syringes and kits may be IVD specimen receptacles",
+    "description": "Under the EU IVD Regulation, a container made specifically to hold and preserve a human specimen for diagnostic testing is itself an in vitro diagnostic device. An arterial blood gas syringe may fall into this group, depending on what the manufacturer says it is for.",
+    "requiredEvidence": "Manufacturer statement of whether the product is CE marked under the IVDR (2017/746) or the MDR (2017/745), with the matching declaration of conformity.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "abg-syringe",
+      "abg-kit"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "Decisive: is the product intended for the primary containment and preservation of blood for in vitro examination?",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "IVDR Article 2(3) deems specimen receptacles IVDs. No other product line here appears to be an IVD. Whether our ABG products are IVDs or MDR devices needs a reviewer and the manufacturer's stated purpose.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0746",
+    "sourceTitle": "Regulation (EU) 2017/746 on in vitro diagnostic medical devices",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-MD-BORDERLINE-MEDICINAL",
+    "name": "EU: medicinal product or device? Prefilled and sterile-liquid lines",
+    "description": "In the EU, a product whose main action is pharmacological is a medicinal product, not a device. A syringe sold prefilled with a medicine as one single-use integral product is regulated as a medicine, with the syringe part meeting device safety requirements (MDR Article 1(9)).",
+    "requiredEvidence": "Regulatory status from the manufacturer: a marketing authorisation for a medicinal product, or an MDR declaration of conformity (and certificate) for a device.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "prefilled-heparin-syringe",
+      "sodium-citrate-prefilled-syringe",
+      "sterile-water",
+      "sterile-water-with-10-glycerine",
+      "flush-syringe"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "Heparin acts as an anticoagulant, which suggests a medicinal product. Citrate locks, saline flushes and sterile water for irrigation or balloon inflation are marketed as devices by some manufacturers.",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "Status depends on the substance, the claimed mode of action and the intended use. Not decided here. Medicinal products also need a marketing authorisation, which this platform cannot evaluate.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 6
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices (Article 1)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "LOW"
+  },
+  {
+    "code": "EU-MD-ADULT-DIAPER-STATUS",
+    "name": "EU: adult diapers as devices or consumer products",
+    "description": "An incontinence product is a medical device in the EU only if the manufacturer intends it for a medical purpose, such as managing a disability. Otherwise it is a consumer product under the General Product Safety Regulation.",
+    "requiredEvidence": "Manufacturer's intended purpose and either an MDR declaration of conformity (if a device) or GPSR safety documentation (if not).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "adult-diaper"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "Depends on the manufacturer's stated purpose. India lists the same product as a Class A device, but that does not decide the EU status.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0745",
+    "sourceTitle": "Regulation (EU) 2017/745 on medical devices",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-SURGICAL-GLOVES-PPE-DUAL",
+    "name": "EU: surgical gloves that also protect the wearer (device and PPE)",
+    "description": "Surgical gloves are medical devices. If the manufacturer also claims they protect the wearer, they may also have to meet the PPE Regulation (EU) 2016/425, which for some risks needs a notified body type-examination certificate.",
+    "requiredEvidence": "MDR declaration of conformity and certificate; if wearer-protection is claimed, the PPE declaration of conformity and EU type-examination certificate (max five years validity).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "surgical-gloves"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "Decisive: does the label or IFU claim protection of the user, not only the patient?",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Dual regulation follows the claims made. The PPE risk category for biological hazards was not quoted from the Regulation text in this review.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0425",
+    "sourceTitle": "Regulation (EU) 2016/425 on personal protective equipment",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-MD-DISINFECTANT-CAP-STATUS",
+    "name": "EU: disinfectant caps",
+    "description": "Caps that disinfect IV connectors are generally placed on the EU market as medical devices, not as biocides. The device class depends on the classification rules.",
+    "requiredEvidence": "MDR declaration of conformity and notified body certificate for the cap.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "disinfectant-cap",
+      "dc-flush-syringe-swab-cap"
+    ],
+    "includeDescendants": false,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "The Biocidal Products Regulation 528/2012 excludes products covered by device law unless used for other purposes. The exact MDR class for these caps was not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32012R0528",
+    "sourceTitle": "Regulation (EU) No 528/2012 on biocidal products (Article 2)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-BIS-CRS-ELECTRONICS",
+    "name": "India BIS Compulsory Registration Scheme for listed electronics",
+    "description": "Listed electronics and IT goods (for example laptops, printers, mobile phones, power banks, LED lamps and luminaires, Li-ion cells, UPS units, solar modules and some appliances) must be registered with BIS and carry the Standard Mark before sale or import in India.",
+    "requiredEvidence": "BIS CRS registration number (R-number) covering the model, brand and factory, with its validity date.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "computers-it",
+      "phones-communication",
+      "lighting",
+      "batteries-power-supplies",
+      "solar-renewables",
+      "home-appliances",
+      "electronics-components"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only if the specific product type is on the current CRS list (crsbis.in shows 73 entries on 2026-10-06). Software licences, cables, and most components are not on the list.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 24
+    },
+    "sourceUrl": "https://www.crsbis.in/BIS/products-bis.do",
+    "sourceTitle": "Products covered under Compulsory Registration Scheme",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-BIS-ELECTRICAL-ACCESSORIES-QCO",
+    "name": "India BIS ISI mark for wires, cables, switches, sockets and MCBs",
+    "description": "Under a Quality Control Order, PVC-insulated cables, domestic switches, plugs and sockets, and household circuit breakers sold in India must meet the named Indian Standard and carry the ISI mark under a BIS licence.",
+    "requiredEvidence": "BIS licence (CM/L number) for the product and Indian Standard, with validity date.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "cables-wiring",
+      "switches-sockets",
+      "circuit-protection"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only to products under a covered Indian Standard (for example IS 694, IS 1293, IS 3854, IS/IEC 60898, IS 12640). The order text was found in search (DPIIT); the current product list was not confirmed line by line.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.dpiit.gov.in/static/uploads/2025/07/b9564dfa95202a0f2c22018f0ac6bd59.pdf",
+    "sourceTitle": "Electrical Wires, Cables, Appliances, Protection Devices and Accessories (Quality Control) Order",
+    "sourcePublisher": "Department for Promotion of Industry and Internal Trade (DPIIT)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-BIS-HOUSEHOLD-APPLIANCES-QCO",
+    "name": "India BIS mark for household and commercial electrical appliances",
+    "description": "A Quality Control Order requires many household, commercial and similar electrical appliances to meet IS 302 and carry the ISI mark.",
+    "requiredEvidence": "BIS licence for the appliance under the relevant part of IS 302.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "home-appliances",
+      "commercial-kitchen-equipment"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "Dates conflict across official BIS pages: the 2025 QCO is reported as effective 19 March 2026, while the BIS \"upcoming QCOs\" page (updated 22 Sept 2026) shows household appliances under IS 302 (Part 1):2024 due 1 Oct 2026. Which appliances and which date apply now needs a reviewer.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 3
+    },
+    "sourceUrl": "https://www.bis.gov.in/upcoming-qcos-notified-and-due-for-implementation/?lang=en",
+    "sourceTitle": "Upcoming QCOs - notified and due for implementation",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "LOW"
+  },
+  {
+    "code": "IN-BIS-SCHEME-X-MACHINERY",
+    "name": "India BIS Scheme X for machinery and low-voltage switchgear",
+    "description": "BIS Scheme X covers low-voltage switchgear and controlgear (IS/IEC 60947) and an omnibus order for machinery and electrical equipment.",
+    "requiredEvidence": "BIS Scheme X certificate for the product, if it is in scope.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "circuit-protection",
+      "motors-drives",
+      "industrial-supplies"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "The BIS page lists a deferment (S.O. 5038(E), 6 Nov 2025), a second amendment (S.O. 5179(E), 13 Nov 2025) and a rescission (S.O. 239(E), 16 Jan 2026) for the machinery omnibus order. What is currently in force was not confirmed.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 3
+    },
+    "sourceUrl": "https://www.bis.gov.in/products-under-compulsory-certification-scheme-x/?lang=en",
+    "sourceTitle": "Products under compulsory certification - Scheme X",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "LOW"
+  },
+  {
+    "code": "IN-BIS-TOYS-QCO",
+    "name": "India BIS ISI mark for toys",
+    "description": "Toys sold in India must meet the Indian Standards for toy safety and carry the ISI mark under a BIS licence. This applies to manufacture, import, sale and storage for sale.",
+    "requiredEvidence": "BIS licence for the toy under IS 9873 (Part 1) and the other applicable parts (or IS 15644 for electric toys).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "toys-games"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Toys (Quality Control) Order, 2020, in force from 1 Jan 2021. Conditional on the item being a toy for children within the standard's scope; hobby and craft supplies may not be.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.bis.gov.in/wp-content/uploads/2020/03/Toy_QC_order.pdf",
+    "sourceTitle": "Toys (Quality Control) Order, 2020",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-BIS-FOOTWEAR-QCO",
+    "name": "India BIS ISI mark for listed footwear, including safety footwear",
+    "description": "Listed footwear types, including leather safety boots and shoes, sports footwear and general-purpose shoes, must meet the named Indian Standard and carry the ISI mark.",
+    "requiredEvidence": "BIS licence for the footwear type under the listed Indian Standard (for example IS 15844, IS 17043, IS 11226, IS 14544).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "footwear",
+      "safety-footwear"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Footwear made from Leather and other Materials (QC) Order, 2024 (S.O. 1421(E), in force 1 Aug 2024): does not apply to goods for export or to micro and small units under the MSMED Act. A parallel order covers all-rubber and all-polymeric footwear (not opened in this review).",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.bis.gov.in/wp-content/uploads/2024/03/Footwear-made-from-Leather-and-other-Materials-QCO-2024.pdf",
+    "sourceTitle": "Footwear made from Leather and other Materials (Quality Control) Order, 2024",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "IN-BIS-TYRES-QCO",
+    "name": "India BIS ISI mark for vehicle tyres and tubes",
+    "description": "Pneumatic tyres and tubes for vehicles appear in the BIS Scheme I compulsory list and need the ISI mark.",
+    "requiredEvidence": "BIS licence for the tyre or tube under the relevant standard (for example IS 15627, IS 15633, IS 15636, IS 13098).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "tyres-wheels"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Seen on the BIS Scheme I page. Wheels and rims were not checked.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.bis.gov.in/product-certification/products-under-compulsory-certification/scheme-i-mark-scheme/?lang=en",
+    "sourceTitle": "Products under compulsory certification - Scheme I (ISI Mark)",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-BIS-CONSTRUCTION-QCO",
+    "name": "India BIS ISI mark for cement and listed steel products",
+    "description": "Many cement types and over a hundred steel product standards are on the BIS Scheme I compulsory list.",
+    "requiredEvidence": "BIS licence for the product under its Indian Standard (for example IS 269 cement, IS 2062 structural steel).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "building-construction"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies only to the specific listed standards. The full steel list was not read item by item.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.bis.gov.in/product-certification/products-under-compulsory-certification/scheme-i-mark-scheme/?lang=en",
+    "sourceTitle": "Products under compulsory certification - Scheme I (ISI Mark)",
+    "sourcePublisher": "Bureau of Indian Standards (BIS)",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-BIS-CHEMICALS-QCO",
+    "name": "India BIS chemical and polymer Quality Control Orders",
+    "description": "Some chemicals and polymers sold or imported in India need a BIS licence under a Quality Control Order. Many of these orders were withdrawn or suspended in 2025 and 2026.",
+    "requiredEvidence": "BIS licence for the chemical under its Indian Standard, or a reviewer note that the order is withdrawn or suspended.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "chemicals-raw-materials",
+      "cleaning-chemicals"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "UNRESOLVED",
+    "applicabilityNote": "Very unstable. Example: BIS \"upcoming QCOs\" lists Linear Alkyl Benzene for 30 Sept 2026, while the Department of Chemicals posted a temporary suspension of that order on 01-10-2026. Check each chemical on the day.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 3
+    },
+    "sourceUrl": "https://chemicals.gov.in/index.php/notifications",
+    "sourceTitle": "Notifications (Quality Control Orders)",
+    "sourcePublisher": "Department of Chemicals and Petrochemicals, Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-TELECOM-MTCTE-ETA",
+    "name": "India telecom and wireless approvals (TEC MTCTE, WPC ETA)",
+    "description": "Telecom equipment notified under MTCTE must be tested in a designated lab and certified by TEC before sale or import. Wireless devices need Equipment Type Approval from the WPC wing of DoT, often by self-declaration.",
+    "requiredEvidence": "TEC MTCTE certificate (valid five years) for notified equipment; WPC ETA certificate or self-declaration acknowledgement for wireless equipment.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "phones-communication",
+      "networking"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Depends on whether the equipment is in a notified MTCTE phase and whether it transmits radio. Pages found in search on tec.gov.in and dot.gov.in; not opened in this review.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://www.tec.gov.in/mandatory-testing-and-certification-of-telecom-equipments-mtcte",
+    "sourceTitle": "Mandatory Testing and Certification of Telecom Equipments (MTCTE)",
+    "sourcePublisher": "Telecommunication Engineering Centre (TEC), Department of Telecommunications",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-COSMETICS-IMPORT-REGISTRATION",
+    "name": "India import registration for cosmetics (Form COS-2)",
+    "description": "Cosmetics imported into India need an import registration certificate from CDSCO, applied for in Form COS-1 and granted in Form COS-2.",
+    "requiredEvidence": "Registration certificate in Form COS-2 covering the brand and product category.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "cosmetics",
+      "skin-hair-care",
+      "personal-hygiene",
+      "salon-spa-supplies"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only when the product is a cosmetic made outside India. Perpetual subject to a retention fee before five years. Not every personal-hygiene item is a cosmetic.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://cdsco.gov.in/opencms/opencms/en/Cosmetics/cosmetics/",
+    "sourceTitle": "Cosmetics (CDSCO) and Cosmetics Rules, 2020",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-COSMETICS-MFG-LICENCE",
+    "name": "India manufacturing licence for cosmetics (Form COS-8)",
+    "description": "A company that makes cosmetics in India for sale or distribution needs a manufacturing licence in Form COS-8 (or a loan licence in COS-9) from the state licensing authority.",
+    "requiredEvidence": "Licence in Form COS-8 or COS-9 naming the products and site.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "cosmetics",
+      "skin-hair-care",
+      "personal-hygiene",
+      "salon-spa-supplies"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [
+      "IN"
+    ],
+    "destinationMarkets": [],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only when the product is a cosmetic. Perpetual subject to retention fee before five years. Taken from CDSCO pages found in search; the Rules PDF was not opened in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/cos_rules/Cosmetics%20Rules%202020.pdf",
+    "sourceTitle": "Cosmetics Rules, 2020",
+    "sourcePublisher": "Central Drugs Standard Control Organisation (CDSCO), Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-FERTILISER-FCO",
+    "name": "India fertiliser manufacturer and dealer registration (FCO 1985)",
+    "description": "Under the Fertiliser (Control) Order, 1985, manufacturers and dealers of fertilisers must be registered in the state where they operate, and fertilisers must meet the specifications in the order.",
+    "requiredEvidence": "State registration certificate as a fertiliser manufacturer or dealer, and source certificate (Form O) where the order requires it.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "seeds-feed-fertiliser"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "DISTRIBUTOR"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for products that are fertilisers within the order. Feed is not covered by this rule.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://www.fert.nic.in/node/1063",
+    "sourceTitle": "What is Fertilizer Control Order?",
+    "sourcePublisher": "Department of Fertilizers, Government of India",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "IN-SEEDS-LABELLING",
+    "name": "India seed labelling and quality (Seeds Act 1966)",
+    "description": "Seed of a notified kind or variety may be sold only if it meets the minimum germination and purity limits and carries the prescribed label. Certification is voluntary; labelling is compulsory. Dealers may also need a licence under a separate control order.",
+    "requiredEvidence": "Seed label with the required particulars, germination and purity test result, and dealer licence where required.",
+    "obligation": "LEGAL",
+    "level": "SELLER_CATEGORY",
+    "categorySlugs": [
+      "seeds-feed-fertiliser"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "DISTRIBUTOR"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "IN"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for seed of a notified kind or variety. The dealer licence (Seeds (Control) Order, 1983) was not opened in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://seednet.gov.in/Material/FAQ.htm",
+    "sourceTitle": "Seed FAQ",
+    "sourcePublisher": "SeedNet, Ministry of Agriculture and Farmers Welfare",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-GPSR-GENERAL-SAFETY",
+    "name": "EU General Product Safety Regulation (consumer products)",
+    "description": "Products intended for, or likely to be used by, consumers must be safe. A product can be placed on the EU market only if there is a responsible economic operator established in the EU, and the product carries identification and contact details. Online marketplaces have their own duties.",
+    "requiredEvidence": "Name and address of the EU responsible economic operator; product identifier; manufacturer contact details; internal risk analysis and technical documentation.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "laboratory-scientific",
+      "industrial-supplies",
+      "tools-hardware",
+      "electrical-lighting",
+      "electronics-components",
+      "computers-it",
+      "phones-communication",
+      "office-stationery",
+      "packaging-shipping",
+      "safety-protective-equipment",
+      "cleaning-hygiene",
+      "building-construction",
+      "automotive-transport",
+      "agriculture-gardening",
+      "food-service-catering",
+      "furniture-fixtures",
+      "home-kitchen",
+      "clothing-textiles",
+      "beauty-personal-care",
+      "sports-outdoors",
+      "toys-hobbies-crafts",
+      "books-media",
+      "chemicals-raw-materials",
+      "energy-environment"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies from 13 Dec 2024. Conditional on the product being one consumers are likely to use; purely professional goods sold B2B may fall outside. Medicinal products and food are excluded; sector law (CE acts) applies first where it covers the same risks. Article numbers not given here because the fetched text did not reliably confirm them.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0988",
+    "sourceTitle": "Regulation (EU) 2023/988 on general product safety",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-CE-LVD",
+    "name": "EU Low Voltage Directive (CE) for mains-powered electrical equipment",
+    "description": "Electrical equipment rated 50-1000 V AC or 75-1500 V DC needs an EU declaration of conformity and CE marking under Directive 2014/35/EU.",
+    "requiredEvidence": "EU declaration of conformity citing 2014/35/EU and the standards applied; test report; CE marking on product.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "electrical-lighting",
+      "electronics-components",
+      "computers-it",
+      "phones-communication",
+      "home-appliances",
+      "commercial-kitchen-equipment",
+      "solar-renewables",
+      "tools-hardware"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only within the voltage range. Radio equipment is covered by RED instead. CE marking is not universal and must not be put on products outside a CE act.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014L0035",
+    "sourceTitle": "Directive 2014/35/EU (Low Voltage Directive)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-CE-EMC",
+    "name": "EU Electromagnetic Compatibility Directive (CE)",
+    "description": "Electrical or electronic apparatus that can cause or be affected by electromagnetic disturbance needs an EU declaration of conformity and CE marking under Directive 2014/30/EU.",
+    "requiredEvidence": "EU declaration of conformity citing 2014/30/EU; EMC test report; CE marking.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "electrical-lighting",
+      "electronics-components",
+      "computers-it",
+      "phones-communication",
+      "home-appliances",
+      "commercial-kitchen-equipment",
+      "solar-renewables",
+      "tools-hardware"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Passive items (plain cables, simple switches) and fixed installations may be out of scope. Radio equipment is covered by RED.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014L0030",
+    "sourceTitle": "Directive 2014/30/EU (EMC Directive)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-ROHS",
+    "name": "EU RoHS restriction of hazardous substances in electrical equipment",
+    "description": "Electrical and electronic equipment must not exceed limits for lead, mercury, cadmium, hexavalent chromium, PBB, PBDE and the other listed substances. It carries an EU declaration of conformity and CE marking under Directive 2011/65/EU.",
+    "requiredEvidence": "EU declaration of conformity citing 2011/65/EU; technical file or supplier material declarations.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "electrical-lighting",
+      "electronics-components",
+      "computers-it",
+      "phones-communication",
+      "home-appliances",
+      "commercial-kitchen-equipment",
+      "solar-renewables",
+      "tools-hardware"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies to products that are electrical or electronic equipment within RoHS scope.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32011L0065",
+    "sourceTitle": "Directive 2011/65/EU (RoHS)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-CE-RED",
+    "name": "EU Radio Equipment Directive (CE) for phones, radios and wireless devices",
+    "description": "Equipment that intentionally sends or receives radio waves (phones, two-way radios, Wi-Fi and Bluetooth devices) needs an EU declaration of conformity and CE marking under Directive 2014/53/EU, which also covers its electrical safety and EMC.",
+    "requiredEvidence": "EU declaration of conformity citing 2014/53/EU; radio, EMC and safety test reports; notified body certificate where harmonised standards were not fully applied.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "phones-communication",
+      "networking",
+      "computer-peripherals",
+      "laptops-desktops"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for radio equipment. Wired-only accessories fall under LVD/EMC instead.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014L0053",
+    "sourceTitle": "Directive 2014/53/EU (Radio Equipment Directive)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-CE-PPE",
+    "name": "EU PPE Regulation (CE) for protective equipment",
+    "description": "Personal protective equipment needs an EU declaration of conformity and CE marking. For Category II and III equipment a notified body issues an EU type-examination certificate, valid for at most five years; Category III also needs ongoing notified-body production checks.",
+    "requiredEvidence": "EU declaration of conformity citing 2016/425; EU type-examination certificate (Category II and III); notified body number on the product (Category III).",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "safety-protective-equipment"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Conditional on the product being PPE and on its risk category. Some items in the department (for example fire extinguishers, first-aid kits) are not PPE.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 60
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0425",
+    "sourceTitle": "Regulation (EU) 2016/425 on personal protective equipment",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-CE-TOYS",
+    "name": "EU toy safety (CE)",
+    "description": "Toys for children under 14 need an EU declaration of conformity and CE marking. Directive 2009/48/EC applies today; the new Toy Safety Regulation (EU) 2025/2509 replaces it, and the Directive is repealed with effect from 1 August 2030.",
+    "requiredEvidence": "EU declaration of conformity; safety assessment and test reports; warnings and CE marking on the toy.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "toys-games"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for products that are toys. Transition dates of the new Regulation were taken from search results and need confirming.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX%3A32025R2509",
+    "sourceTitle": "Regulation (EU) 2025/2509 on the safety of toys",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-CE-MACHINERY",
+    "name": "EU machinery rules (CE)",
+    "description": "Machinery needs an EU declaration of conformity and CE marking. Directive 2006/42/EC is being replaced by Regulation (EU) 2023/1230.",
+    "requiredEvidence": "EU declaration of conformity; technical file; instructions; CE marking.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "industrial-supplies",
+      "tools-hardware",
+      "commercial-kitchen-equipment",
+      "agriculture-gardening"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for machinery. The application date of Regulation 2023/1230 could not be confirmed from the fetched text (believed to be 20 January 2027); a reviewer must check which act applies on the date of sale.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1230",
+    "sourceTitle": "Regulation (EU) 2023/1230 on machinery",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-COSMETICS-RP-CPNP",
+    "name": "EU cosmetics: responsible person, safety report and CPNP notification",
+    "description": "A cosmetic placed on the EU market must have a responsible person in the EU (for imports, the importer unless another is designated), a safety assessment and product information file kept for ten years, and a notification in the CPNP before sale.",
+    "requiredEvidence": "Name and address of the EU responsible person; cosmetic product safety report; CPNP notification reference.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "cosmetics",
+      "skin-hair-care",
+      "personal-hygiene",
+      "salon-spa-supplies"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for products that are cosmetics. Cosmetics do not carry CE marking.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009R1223",
+    "sourceTitle": "Regulation (EC) No 1223/2009 on cosmetic products",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-FOOD-CONTACT-MATERIALS",
+    "name": "EU food contact materials",
+    "description": "Materials and articles meant to touch food must not transfer substances that endanger health, must be traceable, and where a specific EU measure exists (for example for plastics) must come with a written declaration of compliance.",
+    "requiredEvidence": "Declaration of compliance where a specific measure requires it; migration test reports; traceability records.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "tableware-serving",
+      "disposables-takeaway",
+      "food-storage-refrigeration",
+      "commercial-kitchen-equipment",
+      "kitchenware",
+      "packaging-shipping"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for items intended to contact food. The plastics measure (Regulation (EU) 10/2011) is named as an example and was not opened in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32004R1935",
+    "sourceTitle": "Regulation (EC) No 1935/2004 on food contact materials",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-BATTERIES-REGULATION",
+    "name": "EU Batteries Regulation",
+    "description": "Batteries placed on the EU market, alone or built into products, must meet the Batteries Regulation: CE marking and declaration of conformity, labelling, and producer registration for take-back in each member state. Further duties phase in over several years.",
+    "requiredEvidence": "EU declaration of conformity; CE marking; producer registration number for the destination member state.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "batteries-power-supplies",
+      "phones-communication",
+      "computers-it",
+      "solar-renewables",
+      "tools-hardware"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [
+      "MANUFACTURER",
+      "IMPORTER"
+    ],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Applies from 18 Feb 2024 with later phased dates; duties differ by battery category (portable, LMT, industrial, EV, SLI). The exact dates for CE marking and due diligence were not confirmed in this review.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1542",
+    "sourceTitle": "Regulation (EU) 2023/1542 concerning batteries and waste batteries",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  },
+  {
+    "code": "EU-REACH",
+    "name": "EU REACH registration and substances in articles",
+    "description": "Substances made in or imported into the EU at 1 tonne or more per year must be registered by the EU manufacturer or importer, or by an only representative appointed by a non-EU manufacturer. Suppliers of articles containing listed substances of very high concern above 0.1% must pass on information.",
+    "requiredEvidence": "REACH registration number or only representative appointment for substances; safety data sheet for hazardous substances and mixtures; SVHC declaration for articles.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "chemicals-raw-materials",
+      "cleaning-chemicals",
+      "laboratory-scientific"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Registration depends on tonnage per importer per year. The SVHC information duty can apply to any article in any category.",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32006R1907",
+    "sourceTitle": "Regulation (EC) No 1907/2006 (REACH)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-CLP",
+    "name": "EU CLP classification, labelling and packaging of hazardous chemicals",
+    "description": "Hazardous substances and mixtures must be classified, labelled and packaged under the CLP Regulation before they are placed on the EU market.",
+    "requiredEvidence": "CLP classification; label artwork in the destination language(s); safety data sheet.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "chemicals-raw-materials",
+      "cleaning-chemicals",
+      "laboratory-scientific"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for hazardous substances and mixtures. The consolidated text has recent changes (consolidated version dated 01/07/2026).",
+    "expiry": {
+      "kind": "PERIODIC_REVIEW",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32008R1272",
+    "sourceTitle": "Regulation (EC) No 1272/2008 (CLP)",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "HIGH"
+  },
+  {
+    "code": "EU-BIOCIDAL-PRODUCTS",
+    "name": "EU biocidal product authorisation for disinfectants",
+    "description": "Disinfectants and other biocidal products need an authorisation before they are made available on the EU market. Products covered by medical device law are excluded unless used for other purposes.",
+    "requiredEvidence": "Biocidal product authorisation number for the destination member state (or EU authorisation), or proof of a valid transitional status.",
+    "obligation": "LEGAL",
+    "level": "PRODUCT",
+    "categorySlugs": [
+      "disinfection-sterilisation",
+      "cleaning-chemicals"
+    ],
+    "includeDescendants": true,
+    "supplyRoles": [],
+    "originCountries": [],
+    "destinationMarkets": [
+      "EU"
+    ],
+    "riskClasses": [],
+    "productTypeNote": "",
+    "intendedUseNote": "",
+    "applicability": "CONDITIONAL",
+    "applicabilityNote": "Only for biocidal products. Transitional national rules for active substances under review were not checked in this review.",
+    "expiry": {
+      "kind": "DOCUMENT_EXPIRY",
+      "reviewMonths": 12
+    },
+    "sourceUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32012R0528",
+    "sourceTitle": "Regulation (EU) No 528/2012 on biocidal products",
+    "sourcePublisher": "EUR-Lex, Publications Office of the European Union",
+    "lastReviewedOn": "2026-10-06",
+    "confidence": "MEDIUM"
+  }
+]

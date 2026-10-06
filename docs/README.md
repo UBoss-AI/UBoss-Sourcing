@@ -47,6 +47,7 @@ code, so it cannot quietly fall behind.
 | [`DATABASE-RECOVERY.md`](DATABASE-RECOVERY.md) | Backups, restores, point-in-time recovery |
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Putting it on a server, releases, monitoring, compliance |
 | [`NETLIFY.md`](NETLIFY.md) | Hosting the three front ends on a static host |
+| [`compliance/REGULATORY-SOURCES.md`](compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with. Research, not legal advice; every rule still needs approval |
 | [`PRODUCT-READINESS.md`](PRODUCT-READINESS.md) | What is built, switched off, or missing, capability by capability |
 | [`SELLER_HUB_IMPLEMENTATION.md`](SELLER_HUB_IMPLEMENTATION.md) | How the Seller Hub was built |
 | [`LOGISTICS_PARTNER_PORTAL_IMPLEMENTATION.md`](LOGISTICS_PARTNER_PORTAL_IMPLEMENTATION.md) | How the logistics partner portal was built |

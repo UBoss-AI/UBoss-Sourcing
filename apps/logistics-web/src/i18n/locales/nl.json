@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Zoek in de catalogus",
   "errorPage.search.placeholder": "Zoek naar producten, merken of codes",
   "errorPage.search.submit": "Zoeken",
-  "errorPage.notFound.message": "De link is mogelijk verouderd, of de pagina is mogelijk verplaatst. Controleer het adres of ga terug naar het dashboard."
+  "errorPage.notFound.message": "De link is mogelijk verouderd, of de pagina is mogelijk verplaatst. Controleer het adres of ga terug naar het dashboard.",
+  "shipment.inspection.released": "Inspectie: vrijgegeven. Deze goederen mogen vertrekken.",
+  "shipment.inspection.notNeeded": "Voor deze zending is geen inspectie nodig.",
+  "shipment.inspection.held": "Vastgehouden door inspectie: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "de bestelling moet vóór vertrek worden geïnspecteerd en er is nog geen inspectie geboekt.",
+  "shipment.inspection.reason.IN_PROGRESS": "de inspectie is nog niet afgerond.",
+  "shipment.inspection.reason.FAILED": "de inspectie is afgekeurd. De goederen mogen niet vertrekken totdat een herinspectie slaagt of een vrijgave is goedgekeurd.",
+  "shipment.inspection.reason.INCONCLUSIVE": "de inspectie was niet doorslaggevend. De goederen worden vastgehouden totdat een herinspectie beslist of een vrijgave is goedgekeurd.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "een ernstige bevinding staat nog open en moet eerst worden gecorrigeerd en geverifieerd.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "een vrijgave wacht op een tweede goedkeurder.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "de goederen, colli, container of verzegeling zijn na de inspectie gewijzigd, dus die moet vóór verzending opnieuw worden beoordeeld.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "de koper bevindt zich nog in de termijn om het inspectierapport te beoordelen."
 }

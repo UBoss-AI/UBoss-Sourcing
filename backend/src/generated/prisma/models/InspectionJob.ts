@@ -52,6 +52,10 @@ export type InspectionJobMinAggregateOutputType = {
   kind: $Enums.InspectionJobKind | null
   reinspectionOfJobId: string | null
   status: $Enums.InspectionJobStatus | null
+  stage: $Enums.InspectionStage | null
+  scopeMethod: $Enums.InspectionScopeMethod | null
+  timezone: string | null
+  qaReviewerMemberId: string | null
   bookedByParty: $Enums.InspectionParty | null
   bookedById: string | null
   bookedByLabel: string | null
@@ -99,6 +103,10 @@ export type InspectionJobMaxAggregateOutputType = {
   kind: $Enums.InspectionJobKind | null
   reinspectionOfJobId: string | null
   status: $Enums.InspectionJobStatus | null
+  stage: $Enums.InspectionStage | null
+  scopeMethod: $Enums.InspectionScopeMethod | null
+  timezone: string | null
+  qaReviewerMemberId: string | null
   bookedByParty: $Enums.InspectionParty | null
   bookedById: string | null
   bookedByLabel: string | null
@@ -146,6 +154,10 @@ export type InspectionJobCountAggregateOutputType = {
   kind: number
   reinspectionOfJobId: number
   status: number
+  stage: number
+  scopeMethod: number
+  timezone: number
+  qaReviewerMemberId: number
   bookedByParty: number
   bookedById: number
   bookedByLabel: number
@@ -218,6 +230,10 @@ export type InspectionJobMinAggregateInputType = {
   kind?: true
   reinspectionOfJobId?: true
   status?: true
+  stage?: true
+  scopeMethod?: true
+  timezone?: true
+  qaReviewerMemberId?: true
   bookedByParty?: true
   bookedById?: true
   bookedByLabel?: true
@@ -265,6 +281,10 @@ export type InspectionJobMaxAggregateInputType = {
   kind?: true
   reinspectionOfJobId?: true
   status?: true
+  stage?: true
+  scopeMethod?: true
+  timezone?: true
+  qaReviewerMemberId?: true
   bookedByParty?: true
   bookedById?: true
   bookedByLabel?: true
@@ -312,6 +332,10 @@ export type InspectionJobCountAggregateInputType = {
   kind?: true
   reinspectionOfJobId?: true
   status?: true
+  stage?: true
+  scopeMethod?: true
+  timezone?: true
+  qaReviewerMemberId?: true
   bookedByParty?: true
   bookedById?: true
   bookedByLabel?: true
@@ -451,6 +475,10 @@ export type InspectionJobGroupByOutputType = {
   kind: $Enums.InspectionJobKind
   reinspectionOfJobId: string | null
   status: $Enums.InspectionJobStatus
+  stage: $Enums.InspectionStage
+  scopeMethod: $Enums.InspectionScopeMethod
+  timezone: string | null
+  qaReviewerMemberId: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById: string | null
   bookedByLabel: string
@@ -526,6 +554,10 @@ export type InspectionJobWhereInput = {
   kind?: Prisma.EnumInspectionJobKindFilter<"InspectionJob"> | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   status?: Prisma.EnumInspectionJobStatusFilter<"InspectionJob"> | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFilter<"InspectionJob"> | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFilter<"InspectionJob"> | $Enums.InspectionScopeMethod
+  timezone?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
+  qaReviewerMemberId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFilter<"InspectionJob"> | $Enums.InspectionParty
   bookedById?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByLabel?: Prisma.StringFilter<"InspectionJob"> | string
@@ -577,6 +609,8 @@ export type InspectionJobWhereInput = {
   evidence?: Prisma.InspectionEvidenceListRelationFilter
   bindings?: Prisma.InspectionShipmentBindingListRelationFilter
   invoices?: Prisma.InspectionAgencyInvoiceListRelationFilter
+  quantityRecord?: Prisma.XOR<Prisma.InspectionQuantityRecordNullableScalarRelationFilter, Prisma.InspectionQuantityRecordWhereInput> | null
+  labSamples?: Prisma.InspectionLabSampleListRelationFilter
 }
 
 export type InspectionJobOrderByWithRelationInput = {
@@ -587,6 +621,10 @@ export type InspectionJobOrderByWithRelationInput = {
   kind?: Prisma.SortOrder
   reinspectionOfJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  scopeMethod?: Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
+  qaReviewerMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   bookedByParty?: Prisma.SortOrder
   bookedById?: Prisma.SortOrderInput | Prisma.SortOrder
   bookedByLabel?: Prisma.SortOrder
@@ -638,6 +676,8 @@ export type InspectionJobOrderByWithRelationInput = {
   evidence?: Prisma.InspectionEvidenceOrderByRelationAggregateInput
   bindings?: Prisma.InspectionShipmentBindingOrderByRelationAggregateInput
   invoices?: Prisma.InspectionAgencyInvoiceOrderByRelationAggregateInput
+  quantityRecord?: Prisma.InspectionQuantityRecordOrderByWithRelationInput
+  labSamples?: Prisma.InspectionLabSampleOrderByRelationAggregateInput
   _relevance?: Prisma.InspectionJobOrderByRelevanceInput
 }
 
@@ -652,6 +692,10 @@ export type InspectionJobWhereUniqueInput = Prisma.AtLeast<{
   kind?: Prisma.EnumInspectionJobKindFilter<"InspectionJob"> | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   status?: Prisma.EnumInspectionJobStatusFilter<"InspectionJob"> | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFilter<"InspectionJob"> | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFilter<"InspectionJob"> | $Enums.InspectionScopeMethod
+  timezone?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
+  qaReviewerMemberId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFilter<"InspectionJob"> | $Enums.InspectionParty
   bookedById?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByLabel?: Prisma.StringFilter<"InspectionJob"> | string
@@ -703,6 +747,8 @@ export type InspectionJobWhereUniqueInput = Prisma.AtLeast<{
   evidence?: Prisma.InspectionEvidenceListRelationFilter
   bindings?: Prisma.InspectionShipmentBindingListRelationFilter
   invoices?: Prisma.InspectionAgencyInvoiceListRelationFilter
+  quantityRecord?: Prisma.XOR<Prisma.InspectionQuantityRecordNullableScalarRelationFilter, Prisma.InspectionQuantityRecordWhereInput> | null
+  labSamples?: Prisma.InspectionLabSampleListRelationFilter
 }, "id" | "jobNumber">
 
 export type InspectionJobOrderByWithAggregationInput = {
@@ -713,6 +759,10 @@ export type InspectionJobOrderByWithAggregationInput = {
   kind?: Prisma.SortOrder
   reinspectionOfJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  scopeMethod?: Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
+  qaReviewerMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   bookedByParty?: Prisma.SortOrder
   bookedById?: Prisma.SortOrderInput | Prisma.SortOrder
   bookedByLabel?: Prisma.SortOrder
@@ -773,6 +823,10 @@ export type InspectionJobScalarWhereWithAggregatesInput = {
   kind?: Prisma.EnumInspectionJobKindWithAggregatesFilter<"InspectionJob"> | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.StringNullableWithAggregatesFilter<"InspectionJob"> | string | null
   status?: Prisma.EnumInspectionJobStatusWithAggregatesFilter<"InspectionJob"> | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageWithAggregatesFilter<"InspectionJob"> | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodWithAggregatesFilter<"InspectionJob"> | $Enums.InspectionScopeMethod
+  timezone?: Prisma.StringNullableWithAggregatesFilter<"InspectionJob"> | string | null
+  qaReviewerMemberId?: Prisma.StringNullableWithAggregatesFilter<"InspectionJob"> | string | null
   bookedByParty?: Prisma.EnumInspectionPartyWithAggregatesFilter<"InspectionJob"> | $Enums.InspectionParty
   bookedById?: Prisma.StringNullableWithAggregatesFilter<"InspectionJob"> | string | null
   bookedByLabel?: Prisma.StringWithAggregatesFilter<"InspectionJob"> | string
@@ -823,6 +877,10 @@ export type InspectionJobCreateInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -874,6 +932,8 @@ export type InspectionJobCreateInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateInput = {
@@ -884,6 +944,10 @@ export type InspectionJobUncheckedCreateInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -933,6 +997,8 @@ export type InspectionJobUncheckedCreateInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUpdateInput = {
@@ -941,6 +1007,10 @@ export type InspectionJobUpdateInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -992,6 +1062,8 @@ export type InspectionJobUpdateInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateInput = {
@@ -1002,6 +1074,10 @@ export type InspectionJobUncheckedUpdateInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1051,6 +1127,8 @@ export type InspectionJobUncheckedUpdateInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateManyInput = {
@@ -1061,6 +1139,10 @@ export type InspectionJobCreateManyInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1111,6 +1193,10 @@ export type InspectionJobUpdateManyMutationInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1163,6 +1249,10 @@ export type InspectionJobUncheckedUpdateManyInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1231,6 +1321,10 @@ export type InspectionJobCountOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   reinspectionOfJobId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  scopeMethod?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  qaReviewerMemberId?: Prisma.SortOrder
   bookedByParty?: Prisma.SortOrder
   bookedById?: Prisma.SortOrder
   bookedByLabel?: Prisma.SortOrder
@@ -1292,6 +1386,10 @@ export type InspectionJobMaxOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   reinspectionOfJobId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  scopeMethod?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  qaReviewerMemberId?: Prisma.SortOrder
   bookedByParty?: Prisma.SortOrder
   bookedById?: Prisma.SortOrder
   bookedByLabel?: Prisma.SortOrder
@@ -1339,6 +1437,10 @@ export type InspectionJobMinOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   reinspectionOfJobId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  scopeMethod?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  qaReviewerMemberId?: Prisma.SortOrder
   bookedByParty?: Prisma.SortOrder
   bookedById?: Prisma.SortOrder
   bookedByLabel?: Prisma.SortOrder
@@ -1489,6 +1591,14 @@ export type EnumInspectionJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.InspectionJobStatus
 }
 
+export type EnumInspectionStageFieldUpdateOperationsInput = {
+  set?: $Enums.InspectionStage
+}
+
+export type EnumInspectionScopeMethodFieldUpdateOperationsInput = {
+  set?: $Enums.InspectionScopeMethod
+}
+
 export type EnumInspectionPartyFieldUpdateOperationsInput = {
   set?: $Enums.InspectionParty
 }
@@ -1601,12 +1711,44 @@ export type InspectionJobUpdateOneRequiredWithoutInvoicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InspectionJobUpdateToOneWithWhereWithoutInvoicesInput, Prisma.InspectionJobUpdateWithoutInvoicesInput>, Prisma.InspectionJobUncheckedUpdateWithoutInvoicesInput>
 }
 
+export type InspectionJobCreateNestedOneWithoutQuantityRecordInput = {
+  create?: Prisma.XOR<Prisma.InspectionJobCreateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedCreateWithoutQuantityRecordInput>
+  connectOrCreate?: Prisma.InspectionJobCreateOrConnectWithoutQuantityRecordInput
+  connect?: Prisma.InspectionJobWhereUniqueInput
+}
+
+export type InspectionJobUpdateOneRequiredWithoutQuantityRecordNestedInput = {
+  create?: Prisma.XOR<Prisma.InspectionJobCreateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedCreateWithoutQuantityRecordInput>
+  connectOrCreate?: Prisma.InspectionJobCreateOrConnectWithoutQuantityRecordInput
+  upsert?: Prisma.InspectionJobUpsertWithoutQuantityRecordInput
+  connect?: Prisma.InspectionJobWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InspectionJobUpdateToOneWithWhereWithoutQuantityRecordInput, Prisma.InspectionJobUpdateWithoutQuantityRecordInput>, Prisma.InspectionJobUncheckedUpdateWithoutQuantityRecordInput>
+}
+
+export type InspectionJobCreateNestedOneWithoutLabSamplesInput = {
+  create?: Prisma.XOR<Prisma.InspectionJobCreateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedCreateWithoutLabSamplesInput>
+  connectOrCreate?: Prisma.InspectionJobCreateOrConnectWithoutLabSamplesInput
+  connect?: Prisma.InspectionJobWhereUniqueInput
+}
+
+export type InspectionJobUpdateOneRequiredWithoutLabSamplesNestedInput = {
+  create?: Prisma.XOR<Prisma.InspectionJobCreateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedCreateWithoutLabSamplesInput>
+  connectOrCreate?: Prisma.InspectionJobCreateOrConnectWithoutLabSamplesInput
+  upsert?: Prisma.InspectionJobUpsertWithoutLabSamplesInput
+  connect?: Prisma.InspectionJobWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InspectionJobUpdateToOneWithWhereWithoutLabSamplesInput, Prisma.InspectionJobUpdateWithoutLabSamplesInput>, Prisma.InspectionJobUncheckedUpdateWithoutLabSamplesInput>
+}
+
 export type InspectionJobCreateWithoutAgencyInput = {
   id: string
   jobNumber: string
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1657,6 +1799,8 @@ export type InspectionJobCreateWithoutAgencyInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutAgencyInput = {
@@ -1666,6 +1810,10 @@ export type InspectionJobUncheckedCreateWithoutAgencyInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1715,6 +1863,8 @@ export type InspectionJobUncheckedCreateWithoutAgencyInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutAgencyInput = {
@@ -1754,6 +1904,10 @@ export type InspectionJobScalarWhereInput = {
   kind?: Prisma.EnumInspectionJobKindFilter<"InspectionJob"> | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   status?: Prisma.EnumInspectionJobStatusFilter<"InspectionJob"> | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFilter<"InspectionJob"> | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFilter<"InspectionJob"> | $Enums.InspectionScopeMethod
+  timezone?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
+  qaReviewerMemberId?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFilter<"InspectionJob"> | $Enums.InspectionParty
   bookedById?: Prisma.StringNullableFilter<"InspectionJob"> | string | null
   bookedByLabel?: Prisma.StringFilter<"InspectionJob"> | string
@@ -1804,6 +1958,10 @@ export type InspectionJobCreateWithoutRequirementInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1854,6 +2012,8 @@ export type InspectionJobCreateWithoutRequirementInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutRequirementInput = {
@@ -1863,6 +2023,10 @@ export type InspectionJobUncheckedCreateWithoutRequirementInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1912,6 +2076,8 @@ export type InspectionJobUncheckedCreateWithoutRequirementInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutRequirementInput = {
@@ -1946,6 +2112,10 @@ export type InspectionJobCreateWithoutDeclarationsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -1996,6 +2166,8 @@ export type InspectionJobCreateWithoutDeclarationsInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutDeclarationsInput = {
@@ -2006,6 +2178,10 @@ export type InspectionJobUncheckedCreateWithoutDeclarationsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2054,6 +2230,8 @@ export type InspectionJobUncheckedCreateWithoutDeclarationsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutDeclarationsInput = {
@@ -2078,6 +2256,10 @@ export type InspectionJobUpdateWithoutDeclarationsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2128,6 +2310,8 @@ export type InspectionJobUpdateWithoutDeclarationsInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutDeclarationsInput = {
@@ -2138,6 +2322,10 @@ export type InspectionJobUncheckedUpdateWithoutDeclarationsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2186,6 +2374,8 @@ export type InspectionJobUncheckedUpdateWithoutDeclarationsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutChecksInput = {
@@ -2194,6 +2384,10 @@ export type InspectionJobCreateWithoutChecksInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2244,6 +2438,8 @@ export type InspectionJobCreateWithoutChecksInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutChecksInput = {
@@ -2254,6 +2450,10 @@ export type InspectionJobUncheckedCreateWithoutChecksInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2302,6 +2502,8 @@ export type InspectionJobUncheckedCreateWithoutChecksInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutChecksInput = {
@@ -2326,6 +2528,10 @@ export type InspectionJobUpdateWithoutChecksInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2376,6 +2582,8 @@ export type InspectionJobUpdateWithoutChecksInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutChecksInput = {
@@ -2386,6 +2594,10 @@ export type InspectionJobUncheckedUpdateWithoutChecksInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2434,6 +2646,8 @@ export type InspectionJobUncheckedUpdateWithoutChecksInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutDefectsInput = {
@@ -2442,6 +2656,10 @@ export type InspectionJobCreateWithoutDefectsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2492,6 +2710,8 @@ export type InspectionJobCreateWithoutDefectsInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutDefectsInput = {
@@ -2502,6 +2722,10 @@ export type InspectionJobUncheckedCreateWithoutDefectsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2550,6 +2774,8 @@ export type InspectionJobUncheckedCreateWithoutDefectsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutDefectsInput = {
@@ -2574,6 +2800,10 @@ export type InspectionJobUpdateWithoutDefectsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2624,6 +2854,8 @@ export type InspectionJobUpdateWithoutDefectsInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutDefectsInput = {
@@ -2634,6 +2866,10 @@ export type InspectionJobUncheckedUpdateWithoutDefectsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2682,6 +2918,8 @@ export type InspectionJobUncheckedUpdateWithoutDefectsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutEvidenceInput = {
@@ -2690,6 +2928,10 @@ export type InspectionJobCreateWithoutEvidenceInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2740,6 +2982,8 @@ export type InspectionJobCreateWithoutEvidenceInput = {
   reports?: Prisma.InspectionReportCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutEvidenceInput = {
@@ -2750,6 +2994,10 @@ export type InspectionJobUncheckedCreateWithoutEvidenceInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2798,6 +3046,8 @@ export type InspectionJobUncheckedCreateWithoutEvidenceInput = {
   reports?: Prisma.InspectionReportUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutEvidenceInput = {
@@ -2822,6 +3072,10 @@ export type InspectionJobUpdateWithoutEvidenceInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2872,6 +3126,8 @@ export type InspectionJobUpdateWithoutEvidenceInput = {
   reports?: Prisma.InspectionReportUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutEvidenceInput = {
@@ -2882,6 +3138,10 @@ export type InspectionJobUncheckedUpdateWithoutEvidenceInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2930,6 +3190,8 @@ export type InspectionJobUncheckedUpdateWithoutEvidenceInput = {
   reports?: Prisma.InspectionReportUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutReportsInput = {
@@ -2938,6 +3200,10 @@ export type InspectionJobCreateWithoutReportsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -2988,6 +3254,8 @@ export type InspectionJobCreateWithoutReportsInput = {
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutReportsInput = {
@@ -2998,6 +3266,10 @@ export type InspectionJobUncheckedCreateWithoutReportsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3046,6 +3318,8 @@ export type InspectionJobUncheckedCreateWithoutReportsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutReportsInput = {
@@ -3070,6 +3344,10 @@ export type InspectionJobUpdateWithoutReportsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3120,6 +3398,8 @@ export type InspectionJobUpdateWithoutReportsInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutReportsInput = {
@@ -3130,6 +3410,10 @@ export type InspectionJobUncheckedUpdateWithoutReportsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3178,6 +3462,8 @@ export type InspectionJobUncheckedUpdateWithoutReportsInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutBindingsInput = {
@@ -3186,6 +3472,10 @@ export type InspectionJobCreateWithoutBindingsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3236,6 +3526,8 @@ export type InspectionJobCreateWithoutBindingsInput = {
   reports?: Prisma.InspectionReportCreateNestedManyWithoutJobInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutBindingsInput = {
@@ -3246,6 +3538,10 @@ export type InspectionJobUncheckedCreateWithoutBindingsInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3294,6 +3590,8 @@ export type InspectionJobUncheckedCreateWithoutBindingsInput = {
   reports?: Prisma.InspectionReportUncheckedCreateNestedManyWithoutJobInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutBindingsInput = {
@@ -3318,6 +3616,10 @@ export type InspectionJobUpdateWithoutBindingsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3368,6 +3670,8 @@ export type InspectionJobUpdateWithoutBindingsInput = {
   reports?: Prisma.InspectionReportUpdateManyWithoutJobNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutBindingsInput = {
@@ -3378,6 +3682,10 @@ export type InspectionJobUncheckedUpdateWithoutBindingsInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3426,6 +3734,8 @@ export type InspectionJobUncheckedUpdateWithoutBindingsInput = {
   reports?: Prisma.InspectionReportUncheckedUpdateManyWithoutJobNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobCreateWithoutInvoicesInput = {
@@ -3434,6 +3744,10 @@ export type InspectionJobCreateWithoutInvoicesInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3484,6 +3798,8 @@ export type InspectionJobCreateWithoutInvoicesInput = {
   reports?: Prisma.InspectionReportCreateNestedManyWithoutJobInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobUncheckedCreateWithoutInvoicesInput = {
@@ -3494,6 +3810,10 @@ export type InspectionJobUncheckedCreateWithoutInvoicesInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3542,6 +3862,8 @@ export type InspectionJobUncheckedCreateWithoutInvoicesInput = {
   reports?: Prisma.InspectionReportUncheckedCreateNestedManyWithoutJobInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type InspectionJobCreateOrConnectWithoutInvoicesInput = {
@@ -3566,6 +3888,10 @@ export type InspectionJobUpdateWithoutInvoicesInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3616,6 +3942,8 @@ export type InspectionJobUpdateWithoutInvoicesInput = {
   reports?: Prisma.InspectionReportUpdateManyWithoutJobNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutInvoicesInput = {
@@ -3626,6 +3954,10 @@ export type InspectionJobUncheckedUpdateWithoutInvoicesInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3674,6 +4006,552 @@ export type InspectionJobUncheckedUpdateWithoutInvoicesInput = {
   reports?: Prisma.InspectionReportUncheckedUpdateManyWithoutJobNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
+}
+
+export type InspectionJobCreateWithoutQuantityRecordInput = {
+  id: string
+  jobNumber: string
+  kind?: $Enums.InspectionJobKind
+  reinspectionOfJobId?: string | null
+  status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
+  bookedByParty: $Enums.InspectionParty
+  bookedById?: string | null
+  bookedByLabel: string
+  payer: $Enums.InspectionPayer
+  inspectionPointType: $Enums.InspectionPointType
+  inspectionPointJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor: Date | string
+  language: string
+  standard: string
+  scopeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize: number
+  samplingJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Date | string | null
+  readinessSubmittedById?: string | null
+  poReference?: string | null
+  referenceSample?: string | null
+  specialRequirements?: string | null
+  acceptDueAt: Date | string
+  reportDueAt: Date | string
+  acceptedAt?: Date | string | null
+  acceptedById?: string | null
+  agencyConflictStatement?: string | null
+  declinedAt?: Date | string | null
+  declineReason?: string | null
+  inspectorMemberId?: string | null
+  backupInspectorMemberId?: string | null
+  assignedAt?: Date | string | null
+  startedAt?: Date | string | null
+  submittedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  lotReference?: string | null
+  sampledQuantity?: number | null
+  acceptedQuantity?: number | null
+  rejectedQuantity?: number | null
+  cartonsOpened?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requirement: Prisma.InspectionRequirementCreateNestedOneWithoutJobsInput
+  agency: Prisma.InspectionAgencyCreateNestedOneWithoutJobsInput
+  declarations?: Prisma.InspectionConflictDeclarationCreateNestedManyWithoutJobInput
+  checks?: Prisma.InspectionCheckResultCreateNestedManyWithoutJobInput
+  defects?: Prisma.InspectionDefectCreateNestedManyWithoutJobInput
+  reports?: Prisma.InspectionReportCreateNestedManyWithoutJobInput
+  evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
+  bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
+  invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleCreateNestedManyWithoutJobInput
+}
+
+export type InspectionJobUncheckedCreateWithoutQuantityRecordInput = {
+  id: string
+  jobNumber: string
+  requirementId: string
+  agencyId: string
+  kind?: $Enums.InspectionJobKind
+  reinspectionOfJobId?: string | null
+  status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
+  bookedByParty: $Enums.InspectionParty
+  bookedById?: string | null
+  bookedByLabel: string
+  payer: $Enums.InspectionPayer
+  inspectionPointType: $Enums.InspectionPointType
+  inspectionPointJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor: Date | string
+  language: string
+  standard: string
+  scopeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize: number
+  samplingJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Date | string | null
+  readinessSubmittedById?: string | null
+  poReference?: string | null
+  referenceSample?: string | null
+  specialRequirements?: string | null
+  acceptDueAt: Date | string
+  reportDueAt: Date | string
+  acceptedAt?: Date | string | null
+  acceptedById?: string | null
+  agencyConflictStatement?: string | null
+  declinedAt?: Date | string | null
+  declineReason?: string | null
+  inspectorMemberId?: string | null
+  backupInspectorMemberId?: string | null
+  assignedAt?: Date | string | null
+  startedAt?: Date | string | null
+  submittedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  lotReference?: string | null
+  sampledQuantity?: number | null
+  acceptedQuantity?: number | null
+  rejectedQuantity?: number | null
+  cartonsOpened?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  declarations?: Prisma.InspectionConflictDeclarationUncheckedCreateNestedManyWithoutJobInput
+  checks?: Prisma.InspectionCheckResultUncheckedCreateNestedManyWithoutJobInput
+  defects?: Prisma.InspectionDefectUncheckedCreateNestedManyWithoutJobInput
+  reports?: Prisma.InspectionReportUncheckedCreateNestedManyWithoutJobInput
+  evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
+  invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedCreateNestedManyWithoutJobInput
+}
+
+export type InspectionJobCreateOrConnectWithoutQuantityRecordInput = {
+  where: Prisma.InspectionJobWhereUniqueInput
+  create: Prisma.XOR<Prisma.InspectionJobCreateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedCreateWithoutQuantityRecordInput>
+}
+
+export type InspectionJobUpsertWithoutQuantityRecordInput = {
+  update: Prisma.XOR<Prisma.InspectionJobUpdateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedUpdateWithoutQuantityRecordInput>
+  create: Prisma.XOR<Prisma.InspectionJobCreateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedCreateWithoutQuantityRecordInput>
+  where?: Prisma.InspectionJobWhereInput
+}
+
+export type InspectionJobUpdateToOneWithWhereWithoutQuantityRecordInput = {
+  where?: Prisma.InspectionJobWhereInput
+  data: Prisma.XOR<Prisma.InspectionJobUpdateWithoutQuantityRecordInput, Prisma.InspectionJobUncheckedUpdateWithoutQuantityRecordInput>
+}
+
+export type InspectionJobUpdateWithoutQuantityRecordInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
+  reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
+  bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  payer?: Prisma.EnumInspectionPayerFieldUpdateOperationsInput | $Enums.InspectionPayer
+  inspectionPointType?: Prisma.EnumInspectionPointTypeFieldUpdateOperationsInput | $Enums.InspectionPointType
+  inspectionPointJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  standard?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize?: Prisma.IntFieldUpdateOperationsInput | number
+  samplingJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readinessSubmittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceSample?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specialRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reportDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyConflictStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backupInspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lotReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampledQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acceptedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cartonsOpened?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requirement?: Prisma.InspectionRequirementUpdateOneRequiredWithoutJobsNestedInput
+  agency?: Prisma.InspectionAgencyUpdateOneRequiredWithoutJobsNestedInput
+  declarations?: Prisma.InspectionConflictDeclarationUpdateManyWithoutJobNestedInput
+  checks?: Prisma.InspectionCheckResultUpdateManyWithoutJobNestedInput
+  defects?: Prisma.InspectionDefectUpdateManyWithoutJobNestedInput
+  reports?: Prisma.InspectionReportUpdateManyWithoutJobNestedInput
+  evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
+  invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
+}
+
+export type InspectionJobUncheckedUpdateWithoutQuantityRecordInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  requirementId?: Prisma.StringFieldUpdateOperationsInput | string
+  agencyId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
+  reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
+  bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  payer?: Prisma.EnumInspectionPayerFieldUpdateOperationsInput | $Enums.InspectionPayer
+  inspectionPointType?: Prisma.EnumInspectionPointTypeFieldUpdateOperationsInput | $Enums.InspectionPointType
+  inspectionPointJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  standard?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize?: Prisma.IntFieldUpdateOperationsInput | number
+  samplingJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readinessSubmittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceSample?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specialRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reportDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyConflictStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backupInspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lotReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampledQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acceptedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cartonsOpened?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  declarations?: Prisma.InspectionConflictDeclarationUncheckedUpdateManyWithoutJobNestedInput
+  checks?: Prisma.InspectionCheckResultUncheckedUpdateManyWithoutJobNestedInput
+  defects?: Prisma.InspectionDefectUncheckedUpdateManyWithoutJobNestedInput
+  reports?: Prisma.InspectionReportUncheckedUpdateManyWithoutJobNestedInput
+  evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
+  invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
+}
+
+export type InspectionJobCreateWithoutLabSamplesInput = {
+  id: string
+  jobNumber: string
+  kind?: $Enums.InspectionJobKind
+  reinspectionOfJobId?: string | null
+  status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
+  bookedByParty: $Enums.InspectionParty
+  bookedById?: string | null
+  bookedByLabel: string
+  payer: $Enums.InspectionPayer
+  inspectionPointType: $Enums.InspectionPointType
+  inspectionPointJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor: Date | string
+  language: string
+  standard: string
+  scopeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize: number
+  samplingJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Date | string | null
+  readinessSubmittedById?: string | null
+  poReference?: string | null
+  referenceSample?: string | null
+  specialRequirements?: string | null
+  acceptDueAt: Date | string
+  reportDueAt: Date | string
+  acceptedAt?: Date | string | null
+  acceptedById?: string | null
+  agencyConflictStatement?: string | null
+  declinedAt?: Date | string | null
+  declineReason?: string | null
+  inspectorMemberId?: string | null
+  backupInspectorMemberId?: string | null
+  assignedAt?: Date | string | null
+  startedAt?: Date | string | null
+  submittedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  lotReference?: string | null
+  sampledQuantity?: number | null
+  acceptedQuantity?: number | null
+  rejectedQuantity?: number | null
+  cartonsOpened?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requirement: Prisma.InspectionRequirementCreateNestedOneWithoutJobsInput
+  agency: Prisma.InspectionAgencyCreateNestedOneWithoutJobsInput
+  declarations?: Prisma.InspectionConflictDeclarationCreateNestedManyWithoutJobInput
+  checks?: Prisma.InspectionCheckResultCreateNestedManyWithoutJobInput
+  defects?: Prisma.InspectionDefectCreateNestedManyWithoutJobInput
+  reports?: Prisma.InspectionReportCreateNestedManyWithoutJobInput
+  evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutJobInput
+  bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutJobInput
+  invoices?: Prisma.InspectionAgencyInvoiceCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordCreateNestedOneWithoutJobInput
+}
+
+export type InspectionJobUncheckedCreateWithoutLabSamplesInput = {
+  id: string
+  jobNumber: string
+  requirementId: string
+  agencyId: string
+  kind?: $Enums.InspectionJobKind
+  reinspectionOfJobId?: string | null
+  status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
+  bookedByParty: $Enums.InspectionParty
+  bookedById?: string | null
+  bookedByLabel: string
+  payer: $Enums.InspectionPayer
+  inspectionPointType: $Enums.InspectionPointType
+  inspectionPointJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor: Date | string
+  language: string
+  standard: string
+  scopeJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize: number
+  samplingJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Date | string | null
+  readinessSubmittedById?: string | null
+  poReference?: string | null
+  referenceSample?: string | null
+  specialRequirements?: string | null
+  acceptDueAt: Date | string
+  reportDueAt: Date | string
+  acceptedAt?: Date | string | null
+  acceptedById?: string | null
+  agencyConflictStatement?: string | null
+  declinedAt?: Date | string | null
+  declineReason?: string | null
+  inspectorMemberId?: string | null
+  backupInspectorMemberId?: string | null
+  assignedAt?: Date | string | null
+  startedAt?: Date | string | null
+  submittedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  lotReference?: string | null
+  sampledQuantity?: number | null
+  acceptedQuantity?: number | null
+  rejectedQuantity?: number | null
+  cartonsOpened?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  declarations?: Prisma.InspectionConflictDeclarationUncheckedCreateNestedManyWithoutJobInput
+  checks?: Prisma.InspectionCheckResultUncheckedCreateNestedManyWithoutJobInput
+  defects?: Prisma.InspectionDefectUncheckedCreateNestedManyWithoutJobInput
+  reports?: Prisma.InspectionReportUncheckedCreateNestedManyWithoutJobInput
+  evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutJobInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutJobInput
+  invoices?: Prisma.InspectionAgencyInvoiceUncheckedCreateNestedManyWithoutJobInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedCreateNestedOneWithoutJobInput
+}
+
+export type InspectionJobCreateOrConnectWithoutLabSamplesInput = {
+  where: Prisma.InspectionJobWhereUniqueInput
+  create: Prisma.XOR<Prisma.InspectionJobCreateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedCreateWithoutLabSamplesInput>
+}
+
+export type InspectionJobUpsertWithoutLabSamplesInput = {
+  update: Prisma.XOR<Prisma.InspectionJobUpdateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedUpdateWithoutLabSamplesInput>
+  create: Prisma.XOR<Prisma.InspectionJobCreateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedCreateWithoutLabSamplesInput>
+  where?: Prisma.InspectionJobWhereInput
+}
+
+export type InspectionJobUpdateToOneWithWhereWithoutLabSamplesInput = {
+  where?: Prisma.InspectionJobWhereInput
+  data: Prisma.XOR<Prisma.InspectionJobUpdateWithoutLabSamplesInput, Prisma.InspectionJobUncheckedUpdateWithoutLabSamplesInput>
+}
+
+export type InspectionJobUpdateWithoutLabSamplesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
+  reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
+  bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  payer?: Prisma.EnumInspectionPayerFieldUpdateOperationsInput | $Enums.InspectionPayer
+  inspectionPointType?: Prisma.EnumInspectionPointTypeFieldUpdateOperationsInput | $Enums.InspectionPointType
+  inspectionPointJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  standard?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize?: Prisma.IntFieldUpdateOperationsInput | number
+  samplingJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readinessSubmittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceSample?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specialRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reportDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyConflictStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backupInspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lotReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampledQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acceptedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cartonsOpened?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requirement?: Prisma.InspectionRequirementUpdateOneRequiredWithoutJobsNestedInput
+  agency?: Prisma.InspectionAgencyUpdateOneRequiredWithoutJobsNestedInput
+  declarations?: Prisma.InspectionConflictDeclarationUpdateManyWithoutJobNestedInput
+  checks?: Prisma.InspectionCheckResultUpdateManyWithoutJobNestedInput
+  defects?: Prisma.InspectionDefectUpdateManyWithoutJobNestedInput
+  reports?: Prisma.InspectionReportUpdateManyWithoutJobNestedInput
+  evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
+  invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+}
+
+export type InspectionJobUncheckedUpdateWithoutLabSamplesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  requirementId?: Prisma.StringFieldUpdateOperationsInput | string
+  agencyId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
+  reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
+  bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  payer?: Prisma.EnumInspectionPayerFieldUpdateOperationsInput | $Enums.InspectionPayer
+  inspectionPointType?: Prisma.EnumInspectionPointTypeFieldUpdateOperationsInput | $Enums.InspectionPointType
+  inspectionPointJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  scheduledFor?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  standard?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planSnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lotSize?: Prisma.IntFieldUpdateOperationsInput | number
+  samplingJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  readinessJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  readinessSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readinessSubmittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceSample?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specialRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reportDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyConflictStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backupInspectorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lotReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampledQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acceptedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cartonsOpened?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  declarations?: Prisma.InspectionConflictDeclarationUncheckedUpdateManyWithoutJobNestedInput
+  checks?: Prisma.InspectionCheckResultUncheckedUpdateManyWithoutJobNestedInput
+  defects?: Prisma.InspectionDefectUncheckedUpdateManyWithoutJobNestedInput
+  reports?: Prisma.InspectionReportUncheckedUpdateManyWithoutJobNestedInput
+  evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
+  invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
 }
 
 export type InspectionJobCreateManyAgencyInput = {
@@ -3683,6 +4561,10 @@ export type InspectionJobCreateManyAgencyInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3733,6 +4615,10 @@ export type InspectionJobUpdateWithoutAgencyInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3783,6 +4669,8 @@ export type InspectionJobUpdateWithoutAgencyInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutAgencyInput = {
@@ -3792,6 +4680,10 @@ export type InspectionJobUncheckedUpdateWithoutAgencyInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3841,6 +4733,8 @@ export type InspectionJobUncheckedUpdateWithoutAgencyInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateManyWithoutAgencyInput = {
@@ -3850,6 +4744,10 @@ export type InspectionJobUncheckedUpdateManyWithoutAgencyInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3901,6 +4799,10 @@ export type InspectionJobCreateManyRequirementInput = {
   kind?: $Enums.InspectionJobKind
   reinspectionOfJobId?: string | null
   status?: $Enums.InspectionJobStatus
+  stage?: $Enums.InspectionStage
+  scopeMethod?: $Enums.InspectionScopeMethod
+  timezone?: string | null
+  qaReviewerMemberId?: string | null
   bookedByParty: $Enums.InspectionParty
   bookedById?: string | null
   bookedByLabel: string
@@ -3951,6 +4853,10 @@ export type InspectionJobUpdateWithoutRequirementInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4001,6 +4907,8 @@ export type InspectionJobUpdateWithoutRequirementInput = {
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateWithoutRequirementInput = {
@@ -4010,6 +4918,10 @@ export type InspectionJobUncheckedUpdateWithoutRequirementInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4059,6 +4971,8 @@ export type InspectionJobUncheckedUpdateWithoutRequirementInput = {
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutJobNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutJobNestedInput
   invoices?: Prisma.InspectionAgencyInvoiceUncheckedUpdateManyWithoutJobNestedInput
+  quantityRecord?: Prisma.InspectionQuantityRecordUncheckedUpdateOneWithoutJobNestedInput
+  labSamples?: Prisma.InspectionLabSampleUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type InspectionJobUncheckedUpdateManyWithoutRequirementInput = {
@@ -4068,6 +4982,10 @@ export type InspectionJobUncheckedUpdateManyWithoutRequirementInput = {
   kind?: Prisma.EnumInspectionJobKindFieldUpdateOperationsInput | $Enums.InspectionJobKind
   reinspectionOfJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionJobStatusFieldUpdateOperationsInput | $Enums.InspectionJobStatus
+  stage?: Prisma.EnumInspectionStageFieldUpdateOperationsInput | $Enums.InspectionStage
+  scopeMethod?: Prisma.EnumInspectionScopeMethodFieldUpdateOperationsInput | $Enums.InspectionScopeMethod
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qaReviewerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByParty?: Prisma.EnumInspectionPartyFieldUpdateOperationsInput | $Enums.InspectionParty
   bookedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4125,6 +5043,7 @@ export type InspectionJobCountOutputType = {
   evidence: number
   bindings: number
   invoices: number
+  labSamples: number
 }
 
 export type InspectionJobCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4135,6 +5054,7 @@ export type InspectionJobCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   evidence?: boolean | InspectionJobCountOutputTypeCountEvidenceArgs
   bindings?: boolean | InspectionJobCountOutputTypeCountBindingsArgs
   invoices?: boolean | InspectionJobCountOutputTypeCountInvoicesArgs
+  labSamples?: boolean | InspectionJobCountOutputTypeCountLabSamplesArgs
 }
 
 /**
@@ -4196,6 +5116,13 @@ export type InspectionJobCountOutputTypeCountInvoicesArgs<ExtArgs extends runtim
   where?: Prisma.InspectionAgencyInvoiceWhereInput
 }
 
+/**
+ * InspectionJobCountOutputType without action
+ */
+export type InspectionJobCountOutputTypeCountLabSamplesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InspectionLabSampleWhereInput
+}
+
 
 export type InspectionJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4205,6 +5132,10 @@ export type InspectionJobSelect<ExtArgs extends runtime.Types.Extensions.Interna
   kind?: boolean
   reinspectionOfJobId?: boolean
   status?: boolean
+  stage?: boolean
+  scopeMethod?: boolean
+  timezone?: boolean
+  qaReviewerMemberId?: boolean
   bookedByParty?: boolean
   bookedById?: boolean
   bookedByLabel?: boolean
@@ -4256,6 +5187,8 @@ export type InspectionJobSelect<ExtArgs extends runtime.Types.Extensions.Interna
   evidence?: boolean | Prisma.InspectionJob$evidenceArgs<ExtArgs>
   bindings?: boolean | Prisma.InspectionJob$bindingsArgs<ExtArgs>
   invoices?: boolean | Prisma.InspectionJob$invoicesArgs<ExtArgs>
+  quantityRecord?: boolean | Prisma.InspectionJob$quantityRecordArgs<ExtArgs>
+  labSamples?: boolean | Prisma.InspectionJob$labSamplesArgs<ExtArgs>
   _count?: boolean | Prisma.InspectionJobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inspectionJob"]>
 
@@ -4269,6 +5202,10 @@ export type InspectionJobSelectScalar = {
   kind?: boolean
   reinspectionOfJobId?: boolean
   status?: boolean
+  stage?: boolean
+  scopeMethod?: boolean
+  timezone?: boolean
+  qaReviewerMemberId?: boolean
   bookedByParty?: boolean
   bookedById?: boolean
   bookedByLabel?: boolean
@@ -4313,7 +5250,7 @@ export type InspectionJobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InspectionJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "requirementId" | "agencyId" | "kind" | "reinspectionOfJobId" | "status" | "bookedByParty" | "bookedById" | "bookedByLabel" | "payer" | "inspectionPointType" | "inspectionPointJson" | "scheduledFor" | "language" | "standard" | "scopeJson" | "planSnapshotJson" | "lotSize" | "samplingJson" | "readinessJson" | "readinessSubmittedAt" | "readinessSubmittedById" | "poReference" | "referenceSample" | "specialRequirements" | "acceptDueAt" | "reportDueAt" | "acceptedAt" | "acceptedById" | "agencyConflictStatement" | "declinedAt" | "declineReason" | "inspectorMemberId" | "backupInspectorMemberId" | "assignedAt" | "startedAt" | "submittedAt" | "completedAt" | "cancelledAt" | "cancelReason" | "lotReference" | "sampledQuantity" | "acceptedQuantity" | "rejectedQuantity" | "cartonsOpened" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionJob"]>
+export type InspectionJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "requirementId" | "agencyId" | "kind" | "reinspectionOfJobId" | "status" | "stage" | "scopeMethod" | "timezone" | "qaReviewerMemberId" | "bookedByParty" | "bookedById" | "bookedByLabel" | "payer" | "inspectionPointType" | "inspectionPointJson" | "scheduledFor" | "language" | "standard" | "scopeJson" | "planSnapshotJson" | "lotSize" | "samplingJson" | "readinessJson" | "readinessSubmittedAt" | "readinessSubmittedById" | "poReference" | "referenceSample" | "specialRequirements" | "acceptDueAt" | "reportDueAt" | "acceptedAt" | "acceptedById" | "agencyConflictStatement" | "declinedAt" | "declineReason" | "inspectorMemberId" | "backupInspectorMemberId" | "assignedAt" | "startedAt" | "submittedAt" | "completedAt" | "cancelledAt" | "cancelReason" | "lotReference" | "sampledQuantity" | "acceptedQuantity" | "rejectedQuantity" | "cartonsOpened" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionJob"]>
 export type InspectionJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   requirement?: boolean | Prisma.InspectionRequirementDefaultArgs<ExtArgs>
   agency?: boolean | Prisma.InspectionAgencyDefaultArgs<ExtArgs>
@@ -4324,6 +5261,8 @@ export type InspectionJobInclude<ExtArgs extends runtime.Types.Extensions.Intern
   evidence?: boolean | Prisma.InspectionJob$evidenceArgs<ExtArgs>
   bindings?: boolean | Prisma.InspectionJob$bindingsArgs<ExtArgs>
   invoices?: boolean | Prisma.InspectionJob$invoicesArgs<ExtArgs>
+  quantityRecord?: boolean | Prisma.InspectionJob$quantityRecordArgs<ExtArgs>
+  labSamples?: boolean | Prisma.InspectionJob$labSamplesArgs<ExtArgs>
   _count?: boolean | Prisma.InspectionJobCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -4339,6 +5278,8 @@ export type $InspectionJobPayload<ExtArgs extends runtime.Types.Extensions.Inter
     evidence: Prisma.$InspectionEvidencePayload<ExtArgs>[]
     bindings: Prisma.$InspectionShipmentBindingPayload<ExtArgs>[]
     invoices: Prisma.$InspectionAgencyInvoicePayload<ExtArgs>[]
+    quantityRecord: Prisma.$InspectionQuantityRecordPayload<ExtArgs> | null
+    labSamples: Prisma.$InspectionLabSamplePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4348,6 +5289,25 @@ export type $InspectionJobPayload<ExtArgs extends runtime.Types.Extensions.Inter
     kind: $Enums.InspectionJobKind
     reinspectionOfJobId: string | null
     status: $Enums.InspectionJobStatus
+    /**
+     * When in the life of the goods this inspection happens. Only a
+     * PRE_SHIPMENT job can release goods for dispatch.
+     */
+    stage: $Enums.InspectionStage
+    /**
+     * Every unit, or a sample. A sample result is never shown as a count of
+     * verified units.
+     */
+    scopeMethod: $Enums.InspectionScopeMethod
+    /**
+     * IANA zone of the inspection point, so a time on the report means the
+     * same thing to the inspector and to the buyer.
+     */
+    timezone: string | null
+    /**
+     * The agency's QA reviewer named in advance. Never the inspector.
+     */
+    qaReviewerMemberId: string | null
     bookedByParty: $Enums.InspectionParty
     bookedById: string | null
     bookedByLabel: string
@@ -4759,6 +5719,8 @@ export interface Prisma__InspectionJobClient<T, Null = never, ExtArgs extends ru
   evidence<T extends Prisma.InspectionJob$evidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionJob$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bindings<T extends Prisma.InspectionJob$bindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionJob$bindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionShipmentBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.InspectionJob$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionJob$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionAgencyInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  quantityRecord<T extends Prisma.InspectionJob$quantityRecordArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionJob$quantityRecordArgs<ExtArgs>>): Prisma.Prisma__InspectionQuantityRecordClient<runtime.Types.Result.GetResult<Prisma.$InspectionQuantityRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  labSamples<T extends Prisma.InspectionJob$labSamplesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionJob$labSamplesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionLabSamplePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4795,6 +5757,10 @@ export interface InspectionJobFieldRefs {
   readonly kind: Prisma.FieldRef<"InspectionJob", 'InspectionJobKind'>
   readonly reinspectionOfJobId: Prisma.FieldRef<"InspectionJob", 'String'>
   readonly status: Prisma.FieldRef<"InspectionJob", 'InspectionJobStatus'>
+  readonly stage: Prisma.FieldRef<"InspectionJob", 'InspectionStage'>
+  readonly scopeMethod: Prisma.FieldRef<"InspectionJob", 'InspectionScopeMethod'>
+  readonly timezone: Prisma.FieldRef<"InspectionJob", 'String'>
+  readonly qaReviewerMemberId: Prisma.FieldRef<"InspectionJob", 'String'>
   readonly bookedByParty: Prisma.FieldRef<"InspectionJob", 'InspectionParty'>
   readonly bookedById: Prisma.FieldRef<"InspectionJob", 'String'>
   readonly bookedByLabel: Prisma.FieldRef<"InspectionJob", 'String'>
@@ -5350,6 +6316,49 @@ export type InspectionJob$invoicesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.InspectionAgencyInvoiceScalarFieldEnum | Prisma.InspectionAgencyInvoiceScalarFieldEnum[]
+}
+
+/**
+ * InspectionJob.quantityRecord
+ */
+export type InspectionJob$quantityRecordArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InspectionQuantityRecord
+   */
+  select?: Prisma.InspectionQuantityRecordSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InspectionQuantityRecord
+   */
+  omit?: Prisma.InspectionQuantityRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InspectionQuantityRecordInclude<ExtArgs> | null
+  where?: Prisma.InspectionQuantityRecordWhereInput
+}
+
+/**
+ * InspectionJob.labSamples
+ */
+export type InspectionJob$labSamplesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InspectionLabSample
+   */
+  select?: Prisma.InspectionLabSampleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InspectionLabSample
+   */
+  omit?: Prisma.InspectionLabSampleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InspectionLabSampleInclude<ExtArgs> | null
+  where?: Prisma.InspectionLabSampleWhereInput
+  orderBy?: Prisma.InspectionLabSampleOrderByWithRelationInput | Prisma.InspectionLabSampleOrderByWithRelationInput[]
+  cursor?: Prisma.InspectionLabSampleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InspectionLabSampleScalarFieldEnum | Prisma.InspectionLabSampleScalarFieldEnum[]
 }
 
 /**

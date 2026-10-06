@@ -59,6 +59,14 @@ process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
 // different TOTP for every helper login; dedicated MFA tests cover that gate.
 process.env.FEATURE_ADMIN_MFA = 'false';
 
+// The Audit Console, on, with the same reasoning for its second factor:
+// unrelated suites sign agency people in without a TOTP, and
+// `audit-console.test.ts` switches the factor back on for itself.
+process.env.FEATURE_AUDIT_CONSOLE = 'true';
+process.env.FEATURE_AUDIT_MFA = 'false';
+process.env.AUDIT_WEB_ORIGIN = 'http://localhost:5176';
+process.env.AUDIT_WEB_PUBLIC_URL = 'http://localhost:5176';
+
 // The same reasoning for the storefront's mandatory seller factor, the step-up
 // confirmation before sensitive acts, and the new-device email: unrelated
 // suites would each have to enrol a factor or confirm a password, and every

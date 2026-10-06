@@ -1,0 +1,131 @@
+# =============================================================================
+# Netlify - the audit console
+#
+# Read the header of apps/customer-web/netlify.toml first: why this is a proxy
+# and not an absolute API URL in the bundle is explained there once, and it
+# applies identically here.
+#
+# ONE THING TO CHANGE: API_ORIGIN, in the [[redirects]] block below.
+#
+# The [[redirects]] block below points at this installation's API. Replace
+# that hostname, scheme included and no trailing slash, to point this site at
+# a different one.
+#
+# A SITE OF ITS OWN IS THE POINT, NOT AN INCONVENIENCE.
+#
+# This console is signed into by inspection agencies - people outside the
+# operator's company - as well as the operator's own compliance staff. That is
+# the whole reason it is a fourth application rather than a section of the
+# admin console, and it is why it gets its own Netlify site and its own
+# hostname. Serving it under the storefront is a development arrangement
+# for showing all four through one tunnel; nothing outside development should
+# reproduce it.
+#
+# WHAT THE API SIDE NEEDS
+#
+#   COOKIE_SECURE=true        Netlify is HTTPS. Without it an auditor's sign-in
+#                             appears to succeed and then does nothing.
+#   AUDIT_WEB_ORIGIN          This site's URL, added to the comma-separated
+#                             allowlist.
+#   AUDIT_WEB_PUBLIC_URL      The same URL. Audit invitation and password-reset
+#                             emails link to it; left at localhost, nobody can
+#                             accept an invitation.
+#   FEATURE_AUDIT_CONSOLE     true, or every audit route answers 404.
+# =============================================================================
+
+# >>> BUILD SETTINGS - GIT-CONNECTED SITES ONLY. pack-netlify.ps1 CUTS FROM HERE.
+#
+# Removed by `scripts/pack-netlify.ps1` when it writes this file into a zip.
+# A manual zip deploy reads this netlify.toml in full, build command included,
+# and the zip holds the built site rather than the source - so Netlify would
+# fail the deploy with `Command failed with exit code 254: npm run
+# build:netlify` and publish nothing. See the storefront's netlify.toml for the
+# long version. The markers are a pair.
+[build]
+  # Relative to this directory when the site's "Base directory" is set to
+  # `apps/audit-web` in Netlify. Set it there.
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  # The repository pins 24 in .nvmrc, and package.json refuses anything lower.
+  NODE_VERSION = "24"
+# <<< BUILD SETTINGS END. pack-netlify.ps1 CUTS TO HERE.
+
+# -----------------------------------------------------------------------------
+# Redirects. ORDER MATTERS: Netlify takes the FIRST rule that matches, so the
+# single-page-application catch-all stays last. A rule added below it is dead,
+# and it is dead silently.
+# -----------------------------------------------------------------------------
+
+# The API. `200` is a proxy, not a redirect: the browser never learns the API's
+# hostname, the request stays same-origin, and the session and CSRF cookies
+# ride along. A `301` would send the browser to the other host and lose them.
+[[redirects]]
+  from = "/api/*"
+  to = "https://uboss-api.example.com/api/:splat"
+  status = 200
+  force = true
+
+# The single-page application. Without this, a reload on /jobs is a 404
+# from Netlify - the page only ever worked because you navigated to it.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Headers. These mirror deploy/nginx/snippets/uboss-security-headers.conf, which
+# is what an installation on its own server gets. Change one, change the other.
+# -----------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
+
+    # ENFORCING. The same policy the shipped nginx configuration enforces, on
+    # the same built files, so a site put on Netlify is not the weak copy of a
+    # site put on a server of your own. It was report-only here while the
+    # nginx one was; nginx was switched to enforcing and these were not, which
+    # left every Netlify deployment with a header that blocks nothing.
+    #
+    # A CSP one directive short does not degrade - it blanks the page, in
+    # production only, usually on a screen nobody opened during the deploy. So
+    # if you add a provider - a map, an error tracker, an AI endpoint the
+    # browser calls directly - stage it against this policy BEFORE deploying,
+    # and add the origin here rather than loosening a directive.
+    #
+    # The Stripe and Razorpay origins are here even for an installation that
+    # uses neither: allowing an origin never breaks a page, omitting one does,
+    # and Stripe draws the card fields in a cross-origin iframe - a policy
+    # without them gives the customer an empty box where the card number goes.
+    # The Razorpay checkout has NOT been walked through against this policy,
+    # so an installation that uses it should watch a test payment closely the
+    # first time.
+    #
+    # `style-src` still carries 'unsafe-inline'. React style={{...}} props
+    # become inline style ATTRIBUTES and the component libraries here inject
+    # <style> elements at runtime, so removing it blanks pages. It is recorded
+    # as an accepted residual risk in SECURITY-AUDIT-REPORT.md rather than
+    # quietly tolerated.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+
+# Vite fingerprints everything in /assets, so a file at a given URL never
+# changes. Cache it for a year and let the filename do the invalidating.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html is NOT fingerprinted - it names which fingerprinted bundle to
+# load. Cached, it keeps pointing at the previous deploy's files, which no
+# longer exist: a blank console after a release, until somebody hard-refreshes.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

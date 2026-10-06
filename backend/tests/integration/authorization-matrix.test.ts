@@ -26,6 +26,7 @@ import {
   type Session,
   type StaffSession,
 } from '../support/order-desk-fixture.js';
+import { activateAndSignIn, auditEmailFor, cleanUpAuditPeople } from '../support/audit-session.js';
 
 const TAG = 'authz8';
 const RULE = 'authz8 every order';
@@ -51,6 +52,10 @@ async function cleanInspection(): Promise<void> {
   await prisma.inspectionRule.deleteMany({ where: { name: RULE } });
 }
 
+const AGENCY_IPS: Record<string, string> = { agcoord: '10.81.0.23', aginsp: '10.81.0.24', aginsp2: '10.81.0.25', agcoordb: '10.81.0.26' };
+const agencySessions: Record<string, Session> = {};
+
+/** An agency and its people, each invited to the Audit Console and signed in there. */
 async function agency(name: string, members: [string, string][], categoryIds: string[]): Promise<string> {
   const created = await asStaff(app, owner, 'POST', '/inspection/agencies', {
     ...key(),
@@ -61,7 +66,7 @@ async function agency(name: string, members: [string, string][], categoryIds: st
   for (const [who, role] of members) {
     const added = await asStaff(app, owner, 'POST', `/inspection/agencies/${agencyId}/members`, {
       ...key(),
-      payload: { email: emailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: categoryIds },
+      payload: { email: auditEmailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: categoryIds },
     });
     expect(added.statusCode, added.body).toBe(201);
     const verified = await app.inject({
@@ -71,6 +76,7 @@ async function agency(name: string, members: [string, string][], categoryIds: st
       payload: { verifyIdentity: true },
     });
     expect(verified.statusCode, verified.body).toBe(200);
+    agencySessions[who] = await activateAndSignIn(app, added.json<{ userId: string }>().userId, AGENCY_IPS[who] ?? '10.81.0.99');
   }
   return agencyId;
 }
@@ -89,16 +95,17 @@ beforeAll(async () => {
   owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.81.0.20');
   support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.81.0.21');
   compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.81.0.22');
-  coordA = await customer(app, TAG, 'agcoord', '10.81.0.23');
-  inspA = await customer(app, TAG, 'aginsp', '10.81.0.24');
-  insp2 = await customer(app, TAG, 'aginsp2', '10.81.0.25');
-  coordB = await customer(app, TAG, 'agcoordb', '10.81.0.26');
+  await cleanUpAuditPeople(TAG);
 
   const item = await prisma.orderItem.findFirstOrThrow({ where: { orderId: desk.orderId }, select: { productId: true } });
   const product = await prisma.product.findUniqueOrThrow({ where: { id: item.productId }, select: { categoryId: true } });
   const competence = product.categoryId === null ? [] : [product.categoryId];
   const agencyA = await agency('Alpha QA', [['agcoord', 'COORDINATOR'], ['aginsp', 'INSPECTOR'], ['aginsp2', 'INSPECTOR']], competence);
   await agency('Beta QA', [['agcoordb', 'COORDINATOR']], competence);
+  coordA = agencySessions['agcoord'] as Session;
+  inspA = agencySessions['aginsp'] as Session;
+  insp2 = agencySessions['aginsp2'] as Session;
+  coordB = agencySessions['agcoordb'] as Session;
 
   const booked = await asStaff(app, owner, 'POST', '/inspection/jobs', {
     ...key(),
@@ -109,17 +116,18 @@ beforeAll(async () => {
   });
   expect(booked.statusCode, booked.body).toBe(201);
   jobId = booked.json<{ jobId: string }>().jobId;
-  const accepted = await asCustomer(app, coordA, 'POST', `/inspection/agency/jobs/${jobId}/accept`, { ...key(), payload: { conflictStatement: 'No link to either party.', confirmNoConflict: true } });
+  const accepted = await asCustomer(app, coordA, 'POST', `/audit/agency/jobs/${jobId}/accept`, { ...key(), payload: { conflictStatement: 'No link to either party.', confirmNoConflict: true } });
   expect(accepted.statusCode, accepted.body).toBe(200);
-  const detail = await asCustomer(app, coordA, 'GET', `/inspection/agency/jobs/${jobId}`);
+  const detail = await asCustomer(app, coordA, 'GET', `/audit/agency/jobs/${jobId}`);
   const named = detail.json<{ job: { eligibleInspectors: { id: string; fullName: string }[] } }>().job.eligibleInspectors.find((m) => m.fullName === 'aginsp');
-  const assigned = await asCustomer(app, coordA, 'POST', `/inspection/agency/jobs/${jobId}/assign`, { ...key(), payload: { inspectorMemberId: named?.id } });
+  const assigned = await asCustomer(app, coordA, 'POST', `/audit/agency/jobs/${jobId}/assign`, { ...key(), payload: { inspectorMemberId: named?.id } });
   expect(assigned.statusCode, assigned.body).toBe(200);
 }, 300_000);
 
 afterAll(async () => {
   await prisma.inspectionPolicy.updateMany({ data: { requirePackingListForReadiness: true } });
   await cleanInspection();
+  await cleanUpAuditPeople(TAG);
   await cleanUpOrderDesk(TAG);
   await app.close();
 });
@@ -169,21 +177,63 @@ describe('seller objects', () => {
 });
 
 describe('inspection objects', () => {
+  it('never treats a storefront, seller or admin login as an auditor', async () => {
+    // Three separate refusals, one per credential: the console reads only its
+    // own cookie jar, its own token audience and users.type = AUDIT.
+    for (const session of [desk.buyer, desk.sellerA]) {
+      expect((await asCustomer(app, session, 'GET', '/audit/auth/me')).statusCode).toBe(401);
+      expect((await asCustomer(app, session, 'GET', '/audit/jobs')).statusCode).toBe(401);
+      expect((await asCustomer(app, session, 'GET', `/audit/agency/jobs/${jobId}`)).statusCode).toBe(401);
+    }
+    const adminCall = await app.inject({
+      method: 'GET',
+      url: '/api/v1/audit/jobs',
+      headers: { cookie: owner.cookies, 'x-csrf-token': owner.csrfToken, 'x-forwarded-for': owner.ip },
+    });
+    expect(adminCall.statusCode).toBe(401);
+    // And an agency member's console session cannot reach the admin panel or the storefront.
+    expect((await app.inject({ method: 'GET', url: '/api/v1/admin/inspection/queue', headers: { cookie: coordA.cookie, 'x-forwarded-for': coordA.ip } })).statusCode).toBe(401);
+    expect((await app.inject({ method: 'GET', url: '/api/v1/orders', headers: { cookie: coordA.cookie, 'x-forwarded-for': coordA.ip } })).statusCode).toBe(401);
+    // A storefront password does not open the console, even for the same address.
+    const wrongDoor = await app.inject({
+      method: 'POST',
+      url: '/api/v1/audit/auth/login',
+      headers: { 'x-forwarded-for': '10.81.0.40' },
+      payload: { email: `${TAG}-buyer@orderdesk.test.local`, password: 'OrderDeskPass!2026x' },
+    });
+    expect([401, 403]).toContain(wrongDoor.statusCode);
+  });
+
+  it('lets an agency member see only their own agency in the console lists', async () => {
+    const own = await asCustomer(app, coordA, 'GET', '/audit/jobs');
+    expect(own.statusCode, own.body).toBe(200);
+    expect(own.body).toContain(jobId);
+    for (const session of [coordB, insp2]) {
+      const other = await asCustomer(app, session, 'GET', '/audit/jobs');
+      expect(other.statusCode, other.body).toBe(200);
+      expect(other.body).not.toContain(jobId);
+      expect((await asCustomer(app, session, 'GET', `/audit/jobs/${jobId}`)).statusCode).toBe(404);
+    }
+    // An agency member asking for another agency by id still gets their own.
+    const forcedFilter = await asCustomer(app, coordB, 'GET', `/audit/jobs?agencyId=${(await prisma.inspectionJob.findUniqueOrThrow({ where: { id: jobId }, select: { agencyId: true } })).agencyId}`);
+    expect(forcedFilter.body).not.toContain(jobId);
+  });
+
   it('lets the assigned inspector and coordinator see the job', async () => {
-    expect((await asCustomer(app, coordA, 'GET', `/inspection/agency/jobs/${jobId}`)).statusCode).toBe(200);
-    expect((await asCustomer(app, inspA, 'GET', `/inspection/agency/jobs/${jobId}`)).statusCode).toBe(200);
+    expect((await asCustomer(app, coordA, 'GET', `/audit/agency/jobs/${jobId}`)).statusCode).toBe(200);
+    expect((await asCustomer(app, inspA, 'GET', `/audit/agency/jobs/${jobId}`)).statusCode).toBe(200);
   });
 
   it('hides the job from another agency and from an unassigned inspector of the same agency', async () => {
     for (const session of [coordB, insp2]) {
-      const response = await asCustomer(app, session, 'GET', `/inspection/agency/jobs/${jobId}`);
+      const response = await asCustomer(app, session, 'GET', `/audit/agency/jobs/${jobId}`);
       expect([403, 404], response.body).toContain(response.statusCode);
-      const list = await asCustomer(app, session, 'GET', '/inspection/agency/jobs');
+      const list = await asCustomer(app, session, 'GET', '/audit/agency/jobs');
       expect(list.body).not.toContain(jobId);
     }
-    const start = await asCustomer(app, insp2, 'POST', `/inspection/agency/jobs/${jobId}/start`, key());
+    const start = await asCustomer(app, insp2, 'POST', `/audit/agency/jobs/${jobId}/start`, key());
     expect([403, 404, 409]).toContain(start.statusCode);
-    const accept = await asCustomer(app, coordB, 'POST', `/inspection/agency/jobs/${jobId}/decline`, { ...key(), payload: { reason: 'not ours' } });
+    const accept = await asCustomer(app, coordB, 'POST', `/audit/agency/jobs/${jobId}/decline`, { ...key(), payload: { reason: 'not ours' } });
     expect([403, 404]).toContain(accept.statusCode);
   });
 
@@ -201,7 +251,7 @@ describe('inspection objects', () => {
     });
     expect([403, 404]).toContain(forged.statusCode);
     for (const step of ['conflict', 'start'] as const) {
-      const done = await asCustomer(app, inspA, 'POST', `/inspection/agency/jobs/${jobId}/${step}`, { ...key(), payload: step === 'conflict' ? { hasConflict: false } : {} });
+      const done = await asCustomer(app, inspA, 'POST', `/audit/agency/jobs/${jobId}/${step}`, { ...key(), payload: step === 'conflict' ? { hasConflict: false } : {} });
       expect(done.statusCode, done.body).toBe(200);
     }
     const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -214,18 +264,18 @@ describe('inspection objects', () => {
     ]);
     const uploaded = await app.inject({
       method: 'POST',
-      url: `/api/v1/inspection/agency/jobs/${jobId}/evidence`,
+      url: `/api/v1/audit/agency/jobs/${jobId}/evidence`,
       headers: { cookie: inspA.cookie, 'x-csrf-token': inspA.csrf, 'x-forwarded-for': inspA.ip, 'idempotency-key': newId(), 'content-type': `multipart/form-data; boundary=${b}` },
       payload: body,
     });
     expect(uploaded.statusCode, uploaded.body).toBe(201);
     const evidenceId = uploaded.json<{ id: string }>().id;
 
-    expect((await asCustomer(app, inspA, 'GET', `/inspection/agency/evidence/${evidenceId}`)).statusCode).toBe(200);
+    expect((await asCustomer(app, inspA, 'GET', `/audit/agency/evidence/${evidenceId}`)).statusCode).toBe(200);
     expect(await prisma.auditLog.count({ where: { resourceId: evidenceId, action: 'inspection.evidence_downloaded' } })).toBe(1);
     for (const [session, path] of [
-      [insp2, `/inspection/agency/evidence/${evidenceId}`],
-      [coordB, `/inspection/agency/evidence/${evidenceId}`],
+      [insp2, `/audit/agency/evidence/${evidenceId}`],
+      [coordB, `/audit/agency/evidence/${evidenceId}`],
       [desk.sellerB, `/seller/inspection/evidence/${evidenceId}`],
       [desk.rivalBuyer, `/inspection/buyer/evidence/${evidenceId}`],
     ] as const) {
@@ -252,8 +302,9 @@ describe('inspection objects', () => {
   });
 
   it('refuses buyers, sellers and plain customers on the agency portal', async () => {
+    // Not "forbidden": a storefront session is not a console session at all.
     for (const session of [desk.buyer, desk.sellerB]) {
-      expect([403, 404]).toContain((await asCustomer(app, session, 'GET', `/inspection/agency/jobs/${jobId}`)).statusCode);
+      expect((await asCustomer(app, session, 'GET', `/audit/agency/jobs/${jobId}`)).statusCode).toBe(401);
     }
   });
 });

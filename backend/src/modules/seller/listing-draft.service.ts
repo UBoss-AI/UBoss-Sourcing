@@ -69,6 +69,7 @@ import {
   titleComponents,
   type ListingSchema,
 } from './listing-schema.service.js';
+import { assertQualifiedForCategory } from '../compliance/case.service.js';
 
 // ---------------------------------------------------------------------------
 // Shapes
@@ -1096,6 +1097,12 @@ export async function submitDraft(
       })),
     );
   }
+
+  // The category qualification gate, under the deployment's enforcement
+  // setting (OFF by default). Only a category an approved mandatory rule
+  // reaches can refuse; every other category behaves exactly as before.
+  const draftCategory = await prisma.sellerListingDraft.findUnique({ where: { id: draftId }, select: { categoryId: true } });
+  if (draftCategory?.categoryId) await assertQualifiedForCategory(membership.sellerAccountId, draftCategory.categoryId);
 
   await prisma.$transaction(async (tx) => {
     const row = await tx.sellerListingDraft.findUnique({

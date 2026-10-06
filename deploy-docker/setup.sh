@@ -7,7 +7,9 @@
 #
 # The compose directory is the one holding compose.yml, with the three built
 # front ends bind-mounted from apps/customer-web/dist, apps/admin-web/dist and
-# apps/logistics-web/dist. It defaults to /srv/gloviaa.
+# apps/logistics-web/dist. It defaults to /srv/gloviaa. The Audit Console
+# (apps/audit-web/dist) is optional: a release that carries it is put live
+# beside the others, and one that does not leaves it alone.
 #
 # What it sets up, and nothing else:
 #
@@ -108,11 +110,11 @@ expected=$(head -c 200 "$in/$name.sha256" | awk 'NR==1{print $1}')
 actual=$(sha256sum "$work/release.tgz" | awk '{print $1}')
 [[ "$expected" == "$actual" ]] || { echo "checksum mismatch"; exit 4; }
 # Validate before extraction: an uploaded archive must never write outside
-# the three frontend directories, even when activation runs as root.
+# the frontend directories, even when activation runs as root.
 python3 - "$work/release.tgz" <<'PY'
 import sys, tarfile
 from pathlib import PurePosixPath
-roots = [f'apps/{app}/dist' for app in ('customer-web', 'admin-web', 'logistics-web')] + ['backend/dist', 'backend/prisma']
+roots = [f'apps/{app}/dist' for app in ('customer-web', 'admin-web', 'logistics-web', 'audit-web')] +['backend/dist', 'backend/prisma']
 files = {'backend/prisma.config.ts', 'backend/package.json', 'backend/package-lock.json'}
 with tarfile.open(sys.argv[1], 'r:gz') as archive:
     for member in archive.getmembers():
@@ -128,6 +130,11 @@ apps="customer-web admin-web logistics-web"
 for a in $apps; do
   [ -f "$work/apps/$a/dist/index.html" ] || { echo "release is missing apps/$a/dist"; exit 4; }
 done
+# Optional: only built when the AUDIT_API_BASE repository variable is set.
+if [ -f "$work/apps/audit-web/dist/index.html" ]; then
+  apps="$apps audit-web"
+  install -d -m 0755 "$COMPOSE_DIR/apps/audit-web/dist"
+fi
 
 if [ -d "$work/backend/dist" ]; then
   for required in backend/package.json backend/package-lock.json backend/prisma.config.ts backend/dist/http/server.js; do
@@ -138,7 +145,9 @@ fi
 
 # Back up what is live now, keep the newest ten.
 backup="$STATE/backups/web-$(date -u +%Y%m%d-%H%M%S).tgz"
-tar -czf "$backup" -C "$COMPOSE_DIR" apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
+live=(apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist)
+[ -d "$COMPOSE_DIR/apps/audit-web/dist" ] && live+=(apps/audit-web/dist)
+tar -czf "$backup" -C "$COMPOSE_DIR" "${live[@]}"
 ls -1t "$STATE"/backups/web-*.tgz | tail -n +11 | xargs -r rm -f
 
 # Into the same folders: nginx bind-mounts these exact directories, so a

@@ -59,6 +59,7 @@ import {
   toContextView,
 } from '../../modules/buyer-companies/context.service.js';
 import { markInvitationAccepted } from '../../modules/logistics/partner.service.js';
+import { markConsoleInvitationAccepted } from '../../modules/audit-console/membership.service.js';
 import { assertCaptcha, captchaTokenFrom } from '../../modules/identity/captcha.service.js';
 import {
   assertRecentStepUp,
@@ -529,7 +530,10 @@ export function authRoutes(kind: UserKind) {
      * audiences would carry fields two of them have no use for, and the first
      * person to add a field would have to decide which surfaces see it.
      */
-    if (kind !== 'LOGISTICS') {
+    // Nor for the Audit Console, which registers its own in
+    // `audit.console.ts` for the same reason: its boot response carries the
+    // console membership and the second-factor state.
+    if (kind !== 'LOGISTICS' && kind !== 'AUDIT') {
       app.get('/me', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
         const auth = currentUser(request);
 
@@ -779,10 +783,14 @@ export function authRoutes(kind: UserKind) {
           });
         }
 
-        const issued = await requestPasswordReset(body.email, {
-          ipAddress: context.ipAddress,
-          correlationId: context.correlationId,
-        });
+        // An Audit Console account is reset from the console's own page and
+        // nowhere else: the link must open the console, and a storefront or
+        // admin form must not be a way to send one.
+        const issued = await requestPasswordReset(
+          body.email,
+          { ipAddress: context.ipAddress, correlationId: context.correlationId },
+          kind === 'AUDIT' ? 'AUDIT' : 'NOT_AUDIT',
+        );
 
         if (issued !== null) {
           await enqueueNotification({
@@ -893,6 +901,49 @@ export function authRoutes(kind: UserKind) {
             email: consumed.email,
             message:
               'Your account is active. Sign in, and set up two-step sign-in if you are asked to.',
+          });
+        },
+      );
+    }
+
+    // --- Invitation activation (Audit Console) ------------------------------
+    //
+    // The only way a console account becomes usable: the person chooses their
+    // own password from a single-use emailed link. No terms are asked for -
+    // see `acceptInvitation` - and a link minted for any other surface is
+    // refused before it is spent.
+    if (kind === 'AUDIT') {
+      /**
+       * Accept an emailed invitation to the Audit Console: the person chooses
+       * their own password and their console membership becomes active. They
+       * set up two-step sign-in at their first sign-in.
+       */
+      app.post(
+        '/invitations/accept',
+        { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+        async (request, reply) => {
+          const body = acceptInvitationSchema.parse(request.body);
+          const context = requestContext(request);
+
+          const consumed = await acceptInvitation({
+            token: body.token,
+            password: body.password,
+            acceptedTerms: body.acceptedTerms,
+            termsDocumentId: body.termsDocumentId ?? null,
+            audience: ['AUDIT'],
+            ipAddress: context.ipAddress,
+            correlationId: context.correlationId,
+          });
+          if (consumed.userType !== 'AUDIT') {
+            throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
+          }
+
+          await markConsoleInvitationAccepted(consumed.userId);
+
+          return reply.status(200).send({
+            activated: true,
+            email: consumed.email,
+            message: 'Your account is active. Sign in, and set up two-step sign-in when you are asked to.',
           });
         },
       );

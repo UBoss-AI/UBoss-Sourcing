@@ -240,6 +240,15 @@ else
   rm -rf "$REPO/apps/logistics-web/dist"
 fi
 
+# The Audit Console is optional in exactly the same way: built only when
+# FEATURE_AUDIT_CONSOLE is on, absent from the release otherwise.
+if [[ "$(env_value FEATURE_AUDIT_CONSOLE)" == "true" ]]; then
+  build_frontend "the audit console" audit-web "$(env_value AUDIT_WEB_PUBLIC_URL)"
+else
+  log "audit console is off (FEATURE_AUDIT_CONSOLE) - not building it"
+  rm -rf "$REPO/apps/audit-web/dist"
+fi
+
 # -----------------------------------------------------------------------------
 # 3. Assemble the release directory
 #
@@ -270,6 +279,11 @@ cp -r "$REPO/apps/admin-web/dist/."    "$RELEASE/admin-web/"
 if [[ -d "$REPO/apps/logistics-web/dist" ]]; then
   mkdir -p "$RELEASE/logistics-web"
   cp -r "$REPO/apps/logistics-web/dist/." "$RELEASE/logistics-web/"
+fi
+
+if [[ -d "$REPO/apps/audit-web/dist" ]]; then
+  mkdir -p "$RELEASE/audit-web"
+  cp -r "$REPO/apps/audit-web/dist/." "$RELEASE/audit-web/"
 fi
 
 cp -r "$REPO/docs/." "$RELEASE/docs/" 2>/dev/null || true

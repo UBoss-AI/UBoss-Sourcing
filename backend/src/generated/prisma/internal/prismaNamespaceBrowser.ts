@@ -419,7 +419,15 @@ export const ModelName = {
   MasterDataEntry: 'MasterDataEntry',
   RiskRule: 'RiskRule',
   RiskSignal: 'RiskSignal',
-  AnalyticsDailyCount: 'AnalyticsDailyCount'
+  AnalyticsDailyCount: 'AnalyticsDailyCount',
+  AuditStaffMember: 'AuditStaffMember',
+  AuditNotification: 'AuditNotification',
+  ComplianceRequirement: 'ComplianceRequirement',
+  ComplianceCase: 'ComplianceCase',
+  ComplianceEvent: 'ComplianceEvent',
+  InspectionQuantityRecord: 'InspectionQuantityRecord',
+  InspectionLabSample: 'InspectionLabSample',
+  InspectionSubLotRelease: 'InspectionSubLotRelease'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -7320,6 +7328,7 @@ export const InspectionAgencyScalarFieldEnum = {
   affiliatedSellerIdsJson: 'affiliatedSellerIdsJson',
   independenceStatement: 'independenceStatement',
   independenceDeclaredAt: 'independenceDeclaredAt',
+  kind: 'kind',
   dailyCapacity: 'dailyCapacity',
   defaultFeeMinor: 'defaultFeeMinor',
   feeCurrency: 'feeCurrency',
@@ -7390,6 +7399,10 @@ export const InspectionJobScalarFieldEnum = {
   kind: 'kind',
   reinspectionOfJobId: 'reinspectionOfJobId',
   status: 'status',
+  stage: 'stage',
+  scopeMethod: 'scopeMethod',
+  timezone: 'timezone',
+  qaReviewerMemberId: 'qaReviewerMemberId',
   bookedByParty: 'bookedByParty',
   bookedById: 'bookedById',
   bookedByLabel: 'bookedByLabel',
@@ -7461,6 +7474,9 @@ export const InspectionCheckResultScalarFieldEnum = {
   outcome: 'outcome',
   measuredValue: 'measuredValue',
   note: 'note',
+  equipmentRef: 'equipmentRef',
+  equipmentCalibratedUntil: 'equipmentCalibratedUntil',
+  labReportEvidenceId: 'labReportEvidenceId',
   recordedByMemberId: 'recordedByMemberId',
   recordedAt: 'recordedAt',
   createdAt: 'createdAt',
@@ -7480,6 +7496,8 @@ export const InspectionDefectScalarFieldEnum = {
   requirementRef: 'requirementRef',
   description: 'description',
   defectQuantity: 'defectQuantity',
+  unitRefsJson: 'unitRefsJson',
+  checkItemCode: 'checkItemCode',
   status: 'status',
   recordedByMemberId: 'recordedByMemberId',
   recordedAt: 'recordedAt',
@@ -7553,6 +7571,11 @@ export const InspectionReportScalarFieldEnum = {
   signedByMemberId: 'signedByMemberId',
   signedByName: 'signedByName',
   publishedToBuyerAt: 'publishedToBuyerAt',
+  limitations: 'limitations',
+  correctsReportId: 'correctsReportId',
+  correctionReason: 'correctionReason',
+  supersededAt: 'supersededAt',
+  supersededByReportId: 'supersededByReportId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -7775,6 +7798,28 @@ export const SellerCertificationScalarFieldEnum = {
   issuedOn: 'issuedOn',
   expiresOn: 'expiresOn',
   documentId: 'documentId',
+  reviewStatus: 'reviewStatus',
+  documentType: 'documentType',
+  issuingCountry: 'issuingCountry',
+  legalEntityName: 'legalEntityName',
+  categoryScopeIdsJson: 'categoryScopeIdsJson',
+  productScopeIdsJson: 'productScopeIdsJson',
+  modelScope: 'modelScope',
+  requirementCodesJson: 'requirementCodesJson',
+  noExpiryReason: 'noExpiryReason',
+  verificationMethod: 'verificationMethod',
+  verificationOutcome: 'verificationOutcome',
+  verificationSource: 'verificationSource',
+  reviewMessage: 'reviewMessage',
+  internalNote: 'internalNote',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  reviewStartedAt: 'reviewStartedAt',
+  suspendedAt: 'suspendedAt',
+  suspendedReason: 'suspendedReason',
+  revision: 'revision',
+  supersedesId: 'supersedesId',
+  supersededAt: 'supersededAt',
   state: 'state',
   verifiedAt: 'verifiedAt',
   verifiedByUserId: 'verifiedByUserId',
@@ -8966,6 +9011,217 @@ export const AnalyticsDailyCountScalarFieldEnum = {
 } as const
 
 export type AnalyticsDailyCountScalarFieldEnum = (typeof AnalyticsDailyCountScalarFieldEnum)[keyof typeof AnalyticsDailyCountScalarFieldEnum]
+
+
+export const AuditStaffMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  status: 'status',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  competenceCategoryIdsJson: 'competenceCategoryIdsJson',
+  invitedByUserId: 'invitedByUserId',
+  activatedAt: 'activatedAt',
+  disabledAt: 'disabledAt',
+  disabledReason: 'disabledReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuditStaffMemberScalarFieldEnum = (typeof AuditStaffMemberScalarFieldEnum)[keyof typeof AuditStaffMemberScalarFieldEnum]
+
+
+export const AuditNotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  link: 'link',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuditNotificationScalarFieldEnum = (typeof AuditNotificationScalarFieldEnum)[keyof typeof AuditNotificationScalarFieldEnum]
+
+
+export const ComplianceRequirementScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  ruleVersion: 'ruleVersion',
+  status: 'status',
+  name: 'name',
+  description: 'description',
+  requiredEvidence: 'requiredEvidence',
+  obligation: 'obligation',
+  level: 'level',
+  categoryIdsJson: 'categoryIdsJson',
+  includeDescendants: 'includeDescendants',
+  supplyRolesJson: 'supplyRolesJson',
+  originCountriesJson: 'originCountriesJson',
+  destinationMarketsJson: 'destinationMarketsJson',
+  riskClassesJson: 'riskClassesJson',
+  productTypeNote: 'productTypeNote',
+  intendedUseNote: 'intendedUseNote',
+  applicability: 'applicability',
+  applicabilityNote: 'applicabilityNote',
+  expiryKind: 'expiryKind',
+  reviewMonths: 'reviewMonths',
+  sourceUrl: 'sourceUrl',
+  sourceTitle: 'sourceTitle',
+  sourcePublisher: 'sourcePublisher',
+  lastReviewedOn: 'lastReviewedOn',
+  confidence: 'confidence',
+  importedFrom: 'importedFrom',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  draftedByUserId: 'draftedByUserId',
+  draftedByLabel: 'draftedByLabel',
+  submittedAt: 'submittedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  retiredAt: 'retiredAt',
+  supersedesId: 'supersedesId',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceRequirementScalarFieldEnum = (typeof ComplianceRequirementScalarFieldEnum)[keyof typeof ComplianceRequirementScalarFieldEnum]
+
+
+export const ComplianceCaseScalarFieldEnum = {
+  id: 'id',
+  caseNumber: 'caseNumber',
+  level: 'level',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  supplyRole: 'supplyRole',
+  destinationMarket: 'destinationMarket',
+  factoryId: 'factoryId',
+  status: 'status',
+  requestedByParty: 'requestedByParty',
+  requestedById: 'requestedById',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  reviewStartedAt: 'reviewStartedAt',
+  decidedAt: 'decidedAt',
+  sellerMessage: 'sellerMessage',
+  internalNote: 'internalNote',
+  determinationsJson: 'determinationsJson',
+  decisionSnapshotJson: 'decisionSnapshotJson',
+  expiresAt: 'expiresAt',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceCaseScalarFieldEnum = (typeof ComplianceCaseScalarFieldEnum)[keyof typeof ComplianceCaseScalarFieldEnum]
+
+
+export const ComplianceEventScalarFieldEnum = {
+  id: 'id',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  summary: 'summary',
+  sellerVisible: 'sellerVisible',
+  dataJson: 'dataJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ComplianceEventScalarFieldEnum = (typeof ComplianceEventScalarFieldEnum)[keyof typeof ComplianceEventScalarFieldEnum]
+
+
+export const InspectionQuantityRecordScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  unit: 'unit',
+  orderedQuantity: 'orderedQuantity',
+  declaredQuantity: 'declaredQuantity',
+  verifiedQuantity: 'verifiedQuantity',
+  countingMethod: 'countingMethod',
+  countingNote: 'countingNote',
+  packagingJson: 'packagingJson',
+  sampledQuantity: 'sampledQuantity',
+  functionallyTestedQuantity: 'functionallyTestedQuantity',
+  testedConformingQuantity: 'testedConformingQuantity',
+  testedNonconformingQuantity: 'testedNonconformingQuantity',
+  damagedQuantity: 'damagedQuantity',
+  packagingObservations: 'packagingObservations',
+  labelingObservations: 'labelingObservations',
+  damageObservations: 'damageObservations',
+  recordedByMemberId: 'recordedByMemberId',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionQuantityRecordScalarFieldEnum = (typeof InspectionQuantityRecordScalarFieldEnum)[keyof typeof InspectionQuantityRecordScalarFieldEnum]
+
+
+export const InspectionLabSampleScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  sampleCode: 'sampleCode',
+  description: 'description',
+  quantity: 'quantity',
+  unit: 'unit',
+  sealNumber: 'sealNumber',
+  takenAt: 'takenAt',
+  takenByMemberId: 'takenByMemberId',
+  laboratoryName: 'laboratoryName',
+  laboratoryAccreditation: 'laboratoryAccreditation',
+  custodyJson: 'custodyJson',
+  labReportEvidenceId: 'labReportEvidenceId',
+  resultSummary: 'resultSummary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionLabSampleScalarFieldEnum = (typeof InspectionLabSampleScalarFieldEnum)[keyof typeof InspectionLabSampleScalarFieldEnum]
+
+
+export const InspectionSubLotReleaseScalarFieldEnum = {
+  id: 'id',
+  requirementId: 'requirementId',
+  jobId: 'jobId',
+  reportId: 'reportId',
+  subLotCode: 'subLotCode',
+  lotReference: 'lotReference',
+  quantity: 'quantity',
+  unit: 'unit',
+  linesJson: 'linesJson',
+  reason: 'reason',
+  state: 'state',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  requestedAt: 'requestedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  consumedAt: 'consumedAt',
+  consumedByRef: 'consumedByRef',
+  lockVersion: 'lockVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InspectionSubLotReleaseScalarFieldEnum = (typeof InspectionSubLotReleaseScalarFieldEnum)[keyof typeof InspectionSubLotReleaseScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -13267,6 +13523,8 @@ export const InspectionJobOrderByRelevanceFieldEnum = {
   requirementId: 'requirementId',
   agencyId: 'agencyId',
   reinspectionOfJobId: 'reinspectionOfJobId',
+  timezone: 'timezone',
+  qaReviewerMemberId: 'qaReviewerMemberId',
   bookedById: 'bookedById',
   bookedByLabel: 'bookedByLabel',
   language: 'language',
@@ -13306,6 +13564,8 @@ export const InspectionCheckResultOrderByRelevanceFieldEnum = {
   requirement: 'requirement',
   measuredValue: 'measuredValue',
   note: 'note',
+  equipmentRef: 'equipmentRef',
+  labReportEvidenceId: 'labReportEvidenceId',
   recordedByMemberId: 'recordedByMemberId'
 } as const
 
@@ -13319,6 +13579,7 @@ export const InspectionDefectOrderByRelevanceFieldEnum = {
   ncrNumber: 'ncrNumber',
   requirementRef: 'requirementRef',
   description: 'description',
+  checkItemCode: 'checkItemCode',
   recordedByMemberId: 'recordedByMemberId',
   reclassifiedByMemberId: 'reclassifiedByMemberId',
   reclassificationReason: 'reclassificationReason',
@@ -13365,7 +13626,11 @@ export const InspectionReportOrderByRelevanceFieldEnum = {
   returnedByMemberId: 'returnedByMemberId',
   returnReason: 'returnReason',
   signedByMemberId: 'signedByMemberId',
-  signedByName: 'signedByName'
+  signedByName: 'signedByName',
+  limitations: 'limitations',
+  correctsReportId: 'correctsReportId',
+  correctionReason: 'correctionReason',
+  supersededByReportId: 'supersededByReportId'
 } as const
 
 export type InspectionReportOrderByRelevanceFieldEnum = (typeof InspectionReportOrderByRelevanceFieldEnum)[keyof typeof InspectionReportOrderByRelevanceFieldEnum]
@@ -13511,6 +13776,17 @@ export const SellerCertificationOrderByRelevanceFieldEnum = {
   issuer: 'issuer',
   scope: 'scope',
   documentId: 'documentId',
+  issuingCountry: 'issuingCountry',
+  legalEntityName: 'legalEntityName',
+  modelScope: 'modelScope',
+  noExpiryReason: 'noExpiryReason',
+  verificationSource: 'verificationSource',
+  reviewMessage: 'reviewMessage',
+  internalNote: 'internalNote',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  suspendedReason: 'suspendedReason',
+  supersedesId: 'supersedesId',
   verifiedByUserId: 'verifiedByUserId',
   rejectionReason: 'rejectionReason'
 } as const
@@ -14306,4 +14582,139 @@ export const AnalyticsDailyCountOrderByRelevanceFieldEnum = {
 } as const
 
 export type AnalyticsDailyCountOrderByRelevanceFieldEnum = (typeof AnalyticsDailyCountOrderByRelevanceFieldEnum)[keyof typeof AnalyticsDailyCountOrderByRelevanceFieldEnum]
+
+
+export const AuditStaffMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  invitedByUserId: 'invitedByUserId',
+  disabledReason: 'disabledReason'
+} as const
+
+export type AuditStaffMemberOrderByRelevanceFieldEnum = (typeof AuditStaffMemberOrderByRelevanceFieldEnum)[keyof typeof AuditStaffMemberOrderByRelevanceFieldEnum]
+
+
+export const AuditNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  link: 'link',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  dedupeKey: 'dedupeKey'
+} as const
+
+export type AuditNotificationOrderByRelevanceFieldEnum = (typeof AuditNotificationOrderByRelevanceFieldEnum)[keyof typeof AuditNotificationOrderByRelevanceFieldEnum]
+
+
+export const ComplianceRequirementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  requiredEvidence: 'requiredEvidence',
+  productTypeNote: 'productTypeNote',
+  intendedUseNote: 'intendedUseNote',
+  applicabilityNote: 'applicabilityNote',
+  sourceUrl: 'sourceUrl',
+  sourceTitle: 'sourceTitle',
+  sourcePublisher: 'sourcePublisher',
+  confidence: 'confidence',
+  importedFrom: 'importedFrom',
+  draftedByUserId: 'draftedByUserId',
+  draftedByLabel: 'draftedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decisionNote: 'decisionNote',
+  supersedesId: 'supersedesId'
+} as const
+
+export type ComplianceRequirementOrderByRelevanceFieldEnum = (typeof ComplianceRequirementOrderByRelevanceFieldEnum)[keyof typeof ComplianceRequirementOrderByRelevanceFieldEnum]
+
+
+export const ComplianceCaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  caseNumber: 'caseNumber',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  destinationMarket: 'destinationMarket',
+  factoryId: 'factoryId',
+  requestedByParty: 'requestedByParty',
+  requestedById: 'requestedById',
+  reviewerUserId: 'reviewerUserId',
+  reviewerLabel: 'reviewerLabel',
+  sellerMessage: 'sellerMessage',
+  internalNote: 'internalNote'
+} as const
+
+export type ComplianceCaseOrderByRelevanceFieldEnum = (typeof ComplianceCaseOrderByRelevanceFieldEnum)[keyof typeof ComplianceCaseOrderByRelevanceFieldEnum]
+
+
+export const ComplianceEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  summary: 'summary'
+} as const
+
+export type ComplianceEventOrderByRelevanceFieldEnum = (typeof ComplianceEventOrderByRelevanceFieldEnum)[keyof typeof ComplianceEventOrderByRelevanceFieldEnum]
+
+
+export const InspectionQuantityRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  countingMethod: 'countingMethod',
+  countingNote: 'countingNote',
+  packagingObservations: 'packagingObservations',
+  labelingObservations: 'labelingObservations',
+  damageObservations: 'damageObservations',
+  recordedByMemberId: 'recordedByMemberId'
+} as const
+
+export type InspectionQuantityRecordOrderByRelevanceFieldEnum = (typeof InspectionQuantityRecordOrderByRelevanceFieldEnum)[keyof typeof InspectionQuantityRecordOrderByRelevanceFieldEnum]
+
+
+export const InspectionLabSampleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  sampleCode: 'sampleCode',
+  description: 'description',
+  sealNumber: 'sealNumber',
+  takenByMemberId: 'takenByMemberId',
+  laboratoryName: 'laboratoryName',
+  laboratoryAccreditation: 'laboratoryAccreditation',
+  labReportEvidenceId: 'labReportEvidenceId',
+  resultSummary: 'resultSummary'
+} as const
+
+export type InspectionLabSampleOrderByRelevanceFieldEnum = (typeof InspectionLabSampleOrderByRelevanceFieldEnum)[keyof typeof InspectionLabSampleOrderByRelevanceFieldEnum]
+
+
+export const InspectionSubLotReleaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requirementId: 'requirementId',
+  jobId: 'jobId',
+  reportId: 'reportId',
+  subLotCode: 'subLotCode',
+  lotReference: 'lotReference',
+  reason: 'reason',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decidedByLabel: 'decidedByLabel',
+  decisionNote: 'decisionNote',
+  consumedByRef: 'consumedByRef'
+} as const
+
+export type InspectionSubLotReleaseOrderByRelevanceFieldEnum = (typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum)[keyof typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum]
 

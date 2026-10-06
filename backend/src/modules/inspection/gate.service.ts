@@ -18,6 +18,7 @@ import { logger } from '../../infra/logger.js';
 import {
   GATE_NOT_APPLICABLE,
   evaluateInspectionGate,
+  gateSentence,
   scopeFingerprint,
   type InspectionGateVerdict,
   type ScopeFingerprint,
@@ -372,13 +373,15 @@ async function gateFacts(
       orderBy: { requestedAt: 'desc' },
       select: { id: true, kind: true, state: true, boundScopeHash: true },
     }),
+    // Pre-shipment only, and never a superseded correction: a report that was
+    // corrected is still the same finding, carried by its correction.
     client.inspectionReport.findFirst({
-      where: { status: 'SIGNED', job: { requirementId } },
+      where: { status: 'SIGNED', supersededAt: null, job: { requirementId, stage: 'PRE_SHIPMENT' } },
       orderBy: { signedAt: 'desc' },
       select: { id: true, result: true, publishedToBuyerAt: true, jobId: true },
     }),
     client.inspectionJob.findFirst({
-      where: { requirementId, status: { in: [...OPEN_JOB_STATUSES] } },
+      where: { requirementId, stage: 'PRE_SHIPMENT', status: { in: [...OPEN_JOB_STATUSES] } },
       orderBy: { createdAt: 'desc' },
       select: { id: true, status: true, kind: true },
     }),
@@ -494,6 +497,36 @@ export async function peekGate(requirementId: string): Promise<InspectionGateVer
 }
 
 /**
+ * Whether the goods on a consignment are released or held by inspection, for
+ * the carrier's own screen. Read-only: it never creates a requirement and
+ * never moves anything. The carrier sees the decision and its plain-language
+ * reason - never the report, the findings or the seller's documents.
+ */
+export async function inspectionReleaseForShipment(shipmentId: string): Promise<{
+  required: boolean;
+  released: boolean;
+  reason: string;
+  sentence: string;
+}> {
+  const shipment = await prisma.logisticsShipment.findUnique({ where: { id: shipmentId }, select: { sellerOrderGroupId: true } });
+  if (shipment?.sellerOrderGroupId === null || shipment === null) {
+    return { required: false, released: true, reason: 'NOT_APPLICABLE', sentence: gateSentence('NOT_APPLICABLE') };
+  }
+  const requirement = await prisma.inspectionRequirement.findUnique({
+    where: { sellerOrderGroupId: shipment.sellerOrderGroupId },
+    select: { id: true, level: true, loadReleasedAt: true },
+  });
+  if (requirement === null || requirement.level === 'NOT_REQUIRED') {
+    return { required: false, released: true, reason: 'NOT_REQUIRED', sentence: gateSentence('NOT_REQUIRED') };
+  }
+  if (requirement.loadReleasedAt !== null) {
+    return { required: true, released: true, reason: 'ALREADY_RELEASED', sentence: gateSentence('ALREADY_RELEASED') };
+  }
+  const verdict = await peekGate(requirement.id);
+  return { required: true, released: verdict.open, reason: verdict.reason, sentence: gateSentence(verdict.reason) };
+}
+
+/**
  * The goods went through the gate. Recorded once per requirement: the first
  * guarded move to succeed is the load release (INSPECT-005).
  */
@@ -553,6 +586,7 @@ export async function refreshRequirementStatus(client: Client, requirementId: st
           ? 'REPORT_IN_REVIEW'
           : 'BOOKED';
   } else if (verdict.reason === 'FAILED') status = 'FAILED';
+  else if (verdict.reason === 'INCONCLUSIVE') status = 'ON_HOLD';
   else if (verdict.reason === 'BLOCKING_NCR_OPEN') status = 'BLOCKED_BY_NCR';
   else if (verdict.reason === 'SCOPE_CHANGED') status = 'REEVALUATION_REQUIRED';
   else if (verdict.reason === 'BUYER_REVIEW_PERIOD') status = 'REPORT_IN_REVIEW';
@@ -592,6 +626,10 @@ export function cardStatusFor(status: string, hasOpenReinspection: boolean): Ins
     case 'FAILED':
     case 'BLOCKED_BY_NCR':
       return 'NCR';
+    // An inconclusive report found nothing wrong and decided nothing: the card
+    // says another inspection is required, not that there is a finding.
+    case 'ON_HOLD':
+      return 'REQUIRED';
     case 'RELEASED':
     case 'RELEASED_CONDITIONALLY':
     case 'DISPATCHED':

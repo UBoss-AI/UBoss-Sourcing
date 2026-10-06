@@ -89,6 +89,13 @@ const envSchema = z
     LOGISTICS_WEB_ORIGIN: optionalOriginList,
     LOGISTICS_WEB_PUBLIC_URL: z.string().default(''),
 
+    // The Audit Console (apps/audit-web): auditors' and inspection agencies'
+    // own sign-in, on its own hostname. The same arrangement as the carrier
+    // portal above: off unless FEATURE_AUDIT_CONSOLE is on, and refused to
+    // start with the feature on and either of these unset.
+    AUDIT_WEB_ORIGIN: optionalOriginList,
+    AUDIT_WEB_PUBLIC_URL: z.string().default(''),
+
     // --- Database ---
     DATABASE_URL: z.string().min(1),
     TEST_DATABASE_URL: z.string().min(1).optional(),
@@ -1156,6 +1163,29 @@ const envSchema = z
     // all have to manufacture a fresh TOTP code for each session.
     FEATURE_ADMIN_MFA: booleanFromString.default(true),
 
+    // --- Audit Console ---
+    // The master switch. Off: every /audit route answers FEATURE_DISABLED and
+    // nobody can be invited. Inspection itself - booking, the dispatch gate,
+    // release - is unaffected either way; only the agencies' sign-in moves.
+    FEATURE_AUDIT_CONSOLE: booleanFromString.default(false),
+    // Two-step sign-in for EVERY console role: they read other companies'
+    // certificates and sign findings that hold or release goods. On by default
+    // and refused off in production, for the same test-suite reason as
+    // FEATURE_ADMIN_MFA.
+    FEATURE_AUDIT_MFA: booleanFromString.default(true),
+    // How long a console invitation stays valid. Short, like a carrier's.
+    AUDIT_INVITE_TTL_HOURS: intFromString(1, 720).default(48),
+    // Whether an approved seller/category requirement is enforced when a seller
+    // submits a listing or activates an offer in that category.
+    //   OFF     - evaluated and shown, never blocks (the default, so turning the
+    //             console on never silently suspends anybody);
+    //   WARN    - the seller is told what is missing, nothing is blocked;
+    //   ENFORCE - NEW listings and offers in a category with an approved
+    //             mandatory requirement need a qualification. Existing live
+    //             offers are never switched off by this: they go to the
+    //             backfill review list in the console.
+    COMPLIANCE_QUALIFICATION_ENFORCEMENT: z.enum(['OFF', 'WARN', 'ENFORCE']).default('OFF'),
+
     // --- Buyer and seller second factor, step-up, alerts and bot checks ---
     //
     // Two-step sign-in (TOTP) for storefront accounts. OPTIONAL for every buyer
@@ -2125,6 +2155,45 @@ const envSchema = z
       }
     }
 
+    if (value.FEATURE_AUDIT_CONSOLE) {
+      if (value.AUDIT_WEB_PUBLIC_URL.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['AUDIT_WEB_PUBLIC_URL'],
+          message:
+            'required when FEATURE_AUDIT_CONSOLE is on. Console invitations and password resets ' +
+            'link to it; without it every such email is undeliverable.',
+        });
+      } else {
+        try {
+          const parsed = new URL(value.AUDIT_WEB_PUBLIC_URL);
+          if (parsed.protocol !== 'https:' && value.NODE_ENV === 'production') {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['AUDIT_WEB_PUBLIC_URL'],
+              message: 'must be an https address in production - an activation link sets a password.',
+            });
+          }
+        } catch {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['AUDIT_WEB_PUBLIC_URL'],
+            message: 'must be a full URL, including https://',
+          });
+        }
+      }
+
+      if (value.AUDIT_WEB_ORIGIN.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['AUDIT_WEB_ORIGIN'],
+          message:
+            'required when FEATURE_AUDIT_CONSOLE is on. Without it the console is not in the CORS ' +
+            'allowlist and every request it makes is refused by the browser.',
+        });
+      }
+    }
+
     if (value.QUEUE_DRIVER === 'redis' && value.REDIS_URL.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -2500,6 +2569,13 @@ const envSchema = z
           message: 'must be true in production for every privileged staff session',
         });
       }
+      if (!value.FEATURE_AUDIT_MFA) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['FEATURE_AUDIT_MFA'],
+          message: 'must be true in production for every Audit Console session',
+        });
+      }
       if (!value.SELLER_MFA_REQUIRED) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -2741,6 +2817,7 @@ export const allowedOrigins: readonly string[] = Object.freeze([
   ...env.ADMIN_WEB_ORIGIN,
   ...env.CUSTOMER_WEB_ORIGIN,
   ...env.LOGISTICS_WEB_ORIGIN,
+  ...env.AUDIT_WEB_ORIGIN,
 ]);
 
 // The AES-256-GCM key is no longer decoded here: it can come from a file or a

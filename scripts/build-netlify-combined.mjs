@@ -1,7 +1,7 @@
 /**
- * Builds all three front ends into ONE folder, for a single Netlify site that
- * serves the storefront at `/`, the console at `/admin/` and the carrier
- * portal at `/logistics/`.
+ * Builds every front end into ONE folder, for a single Netlify site that
+ * serves the storefront at `/`, the console at `/admin/`, the carrier
+ * portal at `/logistics/` and the Audit Console at `/audit/`.
  *
  * WHY ONE SITE RATHER THAN THREE
  *
@@ -59,6 +59,7 @@ const apps = [
     into: 'logistics',
     demoVar: 'VITE_DEMO_LOGINS_LOGISTICS',
   },
+  { name: 'audit-web', base: '/audit/', into: 'audit', demoVar: 'VITE_DEMO_LOGINS_AUDIT' },
 ];
 
 /**
@@ -95,7 +96,7 @@ function run(command, args, options) {
   }
 }
 
-console.log(`Building three applications into ${outDir}\n`);
+console.log(`Building ${apps.length} applications into ${outDir}\n`);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
@@ -215,3 +216,4 @@ console.log(`\nDone. Publish: ${outDir}`);
 console.log('  /            storefront');
 console.log('  /admin/      admin console');
 console.log('  /logistics/  logistics portal');
+console.log('  /audit/      audit console');

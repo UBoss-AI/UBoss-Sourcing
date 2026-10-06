@@ -65,11 +65,20 @@ export async function afterReportSigned(
     jobNumber: string;
     jobKind: 'INITIAL' | 'REINSPECTION';
     reportId: string;
-    result: 'PASS' | 'FAIL';
+    result: 'PASS' | 'FAIL' | 'INCONCLUSIVE';
+    /** Only a PRE_SHIPMENT report touches the release. */
+    stage: 'RAW_MATERIAL' | 'DURING_PRODUCTION' | 'PRE_SHIPMENT' | 'RECEIVING';
     actor: InspectionActor;
   },
 ): Promise<void> {
-  await supersedeLive(tx, input.requirementId, `Replaced by the signed report of ${input.jobNumber}.`);
+  // A raw-material, in-production or receiving report is a finding about the
+  // goods, not a decision that they may leave. It neither creates nor
+  // replaces a release; its non-conformances hold the goods through the gate.
+  const releasing = input.stage === 'PRE_SHIPMENT';
+
+  if (releasing) {
+    await supersedeLive(tx, input.requirementId, `Replaced by the signed report of ${input.jobNumber}.`);
+  }
 
   // Findings on this job that the seller must now answer are no longer the
   // inspector's working: they are NCRs. A re-inspection that PASSES verifies
@@ -92,7 +101,7 @@ export async function afterReportSigned(
     }
   }
 
-  if (input.result === 'PASS') {
+  if (input.result === 'PASS' && releasing) {
     const scope = await currentScope(tx, input.sellerOrderGroupId);
     const releaseId = newId();
     await tx.inspectionRelease.create({
@@ -134,11 +143,15 @@ export async function afterReportSigned(
   await notifySeller({
     sellerAccountId: input.sellerAccountId,
     kind: 'INSPECTION_UPDATE',
-    title: `Inspection ${input.jobNumber}: ${input.result === 'PASS' ? 'passed' : 'failed'}`,
+    title: `Inspection ${input.jobNumber}: ${input.result === 'PASS' ? 'passed' : input.result === 'INCONCLUSIVE' ? 'inconclusive - on hold' : 'failed'}`,
     body:
       input.result === 'PASS'
-        ? 'The signed report passed. Check the order for any finding still open before you dispatch.'
-        : 'The signed report failed. The goods cannot leave. Record corrective action on each finding and book a re-inspection.',
+        ? input.stage === 'PRE_SHIPMENT'
+          ? 'The signed report passed. Check the order for any finding still open before you dispatch.'
+          : 'The signed report passed. This was not the pre-shipment inspection, so it does not release the goods.'
+        : input.result === 'INCONCLUSIVE'
+          ? 'The inspection could not decide - a check or a laboratory result is outstanding. The goods stay on hold until a re-inspection decides.'
+          : 'The signed report failed. The goods cannot leave. Record corrective action on each finding and book a re-inspection.',
     linkPath: `/seller/orders/${input.sellerOrderGroupId}`,
     severity: input.result === 'PASS' ? 'SUCCESS' : 'CRITICAL',
     subjectType: 'inspection_job',

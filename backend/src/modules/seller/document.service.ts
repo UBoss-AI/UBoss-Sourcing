@@ -157,7 +157,7 @@ async function scanDocument(
  * this repository ever moves a file off it: "the scan has not finished" would
  * belong with the refusals the moment a scanner exists to finish one.
  */
-function isServable(scanState: SellerDocumentScanState): boolean {
+export function isServable(scanState: SellerDocumentScanState): boolean {
   if (scanState === 'CLEAN') return true;
   if (scanState === 'SCANNER_UNCONFIGURED' || scanState === 'PENDING_SCAN') {
     return env.SELLER_ALLOW_UNSCANNED_DOCUMENTS;

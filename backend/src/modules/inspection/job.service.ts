@@ -36,6 +36,12 @@ import {
   type InspectionJobStatusName,
 } from '../../domain/inspection-state.js';
 import { readOrderItemSnapshot } from '../../domain/order-item-snapshot.js';
+import {
+  normaliseUnitRef,
+  summariseDefectUnits,
+  summariseQuantities,
+  validateQuantities,
+} from '../../domain/inspection-quantity.js';
 import { newId } from '../../infra/ids.js';
 import type { PrismaTransaction } from '../../infra/prisma.js';
 import { prisma } from '../../infra/prisma.js';
@@ -92,6 +98,12 @@ export interface BookingInput {
   specialRequirements?: string | null;
   /** Set for a repeat inspection after corrective action. */
   reinspectionOfJobId?: string | null;
+  /** When in the goods' life. Default PRE_SHIPMENT, the only releasing stage. */
+  stage?: 'RAW_MATERIAL' | 'DURING_PRODUCTION' | 'PRE_SHIPMENT' | 'RECEIVING';
+  /** Every unit, or a sample under the plan. Default SAMPLE. */
+  scopeMethod?: 'FULL' | 'SAMPLE';
+  /** IANA zone of the inspection point. */
+  timezone?: string | null;
 }
 
 const BOOKABLE_GROUP_STATUSES = ['NEW', 'ACCEPTED', 'PROCESSING'];
@@ -201,14 +213,24 @@ export async function bookInspection(
       );
     }
 
-    if (!BOOKABLE_GROUP_STATUSES.includes(requirement.sellerOrderGroup.status) || requirement.loadReleasedAt !== null) {
+    // A receiving inspection happens after the goods have left; every other
+    // stage only before.
+    const stage = input.stage ?? 'PRE_SHIPMENT';
+    const bookable =
+      stage === 'RECEIVING'
+        ? requirement.sellerOrderGroup.status !== 'CANCELLED'
+        : BOOKABLE_GROUP_STATUSES.includes(requirement.sellerOrderGroup.status) && requirement.loadReleasedAt === null;
+    if (!bookable) {
       throw conflict(ErrorCode.INSPECTION_BOOKING_NOT_ALLOWED, 'This order is past the point an inspection can be booked.', [
         { code: 'PAST_DISPATCH', meta: { status: requirement.sellerOrderGroup.status } },
       ]);
     }
 
+    // One open job per stage: a raw-material inspection still running does not
+    // stop the pre-shipment one being booked, and two pre-shipment jobs at once
+    // is still refused.
     const open = await tx.inspectionJob.findFirst({
-      where: { requirementId: requirement.id, status: { in: [...OPEN_JOB_STATUSES] } },
+      where: { requirementId: requirement.id, stage, status: { in: [...OPEN_JOB_STATUSES] } },
       select: { jobNumber: true },
     });
     if (open !== null) {
@@ -292,7 +314,13 @@ export async function bookInspection(
         inspectionPointJson: { ...input.inspectionPoint, country },
         scheduledFor: input.scheduledFor,
         language: (input.language ?? plan.language).slice(0, 8),
-        standard: `${plan.name} v${String(plan.version)} - ISO 2859-1 level ${plan.inspectionLevel}, AQL ${plan.aqlCritical}/${plan.aqlMajor}/${plan.aqlMinor}`.slice(0, 160),
+        standard: (input.scopeMethod === 'FULL'
+          ? `${plan.name} v${String(plan.version)} - full inspection, every unit, zero acceptance`
+          : `${plan.name} v${String(plan.version)} - MIL-STD-105E / ANSI/ASQ Z1.4 single sampling, level ${plan.inspectionLevel}, AQL ${plan.aqlCritical}/${plan.aqlMajor}/${plan.aqlMinor}`
+        ).slice(0, 160),
+        stage: input.stage ?? 'PRE_SHIPMENT',
+        scopeMethod: input.scopeMethod ?? 'SAMPLE',
+        timezone: input.timezone ?? null,
         scopeJson: scope,
         planSnapshotJson: plan as never,
         lotSize,
@@ -471,7 +499,7 @@ async function loadJob(tx: Tx | typeof prisma, jobId: string) {
   return job;
 }
 
-type LoadedJob = Awaited<ReturnType<typeof loadJob>>;
+export type LoadedJob = Awaited<ReturnType<typeof loadJob>>;
 
 /**
  * A job as the agency may see it: its own, and for an inspector only one they
@@ -686,14 +714,14 @@ export async function assignInspector(
 // The inspector
 // ---------------------------------------------------------------------------
 
-function assertIsNamedInspector(membership: InspectionMembership, job: LoadedJob): void {
+export function assertIsNamedInspector(membership: InspectionMembership, job: LoadedJob): void {
   assertInspectionPermission(membership, InspectionAgencyPermission.JOB_PERFORM);
   if (job.inspectorMemberId !== membership.memberId && job.backupInspectorMemberId !== membership.memberId) {
     throw notFound('Inspection');
   }
 }
 
-function assertInProgress(job: LoadedJob): void {
+export function assertInProgress(job: LoadedJob): void {
   if (job.status !== 'IN_PROGRESS') {
     throw conflict(
       job.status === 'COMPLETED' ? ErrorCode.INSPECTION_REPORT_LOCKED : ErrorCode.INSPECTION_JOB_TRANSITION_NOT_ALLOWED,
@@ -787,7 +815,15 @@ function checklistOf(job: LoadedJob): ChecklistItem[] {
 export async function recordCheck(
   membership: InspectionMembership,
   jobId: string,
-  input: { itemCode: string; outcome: 'CONFORM' | 'NONCONFORM' | 'NOT_APPLICABLE'; measuredValue?: string | null; note?: string | null },
+  input: {
+    itemCode: string;
+    outcome: 'CONFORM' | 'NONCONFORM' | 'NOT_APPLICABLE';
+    measuredValue?: string | null;
+    note?: string | null;
+    equipmentRef?: string | null;
+    equipmentCalibratedUntil?: string | null;
+    labReportEvidenceId?: string | null;
+  },
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
     const job = await loadJobForAgency(tx, membership, jobId);
@@ -805,6 +841,34 @@ export async function recordCheck(
     if (input.outcome === 'NONCONFORM' && (input.note ?? '').trim().length === 0) {
       throw badRequest(ErrorCode.VALIDATION_FAILED, 'Say what did not conform.', [{ field: 'note', code: 'REQUIRED' }]);
     }
+    // A mandatory line answered "not applicable" needs the reason it could
+    // not be done; the report will be INCONCLUSIVE, not a PASS.
+    if (input.outcome === 'NOT_APPLICABLE' && item.mandatory === true && (input.note ?? '').trim().length === 0) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Say why a mandatory check could not be performed.', [
+        { field: 'note', code: 'REQUIRED' },
+      ]);
+    }
+    const labReportEvidenceId = input.labReportEvidenceId ?? null;
+    if (labReportEvidenceId !== null) {
+      const report = await tx.inspectionEvidence.findFirst({
+        where: { id: labReportEvidenceId, jobId: job.id, mediaKind: 'DOCUMENT' },
+        select: { id: true },
+      });
+      if (report === null) {
+        throw badRequest(ErrorCode.VALIDATION_FAILED, 'Attach the laboratory report to this inspection first.', [
+          { field: 'labReportEvidenceId', code: 'NOT_ON_JOB' },
+        ]);
+      }
+    }
+    const calibratedUntil =
+      input.equipmentCalibratedUntil === null || input.equipmentCalibratedUntil === undefined
+        ? null
+        : new Date(`${input.equipmentCalibratedUntil}T00:00:00.000Z`);
+    const equipment = {
+      equipmentRef: input.equipmentRef?.trim().slice(0, 120) || null,
+      equipmentCalibratedUntil: calibratedUntil,
+      labReportEvidenceId,
+    };
 
     await tx.inspectionCheckResult.upsert({
       where: { jobId_itemCode: { jobId: job.id, itemCode: item.code } },
@@ -818,12 +882,14 @@ export async function recordCheck(
         outcome: input.outcome,
         measuredValue: input.measuredValue?.trim().slice(0, 128) || null,
         note: input.note?.trim().slice(0, 1024) || null,
+        ...equipment,
         recordedByMemberId: membership.memberId,
       },
       update: {
         outcome: input.outcome,
         measuredValue: input.measuredValue?.trim().slice(0, 128) || null,
         note: input.note?.trim().slice(0, 1024) || null,
+        ...equipment,
         recordedByMemberId: membership.memberId,
         recordedAt: new Date(),
       },
@@ -870,9 +936,25 @@ export async function recordSampling(
 export async function recordDefect(
   membership: InspectionMembership,
   jobId: string,
-  input: { severity: 'CRITICAL' | 'MAJOR' | 'MINOR'; requirementRef: string; description: string; defectQuantity: number },
+  input: {
+    severity: 'CRITICAL' | 'MAJOR' | 'MINOR';
+    requirementRef: string;
+    description: string;
+    defectQuantity: number;
+    /** The sample units it was found on. One unit may carry several defects. */
+    unitRefs?: string[] | null;
+    checkItemCode?: string | null;
+  },
   correlationId?: string | null,
 ): Promise<{ defectId: string; ncrNumber: string }> {
+  const unitRefs = [...new Set((input.unitRefs ?? []).map(normaliseUnitRef).filter((ref) => ref.length > 0))];
+  if (unitRefs.length > 0 && input.defectQuantity !== unitRefs.length) {
+    throw badRequest(
+      ErrorCode.INSPECTION_QUANTITY_INVALID,
+      'When the units are named, the number of occurrences is the number of units named.',
+      [{ field: 'defectQuantity', code: 'UNITS_DO_NOT_MATCH', meta: { units: unitRefs.length } }],
+    );
+  }
   return prisma.$transaction(async (tx) => {
     const job = await loadJobForAgency(tx, membership, jobId);
     assertIsNamedInspector(membership, job);
@@ -893,6 +975,8 @@ export async function recordDefect(
         requirementRef: input.requirementRef.trim().slice(0, 128),
         description: input.description.trim(),
         defectQuantity: Math.max(1, input.defectQuantity),
+        unitRefsJson: unitRefs.length > 0 ? unitRefs : undefined,
+        checkItemCode: input.checkItemCode?.trim().slice(0, 48) || null,
         recordedByMemberId: membership.memberId,
       },
     });
@@ -990,10 +1074,12 @@ interface ReportFacts {
   checks: Awaited<ReturnType<typeof prisma.inspectionCheckResult.findMany>>;
   defects: Awaited<ReturnType<typeof prisma.inspectionDefect.findMany>>;
   evidence: { id: string; purpose: string; contentHash: string; defectId: string | null; capturedAt: Date }[];
+  quantity: Awaited<ReturnType<typeof prisma.inspectionQuantityRecord.findUnique>>;
+  labSamples: Awaited<ReturnType<typeof prisma.inspectionLabSample.findMany>>;
 }
 
 async function reportFacts(tx: Tx, job: LoadedJob): Promise<ReportFacts> {
-  const [checks, defects, evidence] = await Promise.all([
+  const [checks, defects, evidence, quantity, labSamples] = await Promise.all([
     tx.inspectionCheckResult.findMany({ where: { jobId: job.id }, orderBy: { itemCode: 'asc' } }),
     tx.inspectionDefect.findMany({ where: { jobId: job.id }, orderBy: { ncrNumber: 'asc' } }),
     tx.inspectionEvidence.findMany({
@@ -1001,8 +1087,10 @@ async function reportFacts(tx: Tx, job: LoadedJob): Promise<ReportFacts> {
       orderBy: { receivedAt: 'asc' },
       select: { id: true, purpose: true, contentHash: true, defectId: true, capturedAt: true },
     }),
+    tx.inspectionQuantityRecord.findUnique({ where: { jobId: job.id } }),
+    tx.inspectionLabSample.findMany({ where: { jobId: job.id }, orderBy: { sampleCode: 'asc' } }),
   ]);
-  return { job, checks, defects, evidence };
+  return { job, checks, defects, evidence, quantity, labSamples };
 }
 
 /** What is still missing before a report can be submitted or signed. */
@@ -1017,6 +1105,14 @@ function completenessProblems(facts: ReportFacts): { code: string; meta?: Record
 
   if (facts.job.sampledQuantity === null || facts.job.lotReference === null) {
     problems.push({ code: 'SAMPLING_NOT_RECORDED' });
+  } else if (facts.job.scopeMethod === 'FULL') {
+    // A full inspection examines every unit, and says how many it counted.
+    if (facts.job.sampledQuantity < facts.job.lotSize) {
+      problems.push({ code: 'FULL_INSPECTION_INCOMPLETE', meta: { lotSize: facts.job.lotSize, examined: facts.job.sampledQuantity } });
+    }
+    if (facts.quantity?.verifiedQuantity === null || facts.quantity === null) {
+      problems.push({ code: 'QUANTITY_NOT_RECORDED' });
+    }
   } else if (facts.job.sampledQuantity < Math.min(sampling.sampleSize, facts.job.lotSize)) {
     problems.push({
       code: 'SAMPLE_TOO_SMALL',
@@ -1035,13 +1131,76 @@ function completenessProblems(facts: ReportFacts): { code: string; meta?: Record
   return problems;
 }
 
+/**
+ * Why the evidence cannot support a decision, line by line. Feeds the
+ * INCONCLUSIVE result: a mandatory line not performed, a line that needs a
+ * laboratory report or a calibrated instrument without one, a laboratory
+ * sample with no result yet.
+ */
+function holdsFor(facts: ReportFacts): string[] {
+  const holds: string[] = [];
+  const byCode = new Map(facts.checks.map((check) => [check.itemCode.toUpperCase(), check]));
+  for (const item of checklistOf(facts.job)) {
+    const check = byCode.get(item.code.toUpperCase());
+    if (check === undefined) continue;
+    if (item.mandatory === true && check.outcome === 'NOT_APPLICABLE') holds.push(`MANDATORY_CHECK_NOT_PERFORMED:${item.code}`);
+    if (item.requiresLabReport === true && check.outcome !== 'NOT_APPLICABLE' && check.labReportEvidenceId === null) {
+      holds.push(`LAB_REPORT_MISSING:${item.code}`);
+    }
+    if (item.requiresEquipment === true && check.outcome !== 'NOT_APPLICABLE' && check.equipmentRef === null) {
+      holds.push(`EQUIPMENT_NOT_RECORDED:${item.code}`);
+    }
+  }
+  for (const sample of facts.labSamples) {
+    if (sample.labReportEvidenceId === null || sample.resultSummary === null) holds.push(`LAB_RESULT_PENDING:${sample.sampleCode}`);
+  }
+  return holds;
+}
+
 function computationFor(facts: ReportFacts) {
   const sampling = facts.job.samplingJson as unknown as SamplingPlan;
   return computeInspectionResult({
     sampling,
     defects: facts.defects.map((defect) => ({ severity: defect.severity, defectQuantity: defect.defectQuantity })),
     nonconformingChecks: facts.checks.filter((check) => check.outcome === 'NONCONFORM').length,
+    scopeMethod: facts.job.scopeMethod,
+    holds: holdsFor(facts),
   });
+}
+
+function unitRefsOf(value: unknown): string[] | null {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : null;
+}
+
+/** The quantity record as the report states it, or null when none was made. */
+function quantitySummaryOf(facts: ReportFacts) {
+  const q = facts.quantity;
+  if (q === null) return null;
+  const s = (value: { toString(): string } | null): string | null => (value === null ? null : value.toString());
+  return {
+    ...summariseQuantities(
+      validateQuantities({
+        unit: q.unit,
+        scopeMethod: facts.job.scopeMethod,
+        orderedQuantity: q.orderedQuantity.toString(),
+        declaredQuantity: s(q.declaredQuantity),
+        verifiedQuantity: s(q.verifiedQuantity),
+        sampledQuantity: s(q.sampledQuantity),
+        functionallyTestedQuantity: s(q.functionallyTestedQuantity),
+        testedConformingQuantity: s(q.testedConformingQuantity),
+        testedNonconformingQuantity: s(q.testedNonconformingQuantity),
+        damagedQuantity: s(q.damagedQuantity),
+      }),
+    ),
+    countingMethod: q.countingMethod,
+    countingNote: q.countingNote,
+    packaging: q.packagingJson,
+    observations: {
+      packaging: q.packagingObservations,
+      labelling: q.labelingObservations,
+      damage: q.damageObservations,
+    },
+  };
 }
 
 function jsonSafe(value: unknown): unknown {
@@ -1050,9 +1209,9 @@ function jsonSafe(value: unknown): unknown {
   );
 }
 
-async function reportContent(tx: Tx, facts: ReportFacts, summary: string | null) {
+async function reportContent(tx: Tx, facts: ReportFacts, summary: string | null, limitations: string | null = null) {
   const [agency, inspector] = await Promise.all([
-    tx.inspectionAgency.findUniqueOrThrow({ where: { id: facts.job.agencyId }, select: { name: true, legalName: true } }),
+    tx.inspectionAgency.findUniqueOrThrow({ where: { id: facts.job.agencyId }, select: { name: true, legalName: true, kind: true } }),
     facts.job.inspectorMemberId === null
       ? null
       : tx.inspectionAgencyMember.findUnique({
@@ -1061,12 +1220,23 @@ async function reportContent(tx: Tx, facts: ReportFacts, summary: string | null)
         }),
   ]);
 
+  const plan = facts.job.planSnapshotJson as unknown as PlanSnapshot;
   return jsonSafe({
-    v: 1,
+    v: 2,
     jobNumber: facts.job.jobNumber,
     kind: facts.job.kind,
+    stage: facts.job.stage,
+    scopeMethod: facts.job.scopeMethod,
+    timezone: facts.job.timezone,
     reinspectionOfJobId: facts.job.reinspectionOfJobId,
     agency: agency.legalName,
+    /** THIRD_PARTY, INTERNAL or SELLER_SELF - printed on every report. */
+    agencyKind: agency.kind,
+    plan: {
+      name: plan.name,
+      version: plan.version,
+      categorySpecific: plan.categorySpecific ?? true,
+    },
     inspector: inspector?.fullName ?? null,
     inspectionPoint: facts.job.inspectionPointJson,
     scheduledFor: facts.job.scheduledFor,
@@ -1089,6 +1259,9 @@ async function reportContent(tx: Tx, facts: ReportFacts, summary: string | null)
       outcome: check.outcome,
       measuredValue: check.measuredValue,
       note: check.note,
+      equipmentRef: check.equipmentRef,
+      equipmentCalibratedUntil: check.equipmentCalibratedUntil,
+      labReportEvidenceId: check.labReportEvidenceId,
     })),
     defects: facts.defects.map((defect) => ({
       ncrNumber: defect.ncrNumber,
@@ -1097,11 +1270,35 @@ async function reportContent(tx: Tx, facts: ReportFacts, summary: string | null)
       requirementRef: defect.requirementRef,
       description: defect.description,
       defectQuantity: defect.defectQuantity,
+      unitRefs: unitRefsOf(defect.unitRefsJson),
+      checkItemCode: defect.checkItemCode,
       reclassificationReason: defect.reclassificationReason,
+    })),
+    defectUnits: summariseDefectUnits(
+      facts.defects.map((defect) => ({
+        severity: defect.severity,
+        defectQuantity: defect.defectQuantity,
+        unitRefs: unitRefsOf(defect.unitRefsJson),
+      })),
+    ),
+    quantities: quantitySummaryOf(facts),
+    labSamples: facts.labSamples.map((sample) => ({
+      sampleCode: sample.sampleCode,
+      description: sample.description,
+      quantity: sample.quantity?.toString() ?? null,
+      unit: sample.unit,
+      sealNumber: sample.sealNumber,
+      takenAt: sample.takenAt,
+      laboratoryName: sample.laboratoryName,
+      laboratoryAccreditation: sample.laboratoryAccreditation,
+      custody: sample.custodyJson,
+      labReportEvidenceId: sample.labReportEvidenceId,
+      resultSummary: sample.resultSummary,
     })),
     evidence: facts.evidence.map((item) => ({ id: item.id, purpose: item.purpose, sha256: item.contentHash, capturedAt: item.capturedAt })),
     computation: computationFor(facts),
     summary,
+    limitations,
   });
 }
 
@@ -1119,9 +1316,9 @@ export function reportSignature(contentHash: string, signerMemberId: string, sig
 export async function submitReport(
   membership: InspectionMembership,
   jobId: string,
-  input: { summary?: string | null },
+  input: { summary?: string | null; limitations?: string | null },
   correlationId?: string | null,
-): Promise<{ reportId: string; revision: number; result: 'PASS' | 'FAIL' }> {
+): Promise<{ reportId: string; revision: number; result: 'PASS' | 'FAIL' | 'INCONCLUSIVE' }> {
   return prisma.$transaction(async (tx) => {
     const job = await loadJobForAgency(tx, membership, jobId);
     assertIsNamedInspector(membership, job);
@@ -1134,7 +1331,8 @@ export async function submitReport(
     }
 
     const summary = input.summary?.trim() || null;
-    const content = await reportContent(tx, facts, summary);
+    const limitations = input.limitations?.trim() || null;
+    const content = await reportContent(tx, facts, summary, limitations);
     const computation = computationFor(facts);
     const revision = (await tx.inspectionReport.count({ where: { jobId: job.id } })) + 1;
     const id = newId();
@@ -1147,6 +1345,7 @@ export async function submitReport(
         status: 'SUBMITTED',
         result: computation.result,
         summary,
+        limitations,
         computationJson: computation as never,
         contentJson: content as never,
         contentHash: hashOf(content),
@@ -1272,7 +1471,7 @@ export async function signReport(
   membership: InspectionMembership,
   jobId: string,
   correlationId?: string | null,
-): Promise<{ reportId: string; result: 'PASS' | 'FAIL' }> {
+): Promise<{ reportId: string; result: 'PASS' | 'FAIL' | 'INCONCLUSIVE' }> {
   const policy = await readPolicy();
 
   return prisma.$transaction(async (tx) => {
@@ -1293,7 +1492,7 @@ export async function signReport(
       throw conflict(ErrorCode.INSPECTION_REPORT_INCOMPLETE, 'The report is not complete yet.', problems);
     }
 
-    const content = await reportContent(tx, facts, report.summary);
+    const content = await reportContent(tx, facts, report.summary, report.limitations);
     const computation = computationFor(facts);
     const contentHash = hashOf(content);
     const signedAt = new Date();
@@ -1341,6 +1540,7 @@ export async function signReport(
       jobKind: job.kind,
       reportId: report.id,
       result: computation.result,
+      stage: job.stage,
       actor,
     });
 

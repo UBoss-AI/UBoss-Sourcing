@@ -33,7 +33,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const APPS = ['customer-web', 'admin-web', 'logistics-web'];
+const APPS = ['customer-web', 'admin-web', 'logistics-web', 'audit-web'];
 
 /** English is the reference and the fallback. Everything is compared to it. */
 const REFERENCE = 'en';

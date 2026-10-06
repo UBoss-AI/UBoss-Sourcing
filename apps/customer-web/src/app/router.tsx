@@ -216,10 +216,11 @@ export const router = createBrowserRouter([
 
       // --- Buying: activated customers only ---------------------------------
       { path: 'cart', ...customerRoute(() => import('@/pages/CartPage').then((m) => m.CartPage)) },
-      // The inspection agency portal (checklist Master rows 45-54).
-      { path: 'inspection', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyDashboardPage)) },
-      { path: 'inspection/jobs/:id', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyJobPage)) },
-      { path: 'inspection/jobs/:id/packaging', ...customerRoute(() => import('@/pages/inspection/PackagingPage').then((m) => m.PackagingPage)) },
+      // The inspection agency portal moved to the Audit Console, its own
+      // application with its own sign-in. An old bookmark is told where to go.
+      // Public: an agency person need not hold a storefront account.
+      { path: 'inspection', ...publicRoute(() => import('@/pages/InspectionMovedPage').then((m) => m.InspectionMovedPage)) },
+      { path: 'inspection/*', ...publicRoute(() => import('@/pages/InspectionMovedPage').then((m) => m.InspectionMovedPage)) },
       {
         path: 'checkout',
         ...customerRoute(() => import('@/pages/CheckoutPage').then((m) => m.CheckoutPage)),
@@ -817,6 +818,13 @@ export const router = createBrowserRouter([
         path: 'factories',
         ...accountPage(() =>
           import('@/pages/seller/SellerFactoriesPage').then((m) => m.SellerFactoriesPage),
+        ),
+      },
+      {
+        // Qualifications and compliance documents; a reviewer decides in the Audit Console.
+        path: 'compliance',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerCompliancePage').then((m) => m.SellerCompliancePage),
         ),
       },
       {

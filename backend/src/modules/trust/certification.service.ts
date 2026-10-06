@@ -37,6 +37,7 @@ import { notifySeller } from '../seller/notification.service.js';
 import { holdCertificateListings, releaseCertificateListings } from './certificate-listing-holds.service.js';
 import { notifyCertificationLapsed } from './expiry-alerts.service.js';
 import { trustTimings, usableOwnDocument, type StaffActor } from './factory.service.js';
+import { sendCasesBackForReview } from '../compliance/document.service.js';
 
 export const MAX_CERTIFICATIONS_PER_SELLER = 100;
 
@@ -179,9 +180,10 @@ async function expireLapsed(where: { sellerAccountId?: string; id?: string }, li
     const moved = await prisma.$transaction(async (tx) => {
       const result = await tx.sellerCertification.updateMany({
         where: { id: row.id, state: 'VERIFIED' },
-        data: { state: 'EXPIRED', expiredAt: new Date() },
+        data: { state: 'EXPIRED', reviewStatus: 'EXPIRED', expiredAt: new Date() },
       });
       if (result.count === 0) return false;
+      await sendCasesBackForReview(tx, row.id, `${row.standard} passed its expiry date.`);
       await holdCertificateListings(tx, row);
       await recordAudit(
         {
@@ -303,6 +305,7 @@ export async function createCertification(
         expiresOn: toDate(input.expiresOn) ?? null,
         documentId: input.documentId,
         state: 'PENDING',
+        reviewStatus: 'SUBMITTED',
       },
     });
     await recordSellerAudit({
@@ -363,10 +366,15 @@ export async function updateCertification(
       where: { id, state: row.state, updatedAt: row.updatedAt },
       data: {
         ...data,
-        ...(reverify ? { state: 'PENDING' as const, verifiedAt: null, verifiedByUserId: null, expiryWarnedAt: null } : {}),
+        ...(reverify
+          ? { state: 'PENDING' as const, reviewStatus: 'SUBMITTED' as const, verifiedAt: null, verifiedByUserId: null, expiryWarnedAt: null }
+          : {}),
       },
     });
     if (moved.count === 0) throw staleCertification();
+    // A verification covers exactly what was checked; a qualification that
+    // relied on this certificate is looked at again.
+    if (reverify) await sendCasesBackForReview(tx, id, `The seller changed ${row.standard} after it was approved.`);
     await recordSellerAudit({
       sellerAccountId: membership.sellerAccountId,
       action: 'seller.certification.updated',
@@ -416,7 +424,7 @@ export async function submitCertification(
   await prisma.$transaction(async (tx) => {
     const moved = await tx.sellerCertification.updateMany({
       where: { id, state: row.state, updatedAt: row.updatedAt },
-      data: { state: 'PENDING', rejectionReason: null, expiredAt: null, expiryWarnedAt: null },
+      data: { state: 'PENDING', reviewStatus: 'SUBMITTED', rejectionReason: null, expiredAt: null, expiryWarnedAt: null },
     });
     if (moved.count === 0) throw staleCertification();
     await recordSellerAudit({
@@ -520,11 +528,24 @@ export async function decideCertification(input: {
       where: { id: row.id, state: row.state, updatedAt: row.updatedAt },
       data:
         input.decision === 'VERIFIED'
-          ? { state: 'VERIFIED', verifiedAt: now, verifiedByUserId: input.actor.userId, lastCheckedAt: now, rejectionReason: null }
-          : { state: 'REJECTED', rejectionReason: reason, lastCheckedAt: now, verifiedByUserId: input.actor.userId },
+          ? {
+              state: 'VERIFIED',
+              reviewStatus: 'APPROVED',
+              // The console's own decision records how a document was checked;
+              // this older path is an examination of the file, and says so.
+              verificationMethod: 'MANUAL_EVIDENCE',
+              verifiedAt: now,
+              verifiedByUserId: input.actor.userId,
+              lastCheckedAt: now,
+              rejectionReason: null,
+            }
+          : { state: 'REJECTED', reviewStatus: 'REJECTED', rejectionReason: reason, reviewMessage: reason, lastCheckedAt: now, verifiedByUserId: input.actor.userId },
     });
     if (moved.count === 0) throw staleCertification();
     if (input.decision === 'VERIFIED') await releaseCertificateListings(tx, row.id);
+    if (input.decision === 'REJECTED' && row.state === 'VERIFIED') {
+      await sendCasesBackForReview(tx, row.id, `${row.standard} was withdrawn by the marketplace.`);
+    }
     await recordAudit(
       {
         action: AuditAction.SELLER_CERTIFICATION_DECIDED,

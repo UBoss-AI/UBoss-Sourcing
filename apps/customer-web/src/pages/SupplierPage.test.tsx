@@ -113,6 +113,23 @@ describe('SupplierPage', () => {
     expect(screen.getAllByText('As stated by the supplier.').length).toBeGreaterThanOrEqual(1);
   });
 
+  it('shows scoped qualifications and what was checked on each certificate', async () => {
+    const base = profile();
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        supplier: {
+          ...base,
+          certifications: base.certifications.map((certificate) => ({ ...certificate, verificationBadge: 'VERIFIED_WITH_ISSUER_OR_REGISTER' })),
+          qualifications: [{ category: 'Castings', supplyRole: 'MANUFACTURER', destinationMarket: 'EU', qualifiedAt: '2026-05-01T00:00:00.000Z', expiresAt: null }],
+        },
+      }),
+    );
+    render();
+    const qualifications = await screen.findByRole('region', { name: 'Qualifications' });
+    expect(qualifications).toHaveTextContent('Qualified: Castings - Manufacturer - for the European Union');
+    expect(screen.getByRole('region', { name: 'Verified certifications' })).toHaveTextContent('Confirmed with the issuer or an official register');
+  });
+
   it('shows a registered company name, factory machines and the inspection record (JOURNEY-005)', async () => {
     const base = profile();
     fetchMock.mockResolvedValue(

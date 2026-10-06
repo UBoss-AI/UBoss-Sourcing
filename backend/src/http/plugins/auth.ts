@@ -58,7 +58,11 @@ export function cookieNamesFor(kind: UserKind): CookieNames {
   // hostname does not sign a member of staff out of the console. The logistics
   // scope is abbreviated rather than spelled out only because a cookie name is
   // sent on every request; nothing depends on the spelling except this line.
-  const scope = kind === 'ADMIN' ? 'admin' : kind === 'LOGISTICS' ? 'logi' : 'shop';
+  //
+  // A fourth for the Audit Console, for the same reason: an inspector who also
+  // shops here keeps two sessions, and neither can be read as the other.
+  const scope =
+    kind === 'ADMIN' ? 'admin' : kind === 'LOGISTICS' ? 'logi' : kind === 'AUDIT' ? 'audit' : 'shop';
 
   return {
     access: `uboss_${scope}_at`,

@@ -156,6 +156,7 @@ When the guide is finished, your server will have:
 | The shop | Where customers and sellers shop, and where Seller Hub lives | `https://shop.YOURDOMAIN.COM` |
 | The admin panel | Where your staff manage everything | `https://admin.YOURDOMAIN.COM` |
 | The carrier portal | Where delivery partners work | `https://carriers.YOURDOMAIN.COM` |
+| The Audit Console (optional) | Where auditors and inspectors work — only if you switch it on | `https://audit.YOURDOMAIN.COM` |
 | The API | The "brain" that all three websites talk to | Hidden inside the server |
 | The worker | Sends emails and makes PDFs in the background | Hidden inside the server |
 | The database | Stores all the data | Hidden inside the server |
@@ -565,6 +566,16 @@ ls current
 
 ✅ **Done when:** the last line shows four names: `admin-web`, `backend`, `customer-web` and `logistics-web`.
 
+> **Optional — the Audit Console.** Skip this unless you want it. It is a
+> fourth website, for auditors and inspectors. To add it: put
+> `FEATURE_AUDIT_CONSOLE=true`, `AUDIT_WEB_ORIGIN=https://audit.YOURDOMAIN.COM`
+> and `AUDIT_WEB_PUBLIC_URL=https://audit.YOURDOMAIN.COM` in the `.env` file,
+> build it with
+> `cd /srv/uboss/repo/apps/audit-web && npm ci && VITE_API_BASE_URL=https://audit.YOURDOMAIN.COM/api/v1 npm run build`,
+> copy it with `rsync -a --delete /srv/uboss/repo/apps/audit-web/dist/ /srv/uboss/current/audit-web/`,
+> and add `audit` to the DNS records (Part 9) and the `certbot` line (Part 11).
+> `docs/DEPLOYMENT.md` §11.13 has every step.
+
 
 ## Part 8: Start the app
 
@@ -637,6 +648,7 @@ The log names the setting that is wrong. Fix it like this:
 | A | `shop` | YOUR_VPS_IP | 300 (or Auto) |
 | A | `admin` | YOUR_VPS_IP | 300 (or Auto) |
 | A | `carriers` | YOUR_VPS_IP | 300 (or Auto) |
+| A | `audit` | YOUR_VPS_IP | 300 (or Auto) — only if you use the Audit Console |
 
 4. Save. Then wait **10–30 minutes**.
 
@@ -695,6 +707,8 @@ Paste this, with your domain in place of `YOURDOMAIN.COM`:
 ```bash
 certbot --nginx -d shop.YOURDOMAIN.COM -d admin.YOURDOMAIN.COM -d carriers.YOURDOMAIN.COM
 ```
+
+Using the Audit Console? Add ` -d audit.YOURDOMAIN.COM` to the end of that line. **Not using it?** Open `/etc/nginx/sites-available/uboss.conf` with `nano` first, delete the whole `server { ... }` block under "The Audit Console" and the word `audit.YOURDOMAIN.COM` in the first `server_name` line, and save. nginx will not start with a block whose certificate does not exist.
 
 It asks a few things:
 - **Your email**: type it. It is used for expiry warnings.

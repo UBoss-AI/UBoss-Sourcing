@@ -18,6 +18,7 @@ reads.
 - [ ] `cd apps/customer-web && npm run verify`
 - [ ] `cd apps/admin-web && npm run verify`
 - [ ] `cd apps/logistics-web && npm run verify` — only if the carrier portal changed
+- [ ] `cd apps/audit-web && npm run verify` — only if the Audit Console changed
 
 ## Documentation
 

@@ -55,6 +55,12 @@ export interface StorefrontConfig {
    * `setMarketplaceName`. Optional because a backend older than this field
    * does not send it; the product's own name stands in.
    */
+  /**
+   * Where inspection agencies and the audit team sign in (the Audit Console),
+   * shown to somebody who opens the old agency pages here. Empty when the
+   * console is switched off; absent from an older backend.
+   */
+  auditConsoleUrl?: string;
   marketplace?: {
     displayName: string;
     /**
@@ -339,6 +345,25 @@ export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> 
     issuedOn: string | null;
     expiresOn: string | null;
     verifiedAt: string | null;
+    /**
+     * What was actually checked: the evidence was reviewed, or it was
+     * confirmed with the issuer or an official register. Never "authentic".
+     * Absent from an older API.
+     */
+    verificationBadge?: 'EVIDENCE_REVIEWED' | 'VERIFIED_WITH_ISSUER_OR_REGISTER';
+  }[];
+  /**
+   * Categories this supplier is qualified to sell in, each for exactly one
+   * supply role and market and nothing wider. Never the documents behind
+   * them. Absent from an older API.
+   */
+  qualifications?: {
+    category: string;
+    supplyRole: string;
+    /** ISO alpha-2, `EU`, or null for any market. */
+    destinationMarket: string | null;
+    qualifiedAt: string | null;
+    expiresAt: string | null;
   }[];
 }
 

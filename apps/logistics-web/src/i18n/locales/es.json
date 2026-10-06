@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Buscar en el catálogo",
   "errorPage.search.placeholder": "Busque productos, marcas o códigos",
   "errorPage.search.submit": "Buscar",
-  "errorPage.notFound.message": "Es posible que el enlace esté desactualizado o que la página se haya trasladado. Compruebe la dirección o vuelva al panel de control."
+  "errorPage.notFound.message": "Es posible que el enlace esté desactualizado o que la página se haya trasladado. Compruebe la dirección o vuelva al panel de control.",
+  "shipment.inspection.released": "Inspección: liberada. Estas mercancías pueden salir.",
+  "shipment.inspection.notNeeded": "Este envío no necesita inspección.",
+  "shipment.inspection.held": "Retenido por la inspección: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "el pedido debe inspeccionarse antes de salir y todavía no se ha reservado ninguna inspección.",
+  "shipment.inspection.reason.IN_PROGRESS": "la inspección todavía no ha terminado.",
+  "shipment.inspection.reason.FAILED": "la inspección no se superó. Las mercancías no pueden salir hasta que una nueva inspección se supere o se apruebe una liberación.",
+  "shipment.inspection.reason.INCONCLUSIVE": "la inspección no fue concluyente. Las mercancías quedan retenidas hasta que una nueva inspección decida o se apruebe una liberación.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "una no conformidad grave sigue abierta y debe corregirse y verificarse primero.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "una liberación espera a un segundo aprobador.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "las mercancías, los bultos, el contenedor o el precinto cambiaron tras la inspección, por lo que debe reevaluarse antes del despacho.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "el comprador todavía está dentro del plazo para revisar el informe de inspección."
 }

@@ -37,6 +37,10 @@ export type InspectionGateReason =
   | 'NOT_BOOKED'
   | 'IN_PROGRESS'
   | 'FAILED'
+  /** The signed report could not decide either way. Holds like a failure. */
+  | 'INCONCLUSIVE'
+  /** An approved, unused sub-lot release covers exactly what is leaving. */
+  | 'SUBLOT_RELEASED'
   | 'BLOCKING_NCR_OPEN'
   | 'RELEASE_PENDING_APPROVAL'
   | 'SCOPE_CHANGED'
@@ -70,8 +74,12 @@ export interface InspectionGateFacts {
     state: 'ACTIVE' | 'PENDING_APPROVAL';
     boundScopeHash: string;
   } | null;
-  /** The latest signed report's result, or null when none is signed. */
-  latestSignedResult: 'PASS' | 'FAIL' | null;
+  /**
+   * The latest signed PRE-SHIPMENT report's result, or null when none is
+   * signed. Raw-material and in-production reports never release goods; their
+   * findings hold them through `blockingNcrCount` instead.
+   */
+  latestSignedResult: 'PASS' | 'FAIL' | 'INCONCLUSIVE' | null;
   /** Whether a job is booked and not finished. */
   hasOpenJob: boolean;
   /** Non-conformances the policy says hold the goods, not yet closed. */
@@ -107,6 +115,7 @@ export function evaluateInspectionGate(facts: InspectionGateFacts): InspectionGa
 
   if (release === null) {
     if (facts.latestSignedResult === 'FAIL') return { ...base, open: false, reason: 'FAILED' };
+    if (facts.latestSignedResult === 'INCONCLUSIVE') return { ...base, open: false, reason: 'INCONCLUSIVE' };
     if (facts.hasOpenJob) return { ...base, open: false, reason: 'IN_PROGRESS' };
     // A PASS with no live release means the release was superseded - the
     // goods changed after they were inspected.
@@ -154,6 +163,9 @@ const REASON_SENTENCE: Record<InspectionGateReason, string> = {
   NOT_BOOKED: 'This order must be inspected before it leaves, and no inspection has been booked.',
   IN_PROGRESS: 'This order must be inspected before it leaves, and the inspection is not finished.',
   FAILED: 'The inspection failed. The goods cannot leave until a re-inspection passes or a conditional release is approved.',
+  INCONCLUSIVE:
+    'The inspection was inconclusive. The goods are on hold until a re-inspection decides, or an authorised release is approved.',
+  SUBLOT_RELEASED: 'An approved sub-lot release covers exactly these goods.',
   BLOCKING_NCR_OPEN: 'A major non-conformance is still open. The goods cannot leave until it is corrected and verified.',
   RELEASE_PENDING_APPROVAL: 'A conditional release is waiting for a second approver.',
   SCOPE_CHANGED: 'The goods, packages, container or seal changed after the inspection. The inspection must be re-evaluated before dispatch.',

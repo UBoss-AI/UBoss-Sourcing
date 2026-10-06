@@ -44,6 +44,7 @@ export type InspectionDefectMinAggregateOutputType = {
   requirementRef: string | null
   description: string | null
   defectQuantity: number | null
+  checkItemCode: string | null
   status: $Enums.InspectionNcrStatus | null
   recordedByMemberId: string | null
   recordedAt: Date | null
@@ -71,6 +72,7 @@ export type InspectionDefectMaxAggregateOutputType = {
   requirementRef: string | null
   description: string | null
   defectQuantity: number | null
+  checkItemCode: string | null
   status: $Enums.InspectionNcrStatus | null
   recordedByMemberId: string | null
   recordedAt: Date | null
@@ -98,6 +100,8 @@ export type InspectionDefectCountAggregateOutputType = {
   requirementRef: number
   description: number
   defectQuantity: number
+  unitRefsJson: number
+  checkItemCode: number
   status: number
   recordedByMemberId: number
   recordedAt: number
@@ -135,6 +139,7 @@ export type InspectionDefectMinAggregateInputType = {
   requirementRef?: true
   description?: true
   defectQuantity?: true
+  checkItemCode?: true
   status?: true
   recordedByMemberId?: true
   recordedAt?: true
@@ -162,6 +167,7 @@ export type InspectionDefectMaxAggregateInputType = {
   requirementRef?: true
   description?: true
   defectQuantity?: true
+  checkItemCode?: true
   status?: true
   recordedByMemberId?: true
   recordedAt?: true
@@ -189,6 +195,8 @@ export type InspectionDefectCountAggregateInputType = {
   requirementRef?: true
   description?: true
   defectQuantity?: true
+  unitRefsJson?: true
+  checkItemCode?: true
   status?: true
   recordedByMemberId?: true
   recordedAt?: true
@@ -303,6 +311,8 @@ export type InspectionDefectGroupByOutputType = {
   requirementRef: string
   description: string
   defectQuantity: number
+  unitRefsJson: runtime.JsonValue | null
+  checkItemCode: string | null
   status: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt: Date
@@ -353,6 +363,8 @@ export type InspectionDefectWhereInput = {
   requirementRef?: Prisma.StringFilter<"InspectionDefect"> | string
   description?: Prisma.StringFilter<"InspectionDefect"> | string
   defectQuantity?: Prisma.IntFilter<"InspectionDefect"> | number
+  unitRefsJson?: Prisma.JsonNullableFilter<"InspectionDefect">
+  checkItemCode?: Prisma.StringNullableFilter<"InspectionDefect"> | string | null
   status?: Prisma.EnumInspectionNcrStatusFilter<"InspectionDefect"> | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFilter<"InspectionDefect"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionDefect"> | Date | string
@@ -382,6 +394,8 @@ export type InspectionDefectOrderByWithRelationInput = {
   requirementRef?: Prisma.SortOrder
   description?: Prisma.SortOrder
   defectQuantity?: Prisma.SortOrder
+  unitRefsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkItemCode?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
@@ -415,6 +429,8 @@ export type InspectionDefectWhereUniqueInput = Prisma.AtLeast<{
   requirementRef?: Prisma.StringFilter<"InspectionDefect"> | string
   description?: Prisma.StringFilter<"InspectionDefect"> | string
   defectQuantity?: Prisma.IntFilter<"InspectionDefect"> | number
+  unitRefsJson?: Prisma.JsonNullableFilter<"InspectionDefect">
+  checkItemCode?: Prisma.StringNullableFilter<"InspectionDefect"> | string | null
   status?: Prisma.EnumInspectionNcrStatusFilter<"InspectionDefect"> | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFilter<"InspectionDefect"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionDefect"> | Date | string
@@ -444,6 +460,8 @@ export type InspectionDefectOrderByWithAggregationInput = {
   requirementRef?: Prisma.SortOrder
   description?: Prisma.SortOrder
   defectQuantity?: Prisma.SortOrder
+  unitRefsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkItemCode?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
@@ -479,6 +497,8 @@ export type InspectionDefectScalarWhereWithAggregatesInput = {
   requirementRef?: Prisma.StringWithAggregatesFilter<"InspectionDefect"> | string
   description?: Prisma.StringWithAggregatesFilter<"InspectionDefect"> | string
   defectQuantity?: Prisma.IntWithAggregatesFilter<"InspectionDefect"> | number
+  unitRefsJson?: Prisma.JsonNullableWithAggregatesFilter<"InspectionDefect">
+  checkItemCode?: Prisma.StringNullableWithAggregatesFilter<"InspectionDefect"> | string | null
   status?: Prisma.EnumInspectionNcrStatusWithAggregatesFilter<"InspectionDefect"> | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringWithAggregatesFilter<"InspectionDefect"> | string
   recordedAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionDefect"> | Date | string
@@ -505,6 +525,8 @@ export type InspectionDefectCreateInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -534,6 +556,8 @@ export type InspectionDefectUncheckedCreateInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -561,6 +585,8 @@ export type InspectionDefectUpdateInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -590,6 +616,8 @@ export type InspectionDefectUncheckedUpdateInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -618,6 +646,8 @@ export type InspectionDefectCreateManyInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -644,6 +674,8 @@ export type InspectionDefectUpdateManyMutationInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -671,6 +703,8 @@ export type InspectionDefectUncheckedUpdateManyInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -714,6 +748,8 @@ export type InspectionDefectCountOrderByAggregateInput = {
   requirementRef?: Prisma.SortOrder
   description?: Prisma.SortOrder
   defectQuantity?: Prisma.SortOrder
+  unitRefsJson?: Prisma.SortOrder
+  checkItemCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
@@ -745,6 +781,7 @@ export type InspectionDefectMaxOrderByAggregateInput = {
   requirementRef?: Prisma.SortOrder
   description?: Prisma.SortOrder
   defectQuantity?: Prisma.SortOrder
+  checkItemCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
@@ -772,6 +809,7 @@ export type InspectionDefectMinOrderByAggregateInput = {
   requirementRef?: Prisma.SortOrder
   description?: Prisma.SortOrder
   defectQuantity?: Prisma.SortOrder
+  checkItemCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
@@ -873,6 +911,8 @@ export type InspectionDefectCreateWithoutJobInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -900,6 +940,8 @@ export type InspectionDefectUncheckedCreateWithoutJobInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -957,6 +999,8 @@ export type InspectionDefectScalarWhereInput = {
   requirementRef?: Prisma.StringFilter<"InspectionDefect"> | string
   description?: Prisma.StringFilter<"InspectionDefect"> | string
   defectQuantity?: Prisma.IntFilter<"InspectionDefect"> | number
+  unitRefsJson?: Prisma.JsonNullableFilter<"InspectionDefect">
+  checkItemCode?: Prisma.StringNullableFilter<"InspectionDefect"> | string | null
   status?: Prisma.EnumInspectionNcrStatusFilter<"InspectionDefect"> | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFilter<"InspectionDefect"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionDefect"> | Date | string
@@ -983,6 +1027,8 @@ export type InspectionDefectCreateWithoutEvidenceInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -1011,6 +1057,8 @@ export type InspectionDefectUncheckedCreateWithoutEvidenceInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -1053,6 +1101,8 @@ export type InspectionDefectUpdateWithoutEvidenceInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1081,6 +1131,8 @@ export type InspectionDefectUncheckedUpdateWithoutEvidenceInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1107,6 +1159,8 @@ export type InspectionDefectCreateManyJobInput = {
   requirementRef: string
   description: string
   defectQuantity?: number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: string | null
   status?: $Enums.InspectionNcrStatus
   recordedByMemberId: string
   recordedAt?: Date | string
@@ -1133,6 +1187,8 @@ export type InspectionDefectUpdateWithoutJobInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1160,6 +1216,8 @@ export type InspectionDefectUncheckedUpdateWithoutJobInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1187,6 +1245,8 @@ export type InspectionDefectUncheckedUpdateManyWithoutJobInput = {
   requirementRef?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   defectQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitRefsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkItemCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInspectionNcrStatusFieldUpdateOperationsInput | $Enums.InspectionNcrStatus
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1245,6 +1305,8 @@ export type InspectionDefectSelect<ExtArgs extends runtime.Types.Extensions.Inte
   requirementRef?: boolean
   description?: boolean
   defectQuantity?: boolean
+  unitRefsJson?: boolean
+  checkItemCode?: boolean
   status?: boolean
   recordedByMemberId?: boolean
   recordedAt?: boolean
@@ -1277,6 +1339,8 @@ export type InspectionDefectSelectScalar = {
   requirementRef?: boolean
   description?: boolean
   defectQuantity?: boolean
+  unitRefsJson?: boolean
+  checkItemCode?: boolean
   status?: boolean
   recordedByMemberId?: boolean
   recordedAt?: boolean
@@ -1294,7 +1358,7 @@ export type InspectionDefectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InspectionDefectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "requirementId" | "ncrNumber" | "severity" | "originalSeverity" | "requirementRef" | "description" | "defectQuantity" | "status" | "recordedByMemberId" | "recordedAt" | "reclassifiedAt" | "reclassifiedByMemberId" | "reclassificationReason" | "sellerResponse" | "correctiveAction" | "capaSubmittedAt" | "capaSubmittedById" | "capaSubmittedByLabel" | "verifiedAt" | "verifiedByReportId" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionDefect"]>
+export type InspectionDefectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "requirementId" | "ncrNumber" | "severity" | "originalSeverity" | "requirementRef" | "description" | "defectQuantity" | "unitRefsJson" | "checkItemCode" | "status" | "recordedByMemberId" | "recordedAt" | "reclassifiedAt" | "reclassifiedByMemberId" | "reclassificationReason" | "sellerResponse" | "correctiveAction" | "capaSubmittedAt" | "capaSubmittedById" | "capaSubmittedByLabel" | "verifiedAt" | "verifiedByReportId" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionDefect"]>
 export type InspectionDefectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.InspectionJobDefaultArgs<ExtArgs>
   evidence?: boolean | Prisma.InspectionDefect$evidenceArgs<ExtArgs>
@@ -1320,7 +1384,20 @@ export type $InspectionDefectPayload<ExtArgs extends runtime.Types.Extensions.In
     originalSeverity: $Enums.InspectionDefectSeverity
     requirementRef: string
     description: string
+    /**
+     * Occurrences of this defect. One unit can carry several defects, so the
+     * sum of these is NOT the number of defective units - see unitRefsJson.
+     */
     defectQuantity: number
+    /**
+     * The sample units this defect was found on ("U-017"). The number of
+     * defective units is the size of the union of these across a job's defects.
+     */
+    unitRefsJson: runtime.JsonValue | null
+    /**
+     * The checklist line the defect was raised against, when there is one.
+     */
+    checkItemCode: string | null
     status: $Enums.InspectionNcrStatus
     recordedByMemberId: string
     recordedAt: Date
@@ -1716,6 +1793,8 @@ export interface InspectionDefectFieldRefs {
   readonly requirementRef: Prisma.FieldRef<"InspectionDefect", 'String'>
   readonly description: Prisma.FieldRef<"InspectionDefect", 'String'>
   readonly defectQuantity: Prisma.FieldRef<"InspectionDefect", 'Int'>
+  readonly unitRefsJson: Prisma.FieldRef<"InspectionDefect", 'Json'>
+  readonly checkItemCode: Prisma.FieldRef<"InspectionDefect", 'String'>
   readonly status: Prisma.FieldRef<"InspectionDefect", 'InspectionNcrStatus'>
   readonly recordedByMemberId: Prisma.FieldRef<"InspectionDefect", 'String'>
   readonly recordedAt: Prisma.FieldRef<"InspectionDefect", 'DateTime'>

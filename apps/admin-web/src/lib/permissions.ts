@@ -126,6 +126,8 @@ export const Permission = {
   INSPECTION_READ: 'inspection.read',
   INSPECTION_MANAGE: 'inspection.manage',
   INSPECTION_RELEASE: 'inspection.release',
+  // Who may sign in to the Audit Console, and approving compliance rules from here.
+  AUDIT_CONSOLE_MANAGE: 'audit_console.manage',
 
   RISK_READ: 'risk.read',
   RISK_REVIEW: 'risk.review',

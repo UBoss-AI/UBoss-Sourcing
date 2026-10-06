@@ -205,7 +205,8 @@ function toStored(row: {
 
 /** The bytes of one evidence file. The caller has checked who may see it. */
 export interface EvidenceViewer {
-  party: 'AGENCY' | 'SELLER' | 'BUYER';
+  /** AGENCY and STAFF read in the Audit Console; OPERATOR in the Admin Panel. */
+  party: 'AGENCY' | 'SELLER' | 'BUYER' | 'STAFF' | 'OPERATOR';
   userId: string;
   email: string;
   ipAddress?: string | null;
@@ -230,7 +231,7 @@ export async function readEvidenceBytes(evidenceId: string, viewer: EvidenceView
     action: AuditAction.INSPECTION_EVIDENCE_DOWNLOADED,
     resourceType: 'inspection_evidence',
     resourceId: evidenceId,
-    actorType: 'CUSTOMER',
+    actorType: viewer.party === 'OPERATOR' ? 'ADMIN' : viewer.party === 'AGENCY' || viewer.party === 'STAFF' ? 'AUDIT' : 'CUSTOMER',
     actorUserId: viewer.userId,
     actorEmail: viewer.email,
     after: { party: viewer.party, jobId: row.jobId },

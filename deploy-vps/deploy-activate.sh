@@ -254,7 +254,7 @@ stage2() {
   # The archive is checksummed, but its paths are still checked: nothing
   # absolute, nothing with `..`, nothing outside the five expected roots.
   log "unpacking $short into $release"
-  if tar -tzf "$INCOMING/$name" | grep -Ev '^(backend(/|$)|apps/?$|apps/(customer-web|admin-web|logistics-web)(/|$))' | grep -q .; then
+  if tar -tzf "$INCOMING/$name" | grep -Ev '^(backend(/|$)|apps/?$|apps/(customer-web|admin-web|logistics-web|audit-web)(/|$))' | grep -q .; then
     die "the archive holds paths outside backend/ and apps/*/ - refused"
   fi
   if tar -tzf "$INCOMING/$name" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
@@ -266,14 +266,15 @@ stage2() {
   tar -xzf "$INCOMING/$name" -C "$stage" --no-same-owner --no-same-permissions
 
   # Lay out the release the way nginx and systemd expect it:
-  #   backend/  customer-web/  admin-web/  logistics-web/
+  #   backend/  customer-web/  admin-web/  logistics-web/  audit-web/
+  # The last two are optional: each is built only when its feature is on.
   [[ -f "$stage/backend/dist/http/server.js" ]] || die "the archive has no backend/dist/http/server.js"
   mv "$stage/backend" "$release/backend"
   local app
-  for app in customer-web admin-web logistics-web; do
+  for app in customer-web admin-web logistics-web audit-web; do
     if [[ -d "$stage/apps/$app/dist" ]]; then
       mv "$stage/apps/$app/dist" "$release/$app"
-    elif [[ "$app" != logistics-web ]]; then
+    elif [[ "$app" != logistics-web && "$app" != audit-web ]]; then
       die "the archive has no apps/$app/dist"
     fi
   done

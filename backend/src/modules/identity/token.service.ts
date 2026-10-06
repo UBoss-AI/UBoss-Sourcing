@@ -226,11 +226,18 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
   if (!input.audience.includes(userType)) {
     throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
   }
-  const terms = await assertAcceptableTerms({
-    kind: termsKindForUserType(userType),
-    acceptedTerms: input.acceptedTerms,
-    documentId: input.termsDocumentId,
-  });
+  // An Audit Console account is asked for no terms here, exactly as a member
+  // of the operator's staff is not: it is not a buyer, and the marketplace's
+  // buyer terms are not an agreement an inspection agency's QA reviewer makes.
+  // The agency's contract with the operator sits outside this software.
+  const terms =
+    userType === 'AUDIT'
+      ? null
+      : await assertAcceptableTerms({
+          kind: termsKindForUserType(userType),
+          acceptedTerms: input.acceptedTerms,
+          documentId: input.termsDocumentId,
+        });
 
   const consumed = await consumeToken(input.token, 'INVITATION');
   const passwordHash = await hashPassword(input.password);
@@ -254,15 +261,17 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
       data: {
         activatedAt: now,
         consentAcceptedAt: now,
-        consentVersion: terms.version,
+        consentVersion: terms?.version ?? null,
       },
     });
 
-    await recordTermsAcceptance(tx, {
-      userId: consumed.userId,
-      terms,
-      source: consumed.userType === 'LOGISTICS' ? 'LOGISTICS_INVITATION' : 'CUSTOMER_INVITATION',
-    });
+    if (terms !== null) {
+      await recordTermsAcceptance(tx, {
+        userId: consumed.userId,
+        terms,
+        source: consumed.userType === 'LOGISTICS' ? 'LOGISTICS_INVITATION' : 'CUSTOMER_INVITATION',
+      });
+    }
 
     await recordAudit(
       {
@@ -272,7 +281,7 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
         actorType: consumed.userType,
         actorUserId: consumed.userId,
         actorEmail: consumed.email,
-        after: { status: 'ACTIVE', termsVersion: terms.version, termsLocale: terms.locale },
+        after: { status: 'ACTIVE', termsVersion: terms?.version ?? null, termsLocale: terms?.locale ?? null },
         ipAddress: input.ipAddress ?? null,
         correlationId: input.correlationId ?? null,
       },
@@ -327,17 +336,24 @@ export async function consumeContactChangeToken(
 export async function requestPasswordReset(
   email: string,
   context: { ipAddress?: string | null; correlationId?: string | null } = {},
+  /**
+   * 'AUDIT': only an Audit Console account; 'NOT_AUDIT': never one. The
+   * console's accounts are reset from the console's own page only, so the
+   * link opens the console and no other surface's form can issue one.
+   */
+  surface: 'AUDIT' | 'NOT_AUDIT' = 'NOT_AUDIT',
 ): Promise<{ token: string; expiresAt: Date; userId: string; email: string } | null> {
   const emailNormalized = email.trim().toLowerCase();
 
   const user = await prisma.user.findUnique({
     where: { emailNormalized },
-    select: { id: true, email: true, status: true, archivedAt: true },
+    select: { id: true, email: true, status: true, archivedAt: true, type: true },
   });
 
   if (user === null || user.archivedAt !== null || user.status !== 'ACTIVE') {
     return null;
   }
+  if ((surface === 'AUDIT') !== (user.type === 'AUDIT')) return null;
 
   const issued = await issueToken(user.id, 'PASSWORD_RESET');
 
@@ -407,7 +423,9 @@ export function buildTokenUrl(purpose: TokenPurpose, token: string, audience: Us
       ? env.ADMIN_WEB_PUBLIC_URL
       : audience === 'LOGISTICS'
         ? env.LOGISTICS_WEB_PUBLIC_URL
-        : env.CUSTOMER_WEB_PUBLIC_URL;
+        : audience === 'AUDIT'
+          ? env.AUDIT_WEB_PUBLIC_URL
+          : env.CUSTOMER_WEB_PUBLIC_URL;
 
   /*
    * Where the link lands.
@@ -443,4 +461,4 @@ export function buildTokenUrl(purpose: TokenPurpose, token: string, audience: Us
  * carrier portal from the storefront's origin would change this mapping
  * without changing who may sign in where.
  */
-export type UserKindHint = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS';
+export type UserKindHint = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS' | 'AUDIT';

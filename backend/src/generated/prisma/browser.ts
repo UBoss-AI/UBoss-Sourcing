@@ -3484,3 +3484,49 @@ export type RiskSignal = Prisma.RiskSignalModel
  * tables by `modules/analytics/analytics.service.ts`.
  */
 export type AnalyticsDailyCount = Prisma.AnalyticsDailyCountModel
+/**
+ * Model AuditStaffMember
+ * A member of the marketplace's own audit team. Agency people are
+ * `InspectionAgencyMember` rows instead; one AUDIT account holds exactly one
+ * of the two.
+ */
+export type AuditStaffMember = Prisma.AuditStaffMemberModel
+/**
+ * Model AuditNotification
+ * The Audit Console's own notification feed. One row per person per event.
+ */
+export type AuditNotification = Prisma.AuditNotificationModel
+/**
+ * Model ComplianceRequirement
+ * One version of one compliance requirement. (code, ruleVersion) is unique;
+ * a change is a new version, and approving it retires the previous one.
+ */
+export type ComplianceRequirement = Prisma.ComplianceRequirementModel
+/**
+ * Model ComplianceCase
+ * A request to qualify a seller for a category (SELLER_CATEGORY) or one
+ * product for a market (PRODUCT), and the decision on it.
+ */
+export type ComplianceCase = Prisma.ComplianceCaseModel
+/**
+ * Model ComplianceEvent
+ * Append-only history of rules, cases and compliance documents.
+ */
+export type ComplianceEvent = Prisma.ComplianceEventModel
+/**
+ * Model InspectionQuantityRecord
+ * What was counted and tested on one job, in exact decimals. One per job.
+ */
+export type InspectionQuantityRecord = Prisma.InspectionQuantityRecordModel
+/**
+ * Model InspectionLabSample
+ * A sample taken for laboratory testing, and its chain of custody.
+ */
+export type InspectionLabSample = Prisma.InspectionLabSampleModel
+/**
+ * Model InspectionSubLotRelease
+ * An authorised release of a clearly identified part of a lot, when the lot
+ * as a whole cannot be released. Requested in the Audit Console, approved in
+ * the Admin Panel by somebody else, consumed by exactly one dispatch.
+ */
+export type InspectionSubLotRelease = Prisma.InspectionSubLotReleaseModel

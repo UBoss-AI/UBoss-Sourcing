@@ -367,10 +367,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
-      # One failing application should not hide the state of the other two.
+      # One failing application should not hide the state of the others.
       fail-fast: false
       matrix:
-        app: [customer-web, admin-web, logistics-web]
+        app: [customer-web, admin-web, logistics-web, audit-web]
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -492,6 +492,8 @@ jobs:
             slug: admin-web
           - project: apps/logistics-web
             slug: logistics-web
+          - project: apps/audit-web
+            slug: audit-web
           - project: scripts
             slug: scripts
 

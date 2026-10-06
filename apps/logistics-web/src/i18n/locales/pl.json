@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Przeszukaj katalog",
   "errorPage.search.placeholder": "Wyszukaj produkty, marki lub kody",
   "errorPage.search.submit": "Wyszukiwanie",
-  "errorPage.notFound.message": "Link może być nieaktualny lub strona mogła zostać przeniesiona. Proszę sprawdzić adres lub powrócić do pulpitu nawigacyjnego."
+  "errorPage.notFound.message": "Link może być nieaktualny lub strona mogła zostać przeniesiona. Proszę sprawdzić adres lub powrócić do pulpitu nawigacyjnego.",
+  "shipment.inspection.released": "Inspekcja: zwolniono. Towar może zostać wysłany.",
+  "shipment.inspection.notNeeded": "Ta przesyłka nie wymaga inspekcji.",
+  "shipment.inspection.held": "Wstrzymane przez inspekcję: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "zamówienie musi zostać skontrolowane przed wysyłką, a inspekcja nie została jeszcze zarezerwowana.",
+  "shipment.inspection.reason.IN_PROGRESS": "inspekcja jeszcze się nie zakończyła.",
+  "shipment.inspection.reason.FAILED": "inspekcja zakończyła się wynikiem negatywnym. Towar nie może zostać wysłany, dopóki ponowna inspekcja nie da wyniku pozytywnego lub zwolnienie nie zostanie zatwierdzone.",
+  "shipment.inspection.reason.INCONCLUSIVE": "inspekcja nie dała jednoznacznego wyniku. Towar jest wstrzymany, dopóki ponowna inspekcja nie rozstrzygnie lub zwolnienie nie zostanie zatwierdzone.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "poważna niezgodność jest nadal otwarta i musi najpierw zostać usunięta i zweryfikowana.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "zwolnienie czeka na drugą osobę zatwierdzającą.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "towar, paczki, kontener lub plomba zmieniły się po inspekcji, więc przed wysyłką musi ona zostać ponownie oceniona.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "kupujący jest nadal w okresie przeglądu raportu z inspekcji."
 }

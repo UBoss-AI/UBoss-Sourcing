@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1370 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1462 endpoints** in 133 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -17,6 +17,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
   - **Seller** - a customer who is also a marketplace seller, with the seller permission shown.
   - **Staff** - a member of the operator's staff, signed in to the admin panel, with the permission shown.
   - **Logistics** - a person from a logistics partner company, signed in to the partner portal.
+  - **Audit** - an auditor, inspector or compliance reviewer, signed in to the Audit Console with a one-time code, with the permission shown.
   - **Webhook (signature)** - called by another system (a payment gateway, a carrier, an ERP). It proves who it is with a signature, not a sign-in.
 - **Guard** is the exact check in the code, and the permission it asks for. `TradingSeller` means the seller must be approved and trading, not just applied.
 - `:id` in a path is a placeholder: put the real value there.
@@ -27,11 +28,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 558 |
+| [Admin panel (staff)](#admin-panel-staff) | 572 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 343 |
+| [Audit Console](#audit-console) | 77 |
+| [Seller Hub](#seller-hub) | 352 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 311 |
+| [Customer account](#customer-account) | 303 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -70,6 +72,20 @@ Defined in `backend/src/http/routes/notifications.admin.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/admin/attention` | Staff | Admin | What is still waiting, counted per queue. |
+
+### `admin/audit-console`
+
+Defined in `backend/src/http/routes/audit-console.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/audit-console/people` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Everybody with Audit Console access: the audit team and every agency's people, with how they sign in. |
+| POST | `/api/v1/admin/audit-console/invitations` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Invite somebody to the Audit Console: an audit supervisor or compliance reviewer, or a member of an agency. |
+| PATCH | `/api/v1/admin/audit-console/staff/:id` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Change an audit team member's role or competence, or remove their access (ends their sessions at once). |
+| POST | `/api/v1/admin/audit-console/people/:id/resend-invitation` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Send a fresh activation link to somebody who has not activated their console account. |
+| GET | `/api/v1/admin/audit-console/rules` | Staff | Admin(INSPECTION_READ) | The requirement matrix, for oversight. |
+| POST | `/api/v1/admin/audit-console/rules/:id/decision` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Approve or reject a submitted compliance rule from the Admin Panel. Never one you drafted. |
+| GET | `/api/v1/admin/audit-console/documents/:id/file` | Staff | Admin(CUSTOMER_READ) | A seller's compliance document file, for the Admin Panel's own review screens. Audited. |
 
 ### `admin/audit-logs`
 
@@ -417,17 +433,24 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/inspection/reports/:id/pdf` | Staff | Admin(INSPECTION_READ) | Download any signed inspection report as a PDF. |
+| GET | `/api/v1/admin/inspection/evidence/:id` | Staff | Admin(INSPECTION_READ) | Download one evidence file on any inspection. Every read is audited. |
+| POST | `/api/v1/admin/inspection/requirements/:id/evidence` | Staff | Admin(INSPECTION_RELEASE) | Attach the evidence a conditional release rests on (purpose RELEASE). The release request then names it. |
+| GET | `/api/v1/admin/inspection/sublot-releases` | Staff | Admin(INSPECTION_READ) | Sub-lot releases waiting for, or past, a decision. |
+| POST | `/api/v1/admin/inspection/sublot-releases/:id/decision` | Staff | Admin(INSPECTION_RELEASE) | Approve or reject a sub-lot release requested in the Audit Console. Never by the person who asked. |
+| POST | `/api/v1/admin/inspection/members/:id/move-to-console` | Staff | Admin(AUDIT_CONSOLE_MANAGE) | Move an agency member who signs in with a storefront account onto their own Audit Console account. |
+| GET | `/api/v1/admin/inspection/agencies/:id/members` | Staff | Admin(INSPECTION_READ) | Every agency's people, with how they sign in. |
 | GET | `/api/v1/admin/inspection/queue` | Staff | Admin(INSPECTION_READ) | Every inspection requirement, filterable by status, with search. |
 | GET | `/api/v1/admin/inspection/requirements/:id` | Staff | Admin(INSPECTION_READ) | One inspection requirement in full. |
 | POST | `/api/v1/admin/inspection/requirements/:id/reevaluate` | Staff | Admin(INSPECTION_MANAGE) | Recompute whether inspection is required for this order under today's rules. |
-| POST | `/api/v1/admin/inspection/jobs` | Staff | Admin(INSPECTION_MANAGE) | Book an inspection: scope, timing, point, agency and payer. Agency eligibility and conflicts are checked. |
+| POST | `/api/v1/admin/inspection/jobs` | Staff | Admin(INSPECTION_MANAGE) | Book an inspection: stage, scope method, timing, point, agency and payer. Agency eligibility and conflicts are checked. |
 | POST | `/api/v1/admin/inspection/jobs/:id/cancel` | Staff | Admin(INSPECTION_MANAGE) | Cancel a job, with a reason. |
 | POST | `/api/v1/admin/inspection/requirements/:id/conditional-release` | Staff | Admin(INSPECTION_RELEASE) | Ask for a conditional release (manual override): named authority, reason, evidence. |
 | POST | `/api/v1/admin/inspection/releases/:id/approve` | Staff | Admin(INSPECTION_RELEASE) | Approve a colleague's conditional release. Never your own. |
 | POST | `/api/v1/admin/inspection/releases/:id/reject` | Staff | Admin(INSPECTION_RELEASE) | Reject a conditional release, with a reason. |
 | GET | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_READ) | The inspection agencies. |
 | POST | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_MANAGE) | Register an independent agency. A name matching a seller is refused. |
-| POST | `/api/v1/admin/inspection/agencies/:id/members` | Staff | Admin(INSPECTION_MANAGE) | Add a coordinator, inspector or QA member (an existing storefront account) to an agency. |
+| POST | `/api/v1/admin/inspection/agencies/:id/members` | Staff | Admin(INSPECTION_MANAGE) | Invite an agency admin, coordinator, inspector or QA reviewer. They get their own Audit Console account and an activation email. |
 | PATCH | `/api/v1/admin/inspection/members/:id` | Staff | Admin(INSPECTION_MANAGE) | Update a member: verify their identity after checking the ID document, change role or competence, or disable them. |
 | GET | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_READ) | The inspection policy: defaults, buyer visibility, override rules. |
 | PUT | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_MANAGE) | Save the inspection policy. |
@@ -1357,6 +1380,204 @@ Defined in `backend/src/http/routes/logistics.operations.ts`.
 | GET | `/api/v1/logistics/vehicles` | Logistics | Logistics(VEHICLE_READ) | List this carrier's vehicles, in-service ones first, with their refrigeration, tail lift and weight limits. |
 | POST | `/api/v1/logistics/vehicles` | Logistics | Logistics(VEHICLE_WRITE) | Add a vehicle to this carrier's fleet list. Refused when a vehicle with the same registration is already on it. Writes an audit entry. |
 
+## Audit Console
+
+### `audit/agency`
+
+Defined in `backend/src/http/routes/inspection.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/agency/me` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Who you are in your inspection agency, and what you may do there. |
+| GET | `/api/v1/audit/agency/dashboard` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Your agency's work: jobs by status, SLA, inspectors, reports and invoices. |
+| GET | `/api/v1/audit/agency/jobs` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Jobs you may see. An inspector sees only the jobs they are named on. |
+| GET | `/api/v1/audit/agency/calendar` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Agency capacity and booked jobs by day. |
+| GET | `/api/v1/audit/agency/jobs/:id` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | One job: scope, location, schedule, checklist, sampling, defects, evidence and report. |
+| POST | `/api/v1/audit/agency/jobs/:id/${path}` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | *Run "jobs ${path}".* |
+| POST | `/api/v1/audit/agency/jobs/:id/lab-samples/:sampleId/custody` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Add one hand-over to a laboratory sample's chain of custody. |
+| POST | `/api/v1/audit/agency/jobs/:id/lab-samples/:sampleId/result` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | The laboratory's report on a sample, held as evidence on this job. |
+| POST | `/api/v1/audit/agency/reports/:id/correct` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | QA issues a correction of a signed report. The original is kept, superseded. |
+| GET | `/api/v1/audit/agency/reports/:id/pdf` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Download a signed report as a PDF: your agency's own, and an inspector's own jobs only. |
+| GET | `/api/v1/audit/agency/team` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | The agency's own people. Every member may read; an agency admin manages. |
+| POST | `/api/v1/audit/agency/team/invitations` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | An agency admin invites a person into their own agency. They get a console account and an activation email. |
+| PATCH | `/api/v1/audit/agency/team/members/:id` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | An agency admin changes a member's role, competence or status. Identity is verified only by the marketplace. |
+| POST | `/api/v1/audit/agency/team/members/:id/resend-invitation` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | An agency admin sends a fresh activation link to somebody who has not activated yet. |
+| POST | `/api/v1/audit/agency/defects/:id/reclassify` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Reclassify a defect's severity, with a reason and supporting evidence. |
+| POST | `/api/v1/audit/agency/jobs/:id/evidence` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Upload timestamped evidence (photo, video, document, measurement) to a job. Stored privately and hashed. |
+| GET | `/api/v1/audit/agency/evidence/:id` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Download one evidence file you may see. |
+
+### `audit/auth`
+
+Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/audit/auth/login` | Public (audit sign-in) |  | Sign in with email and password and start a session (set as cookies). Refused for an account that belongs to a different part of the system, and for an account temporarily locked after too many failed attempts. |
+| POST | `/api/v1/audit/auth/refresh` | Public (audit sign-in) |  | Swap the session's refresh cookie for fresh sign-in tokens so the person stays signed in. If the session is no longer valid its cookies are cleared and the caller must sign in again. |
+| POST | `/api/v1/audit/auth/logout` | Signed in | Authenticated(kind) | Sign out of this session only and clear its cookies. |
+| POST | `/api/v1/audit/auth/logout-all` | Signed in | Authenticated(kind) | Sign the person out on every device at once. Replies with how many sessions were ended. |
+| GET | `/api/v1/audit/auth/language` | Signed in | Authenticated(kind) | The interface language for this account. |
+| PUT | `/api/v1/audit/auth/language` | Signed in | Authenticated(kind) | Save the interface language the signed-in person wants to read. |
+| POST | `/api/v1/audit/auth/password/change` | Signed in | Authenticated(kind) | Change the signed-in person's password, given their current one. Signs the account out of every session, including this one, and writes an audit entry. |
+| POST | `/api/v1/audit/auth/password/forgot` | Public (audit sign-in) |  | Ask for a password-reset link. If an active account exists for the email address, a reset link is emailed to it; the reply is the same either way, so nobody can use it to find out who has an account. |
+| POST | `/api/v1/audit/auth/password/reset` | Public (audit sign-in) |  | Set a new password using the link from a "forgot password" email. Signs the account out everywhere and writes an audit entry; refused if the link has expired or was already used. |
+| POST | `/api/v1/audit/auth/invitations/accept` | Public (audit sign-in) |  | Accept an emailed invitation to the Audit Console: the person chooses their own password and their console membership becomes active. They set up two-step sign-in at their first sign-in. |
+| GET | `/api/v1/audit/auth/me` | Audit | AuditSession | Everything the console needs to start: the person, their membership and permissions, and their second factor. |
+| POST | `/api/v1/audit/auth/mfa/setup` | Audit | AuditSession | Start setting up two-step sign-in: a secret for an authenticator app and recovery codes, shown this once. |
+| POST | `/api/v1/audit/auth/mfa/verify` | Audit | AuditSession | Check a two-step code: to finish setting it up, or to pass this session's challenge. |
+
+### `audit/calendar`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/calendar` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Your agency's capacity and booked jobs by day. |
+
+### `audit/cases`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/cases` | Audit | Audit(SELLER_READ) | Qualification and product cases, filterable by level, status, seller and category. |
+| GET | `/api/v1/audit/cases/:id` | Audit | Audit(SELLER_READ) | One case with its live evaluation, requirement by requirement, and its history. |
+| POST | `/api/v1/audit/cases` | Audit | Audit(CASE_REVIEW) | Open a case for a seller - the backfill review of a seller already trading. Asking twice returns the same case. |
+| POST | `/api/v1/audit/cases/:id/start` | Audit | Audit(CASE_REVIEW) | Take a case for review. |
+| POST | `/api/v1/audit/cases/:id/request-changes` | Audit | Audit(CASE_REVIEW) | Ask the seller for more or different evidence, with a message they see. |
+| POST | `/api/v1/audit/cases/:id/approve` | Audit | Audit(CASE_REVIEW) | Qualify: only when every applicable mandatory requirement is satisfied and every conditional one determined. |
+| POST | `/api/v1/audit/cases/:id/reject` | Audit | Audit(CASE_REVIEW) | Refuse the case, with a message the seller sees. |
+| POST | `/api/v1/audit/cases/:id/suspend` | Audit | Audit(CASE_REVIEW) | Suspend a qualification, with a message the seller sees. |
+| POST | `/api/v1/audit/cases/:id/determinations` | Audit | Audit(CASE_REVIEW) | Record whether a conditional or unresolved requirement applies to this case, with the reason. |
+
+### `audit/checklists`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/checklists` | Audit | Audit(CHECKLIST_MANAGE) | Checklist and sampling plans by category. |
+| POST | `/api/v1/audit/checklists` | Audit | Audit(CHECKLIST_MANAGE) | Add a plan version for a category: inspection level, AQL per severity, and the checklist (kinds, mandatory lines, lab and instrument needs). |
+
+### `audit/corrective-actions`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/corrective-actions` | Public |  | Non-conformances, the seller's corrective actions, and the re-inspections that close them. |
+
+### `audit/dashboard`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/dashboard` | Audit | Audit(DASHBOARD_READ) | The dashboard: an agency's own work, or the audit team's queues. |
+
+### `audit/documents`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/documents` | Audit | Audit(DOCUMENT_READ) | Compliance documents, filterable by status and by approaching expiry. |
+| GET | `/api/v1/audit/documents/:id` | Audit | Audit(DOCUMENT_READ) | One document with its versions and review history. |
+| GET | `/api/v1/audit/documents/:id/file` | Audit | Audit(DOCUMENT_READ) | The document's file, for preview. Private storage, scanned files only, every read audited. |
+| POST | `/api/v1/audit/documents/:id/start` | Audit | Audit(RULE_READ) | Take a document for review. |
+| POST | `/api/v1/audit/documents/:id/request-changes` | Audit | Audit(RULE_READ) | Ask the seller to correct or replace a document, with a message they see. |
+| POST | `/api/v1/audit/documents/:id/approve` | Audit | Audit(RULE_READ) | Approve a document, recording how it was checked and the scope it covers. A mismatch can never be approved. |
+| POST | `/api/v1/audit/documents/:id/reject` | Audit | Audit(RULE_READ) | Refuse a document, with a message the seller sees. |
+| POST | `/api/v1/audit/documents/:id/suspend` | Audit | Audit(RULE_READ) | Suspend an approved document. Qualifications that relied on it go back for review. |
+
+### `audit/evidence`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/evidence/:id` | Public |  | One evidence file, for those who may read its job. Every read is audited. |
+
+### `audit/jobs`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/jobs` | Public |  | Inspection jobs: your agency's (an inspector's own), or every agency's for the audit team. |
+| GET | `/api/v1/audit/jobs/:id` | Public |  | One job: scope, checklist, quantities, sampling, defects, laboratory samples, evidence, reports and sub-lots. |
+| POST | `/api/v1/audit/jobs/:id/sublot-releases` | Audit | Audit(RELEASE_REQUEST) | Ask for a clearly identified part of a held lot to be released. Somebody else approves it in the Admin Panel. |
+
+### `audit/notifications`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/notifications` | Audit | Audit | Your notifications, newest first, with the unread count. |
+| POST | `/api/v1/audit/notifications/:id/read` | Audit | Audit | Mark one of your notifications read. |
+| POST | `/api/v1/audit/notifications/read-all` | Audit | Audit | Mark all your notifications read. |
+
+### `audit/products`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/products` | Audit | Audit(SELLER_READ) | Product compliance cases only. |
+
+### `audit/reports`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/reports` | Public |  | Signed inspection reports, with corrections and superseded revisions marked. |
+| GET | `/api/v1/audit/reports/:id/pdf` | Public |  | A signed report as a PDF, for those who may read its job. |
+
+### `audit/rules`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/rules` | Audit | Audit(RULE_READ) | The requirement matrix: every rule version in force or being drafted. |
+| GET | `/api/v1/audit/rules/coverage` | Audit | Audit(RULE_READ) | Rule coverage by real category: approved, waiting and unresolved rules, and categories that still need review. |
+| GET | `/api/v1/audit/rules/:id` | Audit | Audit(RULE_READ) | One rule version, its other versions and its approval history. |
+| POST | `/api/v1/audit/rules` | Audit | Audit(RULE_DRAFT) | Draft a new rule. It decides nothing until a supervisor who did not draft it approves it. |
+| POST | `/api/v1/audit/rules/import-research` | Audit | Audit(RULE_DRAFT) | Load the dated regulatory research as draft rules, once. Codes already present are left alone. |
+| PUT | `/api/v1/audit/rules/:id` | Audit | Audit(RULE_DRAFT) | Change a draft. |
+| POST | `/api/v1/audit/rules/:id/submit` | Audit | Audit(RULE_DRAFT) | Send a draft for approval. |
+| POST | `/api/v1/audit/rules/:id/approve` | Audit | Audit(RULE_APPROVE) | Approve a submitted rule (never one you drafted). Retires the version it replaces. |
+| POST | `/api/v1/audit/rules/:id/reject` | Audit | Audit(RULE_APPROVE) | Reject a submitted rule, with what is wrong. |
+| POST | `/api/v1/audit/rules/:id/revise` | Audit | Audit(RULE_DRAFT) | Draft a new version of a rule. |
+| POST | `/api/v1/audit/rules/:id/retire` | Audit | Audit(RULE_APPROVE) | Withdraw a rule, with the reason. |
+
+### `audit/sellers`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/sellers` | Audit | Audit(SELLER_READ) | Sellers, with their qualification and document counts. |
+| GET | `/api/v1/audit/sellers/:id` | Audit | Audit(SELLER_READ) | One seller: business identity (read-only), category qualifications, product cases and documents - kept apart. |
+
+### `audit/sublot-releases`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/audit/sublot-releases/:id/cancel` | Audit | Audit(RELEASE_REQUEST) | Cancel your own sub-lot request before it is used. |
+
+### `audit/team`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/team` | Public |  | People: your agency's (any agency member), or every agency's and the audit team (audit staff). |
+
 ## Seller Hub
 
 ### `seller/access-reviews`
@@ -1468,6 +1689,21 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/company-details` | Seller | Seller | The verified company details on file, whether they are change-controlled, the pending change request and past decisions. |
+
+### `seller/compliance`
+
+Defined in `backend/src/http/routes/seller.compliance.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/compliance` | Seller | Seller(ACCOUNT_READ) | Your compliance at a glance: qualification and product cases, documents, and - for each category you sell in - whether an approved requirement reaches it and whether you are qualified. |
+| GET | `/api/v1/seller/compliance/requirements` | Seller | Seller(ACCOUNT_READ) | The approved requirements that apply in one category, so a seller knows what to provide. Drafts are never shown. |
+| POST | `/api/v1/seller/compliance/cases` | Seller | Seller(ACCOUNT_SUBMIT) | Ask for a qualification (a category, role and market) or a product compliance review. Asking twice returns the same case. |
+| GET | `/api/v1/seller/compliance/cases/:id` | Seller | Seller(ACCOUNT_READ) | One of your cases: what applies, what is satisfied, what is missing, and what the reviewer said. |
+| POST | `/api/v1/seller/compliance/cases/:id/respond` | Seller | Seller(ACCOUNT_SUBMIT) | Answer a request for changes (after adding the documents asked for), or withdraw the case. |
+| POST | `/api/v1/seller/compliance/documents` | Seller | Seller(ACCOUNT_WRITE) | Add a compliance document - a certificate, licence, registration, declaration, test report or authorisation - with its scope and dates. |
+| GET | `/api/v1/seller/compliance/documents/:id` | Seller | Seller(ACCOUNT_READ) | One of your documents with its versions and the reviewer's messages to you. |
+| POST | `/api/v1/seller/compliance/documents/:id/submit` | Seller | Seller(ACCOUNT_SUBMIT) | Send a draft, a returned or an expired document for review. |
 
 ### `seller/consignments`
 
@@ -1660,7 +1896,8 @@ Defined in `backend/src/http/routes/inspection.ts`.
 | POST | `/api/v1/seller/inspection/jobs/:id/readiness` | Seller | Seller(ORDER_FULFIL) | Declare the lot ready: location, packing state, contact and a signed declaration. |
 | POST | `/api/v1/seller/inspection/defects/:id/capa` | Seller | Seller(ORDER_FULFIL) | Answer an NCR with a corrective action (CAPA). |
 | POST | `/api/v1/seller/inspection/jobs/:id/evidence` | Seller | Seller(ORDER_FULFIL) | Upload readiness or corrective evidence (packing list, photos). The approved report itself cannot be edited. |
-| GET | `/api/v1/seller/inspection/evidence/:id` | Seller | Seller(ORDER_READ) | Download one evidence file on your order. |
+| GET | `/api/v1/seller/inspection/reports/:id/pdf` | Seller | Seller(ORDER_READ) | Download one evidence file on your order. Download a signed inspection report on one of your own orders, as a PDF. |
+| GET | `/api/v1/seller/inspection/evidence/:id` | Seller | Seller(ORDER_READ) | *Read one evidence.* |
 
 ### `seller/instructions`
 
@@ -2594,19 +2831,11 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/inspection/agency/me` | Customer | Customer | Who you are in your inspection agency, and what you may do there. |
-| GET | `/api/v1/inspection/agency/dashboard` | Customer | Customer | Your agency's work: jobs by status, SLA, inspectors, reports and invoices. |
-| GET | `/api/v1/inspection/agency/jobs` | Customer | Customer | Jobs you may see. An inspector sees only the jobs they are named on. |
-| GET | `/api/v1/inspection/agency/calendar` | Customer | Customer | Agency capacity and booked jobs by day. |
-| GET | `/api/v1/inspection/agency/jobs/:id` | Customer | Customer | One job: scope, location, schedule, checklist, sampling, defects, evidence and report. |
-| POST | `/api/v1/inspection/agency/jobs/:id/${path}` | Customer | Customer | *Run "jobs ${path}".* |
-| POST | `/api/v1/inspection/agency/defects/:id/reclassify` | Customer | Customer | Reclassify a defect's severity, with a reason and supporting evidence. |
-| POST | `/api/v1/inspection/agency/jobs/:id/evidence` | Customer | Customer | Upload timestamped evidence (photo, video, document, measurement) to a job. Stored privately and hashed. |
-| GET | `/api/v1/inspection/agency/evidence/:id` | Customer | Customer | Download one evidence file you may see. |
 | GET | `/api/v1/inspection/buyer/orders/:id` | Customer | Customer | The inspection timeline for your order: booked, inspector assigned, started, report, NCR, release. |
 | POST | `/api/v1/inspection/buyer/orders/:id/request` | Customer | Customer | Ask for an inspection on your order before it ships. |
 | GET | `/api/v1/inspection/buyer/orders/:id/agencies` | Customer | Customer | The inspection agencies you may choose for one part of your order, on a day and in a country. |
 | POST | `/api/v1/inspection/buyer/orders/:id/book` | Customer | Customer | Book an inspection on your order before it ships: agency, date, inspection point and who pays. |
+| GET | `/api/v1/inspection/buyer/reports/:id/pdf` | Customer | Customer | Download a signed inspection report on your order as a PDF, when the operator's policy lets buyers see it. |
 | GET | `/api/v1/inspection/buyer/evidence/:id` | Customer | Customer | Download one evidence file the buyer may see under the report-visibility policy. |
 
 ### `orders`

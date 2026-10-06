@@ -187,6 +187,12 @@ export interface PlanSnapshot {
   aqlMinor: string;
   checklist: ChecklistItem[];
   language: string;
+  /**
+   * Whether the plan was written for one of the order's categories. False for
+   * the default plan and the platform's starting plan: the report says so,
+   * because a generic threshold is not an approved rule for this category.
+   */
+  categorySpecific?: boolean;
 }
 
 /**
@@ -245,6 +251,7 @@ export async function choosePlan(
       aqlMinor: '4.0',
       checklist: [...DEFAULT_CHECKLIST],
       language: 'en',
+      categorySpecific: false,
     };
   }
 
@@ -258,6 +265,7 @@ export async function choosePlan(
     aqlMinor: plan.aqlMinor,
     checklist: plan.checklistJson as ChecklistItem[],
     language: plan.language,
+    categorySpecific: plan.categoryId !== null,
   };
 }
 

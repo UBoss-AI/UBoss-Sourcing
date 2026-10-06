@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Den Katalog durchsuchen",
   "errorPage.search.placeholder": "Produkte, Marken oder Artikelnummern suchen",
   "errorPage.search.submit": "Suche",
-  "errorPage.notFound.message": "Möglicherweise ist der Link veraltet oder die Seite wurde verschoben. Bitte überprüfen Sie die Adresse oder kehren Sie zum Dashboard zurück."
+  "errorPage.notFound.message": "Möglicherweise ist der Link veraltet oder die Seite wurde verschoben. Bitte überprüfen Sie die Adresse oder kehren Sie zum Dashboard zurück.",
+  "shipment.inspection.released": "Inspektion: freigegeben. Diese Waren dürfen abgehen.",
+  "shipment.inspection.notNeeded": "Für diese Sendung ist keine Inspektion erforderlich.",
+  "shipment.inspection.held": "Durch Inspektion zurückgehalten: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "die Bestellung muss vor dem Versand inspiziert werden, und es wurde noch keine Inspektion gebucht.",
+  "shipment.inspection.reason.IN_PROGRESS": "die Inspektion ist noch nicht abgeschlossen.",
+  "shipment.inspection.reason.FAILED": "die Inspektion ist nicht bestanden. Die Waren dürfen erst abgehen, wenn eine Nachinspektion bestanden oder eine Freigabe genehmigt ist.",
+  "shipment.inspection.reason.INCONCLUSIVE": "die Inspektion war nicht eindeutig. Die Waren bleiben zurückgehalten, bis eine Nachinspektion entscheidet oder eine Freigabe genehmigt ist.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "eine schwerwiegende Abweichung ist noch offen und muss zuerst behoben und überprüft werden.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "eine Freigabe wartet auf eine zweite Genehmigung.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "Waren, Packstücke, Container oder Plombe haben sich nach der Inspektion geändert; sie muss vor dem Versand neu bewertet werden.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "der Käufer befindet sich noch in der Frist zur Prüfung des Inspektionsberichts."
 }

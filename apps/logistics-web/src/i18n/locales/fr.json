@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Consulter le catalogue",
   "errorPage.search.placeholder": "Rechercher des produits, des marques ou des codes",
   "errorPage.search.submit": "Rechercher",
-  "errorPage.notFound.message": "Il se peut que le lien ne soit plus valide ou que la page ait été déplacée. Vérifiez l'adresse ou revenez au tableau de bord."
+  "errorPage.notFound.message": "Il se peut que le lien ne soit plus valide ou que la page ait été déplacée. Vérifiez l'adresse ou revenez au tableau de bord.",
+  "shipment.inspection.released": "Inspection : marchandises libérées. Elles peuvent partir.",
+  "shipment.inspection.notNeeded": "Aucune inspection n'est nécessaire pour cet envoi.",
+  "shipment.inspection.held": "Retenu par l'inspection : {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "la commande doit être inspectée avant son départ et aucune inspection n'a encore été réservée.",
+  "shipment.inspection.reason.IN_PROGRESS": "l'inspection n'est pas encore terminée.",
+  "shipment.inspection.reason.FAILED": "l'inspection a échoué. Les marchandises ne peuvent pas partir tant qu'une nouvelle inspection n'est pas réussie ou qu'une libération n'est pas approuvée.",
+  "shipment.inspection.reason.INCONCLUSIVE": "l'inspection n'a pas été concluante. Les marchandises sont retenues jusqu'à ce qu'une nouvelle inspection tranche ou qu'une libération soit approuvée.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "une non-conformité majeure est toujours ouverte et doit d'abord être corrigée et vérifiée.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "une libération attend un second approbateur.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "les marchandises, colis, conteneur ou scellé ont changé après l'inspection ; elle doit être réévaluée avant l'expédition.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "l'acheteur est encore dans le délai d'examen du rapport d'inspection."
 }

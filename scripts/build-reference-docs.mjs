@@ -543,7 +543,7 @@ function precedingComment(source, index) {
 }
 
 const GUARD_RE =
-  /\b(requireAdmin|requireSeller|requireSellerBeforeLock|requireTradingSeller|requireLogistics|requireLogisticsAny|requireLogisticsSession|requireCustomer|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
+  /\b(requireAdmin|requireSeller|requireSellerBeforeLock|requireTradingSeller|requireLogistics|requireLogisticsAny|requireLogisticsSession|requireAudit|requireAuditSession|requireCustomer|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
 
 function guardsIn(text) {
   const found = [];
@@ -552,7 +552,7 @@ function guardsIn(text) {
       .split(',')
       .map((a) => a.trim())
       .filter(Boolean)
-      .map((a) => a.replace(/^(Permission|SellerPermission|LogisticsPermission)\./, ''));
+      .map((a) => a.replace(/^(Permission|SellerPermission|LogisticsPermission|AuditPermission)\./, ''));
     found.push({ name: g[1], args });
   }
   return found;
@@ -563,6 +563,7 @@ function audienceOf(guards, url, mount) {
   if (names.includes('requireAdmin')) return 'Staff';
   if (names.some((n) => n.startsWith('requireSeller') || n === 'requireTradingSeller')) return 'Seller';
   if (names.some((n) => n.startsWith('requireLogistics'))) return 'Logistics';
+  if (names.some((n) => n.startsWith('requireAudit'))) return 'Audit';
   if (names.includes('requireCustomer')) return 'Customer';
   if (names.includes('requireAuthenticated')) return 'Signed in';
   if (names.includes('optionalCustomer')) return 'Public (customer optional)';
@@ -682,7 +683,7 @@ function areaOf(url) {
   const rest = url.startsWith(API_PREFIX) ? url.slice(API_PREFIX.length) : url;
   const parts = rest.split('/').filter(Boolean);
   if (parts.length === 0) return 'Root';
-  if (['admin', 'seller', 'logistics', 'account', 'integrations'].includes(parts[0]) && parts[1]) {
+  if (['admin', 'seller', 'logistics', 'audit', 'account', 'integrations'].includes(parts[0]) && parts[1]) {
     return `${parts[0]}/${parts[1].startsWith(':') ? '' : parts[1]}`.replace(/\/$/, '');
   }
   return parts[0];
@@ -694,6 +695,7 @@ const under = (url, part) => url === `${API_PREFIX}/${part}` || url.startsWith(`
 const ZONES = [
   ['Admin panel (staff)', (u) => under(u, 'admin')],
   ['Logistics partner portal', (u) => under(u, 'logistics')],
+  ['Audit Console', (u) => under(u, 'audit')],
   ['Seller Hub', (u, a) => under(u, 'seller') || under(u, 'sellers') || a === 'Seller'],
   [
     'Webhooks, integrations and health',
@@ -800,6 +802,7 @@ function buildApiDoc() {
   out.push('  - **Seller** - a customer who is also a marketplace seller, with the seller permission shown.');
   out.push('  - **Staff** - a member of the operator\'s staff, signed in to the admin panel, with the permission shown.');
   out.push('  - **Logistics** - a person from a logistics partner company, signed in to the partner portal.');
+  out.push('  - **Audit** - an auditor, inspector or compliance reviewer, signed in to the Audit Console with a one-time code, with the permission shown.');
   out.push('  - **Webhook (signature)** - called by another system (a payment gateway, a carrier, an ERP). It proves who it is with a signature, not a sign-in.');
   out.push('- **Guard** is the exact check in the code, and the permission it asks for. `TradingSeller` means the seller must be approved and trading, not just applied.');
   out.push('- `:id` in a path is a placeholder: put the real value there.');

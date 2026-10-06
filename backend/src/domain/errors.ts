@@ -2057,6 +2057,37 @@ export const ErrorCode = {
   /// The change request is no longer waiting: it was decided or withdrawn,
   /// possibly by a colleague while the screen was open. 409.
   COMPANY_CHANGE_NOT_PENDING: 'COMPANY_CHANGE_NOT_PENDING',
+  // --- Audit Console ---
+  /// The signed-in AUDIT account has no active audit-staff or agency
+  /// membership, or its role does not carry this action. 403.
+  AUDIT_MEMBER_REQUIRED: 'AUDIT_MEMBER_REQUIRED',
+  /// The Audit Console session must set up two-step sign-in first. 403.
+  AUDIT_MFA_SETUP_REQUIRED: 'AUDIT_MFA_SETUP_REQUIRED',
+  /// The Audit Console session must pass its two-step challenge first. 403.
+  AUDIT_MFA_CHALLENGE_REQUIRED: 'AUDIT_MFA_CHALLENGE_REQUIRED',
+  /// A compliance rule cannot move that way: wrong status, or the person who
+  /// drafted it tried to approve it. `details[0].code` says which. 409.
+  COMPLIANCE_RULE_TRANSITION_NOT_ALLOWED: 'COMPLIANCE_RULE_TRANSITION_NOT_ALLOWED',
+  /// A qualification or product case cannot move that way, or cannot be
+  /// approved yet: a requirement is unsatisfied or its applicability is still
+  /// unresolved. `details` lists each blocking requirement. 409.
+  COMPLIANCE_CASE_NOT_READY: 'COMPLIANCE_CASE_NOT_READY',
+  /// A compliance document cannot move that way. 409.
+  COMPLIANCE_DOCUMENT_TRANSITION_NOT_ALLOWED: 'COMPLIANCE_DOCUMENT_TRANSITION_NOT_ALLOWED',
+  /// The seller is not qualified for this category (in this supply role and
+  /// market) under an approved rule, and the deployment enforces it. 409.
+  COMPLIANCE_QUALIFICATION_REQUIRED: 'COMPLIANCE_QUALIFICATION_REQUIRED',
+  /// A quantity is not a valid exact decimal for its unit, or the counts do
+  /// not reconcile (tested more than sampled, conforming plus nonconforming
+  /// more than tested). `details` names the field. 400.
+  INSPECTION_QUANTITY_INVALID: 'INSPECTION_QUANTITY_INVALID',
+  /// A sub-lot release cannot be requested, approved or used: the code is
+  /// taken, the quantities exceed the lot, it was already used, or the
+  /// requester tried to approve it. `details[0].code` says which. 409.
+  INSPECTION_SUBLOT_NOT_ALLOWED: 'INSPECTION_SUBLOT_NOT_ALLOWED',
+  /// A report correction is not allowed: the report is not signed, is already
+  /// superseded, or the corrector is the inspector. 409.
+  INSPECTION_CORRECTION_NOT_ALLOWED: 'INSPECTION_CORRECTION_NOT_ALLOWED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

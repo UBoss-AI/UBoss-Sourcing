@@ -1,5 +1,5 @@
 # =============================================================================
-# Netlify - all three front ends on ONE site
+# Netlify - every front end on ONE site
 #
 # Copied to the root of `output/netlify-site` by
 # `scripts/build-netlify-combined.mjs`. It is NOT one of the three netlify.toml
@@ -64,6 +64,12 @@
 [[redirects]]
   from = "/logistics/*"
   to = "/logistics/index.html"
+  status = 200
+
+# The Audit Console's, the same way.
+[[redirects]]
+  from = "/audit/*"
+  to = "/audit/index.html"
   status = 200
 
 # The old home-page address. `/` is the only home page; `/home` answers a
@@ -143,7 +149,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# The three index.html files are NOT fingerprinted - each names which
+[[headers]]
+  for = "/audit/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The index.html files are NOT fingerprinted - each names which
 # fingerprinted bundle to load. Cached, they keep pointing at the previous
 # deploy's files, which no longer exist: a blank page after a release that
 # clears itself only when somebody hard-refreshes.
@@ -159,5 +170,10 @@
 
 [[headers]]
   for = "/logistics/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/audit/index.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"

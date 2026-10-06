@@ -25,6 +25,7 @@ import {
   assertSellerTrading,
   type SellerMembership,
 } from './account.service.js';
+import { assertQualifiedForCategory } from '../compliance/case.service.js';
 
 /** BLOCKED is set by the marketplace, never by the seller. */
 export type OfferStatusName = 'INACTIVE' | 'ACTIVE' | 'PAUSED' | 'NEEDS_CHANGES' | 'ARCHIVED' | 'BLOCKED';
@@ -223,7 +224,8 @@ export async function setOfferStatus(
       availableQuantity: true,
       priceMinor: true,
       compareAtPriceMinor: true,
-      product: { select: { archivedAt: true } },
+      publishedAt: true,
+      product: { select: { archivedAt: true, categoryId: true } },
       variant: { select: { isActive: true, archivedAt: true, sku: true } },
     },
   });
@@ -242,6 +244,15 @@ export async function setOfferStatus(
 
   if (next === 'ACTIVE') {
     assertSellerTrading(membership);
+
+    // The category qualification gate, under the deployment's enforcement
+    // setting - for an offer going live for the FIRST time only. An offer
+    // that was already selling is never stopped from coming back off a pause
+    // by a rule approved after it went live: that is the backfill review's
+    // job in the Audit Console, not a silent suspension here.
+    if (offer.publishedAt === null) {
+      await assertQualifiedForCategory(membership.sellerAccountId, offer.product.categoryId);
+    }
 
     if (offer.status === 'NEEDS_CHANGES') {
       throw conflict(

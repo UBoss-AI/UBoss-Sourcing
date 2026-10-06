@@ -34,8 +34,6 @@ import {
   asStaff as staffCall,
   buildOrderDesk,
   cleanUpOrderDesk,
-  customer,
-  emailFor,
   errorCode,
   staff,
   type CallOptions,
@@ -43,8 +41,10 @@ import {
   type Session,
   type StaffSession,
 } from '../support/order-desk-fixture.js';
+import { activateAndSignIn, auditEmailFor, cleanUpAuditPeople } from '../support/audit-session.js';
 
 const TAG = 'insp9';
+const AGENCY_IPS = { agcoord: '10.92.7.21', aginsp: '10.92.7.22', agqa: '10.92.7.23' } as const;
 const RULE_NAME = 'insp9 every order';
 const CONTAINER = 'MSCU1234565';
 const SEAL = 'SEAL-INSP9-01';
@@ -169,14 +169,14 @@ beforeAll(async () => {
   await prisma.inspectionPolicy.updateMany({ data: { requirePackingListForReadiness: false } });
 
   admin = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.92.7.20');
-  coordinator = await customer(app, TAG, 'agcoord', '10.92.7.21');
-  inspector = await customer(app, TAG, 'aginsp', '10.92.7.22');
-  qa = await customer(app, TAG, 'agqa', '10.92.7.23');
+  // Agency people are invited to the Audit Console below and sign in there.
+  await cleanUpAuditPeople(TAG);
 }, 240_000);
 
 afterAll(async () => {
   await prisma.inspectionPolicy.updateMany({ data: { requirePackingListForReadiness: packingRuleBefore } });
   await cleanInspection();
+  await cleanUpAuditPeople(TAG);
   await cleanUpOrderDesk(TAG);
   await app.close();
 });
@@ -215,7 +215,7 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
     ] as const) {
       const added = await asStaff(app, admin, 'POST', `/inspection/agencies/${agencyId}/members`, {
         payload: {
-          email: emailFor(TAG, who),
+          email: auditEmailFor(TAG, who),
           fullName: who,
           role,
           idDocumentType: 'PASSPORT',
@@ -232,6 +232,10 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
         payload: { verifyIdentity: true },
       });
       expect(verified.statusCode, verified.body).toBe(200);
+      const session = await activateAndSignIn(app, added.json<{ userId: string }>().userId, AGENCY_IPS[who]);
+      if (who === 'agcoord') coordinator = session;
+      else if (who === 'aginsp') inspector = session;
+      else qa = session;
     }
 
     // --- Booking, acceptance, assignment, readiness -------------------------
@@ -249,13 +253,13 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
     jobId = booked.json<{ jobId: string }>().jobId;
     expect(await eventKinds()).toContain('booked');
 
-    const accepted = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/accept`, {
+    const accepted = await asCustomer(app, coordinator, 'POST', `/audit/agency/jobs/${jobId}/accept`, {
       payload: { conflictStatement: 'No financial or family link to the seller or buyer.', confirmNoConflict: true },
     });
     expect(accepted.statusCode, accepted.body).toBe(200);
     expect(await eventKinds()).toContain('job_accepted');
 
-    const assigned = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/assign`, {
+    const assigned = await asCustomer(app, coordinator, 'POST', `/audit/agency/jobs/${jobId}/assign`, {
       payload: { inspectorMemberId: memberIds['aginsp'] },
     });
     expect(assigned.statusCode, assigned.body).toBe(200);
@@ -287,22 +291,22 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
       ['start', {}],
       ['sampling', { lotReference: 'LOT-9', sampledQuantity: 3, acceptedQuantity: 3, rejectedQuantity: 0 }],
     ] as const) {
-      const step = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/${action}`, { payload });
+      const step = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/${action}`, { payload });
       expect(step.statusCode, `${action}: ${step.body}`).toBe(200);
     }
     expect(await eventKinds()).toEqual(expect.arrayContaining(['conflict_declared', 'job_in_progress']));
 
-    const view = await asCustomer(app, inspector, 'GET', `/inspection/agency/jobs/${jobId}`);
+    const view = await asCustomer(app, inspector, 'GET', `/audit/agency/jobs/${jobId}`);
     const checklist = view.json<{ job: { checklist: { code?: string; itemCode?: string }[] } }>().job.checklist;
     for (const entry of checklist) {
       const code = entry.code ?? entry.itemCode ?? '';
-      const check = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/checks`, {
+      const check = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/checks`, {
         payload: { itemCode: code, outcome: 'CONFORM' },
       });
       expect(check.statusCode, `check ${code}: ${check.body}`).toBe(200);
     }
 
-    const photo = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, {
+    const photo = await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, {
       purpose: 'GENERAL',
       capturedAt: new Date().toISOString(),
     });
@@ -314,26 +318,26 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
     expect(stored.contentHash).toBe(createHash('sha256').update(PNG).digest('hex'));
     expect(await eventKinds()).toContain('evidence_added');
 
-    const submitted = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/report/submit`, {
+    const submitted = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/report/submit`, {
       payload: { summary: 'All checks conform; no defects found.' },
     });
     expect(submitted.statusCode, submitted.body).toBe(200);
 
     // --- Who may sign -------------------------------------------------------
     // The inspector has no signing permission at all.
-    const byInspector = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    const byInspector = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/report/sign`);
     expect(byInspector.statusCode, byInspector.body).toBe(403);
 
     // And somebody named on the job cannot sign its report even with it: put
     // the QA reviewer on as backup inspector and the signature is refused.
     await prisma.inspectionJob.update({ where: { id: jobId }, data: { backupInspectorMemberId: memberIds['agqa'] ?? null } });
-    const ownJob = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    const ownJob = await asCustomer(app, qa, 'POST', `/audit/agency/jobs/${jobId}/report/sign`);
     expect(ownJob.statusCode, ownJob.body).toBe(409);
     expect(errorCode(ownJob)).toBe('INSPECTION_SELF_APPROVAL_FORBIDDEN');
     expect(await prisma.inspectionReport.count({ where: { jobId, status: 'SIGNED' } })).toBe(0);
     await prisma.inspectionJob.update({ where: { id: jobId }, data: { backupInspectorMemberId: null } });
 
-    const signed = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    const signed = await asCustomer(app, qa, 'POST', `/audit/agency/jobs/${jobId}/report/sign`);
     expect(signed.statusCode, signed.body).toBe(200);
     expect(signed.json<{ result: string }>().result).toBe('PASS');
 
@@ -379,7 +383,7 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
       });
     }
 
-    const stuffing = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, {
+    const stuffing = await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, {
       purpose: 'BINDING',
       capturedAt: new Date().toISOString(),
     });
@@ -389,13 +393,13 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
     const quantity = ordered._sum.quantity ?? 0;
 
     // A seal that is not the one on the consignment is refused.
-    const wrongSeal = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/binding`, {
+    const wrongSeal = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/binding`, {
       payload: { logisticsShipmentId: shipment.id, containerNumber: CONTAINER, sealNumber: 'SEAL-OTHER', stuffedQuantity: quantity, stuffedAt: new Date().toISOString() },
     });
     expect(wrongSeal.statusCode, wrongSeal.body).toBe(409);
     expect(errorCode(wrongSeal)).toBe('INSPECTION_BINDING_MISMATCH');
 
-    const bound = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/binding`, {
+    const bound = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/binding`, {
       payload: {
         logisticsShipmentId: shipment.id,
         containerNumber: CONTAINER,
@@ -448,13 +452,13 @@ describe('a first-time PASS, from the rule to the goods bound to a container', (
       expect(actions.has(action), action).toBe(true);
     }
     // The signature's audit row is by the QA reviewer's own account.
-    const qaUser = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: emailFor(TAG, 'agqa') }, select: { id: true } });
+    const qaUser = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: auditEmailFor(TAG, 'agqa') }, select: { id: true } });
     expect(audits.some((entry) => entry.action === 'inspection.report_signed' && entry.actorUserId === qaUser.id)).toBe(true);
 
     // Reading evidence back is itself audited, with who read it.
-    const download = await asCustomer(app, inspector, 'GET', `/inspection/agency/evidence/${photoId}`);
+    const download = await asCustomer(app, inspector, 'GET', `/audit/agency/evidence/${photoId}`);
     expect(download.statusCode).toBe(200);
-    const inspectorUser = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: emailFor(TAG, 'aginsp') }, select: { id: true } });
+    const inspectorUser = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: auditEmailFor(TAG, 'aginsp') }, select: { id: true } });
     const reads = await prisma.auditLog.findMany({
       where: { action: 'inspection.evidence_downloaded', resourceId: photoId },
       select: { actorUserId: true, afterJson: true },

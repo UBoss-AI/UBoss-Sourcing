@@ -351,6 +351,11 @@ export const router = createBrowserRouter([
         path: 'inspection-setup',
         ...lazyRoute(() => import('@/pages/inspection/InspectionConsolePages').then((m) => m.InspectionSetupPage), [Permission.INSPECTION_READ]),
       },
+      // Who may sign in to the Audit Console, and compliance rule oversight.
+      {
+        path: 'audit-console',
+        ...lazyRoute(() => import('@/pages/audit-console/AuditConsoleAccessPage').then((m) => m.AuditConsoleAccessPage), [Permission.AUDIT_CONSOLE_MANAGE]),
+      },
       // The dispute resolution console (checklist Master row 64).
       {
         path: 'disputes',

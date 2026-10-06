@@ -45,7 +45,7 @@ import {
   type SellerIdentity,
 } from '@/lib/seller';
 import { SellerNotificationBell } from './SellerNotificationBell';
-import { DocumentIcon, HeadsetIcon, StarIcon } from '@/components/icons';
+import { DocumentIcon, HeadsetIcon, ShieldIcon, StarIcon } from '@/components/icons';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -495,6 +495,10 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // (Master row 13). Open before approval: a factory is part of what a
   // reviewer weighs, so it can be recorded while the application is open.
   { to: '/seller/factories', labelKey: 'seller.nav.factories', icon: FactoryIcon, needsApproval: false },
+  // Category qualifications and compliance documents, reviewed in the Audit
+  // Console. Open before approval: a seller may need a qualification before
+  // their first listing in a regulated category can go live.
+  { to: '/seller/compliance', labelKey: 'seller.nav.compliance', icon: ShieldIcon, needsApproval: false },
   { to: '/seller/profile', labelKey: 'seller.nav.profile', icon: ProfileIcon, needsApproval: false },
   // Who else can use this account. Open before approval - a business sets up
   // its people while it waits - and only to the owner and admins.

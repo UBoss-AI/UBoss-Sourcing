@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**536 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**546 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -73,6 +73,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)](#held-funds-the-transaction-ledger-and-seller-payouts-master-rows-58-61-43) | 4 |
 | [Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067)](#admin-governance-maker-checker-moderation-cms-approval-journey-061-062-067) | 8 |
 | [Change control for a seller's verified company details (JOURNEY-027)](#change-control-for-a-seller-s-verified-company-details-journey-027) | 3 |
+| [Audit Console](#audit-console) | 10 |
 
 ## Generic
 
@@ -854,4 +855,19 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `COMPANY_CHANGE_NOT_ALLOWED` | The seller application is still editable, so company details are changed in the application itself, not through a change request. 409. |
 | `COMPANY_CHANGE_EMPTY` | The change request proposes nothing different from what is on file. 400. |
 | `COMPANY_CHANGE_NOT_PENDING` | The change request is no longer waiting: it was decided or withdrawn, possibly by a colleague while the screen was open. 409. |
+
+## Audit Console
+
+| Code | Meaning |
+|---|---|
+| `AUDIT_MEMBER_REQUIRED` | The signed-in AUDIT account has no active audit-staff or agency membership, or its role does not carry this action. 403. |
+| `AUDIT_MFA_SETUP_REQUIRED` | The Audit Console session must set up two-step sign-in first. 403. |
+| `AUDIT_MFA_CHALLENGE_REQUIRED` | The Audit Console session must pass its two-step challenge first. 403. |
+| `COMPLIANCE_RULE_TRANSITION_NOT_ALLOWED` | A compliance rule cannot move that way: wrong status, or the person who drafted it tried to approve it. `details[0].code` says which. 409. |
+| `COMPLIANCE_CASE_NOT_READY` | A qualification or product case cannot move that way, or cannot be approved yet: a requirement is unsatisfied or its applicability is still unresolved. `details` lists each blocking requirement. 409. |
+| `COMPLIANCE_DOCUMENT_TRANSITION_NOT_ALLOWED` | A compliance document cannot move that way. 409. |
+| `COMPLIANCE_QUALIFICATION_REQUIRED` | The seller is not qualified for this category (in this supply role and market) under an approved rule, and the deployment enforces it. 409. |
+| `INSPECTION_QUANTITY_INVALID` | A quantity is not a valid exact decimal for its unit, or the counts do not reconcile (tested more than sampled, conforming plus nonconforming more than tested). `details` names the field. 400. |
+| `INSPECTION_SUBLOT_NOT_ALLOWED` | A sub-lot release cannot be requested, approved or used: the code is taken, the quantities exceed the lot, it was already used, or the requester tried to approve it. `details[0].code` says which. 409. |
+| `INSPECTION_CORRECTION_NOT_ALLOWED` | A report correction is not allowed: the report is not signed, is already superseded, or the corrector is the inspector. 409. |
 

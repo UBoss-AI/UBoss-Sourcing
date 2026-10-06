@@ -172,6 +172,10 @@ export const Permission = {
   /// without a passed inspection. Two different holders are always needed:
   /// one requests, another approves (domain/inspection-state.ts).
   INSPECTION_RELEASE: 'inspection.release',
+  /// Decide who may sign in to the Audit Console and as what: invite audit
+  /// supervisors, compliance reviewers and agency people, change a role,
+  /// remove access. Also approves compliance rules from the Admin Panel.
+  AUDIT_CONSOLE_MANAGE: 'audit_console.manage',
 
   // --- Logistics ---
   //
@@ -556,6 +560,8 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.DISPUTE_VIEW,
       Permission.ORDER_READ,
       Permission.INSPECTION_READ,
+      // Verification is this role's job, so it decides who may audit.
+      Permission.AUDIT_CONSOLE_MANAGE,
       Permission.LEGAL_DOCUMENT_READ,
       Permission.DATA_REQUEST_READ,
       Permission.DATA_REQUEST_ACTION,

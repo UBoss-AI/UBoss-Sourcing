@@ -136,6 +136,16 @@ export const SECTIONS = Object.freeze({
     // role, credentials and when their identity was checked. The agency's jobs
     // and reports are the agency's and are not included.
     'inspectionAgencyMembership',
+    // Their place in the marketplace's own AUDIT team (supervisor or compliance
+    // reviewer), and the Audit Console notifications addressed to them. The
+    // cases and documents they reviewed are the sellers'; what they did is in
+    // `complianceActions` below.
+    'auditConsoleMembership',
+    'auditNotifications',
+    // Compliance decisions this person made or asked for - as a seller's member
+    // or as a reviewer - in the words the history records them. The sellers'
+    // documents themselves are the sellers' and are not included.
+    'complianceActions',
     // Their identity check as they entered it (the document number only ever
     // masked), their importer details, the files they uploaded (names and
     // types - the bytes are theirs to download from their account) and their
@@ -1174,6 +1184,40 @@ export async function buildCustomerBundle(
      * is this person's own document, recorded about them. Whether the check
      * was done is disclosed; who did it is not.
      */
+    auditConsoleMembership: await (async () => {
+      const member = await prisma.auditStaffMember.findUnique({
+        where: { userId: subject.userId },
+        select: { role: true, status: true, fullName: true, jobTitle: true, activatedAt: true, disabledAt: true, createdAt: true },
+      });
+      return member === null
+        ? null
+        : {
+            role: member.role,
+            status: member.status,
+            nameOnRecord: member.fullName,
+            jobTitle: member.jobTitle,
+            invitedAt: member.createdAt.toISOString(),
+            activatedAt: member.activatedAt?.toISOString() ?? null,
+            disabledAt: member.disabledAt?.toISOString() ?? null,
+          };
+    })(),
+
+    auditNotifications: (
+      await prisma.auditNotification.findMany({
+        where: { userId: subject.userId },
+        orderBy: { createdAt: 'asc' },
+        select: { kind: true, title: true, body: true, createdAt: true, readAt: true },
+      })
+    ).map((row) => ({ kind: row.kind, title: row.title, body: row.body, sentAt: row.createdAt.toISOString(), readAt: row.readAt?.toISOString() ?? null })),
+
+    complianceActions: (
+      await prisma.complianceEvent.findMany({
+        where: { actorUserId: subject.userId },
+        orderBy: { createdAt: 'asc' },
+        select: { subjectType: true, kind: true, summary: true, createdAt: true },
+      })
+    ).map((row) => ({ about: row.subjectType, action: row.kind, summary: row.summary, at: row.createdAt.toISOString() })),
+
     inspectionAgencyMembership: await (async () => {
       const member = await prisma.inspectionAgencyMember.findUnique({
         where: { userId: subject.userId },

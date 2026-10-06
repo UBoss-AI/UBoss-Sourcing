@@ -1,4 +1,4 @@
-# Putting the three front ends on Netlify
+# Putting the front ends on Netlify
 
 This is for showing the product to somebody who is not at your computer — a
 manager, a customer, a reviewer — on URLs they can open and use. It puts the
@@ -24,6 +24,7 @@ are not:
 | Storefront (`apps/customer-web`) | Built files | Yes |
 | Admin console (`apps/admin-web`) | Built files | Yes |
 | Carrier portal (`apps/logistics-web`) | Built files | Yes |
+| Audit Console (`apps/audit-web`) — optional, only if `FEATURE_AUDIT_CONSOLE=true` | Built files | Yes |
 | API (`backend`) | A long-running Fastify server holding a MariaDB connection pool | **No** |
 | Worker (`backend`, `start:worker`) | A process that polls the job queue forever | **No** |
 
@@ -135,11 +136,11 @@ Two consequences worth holding on to:
 
 Netlify builds from a branch and redeploys on every push.
 
-Do this **three times**, once per application:
+Do this once per application — three times, or four with the Audit Console:
 
 1. **Add new site → Import an existing project**, and pick the repository.
 2. **Base directory**: `apps/customer-web` (then `apps/admin-web`, then
-   `apps/logistics-web`). This is the step that is easy to skip and breaks
+   `apps/logistics-web`, then `apps/audit-web` if you use it). This is the step that is easy to skip and breaks
    everything — Netlify reads `netlify.toml` from the base directory, and a site
    left at the repository root builds the wrong thing or nothing at all.
 3. Leave the build command and publish directory alone. `netlify.toml` in each
@@ -194,6 +195,7 @@ addresses is three things for them to keep hold of and one link is one.
 | `/` | Storefront |
 | `/admin/` | Admin console |
 | `/logistics/` | Logistics portal |
+| `/audit/` | Audit Console |
 
 ```powershell
 node scripts/build-netlify-combined.mjs
@@ -264,6 +266,7 @@ hands each one its own list:
 VITE_DEMO_LOGINS_CUSTOMER
 VITE_DEMO_LOGINS_ADMIN
 VITE_DEMO_LOGINS_LOGISTICS
+VITE_DEMO_LOGINS_AUDIT
 ```
 
 Each holds the same JSON array `VITE_DEMO_LOGINS` takes. List only the
@@ -292,7 +295,11 @@ That builds all three and writes three archives to `output/netlify`:
 uboss-customer-web.zip
 uboss-admin-web.zip
 uboss-logistics-web.zip
+uboss-audit-web.zip
 ```
+
+Leave the Audit Console out when you do not use it:
+`-Apps customer-web,admin-web,logistics-web`.
 
 Each one contains that application's built files at the root of the archive plus
 a `netlify.toml` with your API origin already substituted in. In Netlify:
@@ -346,9 +353,12 @@ None of the above works until the API knows about these three new URLs. In
 | `CUSTOMER_WEB_ORIGIN` | add the storefront's Netlify URL | Nothing, *while* every call goes through the proxy — the browser sees one origin, so CORS is never consulted. It is the safety net for the moment something does go direct, and it costs one comma |
 | `ADMIN_WEB_ORIGIN` | add the console's URL | as above |
 | `LOGISTICS_WEB_ORIGIN` | add the portal's URL | as above |
+| `AUDIT_WEB_ORIGIN` | add the Audit Console's URL, if you use it | as above |
 | `CUSTOMER_WEB_PUBLIC_URL` | the storefront's URL | Every verification, password-reset and order email links to `localhost` — that is, to the *recipient's* own machine |
 | `ADMIN_WEB_PUBLIC_URL` | the console's URL | Staff invitations cannot be accepted |
 | `LOGISTICS_WEB_PUBLIC_URL` | the portal's URL | Carrier invitations cannot be accepted |
+| `AUDIT_WEB_PUBLIC_URL` | the Audit Console's URL | Auditor and inspector invitations cannot be accepted |
+| `FEATURE_AUDIT_CONSOLE` | `true`, only if you use the Audit Console | The console loads and every sign-in fails, because the API has no console routes |
 | `API_PUBLIC_URL` | the API's own public URL | Payment webhooks and payment links call back to the wrong place, so orders are never confirmed |
 
 **Restart the API afterwards.** These are read once, at boot, and validated

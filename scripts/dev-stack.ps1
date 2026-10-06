@@ -203,6 +203,27 @@ function Test-LogisticsPortalEnabled {
 }
 
 <#
+    Is the Audit Console switched on for this deployment?
+
+    The same rule as the logistics portal, read from FEATURE_AUDIT_CONSOLE in
+    backend/.env: off by default, and anything other than a plain "true" means
+    no. Also no while apps\audit-web does not exist on this checkout.
+#>
+function Test-AuditConsoleEnabled {
+    $envFile = Join-Path $RepoRoot 'backend\.env'
+    if (-not (Test-Path $envFile)) { return $false }
+    if (-not (Test-Path (Join-Path $RepoRoot 'apps\audit-web\package.json'))) { return $false }
+
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*FEATURE_AUDIT_CONSOLE\s*=\s*"?(?<value>[^"#\s]+)') {
+            return ($Matches['value'].ToLowerInvariant() -eq 'true')
+        }
+    }
+
+    return $false
+}
+
+<#
     The hostname the tunnel answers on, or $null.
 
     Read from the storefront's .env.local because that is where the frontends
@@ -288,6 +309,18 @@ function Get-Components {
             Kind = 'npm'; Exe = $null; Args = @('run', $viteScript)
             Cwd = (Join-Path $RepoRoot 'apps\logistics-web'); Match = 'apps\logistics-web'
             Url = 'http://localhost:5175'; Ready = $null
+        }
+    }
+
+    # The Audit Console, on the same terms: listed only when
+    # FEATURE_AUDIT_CONSOLE is on, and proxied by the storefront at /audit
+    # under -Tunnel.
+    if (Test-AuditConsoleEnabled) {
+        $list += [pscustomobject]@{
+            Key = 'audit'; Name = 'Audit Console'; Port = 5176
+            Kind = 'npm'; Exe = $null; Args = @('run', $viteScript)
+            Cwd = (Join-Path $RepoRoot 'apps\audit-web'); Match = 'apps\audit-web'
+            Url = 'http://localhost:5176'; Ready = $null
         }
     }
 
@@ -555,17 +588,17 @@ function Invoke-Stop {
     Write-State @{}
     Start-Sleep -Milliseconds 600
 
-    # Confirm by port, for the same reason everything else here does. 5175 is
-    # checked whether or not the portal was listed: a stale one from a run made
+    # Confirm by port, for the same reason everything else here does. 5175 and
+    # 5176 are checked whether or not the portals were listed: a stale one from a run made
     # before the flag was turned off is exactly the leftover worth naming.
     $stuck = @()
-    foreach ($port in @(4000, 5173, 5174, 5175)) {
+    foreach ($port in @(4000, 5173, 5174, 5175, 5176)) {
         if (Test-Port $port) { $stuck += $port }
     }
     if (@($stuck).Count -gt 0) {
         Write-Warn "Still listening: $($stuck -join ', '). Something outside this script is holding them."
     } else {
-        Write-Ok 'Ports 4000, 5173, 5174 and 5175 are free'
+        Write-Ok 'Ports 4000, 5173, 5174, 5175 and 5176 are free'
     }
 }
 
@@ -600,6 +633,9 @@ function Show-Endpoints {
     if (Test-LogisticsPortalEnabled) {
         Write-Host '  Logistics     http://localhost:5175'
     }
+    if (Test-AuditConsoleEnabled) {
+        Write-Host '  Audit Console http://localhost:5176'
+    }
     Write-Host '  API           http://localhost:4000   (/health/ready)'
     if ($Tunnel) {
         Write-Host '  ngrok         http://localhost:4040   (inspector)'
@@ -621,6 +657,9 @@ function Show-Endpoints {
                 Write-Host "                https://$tunnelHost/admin/      admin panel"
                 if (Test-LogisticsPortalEnabled) {
                     Write-Host "                https://$tunnelHost/logistics/  logistics portal"
+                }
+                if (Test-AuditConsoleEnabled) {
+                    Write-Host "                https://$tunnelHost/audit/      audit console"
                 }
             }
             else {

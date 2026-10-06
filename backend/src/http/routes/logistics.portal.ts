@@ -95,6 +95,7 @@ import {
   requireLogisticsAny,
   requireLogisticsSession,
 } from '../plugins/logistics.js';
+import { inspectionReleaseForShipment } from '../../modules/inspection/gate.service.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -603,7 +604,9 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
       // Whether a delivery code is live, where the policy asks for one. Never
       // the code itself, and never where it was sent.
       const deliveryCode = await readDeliveryCodeFor(params.id, podRequirements);
-      return reply.status(200).send({ ...shipment, podRequirements, deliveryCode });
+      // Released or held by inspection, and why - never the report itself.
+      const inspectionRelease = await inspectionReleaseForShipment(params.id);
+      return reply.status(200).send({ ...shipment, podRequirements, deliveryCode, inspectionRelease });
     },
   );
 

@@ -39,12 +39,11 @@ import {
   asCustomer,
   asStaff,
   cleanUpOrderDesk,
-  customer,
-  emailFor,
   staff,
   type Session,
   type StaffSession,
 } from '../support/order-desk-fixture.js';
+import { activateAndSignIn, auditEmailFor, cleanUpAuditPeople } from '../support/audit-session.js';
 
 const PREFIX = 'rfqpo-';
 const TAG = 'rfqpo9';
@@ -127,6 +126,7 @@ afterAll(async () => {
   });
   await prisma.inspectionAgencyMember.deleteMany({ where: { agencyId: { in: agencyIds } } });
   await prisma.inspectionAgency.deleteMany({ where: { id: { in: agencyIds } } });
+  await cleanUpAuditPeople(TAG);
   await prisma.sellerLocation.deleteMany({ where: { id: locationId } });
   if (createdConnectionId !== null) await prisma.paymentProviderConnection.deleteMany({ where: { id: createdConnectionId } });
   await cleanUpOrderDesk(TAG);
@@ -460,9 +460,10 @@ describe('an approved RFQ purchase order, from conversion to delivery', () => {
 
     // --- The inspection, booked, carried out and signed PASS ----------------
     const admin: StaffSession = await staff(world.app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.91.0.20');
-    const coordinator = await customer(world.app, TAG, 'agcoord', '10.91.0.21');
-    const inspector = await customer(world.app, TAG, 'aginsp', '10.91.0.22');
-    const qa = await customer(world.app, TAG, 'agqa', '10.91.0.23');
+    // Agency people: invited to the Audit Console below and signed in there.
+    await cleanUpAuditPeople(TAG);
+    const ips = { agcoord: '10.91.0.21', aginsp: '10.91.0.22', agqa: '10.91.0.23' } as const;
+    const sessions: Partial<Record<keyof typeof ips, Session>> = {};
     const created = await asStaff(world.app, admin, 'POST', '/inspection/agencies', {
       idempotencyKey: newId(),
       payload: { name: `${TAG} Independent QA`, legalName: `${TAG} Independent QA Ltd`, country: 'IN', contactEmail: 'qa@rfqpo9.test.local', dailyCapacity: 5 },
@@ -473,7 +474,7 @@ describe('an approved RFQ purchase order, from conversion to delivery', () => {
     for (const [who, role] of [['agcoord', 'COORDINATOR'], ['aginsp', 'INSPECTOR'], ['agqa', 'QA_REVIEWER']] as const) {
       const added = await asStaff(world.app, admin, 'POST', `/inspection/agencies/${agencyId}/members`, {
         idempotencyKey: newId(),
-        payload: { email: emailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: [world.categoryId] },
+        payload: { email: auditEmailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: [world.categoryId] },
       });
       expect(added.statusCode, added.body).toBe(201);
       const verified = await world.app.inject({
@@ -483,7 +484,11 @@ describe('an approved RFQ purchase order, from conversion to delivery', () => {
         payload: { verifyIdentity: true },
       });
       expect(verified.statusCode, verified.body).toBe(200);
+      sessions[who] = await activateAndSignIn(world.app, added.json<{ userId: string }>().userId, ips[who]);
     }
+    const coordinator = sessions.agcoord as Session;
+    const inspector = sessions.aginsp as Session;
+    const qa = sessions.agqa as Session;
 
     const booked = await asStaff(world.app, admin, 'POST', '/inspection/jobs', {
       idempotencyKey: newId(),
@@ -499,11 +504,11 @@ describe('an approved RFQ purchase order, from conversion to delivery', () => {
     expect(booked.statusCode, booked.body).toBe(201);
     const jobId = booked.json<{ jobId: string }>().jobId;
     const agencyCall = (session: Session, path: string, payload: Record<string, unknown> = {}) =>
-      asCustomer(world.app, session, 'POST', `/inspection/agency/jobs/${jobId}/${path}`, { idempotencyKey: newId(), payload });
+      asCustomer(world.app, session, 'POST', `/audit/agency/jobs/${jobId}/${path}`, { idempotencyKey: newId(), payload });
 
     const taken = await agencyCall(coordinator, 'accept', { conflictStatement: 'No financial or family link to the seller or buyer.', confirmNoConflict: true });
     expect(taken.statusCode, taken.body).toBe(200);
-    const detail = await asCustomer(world.app, coordinator, 'GET', `/inspection/agency/jobs/${jobId}`);
+    const detail = await asCustomer(world.app, coordinator, 'GET', `/audit/agency/jobs/${jobId}`);
     expect(detail.statusCode, detail.body).toBe(200);
     // The inspector's own screen names the reference sample to measure against.
     expect(detail.json<{ job: { requirement: { referenceSample: { referenceCode: string } | null } } }>().job.requirement.referenceSample?.referenceCode).toBe(
@@ -534,16 +539,16 @@ describe('an approved RFQ purchase order, from conversion to delivery', () => {
       const response = await agencyCall(inspector, action, payload);
       expect(response.statusCode, `${action}: ${response.body}`).toBe(200);
     }
-    const view = await asCustomer(world.app, inspector, 'GET', `/inspection/agency/jobs/${jobId}`);
+    const view = await asCustomer(world.app, inspector, 'GET', `/audit/agency/jobs/${jobId}`);
     for (const item of view.json<{ job: { checklist: { code?: string; itemCode?: string }[] } }>().job.checklist) {
       const code = item.code ?? item.itemCode ?? '';
       const check = await agencyCall(inspector, 'checks', { itemCode: code, outcome: 'CONFORM' });
       expect(check.statusCode, `check ${code}: ${check.body}`).toBe(200);
     }
-    expect((await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'GENERAL' })).statusCode).toBe(201);
+    expect((await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, { purpose: 'GENERAL' })).statusCode).toBe(201);
     const submittedReport = await agencyCall(inspector, 'report/submit', { summary: `Matches reference sample ${approvedSample.referenceCode ?? ''}; all checks conform.` });
     expect(submittedReport.statusCode, submittedReport.body).toBe(200);
-    const signed = await asCustomer(world.app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`, { idempotencyKey: newId() });
+    const signed = await asCustomer(world.app, qa, 'POST', `/audit/agency/jobs/${jobId}/report/sign`, { idempotencyKey: newId() });
     expect(signed.statusCode, signed.body).toBe(200);
     expect(signed.json<{ result: string }>().result).toBe('PASS');
 

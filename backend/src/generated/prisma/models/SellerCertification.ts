@@ -20,8 +20,18 @@ export type SellerCertificationModel = runtime.Types.Result.DefaultSelection<Pri
 
 export type AggregateSellerCertification = {
   _count: SellerCertificationCountAggregateOutputType | null
+  _avg: SellerCertificationAvgAggregateOutputType | null
+  _sum: SellerCertificationSumAggregateOutputType | null
   _min: SellerCertificationMinAggregateOutputType | null
   _max: SellerCertificationMaxAggregateOutputType | null
+}
+
+export type SellerCertificationAvgAggregateOutputType = {
+  revision: number | null
+}
+
+export type SellerCertificationSumAggregateOutputType = {
+  revision: number | null
 }
 
 export type SellerCertificationMinAggregateOutputType = {
@@ -35,6 +45,25 @@ export type SellerCertificationMinAggregateOutputType = {
   issuedOn: Date | null
   expiresOn: Date | null
   documentId: string | null
+  reviewStatus: $Enums.ComplianceDocumentStatus | null
+  documentType: $Enums.ComplianceDocumentType | null
+  issuingCountry: string | null
+  legalEntityName: string | null
+  modelScope: string | null
+  noExpiryReason: string | null
+  verificationMethod: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome: $Enums.ComplianceVerificationOutcome | null
+  verificationSource: string | null
+  reviewMessage: string | null
+  internalNote: string | null
+  reviewerUserId: string | null
+  reviewerLabel: string | null
+  reviewStartedAt: Date | null
+  suspendedAt: Date | null
+  suspendedReason: string | null
+  revision: number | null
+  supersedesId: string | null
+  supersededAt: Date | null
   state: $Enums.TrustCheckState | null
   verifiedAt: Date | null
   verifiedByUserId: string | null
@@ -58,6 +87,25 @@ export type SellerCertificationMaxAggregateOutputType = {
   issuedOn: Date | null
   expiresOn: Date | null
   documentId: string | null
+  reviewStatus: $Enums.ComplianceDocumentStatus | null
+  documentType: $Enums.ComplianceDocumentType | null
+  issuingCountry: string | null
+  legalEntityName: string | null
+  modelScope: string | null
+  noExpiryReason: string | null
+  verificationMethod: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome: $Enums.ComplianceVerificationOutcome | null
+  verificationSource: string | null
+  reviewMessage: string | null
+  internalNote: string | null
+  reviewerUserId: string | null
+  reviewerLabel: string | null
+  reviewStartedAt: Date | null
+  suspendedAt: Date | null
+  suspendedReason: string | null
+  revision: number | null
+  supersedesId: string | null
+  supersededAt: Date | null
   state: $Enums.TrustCheckState | null
   verifiedAt: Date | null
   verifiedByUserId: string | null
@@ -81,6 +129,28 @@ export type SellerCertificationCountAggregateOutputType = {
   issuedOn: number
   expiresOn: number
   documentId: number
+  reviewStatus: number
+  documentType: number
+  issuingCountry: number
+  legalEntityName: number
+  categoryScopeIdsJson: number
+  productScopeIdsJson: number
+  modelScope: number
+  requirementCodesJson: number
+  noExpiryReason: number
+  verificationMethod: number
+  verificationOutcome: number
+  verificationSource: number
+  reviewMessage: number
+  internalNote: number
+  reviewerUserId: number
+  reviewerLabel: number
+  reviewStartedAt: number
+  suspendedAt: number
+  suspendedReason: number
+  revision: number
+  supersedesId: number
+  supersededAt: number
   state: number
   verifiedAt: number
   verifiedByUserId: number
@@ -95,6 +165,14 @@ export type SellerCertificationCountAggregateOutputType = {
 }
 
 
+export type SellerCertificationAvgAggregateInputType = {
+  revision?: true
+}
+
+export type SellerCertificationSumAggregateInputType = {
+  revision?: true
+}
+
 export type SellerCertificationMinAggregateInputType = {
   id?: true
   sellerAccountId?: true
@@ -106,6 +184,25 @@ export type SellerCertificationMinAggregateInputType = {
   issuedOn?: true
   expiresOn?: true
   documentId?: true
+  reviewStatus?: true
+  documentType?: true
+  issuingCountry?: true
+  legalEntityName?: true
+  modelScope?: true
+  noExpiryReason?: true
+  verificationMethod?: true
+  verificationOutcome?: true
+  verificationSource?: true
+  reviewMessage?: true
+  internalNote?: true
+  reviewerUserId?: true
+  reviewerLabel?: true
+  reviewStartedAt?: true
+  suspendedAt?: true
+  suspendedReason?: true
+  revision?: true
+  supersedesId?: true
+  supersededAt?: true
   state?: true
   verifiedAt?: true
   verifiedByUserId?: true
@@ -129,6 +226,25 @@ export type SellerCertificationMaxAggregateInputType = {
   issuedOn?: true
   expiresOn?: true
   documentId?: true
+  reviewStatus?: true
+  documentType?: true
+  issuingCountry?: true
+  legalEntityName?: true
+  modelScope?: true
+  noExpiryReason?: true
+  verificationMethod?: true
+  verificationOutcome?: true
+  verificationSource?: true
+  reviewMessage?: true
+  internalNote?: true
+  reviewerUserId?: true
+  reviewerLabel?: true
+  reviewStartedAt?: true
+  suspendedAt?: true
+  suspendedReason?: true
+  revision?: true
+  supersedesId?: true
+  supersededAt?: true
   state?: true
   verifiedAt?: true
   verifiedByUserId?: true
@@ -152,6 +268,28 @@ export type SellerCertificationCountAggregateInputType = {
   issuedOn?: true
   expiresOn?: true
   documentId?: true
+  reviewStatus?: true
+  documentType?: true
+  issuingCountry?: true
+  legalEntityName?: true
+  categoryScopeIdsJson?: true
+  productScopeIdsJson?: true
+  modelScope?: true
+  requirementCodesJson?: true
+  noExpiryReason?: true
+  verificationMethod?: true
+  verificationOutcome?: true
+  verificationSource?: true
+  reviewMessage?: true
+  internalNote?: true
+  reviewerUserId?: true
+  reviewerLabel?: true
+  reviewStartedAt?: true
+  suspendedAt?: true
+  suspendedReason?: true
+  revision?: true
+  supersedesId?: true
+  supersededAt?: true
   state?: true
   verifiedAt?: true
   verifiedByUserId?: true
@@ -203,6 +341,18 @@ export type SellerCertificationAggregateArgs<ExtArgs extends runtime.Types.Exten
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SellerCertificationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SellerCertificationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SellerCertificationMinAggregateInputType
@@ -233,6 +383,8 @@ export type SellerCertificationGroupByArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   _count?: SellerCertificationCountAggregateInputType | true
+  _avg?: SellerCertificationAvgAggregateInputType
+  _sum?: SellerCertificationSumAggregateInputType
   _min?: SellerCertificationMinAggregateInputType
   _max?: SellerCertificationMaxAggregateInputType
 }
@@ -248,6 +400,28 @@ export type SellerCertificationGroupByOutputType = {
   issuedOn: Date | null
   expiresOn: Date | null
   documentId: string | null
+  reviewStatus: $Enums.ComplianceDocumentStatus
+  documentType: $Enums.ComplianceDocumentType
+  issuingCountry: string | null
+  legalEntityName: string | null
+  categoryScopeIdsJson: runtime.JsonValue | null
+  productScopeIdsJson: runtime.JsonValue | null
+  modelScope: string | null
+  requirementCodesJson: runtime.JsonValue | null
+  noExpiryReason: string | null
+  verificationMethod: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome: $Enums.ComplianceVerificationOutcome
+  verificationSource: string | null
+  reviewMessage: string | null
+  internalNote: string | null
+  reviewerUserId: string | null
+  reviewerLabel: string | null
+  reviewStartedAt: Date | null
+  suspendedAt: Date | null
+  suspendedReason: string | null
+  revision: number
+  supersedesId: string | null
+  supersededAt: Date | null
   state: $Enums.TrustCheckState
   verifiedAt: Date | null
   verifiedByUserId: string | null
@@ -259,6 +433,8 @@ export type SellerCertificationGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: SellerCertificationCountAggregateOutputType | null
+  _avg: SellerCertificationAvgAggregateOutputType | null
+  _sum: SellerCertificationSumAggregateOutputType | null
   _min: SellerCertificationMinAggregateOutputType | null
   _max: SellerCertificationMaxAggregateOutputType | null
 }
@@ -292,6 +468,28 @@ export type SellerCertificationWhereInput = {
   issuedOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   expiresOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   documentId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFilter<"SellerCertification"> | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFilter<"SellerCertification"> | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  legalEntityName?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  categoryScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  productScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  modelScope?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  requirementCodesJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  noExpiryReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  verificationMethod?: Prisma.EnumComplianceVerificationMethodNullableFilter<"SellerCertification"> | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFilter<"SellerCertification"> | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewMessage?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  internalNote?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerLabel?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  revision?: Prisma.IntFilter<"SellerCertification"> | number
+  supersedesId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   state?: Prisma.EnumTrustCheckStateFilter<"SellerCertification"> | $Enums.TrustCheckState
   verifiedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   verifiedByUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
@@ -319,6 +517,28 @@ export type SellerCertificationOrderByWithRelationInput = {
   issuedOn?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresOn?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  issuingCountry?: Prisma.SortOrderInput | Prisma.SortOrder
+  legalEntityName?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryScopeIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  productScopeIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  modelScope?: Prisma.SortOrderInput | Prisma.SortOrder
+  requirementCodesJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  noExpiryReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationOutcome?: Prisma.SortOrder
+  verificationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  internalNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +570,28 @@ export type SellerCertificationWhereUniqueInput = Prisma.AtLeast<{
   issuedOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   expiresOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   documentId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFilter<"SellerCertification"> | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFilter<"SellerCertification"> | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  legalEntityName?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  categoryScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  productScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  modelScope?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  requirementCodesJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  noExpiryReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  verificationMethod?: Prisma.EnumComplianceVerificationMethodNullableFilter<"SellerCertification"> | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFilter<"SellerCertification"> | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewMessage?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  internalNote?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerLabel?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  revision?: Prisma.IntFilter<"SellerCertification"> | number
+  supersedesId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   state?: Prisma.EnumTrustCheckStateFilter<"SellerCertification"> | $Enums.TrustCheckState
   verifiedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   verifiedByUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
@@ -377,6 +619,28 @@ export type SellerCertificationOrderByWithAggregationInput = {
   issuedOn?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresOn?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  issuingCountry?: Prisma.SortOrderInput | Prisma.SortOrder
+  legalEntityName?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryScopeIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  productScopeIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  modelScope?: Prisma.SortOrderInput | Prisma.SortOrder
+  requirementCodesJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  noExpiryReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationOutcome?: Prisma.SortOrder
+  verificationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  internalNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrderInput | Prisma.SortOrder
+  supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -388,8 +652,10 @@ export type SellerCertificationOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerCertificationCountOrderByAggregateInput
+  _avg?: Prisma.SellerCertificationAvgOrderByAggregateInput
   _max?: Prisma.SellerCertificationMaxOrderByAggregateInput
   _min?: Prisma.SellerCertificationMinOrderByAggregateInput
+  _sum?: Prisma.SellerCertificationSumOrderByAggregateInput
 }
 
 export type SellerCertificationScalarWhereWithAggregatesInput = {
@@ -406,6 +672,28 @@ export type SellerCertificationScalarWhereWithAggregatesInput = {
   issuedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
   expiresOn?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
   documentId?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusWithAggregatesFilter<"SellerCertification"> | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeWithAggregatesFilter<"SellerCertification"> | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  legalEntityName?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  categoryScopeIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerCertification">
+  productScopeIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerCertification">
+  modelScope?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  requirementCodesJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerCertification">
+  noExpiryReason?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  verificationMethod?: Prisma.EnumComplianceVerificationMethodNullableWithAggregatesFilter<"SellerCertification"> | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeWithAggregatesFilter<"SellerCertification"> | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  reviewMessage?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  internalNote?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  reviewerUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  reviewerLabel?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
+  suspendedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
+  suspendedReason?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  revision?: Prisma.IntWithAggregatesFilter<"SellerCertification"> | number
+  supersedesId?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
+  supersededAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
   state?: Prisma.EnumTrustCheckStateWithAggregatesFilter<"SellerCertification"> | $Enums.TrustCheckState
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerCertification"> | Date | string | null
   verifiedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerCertification"> | string | null
@@ -427,6 +715,28 @@ export type SellerCertificationCreateInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -454,6 +764,28 @@ export type SellerCertificationUncheckedCreateInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -477,6 +809,28 @@ export type SellerCertificationUpdateInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -504,6 +858,28 @@ export type SellerCertificationUncheckedUpdateInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -529,6 +905,28 @@ export type SellerCertificationCreateManyInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -550,6 +948,28 @@ export type SellerCertificationUpdateManyMutationInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -573,6 +993,28 @@ export type SellerCertificationUncheckedUpdateManyInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -612,6 +1054,28 @@ export type SellerCertificationCountOrderByAggregateInput = {
   issuedOn?: Prisma.SortOrder
   expiresOn?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  issuingCountry?: Prisma.SortOrder
+  legalEntityName?: Prisma.SortOrder
+  categoryScopeIdsJson?: Prisma.SortOrder
+  productScopeIdsJson?: Prisma.SortOrder
+  modelScope?: Prisma.SortOrder
+  requirementCodesJson?: Prisma.SortOrder
+  noExpiryReason?: Prisma.SortOrder
+  verificationMethod?: Prisma.SortOrder
+  verificationOutcome?: Prisma.SortOrder
+  verificationSource?: Prisma.SortOrder
+  reviewMessage?: Prisma.SortOrder
+  internalNote?: Prisma.SortOrder
+  reviewerUserId?: Prisma.SortOrder
+  reviewerLabel?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
   state?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedByUserId?: Prisma.SortOrder
@@ -622,6 +1086,10 @@ export type SellerCertificationCountOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SellerCertificationAvgOrderByAggregateInput = {
+  revision?: Prisma.SortOrder
 }
 
 export type SellerCertificationMaxOrderByAggregateInput = {
@@ -635,6 +1103,25 @@ export type SellerCertificationMaxOrderByAggregateInput = {
   issuedOn?: Prisma.SortOrder
   expiresOn?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  issuingCountry?: Prisma.SortOrder
+  legalEntityName?: Prisma.SortOrder
+  modelScope?: Prisma.SortOrder
+  noExpiryReason?: Prisma.SortOrder
+  verificationMethod?: Prisma.SortOrder
+  verificationOutcome?: Prisma.SortOrder
+  verificationSource?: Prisma.SortOrder
+  reviewMessage?: Prisma.SortOrder
+  internalNote?: Prisma.SortOrder
+  reviewerUserId?: Prisma.SortOrder
+  reviewerLabel?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
   state?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedByUserId?: Prisma.SortOrder
@@ -658,6 +1145,25 @@ export type SellerCertificationMinOrderByAggregateInput = {
   issuedOn?: Prisma.SortOrder
   expiresOn?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  issuingCountry?: Prisma.SortOrder
+  legalEntityName?: Prisma.SortOrder
+  modelScope?: Prisma.SortOrder
+  noExpiryReason?: Prisma.SortOrder
+  verificationMethod?: Prisma.SortOrder
+  verificationOutcome?: Prisma.SortOrder
+  verificationSource?: Prisma.SortOrder
+  reviewMessage?: Prisma.SortOrder
+  internalNote?: Prisma.SortOrder
+  reviewerUserId?: Prisma.SortOrder
+  reviewerLabel?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  supersededAt?: Prisma.SortOrder
   state?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedByUserId?: Prisma.SortOrder
@@ -668,6 +1174,10 @@ export type SellerCertificationMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SellerCertificationSumOrderByAggregateInput = {
+  revision?: Prisma.SortOrder
 }
 
 export type SellerCertificationScalarRelationFilter = {
@@ -759,6 +1269,22 @@ export type SellerCertificationUncheckedUpdateManyWithoutFactoryNestedInput = {
   deleteMany?: Prisma.SellerCertificationScalarWhereInput | Prisma.SellerCertificationScalarWhereInput[]
 }
 
+export type EnumComplianceDocumentStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ComplianceDocumentStatus
+}
+
+export type EnumComplianceDocumentTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ComplianceDocumentType
+}
+
+export type NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput = {
+  set?: $Enums.ComplianceVerificationMethod | null
+}
+
+export type EnumComplianceVerificationOutcomeFieldUpdateOperationsInput = {
+  set?: $Enums.ComplianceVerificationOutcome
+}
+
 export type EnumTrustCheckStateFieldUpdateOperationsInput = {
   set?: $Enums.TrustCheckState
 }
@@ -800,6 +1326,28 @@ export type SellerCertificationCreateWithoutSellerAccountInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -825,6 +1373,28 @@ export type SellerCertificationUncheckedCreateWithoutSellerAccountInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -879,6 +1449,28 @@ export type SellerCertificationScalarWhereInput = {
   issuedOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   expiresOn?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   documentId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFilter<"SellerCertification"> | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFilter<"SellerCertification"> | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  legalEntityName?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  categoryScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  productScopeIdsJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  modelScope?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  requirementCodesJson?: Prisma.JsonNullableFilter<"SellerCertification">
+  noExpiryReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  verificationMethod?: Prisma.EnumComplianceVerificationMethodNullableFilter<"SellerCertification"> | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFilter<"SellerCertification"> | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewMessage?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  internalNote?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewerLabel?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
+  suspendedReason?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  revision?: Prisma.IntFilter<"SellerCertification"> | number
+  supersedesId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   state?: Prisma.EnumTrustCheckStateFilter<"SellerCertification"> | $Enums.TrustCheckState
   verifiedAt?: Prisma.DateTimeNullableFilter<"SellerCertification"> | Date | string | null
   verifiedByUserId?: Prisma.StringNullableFilter<"SellerCertification"> | string | null
@@ -900,6 +1492,28 @@ export type SellerCertificationCreateWithoutFactoryInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -925,6 +1539,28 @@ export type SellerCertificationUncheckedCreateWithoutFactoryInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -974,6 +1610,28 @@ export type SellerCertificationCreateWithoutListingsInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1000,6 +1658,28 @@ export type SellerCertificationUncheckedCreateWithoutListingsInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1038,6 +1718,28 @@ export type SellerCertificationUpdateWithoutListingsInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1064,6 +1766,28 @@ export type SellerCertificationUncheckedUpdateWithoutListingsInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1086,6 +1810,28 @@ export type SellerCertificationCreateWithoutHoldsInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1112,6 +1858,28 @@ export type SellerCertificationUncheckedCreateWithoutHoldsInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1150,6 +1918,28 @@ export type SellerCertificationUpdateWithoutHoldsInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1176,6 +1966,28 @@ export type SellerCertificationUncheckedUpdateWithoutHoldsInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1199,6 +2011,28 @@ export type SellerCertificationCreateManySellerAccountInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1220,6 +2054,28 @@ export type SellerCertificationUpdateWithoutSellerAccountInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1245,6 +2101,28 @@ export type SellerCertificationUncheckedUpdateWithoutSellerAccountInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1269,6 +2147,28 @@ export type SellerCertificationUncheckedUpdateManyWithoutSellerAccountInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1291,6 +2191,28 @@ export type SellerCertificationCreateManyFactoryInput = {
   issuedOn?: Date | string | null
   expiresOn?: Date | string | null
   documentId?: string | null
+  reviewStatus?: $Enums.ComplianceDocumentStatus
+  documentType?: $Enums.ComplianceDocumentType
+  issuingCountry?: string | null
+  legalEntityName?: string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: string | null
+  verificationMethod?: $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: $Enums.ComplianceVerificationOutcome
+  verificationSource?: string | null
+  reviewMessage?: string | null
+  internalNote?: string | null
+  reviewerUserId?: string | null
+  reviewerLabel?: string | null
+  reviewStartedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  suspendedReason?: string | null
+  revision?: number
+  supersedesId?: string | null
+  supersededAt?: Date | string | null
   state?: $Enums.TrustCheckState
   verifiedAt?: Date | string | null
   verifiedByUserId?: string | null
@@ -1312,6 +2234,28 @@ export type SellerCertificationUpdateWithoutFactoryInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1337,6 +2281,28 @@ export type SellerCertificationUncheckedUpdateWithoutFactoryInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1361,6 +2327,28 @@ export type SellerCertificationUncheckedUpdateManyWithoutFactoryInput = {
   issuedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStatus?: Prisma.EnumComplianceDocumentStatusFieldUpdateOperationsInput | $Enums.ComplianceDocumentStatus
+  documentType?: Prisma.EnumComplianceDocumentTypeFieldUpdateOperationsInput | $Enums.ComplianceDocumentType
+  issuingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalEntityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productScopeIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modelScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requirementCodesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  noExpiryReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationMethod?: Prisma.NullableEnumComplianceVerificationMethodFieldUpdateOperationsInput | $Enums.ComplianceVerificationMethod | null
+  verificationOutcome?: Prisma.EnumComplianceVerificationOutcomeFieldUpdateOperationsInput | $Enums.ComplianceVerificationOutcome
+  verificationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   state?: Prisma.EnumTrustCheckStateFieldUpdateOperationsInput | $Enums.TrustCheckState
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1424,6 +2412,28 @@ export type SellerCertificationSelect<ExtArgs extends runtime.Types.Extensions.I
   issuedOn?: boolean
   expiresOn?: boolean
   documentId?: boolean
+  reviewStatus?: boolean
+  documentType?: boolean
+  issuingCountry?: boolean
+  legalEntityName?: boolean
+  categoryScopeIdsJson?: boolean
+  productScopeIdsJson?: boolean
+  modelScope?: boolean
+  requirementCodesJson?: boolean
+  noExpiryReason?: boolean
+  verificationMethod?: boolean
+  verificationOutcome?: boolean
+  verificationSource?: boolean
+  reviewMessage?: boolean
+  internalNote?: boolean
+  reviewerUserId?: boolean
+  reviewerLabel?: boolean
+  reviewStartedAt?: boolean
+  suspendedAt?: boolean
+  suspendedReason?: boolean
+  revision?: boolean
+  supersedesId?: boolean
+  supersededAt?: boolean
   state?: boolean
   verifiedAt?: boolean
   verifiedByUserId?: boolean
@@ -1454,6 +2464,28 @@ export type SellerCertificationSelectScalar = {
   issuedOn?: boolean
   expiresOn?: boolean
   documentId?: boolean
+  reviewStatus?: boolean
+  documentType?: boolean
+  issuingCountry?: boolean
+  legalEntityName?: boolean
+  categoryScopeIdsJson?: boolean
+  productScopeIdsJson?: boolean
+  modelScope?: boolean
+  requirementCodesJson?: boolean
+  noExpiryReason?: boolean
+  verificationMethod?: boolean
+  verificationOutcome?: boolean
+  verificationSource?: boolean
+  reviewMessage?: boolean
+  internalNote?: boolean
+  reviewerUserId?: boolean
+  reviewerLabel?: boolean
+  reviewStartedAt?: boolean
+  suspendedAt?: boolean
+  suspendedReason?: boolean
+  revision?: boolean
+  supersedesId?: boolean
+  supersededAt?: boolean
   state?: boolean
   verifiedAt?: boolean
   verifiedByUserId?: boolean
@@ -1466,7 +2498,7 @@ export type SellerCertificationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SellerCertificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "factoryId" | "standard" | "certificateNumber" | "issuer" | "scope" | "issuedOn" | "expiresOn" | "documentId" | "state" | "verifiedAt" | "verifiedByUserId" | "lastCheckedAt" | "rejectionReason" | "expiryWarnedAt" | "expiredAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerCertification"]>
+export type SellerCertificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "factoryId" | "standard" | "certificateNumber" | "issuer" | "scope" | "issuedOn" | "expiresOn" | "documentId" | "reviewStatus" | "documentType" | "issuingCountry" | "legalEntityName" | "categoryScopeIdsJson" | "productScopeIdsJson" | "modelScope" | "requirementCodesJson" | "noExpiryReason" | "verificationMethod" | "verificationOutcome" | "verificationSource" | "reviewMessage" | "internalNote" | "reviewerUserId" | "reviewerLabel" | "reviewStartedAt" | "suspendedAt" | "suspendedReason" | "revision" | "supersedesId" | "supersededAt" | "state" | "verifiedAt" | "verifiedByUserId" | "lastCheckedAt" | "rejectionReason" | "expiryWarnedAt" | "expiredAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerCertification"]>
 export type SellerCertificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   factory?: boolean | Prisma.SellerCertification$factoryArgs<ExtArgs>
@@ -1500,6 +2532,69 @@ export type $SellerCertificationPayload<ExtArgs extends runtime.Types.Extensions
      * The `SellerDocument` that proves it. Required to verify.
      */
     documentId: string | null
+    /**
+     * --- Compliance review (Audit Console) ---------------------------------
+     * The review workflow. `state` above is kept in step by the one service
+     * that writes either (PENDING while submitted or in review, VERIFIED when
+     * APPROVED, REJECTED, EXPIRED), so the existing listing holds and badges
+     * read exactly what they did before.
+     */
+    reviewStatus: $Enums.ComplianceDocumentStatus
+    documentType: $Enums.ComplianceDocumentType
+    issuingCountry: string | null
+    /**
+     * The legal entity named on the document, as written there.
+     */
+    legalEntityName: string | null
+    /**
+     * Category ids the document covers. Null is "not stated", which covers
+     * nothing - never "everything".
+     */
+    categoryScopeIdsJson: runtime.JsonValue | null
+    /**
+     * Product ids it covers, for a product-level document.
+     */
+    productScopeIdsJson: runtime.JsonValue | null
+    /**
+     * Models, references or families as the document names them.
+     */
+    modelScope: string | null
+    /**
+     * The requirement codes the seller says it satisfies. A reviewer confirms
+     * them at approval; until then they satisfy nothing.
+     */
+    requirementCodesJson: runtime.JsonValue | null
+    /**
+     * Why a document without an expiry date is acceptable. Required when
+     * `expiresOn` is null.
+     */
+    noExpiryReason: string | null
+    verificationMethod: $Enums.ComplianceVerificationMethod | null
+    verificationOutcome: $Enums.ComplianceVerificationOutcome
+    /**
+     * Where it was checked: a registry's address, the issuer's reply.
+     */
+    verificationSource: string | null
+    /**
+     * Seller-visible explanation of the latest review decision.
+     */
+    reviewMessage: string | null
+    /**
+     * Operator-only.
+     */
+    internalNote: string | null
+    reviewerUserId: string | null
+    reviewerLabel: string | null
+    reviewStartedAt: Date | null
+    suspendedAt: Date | null
+    suspendedReason: string | null
+    /**
+     * Replacement history: a new version points at the one it replaces, and
+     * the old one is kept, marked superseded.
+     */
+    revision: number
+    supersedesId: string | null
+    supersededAt: Date | null
     state: $Enums.TrustCheckState
     verifiedAt: Date | null
     verifiedByUserId: string | null
@@ -1896,6 +2991,28 @@ export interface SellerCertificationFieldRefs {
   readonly issuedOn: Prisma.FieldRef<"SellerCertification", 'DateTime'>
   readonly expiresOn: Prisma.FieldRef<"SellerCertification", 'DateTime'>
   readonly documentId: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly reviewStatus: Prisma.FieldRef<"SellerCertification", 'ComplianceDocumentStatus'>
+  readonly documentType: Prisma.FieldRef<"SellerCertification", 'ComplianceDocumentType'>
+  readonly issuingCountry: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly legalEntityName: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly categoryScopeIdsJson: Prisma.FieldRef<"SellerCertification", 'Json'>
+  readonly productScopeIdsJson: Prisma.FieldRef<"SellerCertification", 'Json'>
+  readonly modelScope: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly requirementCodesJson: Prisma.FieldRef<"SellerCertification", 'Json'>
+  readonly noExpiryReason: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly verificationMethod: Prisma.FieldRef<"SellerCertification", 'ComplianceVerificationMethod'>
+  readonly verificationOutcome: Prisma.FieldRef<"SellerCertification", 'ComplianceVerificationOutcome'>
+  readonly verificationSource: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly reviewMessage: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly internalNote: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly reviewerUserId: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly reviewerLabel: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly reviewStartedAt: Prisma.FieldRef<"SellerCertification", 'DateTime'>
+  readonly suspendedAt: Prisma.FieldRef<"SellerCertification", 'DateTime'>
+  readonly suspendedReason: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly revision: Prisma.FieldRef<"SellerCertification", 'Int'>
+  readonly supersedesId: Prisma.FieldRef<"SellerCertification", 'String'>
+  readonly supersededAt: Prisma.FieldRef<"SellerCertification", 'DateTime'>
   readonly state: Prisma.FieldRef<"SellerCertification", 'TrustCheckState'>
   readonly verifiedAt: Prisma.FieldRef<"SellerCertification", 'DateTime'>
   readonly verifiedByUserId: Prisma.FieldRef<"SellerCertification", 'String'>

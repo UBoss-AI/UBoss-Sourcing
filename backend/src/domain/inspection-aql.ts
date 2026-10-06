@@ -1,5 +1,11 @@
 /**
- * Acceptance sampling, ISO 2859-1 single sampling, normal inspection.
+ * Acceptance sampling: single sampling, normal inspection, from the tables of
+ * MIL-STD-105E - a cancelled US Department of Defense standard released for
+ * unlimited public distribution, whose single-sampling tables are the same as
+ * ANSI/ASQ Z1.4. It is NOT presented as ISO 2859-1: equivalence with the
+ * current ISO text has not been checked against a licensed copy (see
+ * docs/compliance/REGULATORY-SOURCES.md). A category's approved plan decides
+ * which inspection level and AQLs apply; nothing here is a universal threshold.
  *
  * The inspector does not choose how many units to open or how many defects are
  * acceptable: the category's inspection plan names an inspection level and an

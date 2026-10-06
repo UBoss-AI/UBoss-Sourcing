@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InspectionPanel } from './InspectionPanel';
 import { renderWithProviders } from '@/test/harness';
 import type { InspectionView } from '@/lib/inspection';
-import { submitCapa, uploadCorrectiveEvidence } from '@/lib/inspection';
+import { downloadInspectionReport, submitCapa, uploadCorrectiveEvidence } from '@/lib/inspection';
 
-vi.mock('@/lib/inspection', async (original) => ({ ...await original<typeof import('@/lib/inspection')>(), submitCapa: vi.fn(), uploadCorrectiveEvidence: vi.fn() }));
-beforeEach(() => { vi.clearAllMocks(); vi.mocked(submitCapa).mockResolvedValue({}); vi.mocked(uploadCorrectiveEvidence).mockResolvedValue({}); });
+vi.mock('@/lib/inspection', async (original) => ({ ...await original<typeof import('@/lib/inspection')>(), submitCapa: vi.fn(), uploadCorrectiveEvidence: vi.fn(), downloadInspectionReport: vi.fn() }));
+beforeEach(() => { vi.clearAllMocks(); vi.mocked(submitCapa).mockResolvedValue({}); vi.mocked(uploadCorrectiveEvidence).mockResolvedValue({}); vi.mocked(downloadInspectionReport).mockResolvedValue(undefined); });
 
 const view: InspectionView = {
   requirement: { id: 'R', orderNumber: 'ORD-1', sellerOrderGroupId: 'G', sellerName: 'Acme', level: 'MANDATORY', status: 'FAILED', reason: null, gate: { allowed: false, sentence: 'Shipment is blocked until the inspection passes.' } },
@@ -54,10 +54,29 @@ describe('the inspection panel', () => {
 
   it('shows the buyer the result, the NCR and that shipment is blocked, with no seller forms', () => {
     renderWithProviders(<InspectionPanel view={view} audience="BUYER" queryKey={['x']} />);
-    expect(screen.getByText('FAIL')).toBeInTheDocument();
+    expect(screen.getAllByText('Failed').length).toBeGreaterThan(0);
     expect(screen.getByText(/NCR-1/)).toBeInTheDocument();
     expect(screen.getByText(/blocked until the inspection passes/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /corrective action/i })).not.toBeInTheDocument();
+  });
+
+  it('offers the PDF only for a signed report, to the right audience', async () => {
+    const signed = { ...view.jobs[0]!, report: { ...view.jobs[0]!.report!, id: 'REP1' } };
+    const { unmount } = renderWithProviders(<InspectionPanel view={{ ...view, jobs: [signed] }} audience="BUYER" queryKey={['x']} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Download report (PDF)' }));
+    await waitFor(() => { expect(downloadInspectionReport).toHaveBeenCalledWith('BUYER', 'REP1'); });
+    unmount();
+    const draft = { ...signed, report: { ...signed.report, status: 'SUBMITTED', signedAt: null } };
+    renderWithProviders(<InspectionPanel view={{ ...view, jobs: [draft] }} audience="SELLER" queryKey={['x']} />);
+    expect(screen.queryByRole('button', { name: /Download report/ })).toBeNull();
+  });
+
+  it('shows an inconclusive result, the on-hold status and the inspector limitations', () => {
+    const job = { ...view.jobs[0]!, report: { ...view.jobs[0]!.report!, result: 'INCONCLUSIVE', limitations: 'Lab result outstanding' } };
+    renderWithProviders(<InspectionPanel view={{ ...view, requirement: { ...view.requirement, status: 'ON_HOLD' }, jobs: [job] }} audience="SELLER" queryKey={['x']} />);
+    expect(screen.getByText('Inconclusive - on hold')).toBeInTheDocument();
+    expect(screen.getByText('On hold - inconclusive')).toBeInTheDocument();
+    expect(screen.getByText(/Lab result outstanding/)).toBeInTheDocument();
   });
 
   it('offers the seller a corrective action for a major NCR', () => {

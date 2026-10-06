@@ -509,10 +509,11 @@ Five things left, and none of them can be guessed:
        chown $SERVICE_USER:$SERVICE_USER $ROOT/shared/.env && chmod 600 it.
 
   3. Point your DNS at this machine, then issue certificates. Include the
-     carrier portal host only if FEATURE_LOGISTICS_PORTAL is on:
+     carrier portal host only if FEATURE_LOGISTICS_PORTAL is on, and the
+     Audit Console host only if FEATURE_AUDIT_CONSOLE is on:
 
        sudo certbot --nginx -d shop.example.com -d admin.example.com \\
-                            -d carriers.example.com
+                            -d carriers.example.com -d audit.example.com
 
   4. Fill in /etc/uboss/backup.env - all three values:
 

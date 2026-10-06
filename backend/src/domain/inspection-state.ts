@@ -141,6 +141,25 @@ export function assertInspectionJobTransition(request: {
  * and LABELLING are the export pack and its marks.
  */
 export const CHECKLIST_SECTIONS = ['PRODUCT', 'QUANTITY', 'PACKAGING', 'LABELLING'] as const;
+
+/**
+ * Kinds of check, for category-specific checklists: function and performance,
+ * dimensions and tolerances, material composition or grade (only with
+ * laboratory evidence), weight/count/volume, labelling, packaging, batch /
+ * serial / expiry details, and visual workmanship.
+ */
+export const CHECK_KINDS = [
+  'FUNCTION',
+  'DIMENSION',
+  'MATERIAL',
+  'WEIGHT_COUNT_VOLUME',
+  'LABELLING',
+  'PACKAGING',
+  'BATCH_SERIAL_EXPIRY',
+  'VISUAL',
+  'OTHER',
+] as const;
+export type CheckKind = (typeof CHECK_KINDS)[number];
 export type ChecklistSection = (typeof CHECKLIST_SECTIONS)[number];
 
 export const checklistItemSchema = z.object({
@@ -154,6 +173,19 @@ export const checklistItemSchema = z.object({
   label: z.string().trim().min(1).max(255),
   requirement: z.string().trim().max(512).nullable().optional(),
   tolerance: z.string().trim().max(128).nullable().optional(),
+  /** What kind of check this is, so a category's checklist reads by kind. */
+  kind: z.enum(CHECK_KINDS).optional(),
+  /**
+   * A mandatory line must actually be performed: answering it NOT_APPLICABLE
+   * makes the result INCONCLUSIVE rather than letting the lot pass on a check
+   * nobody did. Absent is "not mandatory", which is how every plan written
+   * before this flag existed keeps behaving exactly as it did.
+   */
+  mandatory: z.boolean().optional(),
+  /** The line needs a laboratory report attached to its result. */
+  requiresLabReport: z.boolean().optional(),
+  /** The line needs the instrument and its calibration date recorded. */
+  requiresEquipment: z.boolean().optional(),
 });
 
 export type ChecklistItem = z.infer<typeof checklistItemSchema>;
@@ -200,7 +232,11 @@ export interface DefectCount {
 }
 
 export interface InspectionComputation {
-  result: 'PASS' | 'FAIL';
+  result: 'PASS' | 'FAIL' | 'INCONCLUSIVE';
+  /** FULL: every unit examined, zero acceptance. SAMPLE: the plan's numbers. */
+  scopeMethod: 'FULL' | 'SAMPLE';
+  /** Why the result is INCONCLUSIVE, when it is. Empty otherwise. */
+  holds: string[];
   counts: { critical: number; major: number; minor: number };
   limits: {
     critical: { accept: number; reject: number };
@@ -227,7 +263,22 @@ export function computeInspectionResult(input: {
   sampling: Pick<SamplingPlan, 'critical' | 'major' | 'minor'>;
   defects: readonly DefectCount[];
   nonconformingChecks: number;
+  /**
+   * SAMPLE (the default) applies the plan's accept/reject numbers to the
+   * sample. FULL examined every unit, so no sampling allowance applies: any
+   * defect fails the lot unless an approved plan says otherwise - and no plan
+   * field says otherwise yet, so it is zero.
+   */
+  scopeMethod?: 'FULL' | 'SAMPLE';
+  /**
+   * Reasons the evidence cannot support a decision either way: a mandatory
+   * line not performed, a laboratory result outstanding. A FAIL still wins -
+   * a lot already shown to be bad is bad - but nothing with a hold can PASS.
+   */
+  holds?: readonly string[];
 }): InspectionComputation {
+  const scopeMethod = input.scopeMethod ?? 'SAMPLE';
+  const holds = [...(input.holds ?? [])];
   const sum = (severity: DefectCount['severity']): number =>
     input.defects
       .filter((defect) => defect.severity === severity)
@@ -236,19 +287,30 @@ export function computeInspectionResult(input: {
   const counts = { critical: sum('CRITICAL'), major: sum('MAJOR'), minor: sum('MINOR') };
   const reasons: string[] = [];
 
+  const limits =
+    scopeMethod === 'FULL'
+      ? {
+          critical: { accept: 0, reject: 1 },
+          major: { accept: 0, reject: 1 },
+          minor: { accept: 0, reject: 1 },
+        }
+      : {
+          critical: { accept: 0, reject: 1 },
+          major: { accept: input.sampling.major.accept, reject: input.sampling.major.reject },
+          minor: { accept: input.sampling.minor.accept, reject: input.sampling.minor.reject },
+        };
+
   if (counts.critical > 0) reasons.push('CRITICAL_DEFECT');
-  if (counts.major >= input.sampling.major.reject) reasons.push('MAJOR_OVER_LIMIT');
-  if (counts.minor >= input.sampling.minor.reject) reasons.push('MINOR_OVER_LIMIT');
+  if (counts.major >= limits.major.reject) reasons.push('MAJOR_OVER_LIMIT');
+  if (counts.minor >= limits.minor.reject) reasons.push('MINOR_OVER_LIMIT');
   if (input.nonconformingChecks > 0) reasons.push('CHECKLIST_NONCONFORMING');
 
   return {
-    result: reasons.length === 0 ? 'PASS' : 'FAIL',
+    result: reasons.length > 0 ? 'FAIL' : holds.length > 0 ? 'INCONCLUSIVE' : 'PASS',
+    scopeMethod,
+    holds,
     counts,
-    limits: {
-      critical: { accept: 0, reject: 1 },
-      major: { accept: input.sampling.major.accept, reject: input.sampling.major.reject },
-      minor: { accept: input.sampling.minor.accept, reject: input.sampling.minor.reject },
-    },
+    limits,
     nonconformingChecks: input.nonconformingChecks,
     reasons,
   };

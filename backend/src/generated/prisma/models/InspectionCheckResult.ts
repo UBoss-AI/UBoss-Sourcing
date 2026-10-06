@@ -34,6 +34,9 @@ export type InspectionCheckResultMinAggregateOutputType = {
   outcome: $Enums.InspectionCheckOutcome | null
   measuredValue: string | null
   note: string | null
+  equipmentRef: string | null
+  equipmentCalibratedUntil: Date | null
+  labReportEvidenceId: string | null
   recordedByMemberId: string | null
   recordedAt: Date | null
   createdAt: Date | null
@@ -50,6 +53,9 @@ export type InspectionCheckResultMaxAggregateOutputType = {
   outcome: $Enums.InspectionCheckOutcome | null
   measuredValue: string | null
   note: string | null
+  equipmentRef: string | null
+  equipmentCalibratedUntil: Date | null
+  labReportEvidenceId: string | null
   recordedByMemberId: string | null
   recordedAt: Date | null
   createdAt: Date | null
@@ -66,6 +72,9 @@ export type InspectionCheckResultCountAggregateOutputType = {
   outcome: number
   measuredValue: number
   note: number
+  equipmentRef: number
+  equipmentCalibratedUntil: number
+  labReportEvidenceId: number
   recordedByMemberId: number
   recordedAt: number
   createdAt: number
@@ -84,6 +93,9 @@ export type InspectionCheckResultMinAggregateInputType = {
   outcome?: true
   measuredValue?: true
   note?: true
+  equipmentRef?: true
+  equipmentCalibratedUntil?: true
+  labReportEvidenceId?: true
   recordedByMemberId?: true
   recordedAt?: true
   createdAt?: true
@@ -100,6 +112,9 @@ export type InspectionCheckResultMaxAggregateInputType = {
   outcome?: true
   measuredValue?: true
   note?: true
+  equipmentRef?: true
+  equipmentCalibratedUntil?: true
+  labReportEvidenceId?: true
   recordedByMemberId?: true
   recordedAt?: true
   createdAt?: true
@@ -116,6 +131,9 @@ export type InspectionCheckResultCountAggregateInputType = {
   outcome?: true
   measuredValue?: true
   note?: true
+  equipmentRef?: true
+  equipmentCalibratedUntil?: true
+  labReportEvidenceId?: true
   recordedByMemberId?: true
   recordedAt?: true
   createdAt?: true
@@ -205,6 +223,9 @@ export type InspectionCheckResultGroupByOutputType = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue: string | null
   note: string | null
+  equipmentRef: string | null
+  equipmentCalibratedUntil: Date | null
+  labReportEvidenceId: string | null
   recordedByMemberId: string
   recordedAt: Date
   createdAt: Date
@@ -242,6 +263,9 @@ export type InspectionCheckResultWhereInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFilter<"InspectionCheckResult"> | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   note?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentRef?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentCalibratedUntil?: Prisma.DateTimeNullableFilter<"InspectionCheckResult"> | Date | string | null
+  labReportEvidenceId?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   recordedByMemberId?: Prisma.StringFilter<"InspectionCheckResult"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
@@ -259,6 +283,9 @@ export type InspectionCheckResultOrderByWithRelationInput = {
   outcome?: Prisma.SortOrder
   measuredValue?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  equipmentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  equipmentCalibratedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
+  labReportEvidenceId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -281,6 +308,9 @@ export type InspectionCheckResultWhereUniqueInput = Prisma.AtLeast<{
   outcome?: Prisma.EnumInspectionCheckOutcomeFilter<"InspectionCheckResult"> | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   note?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentRef?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentCalibratedUntil?: Prisma.DateTimeNullableFilter<"InspectionCheckResult"> | Date | string | null
+  labReportEvidenceId?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   recordedByMemberId?: Prisma.StringFilter<"InspectionCheckResult"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
@@ -298,6 +328,9 @@ export type InspectionCheckResultOrderByWithAggregationInput = {
   outcome?: Prisma.SortOrder
   measuredValue?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  equipmentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  equipmentCalibratedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
+  labReportEvidenceId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -320,6 +353,9 @@ export type InspectionCheckResultScalarWhereWithAggregatesInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeWithAggregatesFilter<"InspectionCheckResult"> | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.StringNullableWithAggregatesFilter<"InspectionCheckResult"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"InspectionCheckResult"> | string | null
+  equipmentRef?: Prisma.StringNullableWithAggregatesFilter<"InspectionCheckResult"> | string | null
+  equipmentCalibratedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"InspectionCheckResult"> | Date | string | null
+  labReportEvidenceId?: Prisma.StringNullableWithAggregatesFilter<"InspectionCheckResult"> | string | null
   recordedByMemberId?: Prisma.StringWithAggregatesFilter<"InspectionCheckResult"> | string
   recordedAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionCheckResult"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionCheckResult"> | Date | string
@@ -335,6 +371,9 @@ export type InspectionCheckResultCreateInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -352,6 +391,9 @@ export type InspectionCheckResultUncheckedCreateInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -367,6 +409,9 @@ export type InspectionCheckResultUpdateInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,6 +429,9 @@ export type InspectionCheckResultUncheckedUpdateInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -400,6 +448,9 @@ export type InspectionCheckResultCreateManyInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -415,6 +466,9 @@ export type InspectionCheckResultUpdateManyMutationInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -431,6 +485,9 @@ export type InspectionCheckResultUncheckedUpdateManyInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -468,6 +525,9 @@ export type InspectionCheckResultCountOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   measuredValue?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  equipmentRef?: Prisma.SortOrder
+  equipmentCalibratedUntil?: Prisma.SortOrder
+  labReportEvidenceId?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -484,6 +544,9 @@ export type InspectionCheckResultMaxOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   measuredValue?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  equipmentRef?: Prisma.SortOrder
+  equipmentCalibratedUntil?: Prisma.SortOrder
+  labReportEvidenceId?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -500,6 +563,9 @@ export type InspectionCheckResultMinOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   measuredValue?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  equipmentRef?: Prisma.SortOrder
+  equipmentCalibratedUntil?: Prisma.SortOrder
+  labReportEvidenceId?: Prisma.SortOrder
   recordedByMemberId?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -561,6 +627,9 @@ export type InspectionCheckResultCreateWithoutJobInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -576,6 +645,9 @@ export type InspectionCheckResultUncheckedCreateWithoutJobInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -621,6 +693,9 @@ export type InspectionCheckResultScalarWhereInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFilter<"InspectionCheckResult"> | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   note?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentRef?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
+  equipmentCalibratedUntil?: Prisma.DateTimeNullableFilter<"InspectionCheckResult"> | Date | string | null
+  labReportEvidenceId?: Prisma.StringNullableFilter<"InspectionCheckResult"> | string | null
   recordedByMemberId?: Prisma.StringFilter<"InspectionCheckResult"> | string
   recordedAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"InspectionCheckResult"> | Date | string
@@ -636,6 +711,9 @@ export type InspectionCheckResultCreateManyJobInput = {
   outcome: $Enums.InspectionCheckOutcome
   measuredValue?: string | null
   note?: string | null
+  equipmentRef?: string | null
+  equipmentCalibratedUntil?: Date | string | null
+  labReportEvidenceId?: string | null
   recordedByMemberId: string
   recordedAt?: Date | string
   createdAt?: Date | string
@@ -651,6 +729,9 @@ export type InspectionCheckResultUpdateWithoutJobInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -666,6 +747,9 @@ export type InspectionCheckResultUncheckedUpdateWithoutJobInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -681,6 +765,9 @@ export type InspectionCheckResultUncheckedUpdateManyWithoutJobInput = {
   outcome?: Prisma.EnumInspectionCheckOutcomeFieldUpdateOperationsInput | $Enums.InspectionCheckOutcome
   measuredValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipmentCalibratedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  labReportEvidenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -699,6 +786,9 @@ export type InspectionCheckResultSelect<ExtArgs extends runtime.Types.Extensions
   outcome?: boolean
   measuredValue?: boolean
   note?: boolean
+  equipmentRef?: boolean
+  equipmentCalibratedUntil?: boolean
+  labReportEvidenceId?: boolean
   recordedByMemberId?: boolean
   recordedAt?: boolean
   createdAt?: boolean
@@ -718,13 +808,16 @@ export type InspectionCheckResultSelectScalar = {
   outcome?: boolean
   measuredValue?: boolean
   note?: boolean
+  equipmentRef?: boolean
+  equipmentCalibratedUntil?: boolean
+  labReportEvidenceId?: boolean
   recordedByMemberId?: boolean
   recordedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InspectionCheckResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "itemCode" | "section" | "label" | "requirement" | "outcome" | "measuredValue" | "note" | "recordedByMemberId" | "recordedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionCheckResult"]>
+export type InspectionCheckResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "itemCode" | "section" | "label" | "requirement" | "outcome" | "measuredValue" | "note" | "equipmentRef" | "equipmentCalibratedUntil" | "labReportEvidenceId" | "recordedByMemberId" | "recordedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionCheckResult"]>
 export type InspectionCheckResultInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.InspectionJobDefaultArgs<ExtArgs>
 }
@@ -744,6 +837,16 @@ export type $InspectionCheckResultPayload<ExtArgs extends runtime.Types.Extensio
     outcome: $Enums.InspectionCheckOutcome
     measuredValue: string | null
     note: string | null
+    /**
+     * The instrument used, and when its calibration runs out. Recorded as the
+     * inspector reads it from the instrument; not verified by this software.
+     */
+    equipmentRef: string | null
+    equipmentCalibratedUntil: Date | null
+    /**
+     * A laboratory report held as evidence on this job.
+     */
+    labReportEvidenceId: string | null
     recordedByMemberId: string
     recordedAt: Date
     createdAt: Date
@@ -1127,6 +1230,9 @@ export interface InspectionCheckResultFieldRefs {
   readonly outcome: Prisma.FieldRef<"InspectionCheckResult", 'InspectionCheckOutcome'>
   readonly measuredValue: Prisma.FieldRef<"InspectionCheckResult", 'String'>
   readonly note: Prisma.FieldRef<"InspectionCheckResult", 'String'>
+  readonly equipmentRef: Prisma.FieldRef<"InspectionCheckResult", 'String'>
+  readonly equipmentCalibratedUntil: Prisma.FieldRef<"InspectionCheckResult", 'DateTime'>
+  readonly labReportEvidenceId: Prisma.FieldRef<"InspectionCheckResult", 'String'>
   readonly recordedByMemberId: Prisma.FieldRef<"InspectionCheckResult", 'String'>
   readonly recordedAt: Prisma.FieldRef<"InspectionCheckResult", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"InspectionCheckResult", 'DateTime'>

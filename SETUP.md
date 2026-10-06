@@ -32,6 +32,7 @@ order, and waits until each one answers before it moves to the next:
 | Admin Panel | 5173 | Staff use this |
 | Customer Storefront | 5174 | Customers use this |
 | Logistics Portal | 5175 | Carrier companies use this — **only started when `FEATURE_LOGISTICS_PORTAL=true` in `backend\.env`** |
+| Audit Console | 5176 | Auditors, inspectors and compliance reviewers use this — **only started when `FEATURE_AUDIT_CONSOLE=true` in `backend\.env`** |
 
 **You do not need to open XAMPP.** The script starts the database itself.
 
@@ -40,6 +41,7 @@ When it finishes, open:
 - Customer Storefront — http://localhost:5174
 - Admin Panel — http://localhost:5173
 - Logistics Portal — http://localhost:5175, if it is switched on
+- Audit Console — http://localhost:5176, if it is switched on
 
 ### No windows open? That is normal
 
@@ -117,7 +119,7 @@ database too.
 | Sign-in says network error, or `Failed to fetch` | The API or the database is stopped | Same as above |
 | `ECONNREFUSED`, or no MySQL connection | The database is not running | `.\scripts\dev-stack.ps1 -Restart` — it starts the database too |
 | A terminal shows the API running, but the site still fails | The API crashed at startup and its watcher stayed alive, so the terminal lies | `.\scripts\dev-stack.ps1 -Status` tells you the truth; then read the log below |
-| `Port 4000`, `5173`, `5174` or `5175` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
+| `Port 4000`, `5173`, `5174`, `5175` or `5176` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
 | `DATABASE_URL is not set` | `backend\.env` is missing | Copy `.env.example` to `.env` inside `backend` |
 | A Prisma table or column error | New migrations have not been applied | `cd backend`, then `npm run db:migrate:deploy` |
 | Sign-in says the credentials are wrong | Sample data is missing, it is the wrong site, or the passwords were rotated | `cd backend`, then `npm run db:restore-seed-passwords` — it puts the passwords in this file back and says how many were wrong. If nothing was found, `npm run db:seed` first. Admin logins only work on 5173, customer logins only on 5174 |
@@ -354,6 +356,26 @@ cd C:\Users\HP\Desktop\UBoss-Software\apps\logistics-web
 npm install
 ```
 
+The Audit Console is a fourth frontend, needed only if you are going to switch
+it on:
+
+```powershell
+cd C:\Users\HP\Desktop\UBoss-Software\apps\audit-web
+npm install
+```
+
+To switch it on, add these lines to `backend\.env` and restart:
+
+```
+FEATURE_AUDIT_CONSOLE=true
+AUDIT_WEB_ORIGIN=http://localhost:5176
+AUDIT_WEB_PUBLIC_URL=http://localhost:5176
+```
+
+`AUDIT_WEB_ORIGIN` lets the console's browser calls through the API's origin
+check. `AUDIT_WEB_PUBLIC_URL` is where invitation and password-reset emails
+for console users point.
+
 ### 5a. Switch on the secret scan before every push
 
 CI's **Secret scan** job reads the whole git history, so something that looks
@@ -435,7 +457,8 @@ npm run db:seed
 
 If the frontends gained dependencies, run `npm install` inside
 `apps\admin-web` and `apps\customer-web` as well — and inside
-`apps\logistics-web` if you use the logistics portal. Then start as usual.
+`apps\logistics-web` if you use the logistics portal, and `apps\audit-web` if
+you use the Audit Console. Then start as usual.
 
 **React is pinned to `~19.2.8` in `apps\customer-web`, on purpose.** The
 storefront hero renders with React Three Fiber, whose version 9 declares a
@@ -500,11 +523,17 @@ cd C:\Users\HP\Desktop\UBoss-Software\apps\logistics-web
 npm run dev
 ```
 
+```powershell
+# Terminal 6 — Audit Console, only where FEATURE_AUDIT_CONSOLE=true
+cd C:\Users\HP\Desktop\UBoss-Software\apps\audit-web
+npm run dev
+```
+
 Keep the worker running. Password-reset, invitation and confirmation emails are
 handled there, and in local development they print in that terminal instead of
 being delivered.
 
-Starting by hand for a **tunnel**, all three frontends run `npm run dev:tunnel`
+Starting by hand for a **tunnel**, every frontend runs `npm run dev:tunnel`
 instead of `npm run dev`, and the ngrok agent goes last — it connects to
 nothing if it starts before the servers it points at.
 
@@ -524,10 +553,10 @@ To let someone who is not at this computer see it, start in tunnel mode:
 .\scripts\dev-stack.ps1 -Restart -Tunnel
 ```
 
-The script prints the three public addresses, and they are also in the ngrok
+The script prints the public addresses, and they are also in the ngrok
 inspector at http://localhost:4040. This needs ngrok configured first.
 
-One free tunnel gives out **one hostname**, so all three apps share it and are
+One free tunnel gives out **one hostname**, so all the apps share it and are
 told apart by the path:
 
 | | |
@@ -535,14 +564,16 @@ told apart by the path:
 | Storefront | `https://<your-host>.ngrok-free.dev/` |
 | Admin panel | `https://<your-host>.ngrok-free.dev/admin/` |
 | Logistics portal | `https://<your-host>.ngrok-free.dev/logistics/` — only where it is switched on |
+| Audit Console | `https://<your-host>.ngrok-free.dev/audit/` — only where it is switched on |
 
-The storefront owns the root and passes `/admin` and `/logistics` through to
-the other two. That is a **development** arrangement only: in a real
+The storefront owns the root and passes `/admin`, `/logistics` and `/audit`
+through to the other apps. That is a **development** arrangement only: in a real
 installation a carrier signs into the logistics portal on its own hostname, and
 `LOGISTICS_WEB_PUBLIC_URL` in `backend\.env` is what an invited carrier's
 activation link points at — set it to the tunnel address while tunnelling, and
 back to `http://localhost:5175` afterwards, exactly like the other two
-`*_PUBLIC_URL` settings.
+`*_PUBLIC_URL` settings. The Audit Console works the same way, with
+`AUDIT_WEB_PUBLIC_URL` and `http://localhost:5176`.
 
 A `200` from `/admin/` or `/logistics/` is **not** proof either one is up: with
 the frontends started in plain `dev` mode the storefront answers those paths
@@ -569,14 +600,16 @@ local mode, ask for it:
 
 A tunnel is the fastest way to show somebody the app, and it lasts exactly as
 long as your machine does. For a link a manager or a reviewer can keep — three
-proper URLs, one per application — put the three front ends on Netlify:
+proper URLs, one per application — put the front ends on Netlify:
 
 ```powershell
 .\scripts\pack-netlify.ps1 -ApiOrigin https://api.your-company.com
 ```
 
-That builds all three and writes one zip per site to `output\netlify`, ready to
-drop into Netlify's **Deploy manually** box.
+That builds every front end and writes one zip per site to `output\netlify`,
+ready to drop into Netlify's **Deploy manually** box. Leave out a portal you do
+not use with `-Apps`, for example
+`.\scripts\pack-netlify.ps1 -ApiOrigin https://api.your-company.com -Apps customer-web,admin-web`.
 
 **It does not move the API.** Netlify serves files; the API holds a database
 connection pool and the worker polls the job queue forever, so both stay on a
@@ -630,7 +663,7 @@ unless you mean to lose your local data.
 
 - Backend architecture, schema and migration notes — `backend/README.md`
 - **Putting it on a server** — `docs/DEPLOYMENT.md`
-- **Putting the three front ends on Netlify** — `docs/NETLIFY.md`
+- **Putting the front ends on Netlify** — `docs/NETLIFY.md`
 - Which MariaDB the server runs, and why — `docs/DATABASE-PRODUCTION.md`
 - Writing a migration, and getting data out of XAMPP safely — `docs/DATABASE-MIGRATION.md`
 - Backups and proving one restores — `docs/DATABASE-RECOVERY.md`

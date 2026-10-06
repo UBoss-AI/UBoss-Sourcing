@@ -83,7 +83,7 @@ function InspectionEntry({ entry }: { entry: DisputeInspection }): React.JSX.Ele
           {entry.reports.map((report) => (
             <li key={report.id} className="flex flex-wrap items-center gap-2">
               <span>{t('disputes.inspection.revision', { revision: String(report.revision) })}</span>
-              <Badge tone={report.result === 'PASS' ? 'success' : 'danger'}>
+              <Badge tone={report.result === 'PASS' ? 'success' : report.result === 'INCONCLUSIVE' ? 'warning' : 'danger'}>
                 {t(`disputes.inspection.result.${report.result}` as TranslationKey)}
               </Badge>
               {report.signedAt !== null && (

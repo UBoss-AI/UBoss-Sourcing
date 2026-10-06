@@ -4054,3 +4054,36 @@ name filter for /suppliers; the existing bounded shared supplier read, without a
 statement. The response supplier kind, registered country and valid non-null
 verifiedAt timestamp substantiate the statement. Existing approval/live-offer and seller-storefront guards apply. No
 new backend route, write, role, permission or database schema is introduced.
+
+## Audit Console (`/api/v1/audit/*`, behind `FEATURE_AUDIT_CONSOLE`)
+
+Off: every route answers `FEATURE_DISABLED`.
+
+- **Sign-in.** `/api/v1/audit/auth/*` — login, refresh, logout, password reset
+  and invitation activation, from the same factory as the other audiences.
+  Accounts are `users.type = AUDIT`; cookies are `uboss_audit_*`. CORS allows
+  `AUDIT_WEB_ORIGIN`.
+- **Second factor.** Every role must pass a one-time code (TOTP) while
+  `FEATURE_AUDIT_MFA=true` (default). Before it passes, only
+  `GET /audit/auth/me` and `/audit/auth/mfa/*` answer.
+- **Guard.** Every other route is behind `requireAudit`: an AUDIT session, a
+  console membership, the passed second factor and the named permission keys.
+  The data scope (which agency, which staff role) comes from the membership,
+  never from an id in the request.
+- **Agency job actions moved** from `/api/v1/inspection/agency/*` to
+  `/api/v1/audit/agency/*`. The old paths are gone.
+- **Screens' data**: cases, documents, requirements (rules), checklists,
+  calendar, corrective actions, reports (including the report PDF), team,
+  notifications. The full list is in `docs/reference/API-ENDPOINTS.md` under
+  "Audit Console".
+- **Admin**: `/api/v1/admin/audit-console/*` (permission
+  `audit_console.manage`) invites people and manages access. Sub-lot approvals
+  and release-evidence upload are on the admin inspection routes.
+- **Seller**: `/api/v1/seller/compliance/*` — the seller's requirements,
+  documents and cases.
+- **Listing gate**: with `COMPLIANCE_QUALIFICATION_ENFORCEMENT=ENFORCE`, a new
+  listing or first offer activation in a category with an approved mandatory
+  rule is refused until the seller is qualified. `WARN` returns the gaps without
+  refusing. `OFF` (default) never refuses.
+- Quantities in inspection records cross the API as exact decimal strings,
+  never JSON numbers.

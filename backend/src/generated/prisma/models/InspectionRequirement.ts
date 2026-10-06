@@ -355,6 +355,7 @@ export type InspectionRequirementWhereInput = {
   events?: Prisma.InspectionEventListRelationFilter
   evidence?: Prisma.InspectionEvidenceListRelationFilter
   bindings?: Prisma.InspectionShipmentBindingListRelationFilter
+  subLotReleases?: Prisma.InspectionSubLotReleaseListRelationFilter
 }
 
 export type InspectionRequirementOrderByWithRelationInput = {
@@ -387,6 +388,7 @@ export type InspectionRequirementOrderByWithRelationInput = {
   events?: Prisma.InspectionEventOrderByRelationAggregateInput
   evidence?: Prisma.InspectionEvidenceOrderByRelationAggregateInput
   bindings?: Prisma.InspectionShipmentBindingOrderByRelationAggregateInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseOrderByRelationAggregateInput
   _relevance?: Prisma.InspectionRequirementOrderByRelevanceInput
 }
 
@@ -423,6 +425,7 @@ export type InspectionRequirementWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.InspectionEventListRelationFilter
   evidence?: Prisma.InspectionEvidenceListRelationFilter
   bindings?: Prisma.InspectionShipmentBindingListRelationFilter
+  subLotReleases?: Prisma.InspectionSubLotReleaseListRelationFilter
 }, "id" | "sellerOrderGroupId">
 
 export type InspectionRequirementOrderByWithAggregationInput = {
@@ -511,6 +514,7 @@ export type InspectionRequirementCreateInput = {
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateInput = {
@@ -541,6 +545,7 @@ export type InspectionRequirementUncheckedCreateInput = {
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUpdateInput = {
@@ -571,6 +576,7 @@ export type InspectionRequirementUpdateInput = {
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateInput = {
@@ -601,6 +607,7 @@ export type InspectionRequirementUncheckedUpdateInput = {
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateManyInput = {
@@ -931,6 +938,20 @@ export type InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleNested
   deleteMany?: Prisma.InspectionRequirementScalarWhereInput | Prisma.InspectionRequirementScalarWhereInput[]
 }
 
+export type InspectionRequirementCreateNestedOneWithoutSubLotReleasesInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedCreateWithoutSubLotReleasesInput>
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutSubLotReleasesInput
+  connect?: Prisma.InspectionRequirementWhereUniqueInput
+}
+
+export type InspectionRequirementUpdateOneRequiredWithoutSubLotReleasesNestedInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedCreateWithoutSubLotReleasesInput>
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutSubLotReleasesInput
+  upsert?: Prisma.InspectionRequirementUpsertWithoutSubLotReleasesInput
+  connect?: Prisma.InspectionRequirementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InspectionRequirementUpdateToOneWithWhereWithoutSubLotReleasesInput, Prisma.InspectionRequirementUpdateWithoutSubLotReleasesInput>, Prisma.InspectionRequirementUncheckedUpdateWithoutSubLotReleasesInput>
+}
+
 export type InspectionRequirementCreateWithoutSellerOrderGroupInput = {
   id: string
   orderId: string
@@ -958,6 +979,7 @@ export type InspectionRequirementCreateWithoutSellerOrderGroupInput = {
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutSellerOrderGroupInput = {
@@ -987,6 +1009,7 @@ export type InspectionRequirementUncheckedCreateWithoutSellerOrderGroupInput = {
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutSellerOrderGroupInput = {
@@ -1032,6 +1055,7 @@ export type InspectionRequirementUpdateWithoutSellerOrderGroupInput = {
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutSellerOrderGroupInput = {
@@ -1061,6 +1085,7 @@ export type InspectionRequirementUncheckedUpdateWithoutSellerOrderGroupInput = {
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutJobsInput = {
@@ -1090,6 +1115,7 @@ export type InspectionRequirementCreateWithoutJobsInput = {
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutJobsInput = {
@@ -1119,6 +1145,7 @@ export type InspectionRequirementUncheckedCreateWithoutJobsInput = {
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutJobsInput = {
@@ -1164,6 +1191,7 @@ export type InspectionRequirementUpdateWithoutJobsInput = {
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutJobsInput = {
@@ -1193,6 +1221,7 @@ export type InspectionRequirementUncheckedUpdateWithoutJobsInput = {
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutEvidenceInput = {
@@ -1222,6 +1251,7 @@ export type InspectionRequirementCreateWithoutEvidenceInput = {
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutEvidenceInput = {
@@ -1251,6 +1281,7 @@ export type InspectionRequirementUncheckedCreateWithoutEvidenceInput = {
   releases?: Prisma.InspectionReleaseUncheckedCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutEvidenceInput = {
@@ -1296,6 +1327,7 @@ export type InspectionRequirementUpdateWithoutEvidenceInput = {
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutEvidenceInput = {
@@ -1325,6 +1357,7 @@ export type InspectionRequirementUncheckedUpdateWithoutEvidenceInput = {
   releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutReleasesInput = {
@@ -1354,6 +1387,7 @@ export type InspectionRequirementCreateWithoutReleasesInput = {
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutReleasesInput = {
@@ -1383,6 +1417,7 @@ export type InspectionRequirementUncheckedCreateWithoutReleasesInput = {
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutReleasesInput = {
@@ -1428,6 +1463,7 @@ export type InspectionRequirementUpdateWithoutReleasesInput = {
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutReleasesInput = {
@@ -1457,6 +1493,7 @@ export type InspectionRequirementUncheckedUpdateWithoutReleasesInput = {
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutBindingsInput = {
@@ -1486,6 +1523,7 @@ export type InspectionRequirementCreateWithoutBindingsInput = {
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutBindingsInput = {
@@ -1515,6 +1553,7 @@ export type InspectionRequirementUncheckedCreateWithoutBindingsInput = {
   releases?: Prisma.InspectionReleaseUncheckedCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutBindingsInput = {
@@ -1560,6 +1599,7 @@ export type InspectionRequirementUpdateWithoutBindingsInput = {
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutBindingsInput = {
@@ -1589,6 +1629,7 @@ export type InspectionRequirementUncheckedUpdateWithoutBindingsInput = {
   releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutEventsInput = {
@@ -1618,6 +1659,7 @@ export type InspectionRequirementCreateWithoutEventsInput = {
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutEventsInput = {
@@ -1647,6 +1689,7 @@ export type InspectionRequirementUncheckedCreateWithoutEventsInput = {
   releases?: Prisma.InspectionReleaseUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutEventsInput = {
@@ -1692,6 +1735,7 @@ export type InspectionRequirementUpdateWithoutEventsInput = {
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutEventsInput = {
@@ -1721,6 +1765,7 @@ export type InspectionRequirementUncheckedUpdateWithoutEventsInput = {
   releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementCreateWithoutReferenceSampleInput = {
@@ -1750,6 +1795,7 @@ export type InspectionRequirementCreateWithoutReferenceSampleInput = {
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementUncheckedCreateWithoutReferenceSampleInput = {
@@ -1779,6 +1825,7 @@ export type InspectionRequirementUncheckedCreateWithoutReferenceSampleInput = {
   events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedCreateNestedManyWithoutRequirementInput
 }
 
 export type InspectionRequirementCreateOrConnectWithoutReferenceSampleInput = {
@@ -1835,6 +1882,142 @@ export type InspectionRequirementScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
 }
 
+export type InspectionRequirementCreateWithoutSubLotReleasesInput = {
+  id: string
+  orderId: string
+  sellerAccountId: string
+  level: $Enums.InspectionRequirementLevel
+  status: $Enums.InspectionRequirementStatus
+  ruleId?: string | null
+  ruleName?: string | null
+  reason: string
+  inputsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: string | null
+  preferredAgencyId?: string | null
+  allowConditionalRelease?: boolean
+  buyerRequested?: boolean
+  buyerRequestedAt?: Date | string | null
+  buyerRequestNote?: string | null
+  evaluatedAt: Date | string
+  loadReleasedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
+  jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
+  releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
+  events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
+  evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
+  bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+}
+
+export type InspectionRequirementUncheckedCreateWithoutSubLotReleasesInput = {
+  id: string
+  sellerOrderGroupId: string
+  orderId: string
+  sellerAccountId: string
+  level: $Enums.InspectionRequirementLevel
+  status: $Enums.InspectionRequirementStatus
+  ruleId?: string | null
+  ruleName?: string | null
+  reason: string
+  inputsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: string | null
+  preferredAgencyId?: string | null
+  allowConditionalRelease?: boolean
+  buyerRequested?: boolean
+  buyerRequestedAt?: Date | string | null
+  buyerRequestNote?: string | null
+  evaluatedAt: Date | string
+  loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  jobs?: Prisma.InspectionJobUncheckedCreateNestedManyWithoutRequirementInput
+  releases?: Prisma.InspectionReleaseUncheckedCreateNestedManyWithoutRequirementInput
+  events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
+  evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+}
+
+export type InspectionRequirementCreateOrConnectWithoutSubLotReleasesInput = {
+  where: Prisma.InspectionRequirementWhereUniqueInput
+  create: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedCreateWithoutSubLotReleasesInput>
+}
+
+export type InspectionRequirementUpsertWithoutSubLotReleasesInput = {
+  update: Prisma.XOR<Prisma.InspectionRequirementUpdateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedUpdateWithoutSubLotReleasesInput>
+  create: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedCreateWithoutSubLotReleasesInput>
+  where?: Prisma.InspectionRequirementWhereInput
+}
+
+export type InspectionRequirementUpdateToOneWithWhereWithoutSubLotReleasesInput = {
+  where?: Prisma.InspectionRequirementWhereInput
+  data: Prisma.XOR<Prisma.InspectionRequirementUpdateWithoutSubLotReleasesInput, Prisma.InspectionRequirementUncheckedUpdateWithoutSubLotReleasesInput>
+}
+
+export type InspectionRequirementUpdateWithoutSubLotReleasesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.EnumInspectionRequirementLevelFieldUpdateOperationsInput | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFieldUpdateOperationsInput | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ruleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  inputsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAgencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowConditionalRelease?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
+  jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
+  releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
+  events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
+  evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+}
+
+export type InspectionRequirementUncheckedUpdateWithoutSubLotReleasesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.EnumInspectionRequirementLevelFieldUpdateOperationsInput | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFieldUpdateOperationsInput | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ruleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  inputsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAgencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowConditionalRelease?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobs?: Prisma.InspectionJobUncheckedUpdateManyWithoutRequirementNestedInput
+  releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
+  events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
+  evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+}
+
 export type InspectionRequirementCreateManyReferenceSampleInput = {
   id: string
   sellerOrderGroupId: string
@@ -1886,6 +2069,7 @@ export type InspectionRequirementUpdateWithoutReferenceSampleInput = {
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateWithoutReferenceSampleInput = {
@@ -1915,6 +2099,7 @@ export type InspectionRequirementUncheckedUpdateWithoutReferenceSampleInput = {
   events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+  subLotReleases?: Prisma.InspectionSubLotReleaseUncheckedUpdateManyWithoutRequirementNestedInput
 }
 
 export type InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleInput = {
@@ -1952,6 +2137,7 @@ export type InspectionRequirementCountOutputType = {
   events: number
   evidence: number
   bindings: number
+  subLotReleases: number
 }
 
 export type InspectionRequirementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1960,6 +2146,7 @@ export type InspectionRequirementCountOutputTypeSelect<ExtArgs extends runtime.T
   events?: boolean | InspectionRequirementCountOutputTypeCountEventsArgs
   evidence?: boolean | InspectionRequirementCountOutputTypeCountEvidenceArgs
   bindings?: boolean | InspectionRequirementCountOutputTypeCountBindingsArgs
+  subLotReleases?: boolean | InspectionRequirementCountOutputTypeCountSubLotReleasesArgs
 }
 
 /**
@@ -2007,6 +2194,13 @@ export type InspectionRequirementCountOutputTypeCountBindingsArgs<ExtArgs extend
   where?: Prisma.InspectionShipmentBindingWhereInput
 }
 
+/**
+ * InspectionRequirementCountOutputType without action
+ */
+export type InspectionRequirementCountOutputTypeCountSubLotReleasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InspectionSubLotReleaseWhereInput
+}
+
 
 export type InspectionRequirementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2038,6 +2232,7 @@ export type InspectionRequirementSelect<ExtArgs extends runtime.Types.Extensions
   events?: boolean | Prisma.InspectionRequirement$eventsArgs<ExtArgs>
   evidence?: boolean | Prisma.InspectionRequirement$evidenceArgs<ExtArgs>
   bindings?: boolean | Prisma.InspectionRequirement$bindingsArgs<ExtArgs>
+  subLotReleases?: boolean | Prisma.InspectionRequirement$subLotReleasesArgs<ExtArgs>
   _count?: boolean | Prisma.InspectionRequirementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inspectionRequirement"]>
 
@@ -2077,6 +2272,7 @@ export type InspectionRequirementInclude<ExtArgs extends runtime.Types.Extension
   events?: boolean | Prisma.InspectionRequirement$eventsArgs<ExtArgs>
   evidence?: boolean | Prisma.InspectionRequirement$evidenceArgs<ExtArgs>
   bindings?: boolean | Prisma.InspectionRequirement$bindingsArgs<ExtArgs>
+  subLotReleases?: boolean | Prisma.InspectionRequirement$subLotReleasesArgs<ExtArgs>
   _count?: boolean | Prisma.InspectionRequirementCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2090,6 +2286,7 @@ export type $InspectionRequirementPayload<ExtArgs extends runtime.Types.Extensio
     events: Prisma.$InspectionEventPayload<ExtArgs>[]
     evidence: Prisma.$InspectionEvidencePayload<ExtArgs>[]
     bindings: Prisma.$InspectionShipmentBindingPayload<ExtArgs>[]
+    subLotReleases: Prisma.$InspectionSubLotReleasePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2475,6 +2672,7 @@ export interface Prisma__InspectionRequirementClient<T, Null = never, ExtArgs ex
   events<T extends Prisma.InspectionRequirement$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   evidence<T extends Prisma.InspectionRequirement$evidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bindings<T extends Prisma.InspectionRequirement$bindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$bindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionShipmentBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subLotReleases<T extends Prisma.InspectionRequirement$subLotReleasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$subLotReleasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionSubLotReleasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3010,6 +3208,30 @@ export type InspectionRequirement$bindingsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.InspectionShipmentBindingScalarFieldEnum | Prisma.InspectionShipmentBindingScalarFieldEnum[]
+}
+
+/**
+ * InspectionRequirement.subLotReleases
+ */
+export type InspectionRequirement$subLotReleasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InspectionSubLotRelease
+   */
+  select?: Prisma.InspectionSubLotReleaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InspectionSubLotRelease
+   */
+  omit?: Prisma.InspectionSubLotReleaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InspectionSubLotReleaseInclude<ExtArgs> | null
+  where?: Prisma.InspectionSubLotReleaseWhereInput
+  orderBy?: Prisma.InspectionSubLotReleaseOrderByWithRelationInput | Prisma.InspectionSubLotReleaseOrderByWithRelationInput[]
+  cursor?: Prisma.InspectionSubLotReleaseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InspectionSubLotReleaseScalarFieldEnum | Prisma.InspectionSubLotReleaseScalarFieldEnum[]
 }
 
 /**

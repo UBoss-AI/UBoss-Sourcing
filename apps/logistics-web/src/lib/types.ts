@@ -321,6 +321,13 @@ export interface ShipmentDetail {
   deliveryCode?: DeliveryCodeState | null;
 
   /**
+   * Whether an independent inspection lets these goods leave. Only the yes or
+   * no, and one sentence why: never the report, the findings or who found
+   * them. Optional so an older response reads as "no inspection needed".
+   */
+  inspectionRelease?: InspectionReleaseState;
+
+  /**
    * NULL IS A REAL ANSWER and is rendered as "Live location unavailable".
    *
    * Nothing in this portal interpolates a position, animates between two
@@ -739,6 +746,18 @@ export interface PodRequirements {
   requiresPhoto: boolean;
   requiresOtp: boolean;
   requiresDesignation: boolean;
+}
+
+/**
+ * The inspection gate, as far as a carrier may know it. `reason` is the
+ * gate's own code (NOT_BOOKED, FAILED, PASSED...) and `sentence` the server's
+ * English wording of it, used only when the screen has no translation.
+ */
+export interface InspectionReleaseState {
+  required: boolean;
+  released: boolean;
+  reason: string;
+  sentence: string;
 }
 
 /**

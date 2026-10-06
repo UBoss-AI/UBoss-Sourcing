@@ -56,6 +56,13 @@ enum UserType {
   /// guard checks this column and the token's own audience claim, so a
   /// credential minted for one surface cannot reach another.
   LOGISTICS
+  /// A person who works in the Audit Console: the marketplace's own audit
+  /// supervisors and compliance reviewers, and the staff of an inspection
+  /// agency. A FOURTH audience for the same reason the third exists: an
+  /// inspector holds another company's confidential evidence and signs
+  /// findings, and must never reach a cart, a price or a payment method - nor
+  /// be an auditor merely because they also shop or sell here.
+  AUDIT
 }
 
 enum UserStatus {
@@ -962,6 +969,7 @@ model Category {
   marketRules          MarketRule[]
   /// Storefront content blocks shown on this category's page.
   contentBlocks        ContentBlock[]
+  complianceCases      ComplianceCase[]
   /// Requests for quotation filed in this category.
   rfqRequests          RfqRequest[]
 
@@ -2670,6 +2678,9 @@ enum ActorType {
   /// shipment' and 'a named dispatcher at a named carrier moved it' are the
   /// two answers an operator most needs to tell apart after a bad delivery.
   LOGISTICS
+  /// Somebody signed into the Audit Console: an audit supervisor, a compliance
+  /// reviewer, or an inspection agency's coordinator, inspector or QA reviewer.
+  AUDIT
 }
 
 enum OrderStatus {
@@ -9916,6 +9927,7 @@ model SellerAccount {
   beneficialOwners      SellerBeneficialOwner[]
   factories             SellerFactory[]
   certifications        SellerCertification[]
+  complianceCases       ComplianceCase[]
   trustChecks           SellerTrustCheck[]
   screeningChecks       SellerScreeningCheck[]
   profileChangeRequests SellerProfileChangeRequest[]
@@ -21716,6 +21728,9 @@ enum InspectionRequirementStatus {
   RELEASED_CONDITIONALLY
   REEVALUATION_REQUIRED
   DISPATCHED
+  /// The signed pre-shipment report was INCONCLUSIVE. Held, like FAILED, but
+  /// not shown to be bad.
+  ON_HOLD
 }
 
 enum InspectionJobStatus {
@@ -21775,6 +21790,8 @@ enum InspectionAgencyRole {
 }
 
 enum InspectionMemberStatus {
+  /// Invited to the Audit Console and not yet activated. Holds nothing.
+  INVITED
   ACTIVE
   DISABLED
 }
@@ -21811,6 +21828,11 @@ enum InspectionReportStatus {
 enum InspectionResult {
   PASS
   FAIL
+  /// Not enough to decide either way - a laboratory result is outstanding, a
+  /// sample could not be drawn, a mandatory check could not be performed.
+  /// Holds the goods exactly as a FAIL does, but says honestly that the lot was
+  /// not shown to be bad.
+  INCONCLUSIVE
 }
 
 enum InspectionReleaseKind {
@@ -22024,6 +22046,10 @@ model InspectionAgency {
   independenceStatement   String?   @db.Text
   independenceDeclaredAt  DateTime? @db.DateTime(3)
 
+  /// Who the agency is to the goods. Only THIRD_PARTY work is independent; an
+  /// internal or a seller's own inspection is shown as such on every report.
+  kind InspectionAgencyKind @default(THIRD_PARTY)
+
   /// Inspections it can carry out on one day. Booking refuses a full day.
   dailyCapacity Int @default(4)
 
@@ -22125,6 +22151,7 @@ model InspectionRequirement {
   events           InspectionEvent[]
   evidence         InspectionEvidence[]
   bindings         InspectionShipmentBinding[]
+  subLotReleases   InspectionSubLotRelease[]
 
   @@unique([sellerOrderGroupId], map: "uq_insp_requirement_group")
   @@index([orderId], map: "ix_insp_requirement_order")
@@ -22144,6 +22171,18 @@ model InspectionJob {
   kind                InspectionJobKind   @default(INITIAL)
   reinspectionOfJobId String?             @db.Char(26)
   status              InspectionJobStatus @default(REQUESTED)
+
+  /// When in the life of the goods this inspection happens. Only a
+  /// PRE_SHIPMENT job can release goods for dispatch.
+  stage       InspectionStage       @default(PRE_SHIPMENT)
+  /// Every unit, or a sample. A sample result is never shown as a count of
+  /// verified units.
+  scopeMethod InspectionScopeMethod @default(SAMPLE)
+  /// IANA zone of the inspection point, so a time on the report means the
+  /// same thing to the inspector and to the buyer.
+  timezone    String?               @db.VarChar(64)
+  /// The agency's QA reviewer named in advance. Never the inspector.
+  qaReviewerMemberId String?        @db.Char(26)
 
   bookedByParty InspectionParty
   bookedById    String?         @db.Char(26)
@@ -22215,6 +22254,8 @@ model InspectionJob {
   evidence     InspectionEvidence[]
   bindings     InspectionShipmentBinding[]
   invoices     InspectionAgencyInvoice[]
+  quantityRecord InspectionQuantityRecord?
+  labSamples     InspectionLabSample[]
 
   @@unique([jobNumber], map: "uq_insp_job_number")
   @@index([agencyId, status, scheduledFor], map: "ix_insp_job_agency")
@@ -22253,6 +22294,12 @@ model InspectionCheckResult {
   outcome            InspectionCheckOutcome
   measuredValue      String?                @db.VarChar(128)
   note               String?                @db.VarChar(1024)
+  /// The instrument used, and when its calibration runs out. Recorded as the
+  /// inspector reads it from the instrument; not verified by this software.
+  equipmentRef             String?   @db.VarChar(120)
+  equipmentCalibratedUntil DateTime? @db.Date
+  /// A laboratory report held as evidence on this job.
+  labReportEvidenceId      String?   @db.Char(26)
   recordedByMemberId String                 @db.Char(26)
   recordedAt         DateTime               @default(now()) @db.DateTime(3)
 
@@ -22277,7 +22324,14 @@ model InspectionDefect {
   originalSeverity InspectionDefectSeverity
   requirementRef   String                   @db.VarChar(128)
   description      String                   @db.Text
+  /// Occurrences of this defect. One unit can carry several defects, so the
+  /// sum of these is NOT the number of defective units - see unitRefsJson.
   defectQuantity   Int                      @default(1)
+  /// The sample units this defect was found on ("U-017"). The number of
+  /// defective units is the size of the union of these across a job's defects.
+  unitRefsJson     Json?
+  /// The checklist line the defect was raised against, when there is one.
+  checkItemCode    String?                  @db.VarChar(48)
 
   status             InspectionNcrStatus @default(OPEN)
   recordedByMemberId String              @db.Char(26)
@@ -22383,6 +22437,16 @@ model InspectionReport {
   signedByMemberId    String?   @db.Char(26)
   signedByName        String?   @db.VarChar(160)
   publishedToBuyerAt  DateTime? @db.DateTime(3)
+
+  /// What the inspection could not establish, in the inspector's words.
+  limitations String? @db.Text
+  /// A correction of an issued report. The report it corrects is kept,
+  /// unchanged, and marked superseded; a correction can never change the
+  /// result - that takes a re-inspection.
+  correctsReportId     String?   @db.Char(26)
+  correctionReason     String?   @db.Text
+  supersededAt         DateTime? @db.DateTime(3)
+  supersededByReportId String?   @db.Char(26)
 
   job InspectionJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @db.DateTime(3)
@@ -22818,6 +22882,48 @@ model SellerCertification {
   /// The `SellerDocument` that proves it. Required to verify.
   documentId        String?   @db.Char(26)
 
+  /// --- Compliance review (Audit Console) ---------------------------------
+  /// The review workflow. `state` above is kept in step by the one service
+  /// that writes either (PENDING while submitted or in review, VERIFIED when
+  /// APPROVED, REJECTED, EXPIRED), so the existing listing holds and badges
+  /// read exactly what they did before.
+  reviewStatus      ComplianceDocumentStatus @default(SUBMITTED)
+  documentType      ComplianceDocumentType   @default(CERTIFICATE)
+  issuingCountry    String?                  @db.Char(2)
+  /// The legal entity named on the document, as written there.
+  legalEntityName   String?                  @db.VarChar(255)
+  /// Category ids the document covers. Null is "not stated", which covers
+  /// nothing - never "everything".
+  categoryScopeIdsJson Json?
+  /// Product ids it covers, for a product-level document.
+  productScopeIdsJson  Json?
+  /// Models, references or families as the document names them.
+  modelScope        String?                  @db.Text
+  /// The requirement codes the seller says it satisfies. A reviewer confirms
+  /// them at approval; until then they satisfy nothing.
+  requirementCodesJson Json?
+  /// Why a document without an expiry date is acceptable. Required when
+  /// `expiresOn` is null.
+  noExpiryReason    String?                  @db.VarChar(1024)
+  verificationMethod  ComplianceVerificationMethod?
+  verificationOutcome ComplianceVerificationOutcome @default(NOT_CHECKED)
+  /// Where it was checked: a registry's address, the issuer's reply.
+  verificationSource  String?                @db.VarChar(1024)
+  /// Seller-visible explanation of the latest review decision.
+  reviewMessage     String?                  @db.Text
+  /// Operator-only.
+  internalNote      String?                  @db.Text
+  reviewerUserId    String?                  @db.Char(26)
+  reviewerLabel     String?                  @db.VarChar(160)
+  reviewStartedAt   DateTime?                @db.DateTime(3)
+  suspendedAt       DateTime?                @db.DateTime(3)
+  suspendedReason   String?                  @db.VarChar(1024)
+  /// Replacement history: a new version points at the one it replaces, and
+  /// the old one is kept, marked superseded.
+  revision          Int                      @default(1)
+  supersedesId      String?                  @db.Char(26)
+  supersededAt      DateTime?                @db.DateTime(3)
+
   state            TrustCheckState @default(PENDING)
   verifiedAt       DateTime?       @db.DateTime(3)
   verifiedByUserId String?         @db.Char(26)
@@ -22839,6 +22945,7 @@ model SellerCertification {
   @@index([sellerAccountId, state], map: "ix_seller_certification_seller")
   @@index([state, expiresOn], map: "ix_seller_certification_expiry")
   @@index([standard], map: "ix_seller_certification_standard")
+  @@index([reviewStatus, expiresOn], map: "ix_seller_certification_review")
   @@map("seller_certifications")
 }
 
@@ -25154,4 +25261,512 @@ model AnalyticsDailyCount {
   @@id([day, event, screen])
   @@index([day, surface], map: "ix_analytics_day_surface")
   @@map("analytics_daily_counts")
+}
+
+// ===========================================================================
+// AUDIT CONSOLE
+//
+// The fourth application: a separate sign-in (users.type = AUDIT) for the
+// marketplace's audit staff and for inspection agencies. Two modules:
+//
+//   A. Seller and product verification. Kept apart on purpose:
+//        1. business identity   - the existing KYB (seller_trust_checks,
+//                                  seller_documents, screening); read here,
+//                                  never duplicated;
+//        2. seller/category qualification   - compliance_cases, level SELLER_CATEGORY;
+//        3. product/market compliance       - compliance_cases, level PRODUCT;
+//        4. batch inspection                - the inspection_* tables.
+//      A seller qualified for one category is qualified for that category,
+//      supply role, market and site and nothing else.
+//
+//   B. Material and batch inspection - the existing inspection_jobs lifecycle,
+//      extended with stages, quantities, units of measure, laboratory samples
+//      and sub-lot release.
+//
+// Requirements are versioned rules. A researched rule is DRAFT until a
+// supervisor who did not draft it approves it, and only APPROVED versions are
+// ever evaluated. Uncertain applicability is a state of its own (UNRESOLVED),
+// never quietly "verified".
+// ===========================================================================
+
+enum AuditStaffRole {
+  /// Manages cases and assignments; approves rules and checklists.
+  SUPERVISOR
+  /// Reviews seller documents and qualification cases; drafts rules.
+  COMPLIANCE_REVIEWER
+}
+
+enum AuditMemberStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum InspectionAgencyKind {
+  /// Independent of buyer and seller. The only kind whose work is described
+  /// as independent third-party inspection.
+  THIRD_PARTY
+  /// The marketplace operator's own inspectors.
+  INTERNAL
+  /// The seller inspecting its own goods. Recorded, never presented as
+  /// independent.
+  SELLER_SELF
+}
+
+enum InspectionStage {
+  /// Incoming raw materials or components, before production.
+  RAW_MATERIAL
+  DURING_PRODUCTION
+  /// The finished, packed lot. The only stage that can release goods.
+  PRE_SHIPMENT
+  /// On arrival at the warehouse or the buyer.
+  RECEIVING
+}
+
+enum InspectionScopeMethod {
+  /// Every unit was examined.
+  FULL
+  /// A sample was examined under an approved plan. The rest was not.
+  SAMPLE
+}
+
+/// Units a quantity can be counted or measured in.
+enum QuantityUnit {
+  PIECE
+  PAIR
+  SET
+  BOX
+  CARTON
+  PALLET
+  ROLL
+  KILOGRAM
+  GRAM
+  LITRE
+  MILLILITRE
+  METRE
+  SQUARE_METRE
+}
+
+enum ComplianceObligation {
+  /// Required by law in the market it names.
+  LEGAL
+  /// Required by this marketplace's own terms, or a buyer's contract.
+  CONTRACTUAL
+  /// Shown when held; never required.
+  OPTIONAL_QUALIFICATION
+}
+
+enum ComplianceLevel {
+  /// The seller may sell in a category, in a supply role, into a market.
+  SELLER_CATEGORY
+  /// One product may be sold into one market.
+  PRODUCT
+}
+
+enum ComplianceApplicability {
+  /// Applies whenever the rule's scope matches.
+  APPLIES
+  /// Applies only when a stated condition holds; a reviewer decides per case.
+  CONDITIONAL
+  /// Research could not settle whether it applies. A case cannot be approved
+  /// while a reviewer leaves it unresolved.
+  UNRESOLVED
+}
+
+enum ComplianceRuleStatus {
+  DRAFT
+  /// Submitted for a supervisor's approval.
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  /// Replaced by a newer approved version, or withdrawn.
+  RETIRED
+}
+
+enum ComplianceExpiryKind {
+  /// The document carries its own expiry date.
+  DOCUMENT_EXPIRY
+  /// Valid until withdrawn; the reviewer records why.
+  NO_EXPIRY
+  /// Re-reviewed every `reviewMonths` regardless of the document.
+  PERIODIC_REVIEW
+}
+
+enum ComplianceDocumentStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  EXPIRED
+  SUSPENDED
+}
+
+enum ComplianceDocumentType {
+  CERTIFICATE
+  LICENCE
+  REGISTRATION
+  DECLARATION_OF_CONFORMITY
+  TEST_REPORT
+  AUTHORISATION
+  OTHER
+}
+
+enum ComplianceVerificationMethod {
+  /// A reviewer examined the evidence file and its content.
+  MANUAL_EVIDENCE
+  /// A reviewer (or a configured adapter) looked it up in the issuer's or an
+  /// official registry.
+  REGISTRY_LOOKUP
+  /// The issuer confirmed it in writing.
+  ISSUER_CONFIRMATION
+}
+
+enum ComplianceVerificationOutcome {
+  NOT_CHECKED
+  /// The registry or issuer confirmed the document as described.
+  VERIFIED
+  /// The check could not be completed - no result, the registry was down, the
+  /// issuer did not answer. Never the same as "fraudulent".
+  UNABLE_TO_VERIFY
+  /// The registry or issuer said something different from the document.
+  MISMATCH
+}
+
+enum ComplianceCaseStatus {
+  REQUESTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  QUALIFIED
+  REJECTED
+  SUSPENDED
+  EXPIRED
+  /// Was qualified; a document it relied on changed scope, was replaced,
+  /// suspended or expired. A reviewer must look again.
+  REREVIEW_REQUIRED
+  WITHDRAWN
+}
+
+/// The part a seller plays for the goods, per case - a seller can manufacture
+/// one category and import another.
+enum SupplyRole {
+  MANUFACTURER
+  IMPORTER
+  DISTRIBUTOR
+  AUTHORISED_REPRESENTATIVE
+}
+
+enum SubLotReleaseState {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+/// A member of the marketplace's own audit team. Agency people are
+/// `InspectionAgencyMember` rows instead; one AUDIT account holds exactly one
+/// of the two.
+model AuditStaffMember {
+  id       String            @id @db.Char(26)
+  userId   String            @db.Char(26)
+  role     AuditStaffRole
+  status   AuditMemberStatus @default(INVITED)
+  fullName String            @db.VarChar(160)
+  jobTitle String?           @db.VarChar(120)
+
+  /// Categories this reviewer is competent to decide. Null is none.
+  competenceCategoryIdsJson Json?
+
+  invitedByUserId String?   @db.Char(26)
+  activatedAt     DateTime? @db.DateTime(3)
+  disabledAt      DateTime? @db.DateTime(3)
+  disabledReason  String?   @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([userId], map: "uq_audit_staff_user")
+  @@index([role, status], map: "ix_audit_staff_role")
+  @@map("audit_staff_members")
+}
+
+/// The Audit Console's own notification feed. One row per person per event.
+model AuditNotification {
+  id     String  @id @db.Char(26)
+  userId String  @db.Char(26)
+  kind   String  @db.VarChar(48)
+  title  String  @db.VarChar(200)
+  body   String? @db.Text
+  /// A path inside the console, e.g. /jobs/<id>.
+  link   String? @db.VarChar(512)
+
+  subjectType String? @db.VarChar(32)
+  subjectId   String? @db.Char(26)
+  /// Stops the same event notifying the same person twice. '' when unused -
+  /// never null, see the note on MariaDB UNIQUE and NULL at the top.
+  dedupeKey   String  @default("") @db.VarChar(160)
+
+  readAt    DateTime? @db.DateTime(3)
+  createdAt DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([userId, readAt, createdAt], map: "ix_audit_notification_user")
+  @@index([userId, dedupeKey], map: "ix_audit_notification_dedupe")
+  @@map("audit_notifications")
+}
+
+/// One version of one compliance requirement. (code, ruleVersion) is unique;
+/// a change is a new version, and approving it retires the previous one.
+model ComplianceRequirement {
+  id          String @id @db.Char(26)
+  code        String @db.VarChar(64)
+  ruleVersion Int    @default(1)
+  status      ComplianceRuleStatus @default(DRAFT)
+
+  name             String               @db.VarChar(255)
+  description      String               @db.Text
+  requiredEvidence String               @db.Text
+  obligation       ComplianceObligation
+  level            ComplianceLevel
+
+  /// Scope. Category ids; `includeDescendants` extends each to its subtree.
+  categoryIdsJson    Json
+  includeDescendants Boolean @default(true)
+  /// Supply roles, origin countries (ISO-3166 alpha-2), destination markets
+  /// (alpha-2 or "EU") and EU MDR device classes. An empty list is "any".
+  supplyRolesJson        Json
+  originCountriesJson    Json
+  destinationMarketsJson Json
+  riskClassesJson        Json
+  productTypeNote        String? @db.VarChar(1024)
+  intendedUseNote        String? @db.VarChar(1024)
+
+  applicability     ComplianceApplicability
+  applicabilityNote String?                 @db.Text
+
+  expiryKind   ComplianceExpiryKind
+  reviewMonths Int?
+
+  /// Where the requirement comes from, and when somebody last checked it.
+  sourceUrl       String   @db.VarChar(1024)
+  sourceTitle     String   @db.VarChar(512)
+  sourcePublisher String   @db.VarChar(255)
+  lastReviewedOn  DateTime @db.Date
+  /// HIGH, MEDIUM or LOW: the researcher's confidence, shown beside the rule.
+  confidence      String?  @db.VarChar(8)
+  /// "research-2026-10-06" for rules loaded from the dated research file.
+  importedFrom    String?  @db.VarChar(64)
+
+  effectiveFrom DateTime? @db.DateTime(3)
+  effectiveTo   DateTime? @db.DateTime(3)
+
+  draftedByUserId  String?   @db.Char(26)
+  draftedByLabel   String    @db.VarChar(160)
+  submittedAt      DateTime? @db.DateTime(3)
+  decidedByUserId  String?   @db.Char(26)
+  decidedByLabel   String?   @db.VarChar(160)
+  decidedAt        DateTime? @db.DateTime(3)
+  decisionNote     String?   @db.Text
+  retiredAt        DateTime? @db.DateTime(3)
+  supersedesId     String?   @db.Char(26)
+
+  lockVersion Int      @default(0)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([code, ruleVersion], map: "uq_compliance_requirement_version")
+  @@index([status, level], map: "ix_compliance_requirement_status")
+  @@map("compliance_requirements")
+}
+
+/// A request to qualify a seller for a category (SELLER_CATEGORY) or one
+/// product for a market (PRODUCT), and the decision on it.
+model ComplianceCase {
+  id         String          @id @db.Char(26)
+  caseNumber String          @db.VarChar(32)
+  level      ComplianceLevel
+
+  sellerAccountId String @db.Char(26)
+  categoryId      String @db.Char(26)
+  /// '' for a SELLER_CATEGORY case. Never null: these four columns are a
+  /// UNIQUE key and MariaDB treats every NULL as distinct.
+  productId         String     @default("") @db.VarChar(26)
+  supplyRole        SupplyRole
+  /// Alpha-2, or "EU". '' is "the seller's own market only".
+  destinationMarket String     @default("") @db.VarChar(8)
+  /// The manufacturing site, a `SellerFactory` id, or ''.
+  factoryId         String     @default("") @db.VarChar(26)
+
+  status ComplianceCaseStatus @default(REQUESTED)
+
+  requestedByParty String  @db.VarChar(16)
+  requestedById    String? @db.Char(26)
+  reviewerUserId   String? @db.Char(26)
+  reviewerLabel    String? @db.VarChar(160)
+  reviewStartedAt  DateTime? @db.DateTime(3)
+  decidedAt        DateTime? @db.DateTime(3)
+
+  /// Seller-visible explanation of the latest decision or request.
+  sellerMessage String? @db.Text
+  /// Operator-only.
+  internalNote  String? @db.Text
+  /// The reviewer's per-requirement applicability decisions for CONDITIONAL
+  /// and UNRESOLVED requirements: { code: { decision, reason, by, at } }.
+  determinationsJson   Json?
+  /// The requirement versions and the documents that satisfied them, frozen
+  /// at the decision.
+  decisionSnapshotJson Json?
+  /// The earliest expiry among the documents the decision relied on.
+  expiresAt DateTime? @db.DateTime(3)
+
+  lockVersion Int      @default(0)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_compliance_case_seller")
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_compliance_case_category")
+
+  @@unique([caseNumber], map: "uq_compliance_case_number")
+  @@unique([level, sellerAccountId, categoryId, productId, supplyRole, destinationMarket, factoryId], map: "uq_compliance_case_scope")
+  @@index([status, updatedAt], map: "ix_compliance_case_status")
+  @@index([sellerAccountId, status], map: "ix_compliance_case_seller")
+  @@index([categoryId], map: "ix_compliance_case_category")
+  @@map("compliance_cases")
+}
+
+/// Append-only history of rules, cases and compliance documents.
+model ComplianceEvent {
+  id              String  @id @db.Char(26)
+  /// REQUIREMENT, CASE or DOCUMENT.
+  subjectType     String  @db.VarChar(24)
+  subjectId       String  @db.Char(26)
+  sellerAccountId String? @db.Char(26)
+  kind            String  @db.VarChar(48)
+  /// SYSTEM, SELLER, AUDIT or ADMIN.
+  actorType       String  @db.VarChar(16)
+  actorUserId     String? @db.Char(26)
+  actorLabel      String  @db.VarChar(160)
+  summary         String  @db.VarChar(1000)
+  /// Whether the seller sees this line in the Seller Hub.
+  sellerVisible   Boolean @default(false)
+  dataJson        Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([subjectType, subjectId, createdAt], map: "ix_compliance_event_subject")
+  @@index([sellerAccountId, createdAt], map: "ix_compliance_event_seller")
+  @@map("compliance_events")
+}
+
+/// What was counted and tested on one job, in exact decimals. One per job.
+model InspectionQuantityRecord {
+  id    String       @id @db.Char(26)
+  jobId String       @db.Char(26)
+  unit  QuantityUnit
+
+  orderedQuantity  Decimal  @db.Decimal(18, 3)
+  /// What the seller says was produced or is available.
+  declaredQuantity Decimal? @db.Decimal(18, 3)
+  /// What the inspector physically counted, weighed or measured.
+  verifiedQuantity Decimal? @db.Decimal(18, 3)
+  /// FULL_COUNT, CARTON_COUNT, WEIGHED, MEASURED, or DECLARED_ONLY.
+  countingMethod   String?  @db.VarChar(24)
+  countingNote     String?  @db.VarChar(1024)
+  /// Packaging conversions: [{ "unit": "CARTON", "contains": "24", "of": "PIECE" }].
+  packagingJson    Json?
+
+  sampledQuantity             Decimal? @db.Decimal(18, 3)
+  functionallyTestedQuantity  Decimal? @db.Decimal(18, 3)
+  testedConformingQuantity    Decimal? @db.Decimal(18, 3)
+  testedNonconformingQuantity Decimal? @db.Decimal(18, 3)
+  damagedQuantity             Decimal? @db.Decimal(18, 3)
+
+  packagingObservations String? @db.Text
+  labelingObservations  String? @db.Text
+  damageObservations    String? @db.Text
+
+  recordedByMemberId String @db.Char(26)
+  lockVersion        Int    @default(0)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  job InspectionJob @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_insp_quantity_job")
+
+  @@unique([jobId], map: "uq_insp_quantity_job")
+  @@map("inspection_quantity_records")
+}
+
+/// A sample taken for laboratory testing, and its chain of custody.
+model InspectionLabSample {
+  id         String @id @db.Char(26)
+  jobId      String @db.Char(26)
+  sampleCode String @db.VarChar(64)
+
+  description String        @db.VarChar(1024)
+  quantity    Decimal?      @db.Decimal(18, 3)
+  unit        QuantityUnit?
+  sealNumber  String?       @db.VarChar(64)
+
+  takenAt         DateTime @db.DateTime(3)
+  takenByMemberId String   @db.Char(26)
+
+  laboratoryName          String?   @db.VarChar(255)
+  /// As the laboratory states it, e.g. an ISO/IEC 17025 accreditation number.
+  /// Recorded, not verified by this software.
+  laboratoryAccreditation String?   @db.VarChar(255)
+  /// [{ "at", "from", "to", "note", "byLabel" }], appended only.
+  custodyJson             Json
+  labReportEvidenceId     String?   @db.Char(26)
+  resultSummary           String?   @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  job InspectionJob @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_insp_lab_sample_job")
+
+  @@unique([jobId, sampleCode], map: "uq_insp_lab_sample_code")
+  @@map("inspection_lab_samples")
+}
+
+/// An authorised release of a clearly identified part of a lot, when the lot
+/// as a whole cannot be released. Requested in the Audit Console, approved in
+/// the Admin Panel by somebody else, consumed by exactly one dispatch.
+model InspectionSubLotRelease {
+  id            String @id @db.Char(26)
+  requirementId String @db.Char(26)
+  jobId         String @db.Char(26)
+  reportId      String @db.Char(26)
+
+  subLotCode   String       @db.VarChar(64)
+  lotReference String       @db.VarChar(64)
+  quantity     Decimal      @db.Decimal(18, 3)
+  unit         QuantityUnit
+  /// [{ "orderItemId", "quantity" }] - what may leave, per order line.
+  linesJson    Json
+  /// How the sub-lot was separated and identified, and why it may go.
+  reason       String       @db.Text
+
+  state            SubLotReleaseState @default(PENDING_APPROVAL)
+  requestedByUserId String            @db.Char(26)
+  requestedByLabel  String            @db.VarChar(160)
+  requestedAt       DateTime          @db.DateTime(3)
+  decidedByUserId   String?           @db.Char(26)
+  decidedByLabel    String?           @db.VarChar(160)
+  decidedAt         DateTime?         @db.DateTime(3)
+  decisionNote      String?           @db.VarChar(1024)
+  /// Set by the one dispatch that used it. A second dispatch finds it spent.
+  consumedAt        DateTime?         @db.DateTime(3)
+  consumedByRef     String?           @db.VarChar(64)
+
+  lockVersion Int      @default(0)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  requirement InspectionRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_insp_sublot_requirement")
+
+  @@unique([requirementId, subLotCode], map: "uq_insp_sublot_code")
+  @@index([state], map: "ix_insp_sublot_state")
+  @@map("inspection_sublot_releases")
 }

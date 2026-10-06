@@ -8277,19 +8277,19 @@ because the set was captured in more than one run.
 
 ## Inspection agency dashboard
 
-Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
+Agency members open the Audit Console (`/dashboard`; formerly the storefront's `/inspection`) to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
 
 
 ## Inspection packaging and label checks
 
-The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
+The agency's job screen in the Audit Console (`/jobs/:id`; formerly the storefront's `/inspection/jobs/:id/packaging`) shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
 
 
 ## What the goods are measured against (JOURNEY-019)
 
 On an order made from an RFQ purchase order, the inspection card for the buyer
 (`/account/orders/:id`) and the seller (`/seller/orders/:id`) and the agency's
-job screen (`/inspection/jobs/:id`) show a **What the goods are measured
+job screen (Audit Console `/jobs/:id`) show a **What the goods are measured
 against** block: "Bought on purchase order PO-…", the agreed inspection terms,
 and the reference sample the buyer approved - its code, approval date, the
 approval criteria, the buyer's note and the names of the evidence files on
@@ -8429,3 +8429,37 @@ analytics: search_submitted remains a privacy-respecting daily counter without
 query text or identifiers. No private account, RFQ, order or invoice search is added.
 
 **Sourcing hero shortcuts (DYNAMIC-002).** Product opens the product catalogue, Supplier opens the new public /suppliers directory, and both carry the typed words. The supplier directory searches public display names, shows up to 24 approved suppliers with live published offers and links to their public profiles. It states its bounded result limit and offers loading, empty, failure and explicit retry states; an empty supplier-shop directory does not advertise other sellers. RFQ opens the existing authenticated request form with the words as an editable title, without creating or submitting a request. Image search opens the existing gated image dialog. Switched-off RFQ/image features show unavailable wording without a dead destination. The search/AI links retain their existing behavior. The hero makes no supplier claim: the Indian manufacturer statement that used to sit above the shortcuts, and the space reserved for it, were removed, so the shortcuts sit directly under the platform line. No supplier cards or newly verified supplier section is on the homepage. Twelve new labels are translated in all eight customer locales.
+
+## Audit Console (`apps/audit-web`, port 5176, behind `FEATURE_AUDIT_CONSOLE`)
+
+Its own sign-in. Everyone passes a one-time code (TOTP) after the password.
+
+| Path | Who | What it does |
+|---|---|---|
+| `/login`, `/activate`, `/forgot-password`, `/reset-password` | anyone invited | Sign in, accept an invitation, reset a password. The second-step code screen follows sign-in |
+| `/dashboard` | all roles | Assignments, deadlines, overdue work, notifications |
+| `/sellers`, `/sellers/:id` | staff reviewers | A seller's qualification cases and documents |
+| `/products`, `/products/:caseId` | staff reviewers | Product cases |
+| `/cases/:id` | staff reviewers | Evaluation, determination for `CONDITIONAL` / `UNRESOLVED`, history |
+| `/documents` | staff reviewers | Certificate review: method, outcome, approve, reject, suspend |
+| `/rules` | staff | Versioned requirements; draft, submit, approve (by a second person) |
+| `/jobs`, `/jobs/:id` | agency and staff | The inspection job: stage, scope, checklist, quantities and reconciliation, defects with unit references, lab samples and custody, evidence, report and PDF, corrections, sub-lot release request |
+| `/calendar` | agency | Jobs by date |
+| `/reports` | agency and staff | Reports, including superseded ones |
+| `/corrective-actions` | agency and staff | Open corrective actions |
+| `/checklists` | staff | Checklist items, their kind and mandatory / lab / equipment flags |
+| `/team` | agency admins, supervisors | Members and roles |
+| `/profile` | everyone | Own details and second factor |
+
+Changes elsewhere:
+
+- **Storefront** — the agency pages under `/inspection/...` now show one
+  notice: the work has moved to the Audit Console.
+- **Seller Hub** — `/seller/compliance`: requirements, documents (upload,
+  submit, status) and cases. The supplier page shows scoped qualifications and
+  certificate badges.
+- **Admin console** — `/audit-console` (permission `audit_console.manage`):
+  invite and manage console people. The inspection console gains sub-lot
+  approvals and release-evidence upload.
+- **Carrier portal** — a consignment shows whether inspection released or held
+  the goods.

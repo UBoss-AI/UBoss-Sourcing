@@ -888,6 +888,10 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
        */
       locationPricing: (profile?.vatCountry ?? null) !== null,
     },
+    // Where inspection agencies and the audit team sign in, so the storefront
+    // can point somebody who looks for the old agency pages to the right
+    // place. Empty when the Audit Console is switched off.
+    auditConsoleUrl: env.FEATURE_AUDIT_CONSOLE ? env.AUDIT_WEB_PUBLIC_URL : '',
     features: {
       selfRegistration: env.FEATURE_CUSTOMER_SELF_REGISTRATION,
       // Whether a confirmed sign-up still waits for a member of staff. The

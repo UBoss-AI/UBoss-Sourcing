@@ -52,7 +52,7 @@ import { revokeAllUserSessions } from './session.service.js';
 type Tx = Prisma.TransactionClient;
 
 /** Which surface's secret this is. Part of the encryption's bound data. */
-export type FactorScope = 'admin_mfa' | 'customer_mfa';
+export type FactorScope = 'admin_mfa' | 'customer_mfa' | 'audit_mfa';
 
 function secretAad(scope: FactorScope, userId: string): string {
   return `${scope}:${userId}`;
@@ -348,7 +348,7 @@ export async function removeFactor(userId: string, tx: Tx | typeof prisma = pris
 /** Refused for an account that is not ACTIVE on the expected surface. */
 export async function assertActiveUser(
   userId: string,
-  type: 'ADMIN' | 'CUSTOMER',
+  type: 'ADMIN' | 'CUSTOMER' | 'AUDIT',
 ): Promise<{ email: string }> {
   const user = await prisma.user.findFirst({
     where: { id: userId, type, status: 'ACTIVE' },

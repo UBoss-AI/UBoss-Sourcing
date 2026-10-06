@@ -18,9 +18,10 @@ import { useQuery } from '@tanstack/react-query';
 import { recordViewed } from '@/lib/recently-viewed';
 import { Link, useParams } from 'react-router-dom';
 import { BuildingIcon, CheckIcon, GlobeIcon, ShieldIcon } from '@/components/icons';
-import { ButtonLink, ErrorState, LoadingState } from '@/components/ui';
+import { Badge, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { countryName } from '@/lib/iso-countries';
+import { marketLabel, supplyRoleLabel } from '@/lib/compliance';
 import { formatNumber } from '@/lib/format';
 import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
 import { canonicalUrl, supplierJsonLd } from '@/lib/seo';
@@ -202,6 +203,38 @@ export function SupplierPage(): React.JSX.Element {
                     </p>
                   )}
                   {certificate.scope !== null && <p className="mt-0.5 text-ink-muted">{certificate.scope}</p>}
+                  {certificate.verificationBadge !== undefined && (
+                    <p className="mt-1">
+                      <Badge tone={certificate.verificationBadge === 'VERIFIED_WITH_ISSUER_OR_REGISTER' ? 'success' : 'neutral'}>
+                        {t(`supplier.badge.${certificate.verificationBadge}`)}
+                      </Badge>
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {(profile.qualifications ?? []).length > 0 && (
+          <Section id="supplier-qualifications" title={t('supplier.qualifications')}>
+            <p className="mb-3 text-xs text-ink-muted">{t('supplier.qualificationsMeaning')}</p>
+            <ul className="space-y-2">
+              {(profile.qualifications ?? []).map((qualification, index) => (
+                <li key={`${qualification.category}-${qualification.supplyRole}-${String(index)}`} className="text-sm">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-ink">
+                    <ShieldIcon className="h-4 w-4 shrink-0 text-success" />
+                    {t('supplier.qualifiedFor', {
+                      category: qualification.category,
+                      role: supplyRoleLabel(t, qualification.supplyRole),
+                      market: marketLabel(t, qualification.destinationMarket, language),
+                    })}
+                  </span>
+                  {qualification.expiresAt !== null && (
+                    <span className="ml-2 text-xs text-ink-muted">
+                      {t('supplier.validUntil', { date: dateFormat.format(new Date(qualification.expiresAt)) })}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

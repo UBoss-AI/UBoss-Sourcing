@@ -5,7 +5,7 @@ import { renderWithProviders } from '@/test/harness';
 import { InspectionStatusBadge } from './InspectionStatusBadge';
 
 describe('InspectionStatusBadge', () => {
-  it.each(['NOT_REQUIRED', 'REQUIRED', 'BOOKED', 'IN_PROGRESS', 'NCR', 'REINSPECTION', 'RELEASED'])('labels %s', (status) => {
+  it.each(['NOT_REQUIRED', 'REQUIRED', 'BOOKED', 'IN_PROGRESS', 'NCR', 'REINSPECTION', 'RELEASED', 'ON_HOLD'])('labels %s', (status) => {
     renderWithProviders(<InspectionStatusBadge status={status} />);
     expect(screen.getByText(/./)).toBeInTheDocument();
   });

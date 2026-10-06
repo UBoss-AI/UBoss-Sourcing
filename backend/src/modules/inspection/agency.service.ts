@@ -2,10 +2,11 @@
  * Inspection agencies, their people, and the independence checks.
  *
  * An agency is created by the operator, never by self-registration, like a
- * logistics partner. Its people sign in with ordinary storefront accounts; the
- * member row is what turns an account into an inspector, and it is resolved
- * from the SESSION on every request - no route reads an agency id from a
- * parameter.
+ * logistics partner. Its people sign in to the Audit Console with accounts of
+ * their own (users.type AUDIT), created by invitation - see
+ * `audit-console/membership.service.ts`. The member row is what makes an
+ * account an inspector, and it is resolved from the SESSION on every request -
+ * no route reads an agency id from a parameter.
  *
  * Independence (FLOW-003, JOURNEY-036/037) is checked here and nowhere else,
  * so the booking, acceptance, assignment and every write on a job ask the same
@@ -26,7 +27,6 @@ import { newId } from '../../infra/ids.js';
 import type { PrismaTransaction } from '../../infra/prisma.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
-import { normaliseEmail } from '../identity/auth.service.js';
 import type { InspectionActor } from './context.js';
 
 // ---------------------------------------------------------------------------
@@ -488,90 +488,6 @@ export interface MemberInput {
   credentialExpiresAt?: Date | null;
 }
 
-/**
- * Add a person to an agency by the email of their storefront account.
- *
- * The person creates their own account first; nobody is given one. Refused
- * for anybody who is a member of a seller - an inspector who also sells is
- * never independent of their own shop, and checking per job would leave the
- * account able to see the agency's other work.
- */
-export async function addAgencyMember(
-  by: { kind: 'OPERATOR'; actor: OperatorActor } | { kind: 'AGENCY'; membership: InspectionMembership },
-  agencyId: string,
-  input: MemberInput,
-): Promise<{ id: string }> {
-  if (by.kind === 'AGENCY' && by.membership.agencyId !== agencyId) throw notFound('Inspection agency');
-
-  const user = await prisma.user.findUnique({
-    where: { emailNormalized: normaliseEmail(input.email) },
-    select: { id: true, type: true, customerProfile: { select: { id: true } } },
-  });
-
-  if (user === null || user.type !== 'CUSTOMER' || user.customerProfile === null) {
-    throw badRequest(
-      ErrorCode.VALIDATION_FAILED,
-      'There is no storefront account with that email. Ask the person to create one, then add them.',
-      [{ field: 'email', code: 'ACCOUNT_NOT_FOUND' }],
-    );
-  }
-
-  const sells = await prisma.sellerMember.findUnique({
-    where: { customerProfileId: user.customerProfile.id },
-    select: { id: true },
-  });
-  if (sells !== null) {
-    throw conflict(
-      ErrorCode.INSPECTION_CONFLICT_OF_INTEREST,
-      'This person is a member of a seller on this marketplace, so they cannot work for an inspection agency here.',
-      [{ code: 'SELLER_MEMBER' }],
-    );
-  }
-
-  const existing = await prisma.inspectionAgencyMember.findUnique({ where: { userId: user.id }, select: { id: true } });
-  if (existing !== null) {
-    throw conflict(ErrorCode.CONFLICT, 'This person already belongs to an inspection agency.', [
-      { field: 'email', code: 'ALREADY_A_MEMBER' },
-    ]);
-  }
-
-  const id = newId();
-  const actorUserId = by.kind === 'OPERATOR' ? by.actor.userId : by.membership.userId;
-
-  await prisma.$transaction(async (tx) => {
-    await tx.inspectionAgencyMember.create({
-      data: {
-        id,
-        agencyId,
-        userId: user.id,
-        role: input.role,
-        fullName: input.fullName.trim(),
-        jobTitle: input.jobTitle?.trim() || null,
-        idDocumentType: input.idDocumentType?.trim() || null,
-        idDocumentNumber: input.idDocumentNumber?.trim() || null,
-        competenceCategoryIdsJson: input.competenceCategoryIds ?? undefined,
-        credentials: input.credentials?.trim() || null,
-        credentialExpiresAt: input.credentialExpiresAt ?? null,
-        addedById: actorUserId,
-      },
-    });
-    await recordAudit(
-      {
-        action: AuditAction.INSPECTION_AGENCY_CHANGED,
-        resourceType: 'inspection_agency_member',
-        resourceId: id,
-        actorType: by.kind === 'OPERATOR' ? 'ADMIN' : 'CUSTOMER',
-        actorUserId,
-        after: { agencyId, role: input.role, fullName: input.fullName },
-        correlationId: by.kind === 'OPERATOR' ? by.actor.correlationId ?? null : null,
-      },
-      tx,
-    );
-  });
-
-  return { id };
-}
-
 export async function updateAgencyMember(
   by: { kind: 'OPERATOR'; actor: OperatorActor } | { kind: 'AGENCY'; membership: InspectionMembership },
   memberId: string,
@@ -624,7 +540,7 @@ export async function updateAgencyMember(
         action: AuditAction.INSPECTION_AGENCY_CHANGED,
         resourceType: 'inspection_agency_member',
         resourceId: memberId,
-        actorType: by.kind === 'OPERATOR' ? 'ADMIN' : 'CUSTOMER',
+        actorType: by.kind === 'OPERATOR' ? 'ADMIN' : 'AUDIT',
         actorUserId,
         after: { ...input, idDocumentNumber: input.idDocumentNumber === undefined ? undefined : '[changed]' },
       },

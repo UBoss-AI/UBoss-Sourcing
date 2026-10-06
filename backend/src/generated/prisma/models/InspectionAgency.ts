@@ -49,6 +49,7 @@ export type InspectionAgencyMinAggregateOutputType = {
   suspendedReason: string | null
   independenceStatement: string | null
   independenceDeclaredAt: Date | null
+  kind: $Enums.InspectionAgencyKind | null
   dailyCapacity: number | null
   defaultFeeMinor: bigint | null
   feeCurrency: string | null
@@ -70,6 +71,7 @@ export type InspectionAgencyMaxAggregateOutputType = {
   suspendedReason: string | null
   independenceStatement: string | null
   independenceDeclaredAt: Date | null
+  kind: $Enums.InspectionAgencyKind | null
   dailyCapacity: number | null
   defaultFeeMinor: bigint | null
   feeCurrency: string | null
@@ -94,6 +96,7 @@ export type InspectionAgencyCountAggregateOutputType = {
   affiliatedSellerIdsJson: number
   independenceStatement: number
   independenceDeclaredAt: number
+  kind: number
   dailyCapacity: number
   defaultFeeMinor: number
   feeCurrency: number
@@ -127,6 +130,7 @@ export type InspectionAgencyMinAggregateInputType = {
   suspendedReason?: true
   independenceStatement?: true
   independenceDeclaredAt?: true
+  kind?: true
   dailyCapacity?: true
   defaultFeeMinor?: true
   feeCurrency?: true
@@ -148,6 +152,7 @@ export type InspectionAgencyMaxAggregateInputType = {
   suspendedReason?: true
   independenceStatement?: true
   independenceDeclaredAt?: true
+  kind?: true
   dailyCapacity?: true
   defaultFeeMinor?: true
   feeCurrency?: true
@@ -172,6 +177,7 @@ export type InspectionAgencyCountAggregateInputType = {
   affiliatedSellerIdsJson?: true
   independenceStatement?: true
   independenceDeclaredAt?: true
+  kind?: true
   dailyCapacity?: true
   defaultFeeMinor?: true
   feeCurrency?: true
@@ -283,6 +289,7 @@ export type InspectionAgencyGroupByOutputType = {
   affiliatedSellerIdsJson: runtime.JsonValue | null
   independenceStatement: string | null
   independenceDeclaredAt: Date | null
+  kind: $Enums.InspectionAgencyKind
   dailyCapacity: number
   defaultFeeMinor: bigint | null
   feeCurrency: string | null
@@ -330,6 +337,7 @@ export type InspectionAgencyWhereInput = {
   affiliatedSellerIdsJson?: Prisma.JsonNullableFilter<"InspectionAgency">
   independenceStatement?: Prisma.StringNullableFilter<"InspectionAgency"> | string | null
   independenceDeclaredAt?: Prisma.DateTimeNullableFilter<"InspectionAgency"> | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFilter<"InspectionAgency"> | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFilter<"InspectionAgency"> | number
   defaultFeeMinor?: Prisma.BigIntNullableFilter<"InspectionAgency"> | bigint | number | null
   feeCurrency?: Prisma.StringNullableFilter<"InspectionAgency"> | string | null
@@ -357,6 +365,7 @@ export type InspectionAgencyOrderByWithRelationInput = {
   affiliatedSellerIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   independenceStatement?: Prisma.SortOrderInput | Prisma.SortOrder
   independenceDeclaredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrder
   dailyCapacity?: Prisma.SortOrder
   defaultFeeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   feeCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -388,6 +397,7 @@ export type InspectionAgencyWhereUniqueInput = Prisma.AtLeast<{
   affiliatedSellerIdsJson?: Prisma.JsonNullableFilter<"InspectionAgency">
   independenceStatement?: Prisma.StringNullableFilter<"InspectionAgency"> | string | null
   independenceDeclaredAt?: Prisma.DateTimeNullableFilter<"InspectionAgency"> | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFilter<"InspectionAgency"> | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFilter<"InspectionAgency"> | number
   defaultFeeMinor?: Prisma.BigIntNullableFilter<"InspectionAgency"> | bigint | number | null
   feeCurrency?: Prisma.StringNullableFilter<"InspectionAgency"> | string | null
@@ -415,6 +425,7 @@ export type InspectionAgencyOrderByWithAggregationInput = {
   affiliatedSellerIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   independenceStatement?: Prisma.SortOrderInput | Prisma.SortOrder
   independenceDeclaredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrder
   dailyCapacity?: Prisma.SortOrder
   defaultFeeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   feeCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -447,6 +458,7 @@ export type InspectionAgencyScalarWhereWithAggregatesInput = {
   affiliatedSellerIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"InspectionAgency">
   independenceStatement?: Prisma.StringNullableWithAggregatesFilter<"InspectionAgency"> | string | null
   independenceDeclaredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InspectionAgency"> | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindWithAggregatesFilter<"InspectionAgency"> | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntWithAggregatesFilter<"InspectionAgency"> | number
   defaultFeeMinor?: Prisma.BigIntNullableWithAggregatesFilter<"InspectionAgency"> | bigint | number | null
   feeCurrency?: Prisma.StringNullableWithAggregatesFilter<"InspectionAgency"> | string | null
@@ -471,6 +483,7 @@ export type InspectionAgencyCreateInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -498,6 +511,7 @@ export type InspectionAgencyUncheckedCreateInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -525,6 +539,7 @@ export type InspectionAgencyUpdateInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -552,6 +567,7 @@ export type InspectionAgencyUncheckedUpdateInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -579,6 +595,7 @@ export type InspectionAgencyCreateManyInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -603,6 +620,7 @@ export type InspectionAgencyUpdateManyMutationInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -627,6 +645,7 @@ export type InspectionAgencyUncheckedUpdateManyInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -657,6 +676,7 @@ export type InspectionAgencyCountOrderByAggregateInput = {
   affiliatedSellerIdsJson?: Prisma.SortOrder
   independenceStatement?: Prisma.SortOrder
   independenceDeclaredAt?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   dailyCapacity?: Prisma.SortOrder
   defaultFeeMinor?: Prisma.SortOrder
   feeCurrency?: Prisma.SortOrder
@@ -683,6 +703,7 @@ export type InspectionAgencyMaxOrderByAggregateInput = {
   suspendedReason?: Prisma.SortOrder
   independenceStatement?: Prisma.SortOrder
   independenceDeclaredAt?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   dailyCapacity?: Prisma.SortOrder
   defaultFeeMinor?: Prisma.SortOrder
   feeCurrency?: Prisma.SortOrder
@@ -704,6 +725,7 @@ export type InspectionAgencyMinOrderByAggregateInput = {
   suspendedReason?: Prisma.SortOrder
   independenceStatement?: Prisma.SortOrder
   independenceDeclaredAt?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   dailyCapacity?: Prisma.SortOrder
   defaultFeeMinor?: Prisma.SortOrder
   feeCurrency?: Prisma.SortOrder
@@ -724,6 +746,10 @@ export type InspectionAgencyScalarRelationFilter = {
 
 export type EnumInspectionAgencyStatusFieldUpdateOperationsInput = {
   set?: $Enums.InspectionAgencyStatus
+}
+
+export type EnumInspectionAgencyKindFieldUpdateOperationsInput = {
+  set?: $Enums.InspectionAgencyKind
 }
 
 export type InspectionAgencyCreateNestedOneWithoutMembersInput = {
@@ -784,6 +810,7 @@ export type InspectionAgencyCreateWithoutMembersInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -810,6 +837,7 @@ export type InspectionAgencyUncheckedCreateWithoutMembersInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -852,6 +880,7 @@ export type InspectionAgencyUpdateWithoutMembersInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -878,6 +907,7 @@ export type InspectionAgencyUncheckedUpdateWithoutMembersInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -904,6 +934,7 @@ export type InspectionAgencyCreateWithoutJobsInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -930,6 +961,7 @@ export type InspectionAgencyUncheckedCreateWithoutJobsInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -972,6 +1004,7 @@ export type InspectionAgencyUpdateWithoutJobsInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -998,6 +1031,7 @@ export type InspectionAgencyUncheckedUpdateWithoutJobsInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1024,6 +1058,7 @@ export type InspectionAgencyCreateWithoutInvoicesInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -1050,6 +1085,7 @@ export type InspectionAgencyUncheckedCreateWithoutInvoicesInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: string | null
   independenceDeclaredAt?: Date | string | null
+  kind?: $Enums.InspectionAgencyKind
   dailyCapacity?: number
   defaultFeeMinor?: bigint | number | null
   feeCurrency?: string | null
@@ -1092,6 +1128,7 @@ export type InspectionAgencyUpdateWithoutInvoicesInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1118,6 +1155,7 @@ export type InspectionAgencyUncheckedUpdateWithoutInvoicesInput = {
   affiliatedSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   independenceStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   independenceDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kind?: Prisma.EnumInspectionAgencyKindFieldUpdateOperationsInput | $Enums.InspectionAgencyKind
   dailyCapacity?: Prisma.IntFieldUpdateOperationsInput | number
   defaultFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   feeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1193,6 +1231,7 @@ export type InspectionAgencySelect<ExtArgs extends runtime.Types.Extensions.Inte
   affiliatedSellerIdsJson?: boolean
   independenceStatement?: boolean
   independenceDeclaredAt?: boolean
+  kind?: boolean
   dailyCapacity?: boolean
   defaultFeeMinor?: boolean
   feeCurrency?: boolean
@@ -1223,6 +1262,7 @@ export type InspectionAgencySelectScalar = {
   affiliatedSellerIdsJson?: boolean
   independenceStatement?: boolean
   independenceDeclaredAt?: boolean
+  kind?: boolean
   dailyCapacity?: boolean
   defaultFeeMinor?: boolean
   feeCurrency?: boolean
@@ -1231,7 +1271,7 @@ export type InspectionAgencySelectScalar = {
   updatedAt?: boolean
 }
 
-export type InspectionAgencyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "legalName" | "registrationNumber" | "country" | "contactEmail" | "contactPhone" | "accreditation" | "categoryIdsJson" | "countriesJson" | "status" | "suspendedReason" | "affiliatedSellerIdsJson" | "independenceStatement" | "independenceDeclaredAt" | "dailyCapacity" | "defaultFeeMinor" | "feeCurrency" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionAgency"]>
+export type InspectionAgencyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "legalName" | "registrationNumber" | "country" | "contactEmail" | "contactPhone" | "accreditation" | "categoryIdsJson" | "countriesJson" | "status" | "suspendedReason" | "affiliatedSellerIdsJson" | "independenceStatement" | "independenceDeclaredAt" | "kind" | "dailyCapacity" | "defaultFeeMinor" | "feeCurrency" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionAgency"]>
 export type InspectionAgencyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.InspectionAgency$membersArgs<ExtArgs>
   jobs?: boolean | Prisma.InspectionAgency$jobsArgs<ExtArgs>
@@ -1269,6 +1309,11 @@ export type $InspectionAgencyPayload<ExtArgs extends runtime.Types.Extensions.In
     affiliatedSellerIdsJson: runtime.JsonValue | null
     independenceStatement: string | null
     independenceDeclaredAt: Date | null
+    /**
+     * Who the agency is to the goods. Only THIRD_PARTY work is independent; an
+     * internal or a seller's own inspection is shown as such on every report.
+     */
+    kind: $Enums.InspectionAgencyKind
     /**
      * Inspections it can carry out on one day. Booking refuses a full day.
      */
@@ -1668,6 +1713,7 @@ export interface InspectionAgencyFieldRefs {
   readonly affiliatedSellerIdsJson: Prisma.FieldRef<"InspectionAgency", 'Json'>
   readonly independenceStatement: Prisma.FieldRef<"InspectionAgency", 'String'>
   readonly independenceDeclaredAt: Prisma.FieldRef<"InspectionAgency", 'DateTime'>
+  readonly kind: Prisma.FieldRef<"InspectionAgency", 'InspectionAgencyKind'>
   readonly dailyCapacity: Prisma.FieldRef<"InspectionAgency", 'Int'>
   readonly defaultFeeMinor: Prisma.FieldRef<"InspectionAgency", 'BigInt'>
   readonly feeCurrency: Prisma.FieldRef<"InspectionAgency", 'String'>

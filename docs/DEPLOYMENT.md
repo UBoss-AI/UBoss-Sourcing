@@ -196,6 +196,7 @@ binds a public port.
 | **Storefront + Seller Hub** | `apps/customer-web/` | `npm ci && npm run build` → `dist/` | static files served by nginx | — | **Public** | `VITE_API_BASE_URL` (**build-time**) | none | none | nginx `try_files` | Stateless; serve from CDN |
 | **Admin console** | `apps/admin-web/` | `npm ci && npm run build` → `dist/` | static files served by nginx | — | **Public**, `X-Robots-Tag: noindex`; IP allowlist available (commented) in the vhost | `VITE_API_BASE_URL` | none | none | nginx `try_files` | Stateless |
 | **Logistics portal** | `apps/logistics-web/` | `npm ci && npm run build` → `dist/` | static files served by nginx | — | **Public**, `X-Robots-Tag: noindex` | `VITE_API_BASE_URL` | none | none | nginx `try_files` | Stateless. Built and served **only when `FEATURE_LOGISTICS_PORTAL=true`** |
+| **Audit Console** | `apps/audit-web/` | `npm ci && npm run build` → `dist/` | static files served by nginx | — | **Public**, `X-Robots-Tag: noindex`; every account needs a one-time code (TOTP) | `VITE_API_BASE_URL` | none | none | nginx `try_files` | Stateless. Built and served **only when `FEATURE_AUDIT_CONSOLE=true`**. §11.13 |
 | **Database** | `backend/prisma/` | `prisma migrate deploy` | `mariadb.service` | 3306 | **Loopback only** (`bind-address = 127.0.0.1` in `deploy/mariadb/uboss.cnf`) | — | 200 GB NVMe | — | `SELECT 1` via `/health/ready` | Vertical first, then move off-box. §24 |
 | **nginx** | `deploy/nginx/` | — | `nginx.service` | 80/443 | **Public** | — | serves `/srv/uboss/current/*` | — | `nginx -t`, `systemctl status` | Single instance on one box |
 | **Backup timer** | `deploy/systemd/uboss-backup.timer` | — | `uboss-backup.service` nightly 02:30 UTC, `Persistent=true` | — | — | `UBOSS_BACKUP_PASSPHRASE` | writes `/srv/uboss/backups` | the backup itself | backup age alert (§18) | one per box |
@@ -1116,7 +1117,8 @@ blocker **B5**, now fixed — the `carriers` block is in `deploy/nginx/uboss.con
 |---|---|---|---|---|
 | Storefront + Seller Hub | `shop.<DOMAIN>` | `customer-web/dist` | `CUSTOMER_WEB_ORIGIN`, `CUSTOMER_WEB_PUBLIC_URL` | **Present** |
 | Admin console | `admin.<DOMAIN>` | `admin-web/dist` | `ADMIN_WEB_ORIGIN`, `ADMIN_WEB_PUBLIC_URL` | **Present** |
-| Logistics portal | `carriers.<DOMAIN>` | `logistics-web/dist` | `LOGISTICS_WEB_ORIGIN`, `LOGISTICS_WEB_PUBLIC_URL` | **MISSING — must be written** |
+| Logistics portal | `carriers.<DOMAIN>` | `logistics-web/dist` | `LOGISTICS_WEB_ORIGIN`, `LOGISTICS_WEB_PUBLIC_URL` | **Present** (B5) |
+| Audit Console | `audit.<DOMAIN>` | `audit-web/dist` | `AUDIT_WEB_ORIGIN`, `AUDIT_WEB_PUBLIC_URL` | **Present** — only serves anything when `FEATURE_AUDIT_CONSOLE=true`. §11.13 |
 | Seller storefronts | `*.shops.<DOMAIN>` | resolved per request from the `Host` header | `SELLER_STOREFRONT_DOMAIN` | **MISSING — needs a wildcard vhost and a wildcard certificate.** Off by default; leave `SELLER_STOREFRONT_DOMAIN` empty until needed |
 | API | **no separate host** — `/api/v1` on each app host | `API_PUBLIC_URL` | — | Present |
 | Media / CDN | `cdn.<DOMAIN>` → object storage or CDN | `STORAGE_PUBLIC_BASE_URL` | — | n/a — off this box |
@@ -1139,6 +1141,7 @@ administrator signs in and is instantly signed out **[VR]**.
 | A | `shop` | `<VPS_IP>` | **300 during cutover**, 3600 after | |
 | A | `admin` | `<VPS_IP>` | 300 → 3600 | |
 | A | `carriers` | `<VPS_IP>` | 300 → 3600 | |
+| A | `audit` | `<VPS_IP>` | 300 → 3600 | Only once `FEATURE_AUDIT_CONSOLE=true`. §11.13 |
 | A | `@` | `<VPS_IP>` or a redirect host | 3600 | **[OD]** what the apex serves |
 | CNAME | `cdn` | object-storage / CDN hostname | 3600 | |
 | AAAA | as above | IPv6 | 300 → 3600 | **[OD]** — see below |
@@ -1167,6 +1170,9 @@ nslookup -type=AAAA shop.<DOMAIN>
 ```bash
 # [S] — DNS must already point here, and port 80 must be open.
 sudo nginx -t
+# Add -d audit.<DOMAIN> only when the Audit Console is switched on (§11.13).
+# Not using it? Delete its server block and its port-80 name first, or nginx
+# refuses to load a block whose certificate does not exist.
 sudo certbot --nginx -d shop.<DOMAIN> -d admin.<DOMAIN> -d carriers.<DOMAIN> \
      --agree-tos -m <ops-email> --no-eff-email
 ```
@@ -1263,7 +1269,8 @@ stylesheet is still refused **[VR]**.
 
 ### 11.5 CORS
 
-Built from `ADMIN_WEB_ORIGIN` + `CUSTOMER_WEB_ORIGIN` + `LOGISTICS_WEB_ORIGIN`,
+Built from `ADMIN_WEB_ORIGIN` + `CUSTOMER_WEB_ORIGIN` + `LOGISTICS_WEB_ORIGIN`
++ `AUDIT_WEB_ORIGIN`,
 exact-match, `credentials: true` **[VR]**. Each must match scheme, host and
 port exactly, with **no trailing slash**. A request with no `Origin` header
 (server-to-server, webhooks) is allowed — correct, since those paths are
@@ -1461,6 +1468,67 @@ server {
 Add `carriers.<DOMAIN>` to the port-80 redirect block's `server_name` too, or
 ACME renewal for it will fail.
 
+### 11.13 Putting the Audit Console on its own domain
+
+The Audit Console is where auditors, inspectors and compliance reviewers
+work. Some of them work for outside inspection agencies, so it gets its own
+hostname, exactly like the carrier portal. The `audit.example.com` server
+block is already in `deploy/nginx/uboss.conf`. It is **optional**: nothing
+is built or served until you switch it on.
+
+**Pushing to `main` is not enough on its own.** A push deploys the files.
+Nobody can reach the console until the DNS name, the certificate and the
+nginx block exist **and** `FEATURE_AUDIT_CONSOLE=true` is set on the API.
+
+Do these once, in order:
+
+1. **DNS.** Add an `A` record for `audit` pointing at the server's IPv4
+   address. Add an `AAAA` record too only if the server has working IPv6
+   (§11.2). Check it: `nslookup audit.<DOMAIN>`.
+2. **API settings.** In `/srv/uboss/shared/.env` add:
+
+   ```
+   FEATURE_AUDIT_CONSOLE=true
+   AUDIT_WEB_ORIGIN=https://audit.<DOMAIN>
+   AUDIT_WEB_PUBLIC_URL=https://audit.<DOMAIN>
+   COOKIE_SECURE=true
+   COOKIE_DOMAIN=.<DOMAIN>
+   ```
+
+   `COOKIE_SECURE` and `COOKIE_DOMAIN` are probably set already; they are
+   shared by every host. `AUDIT_WEB_ORIGIN` lets the console through the
+   API's origin check. `AUDIT_WEB_PUBLIC_URL` is where invitation and
+   password-reset emails point, and what `release.sh` builds the console
+   against.
+3. **nginx.** Copy the updated `deploy/nginx/uboss.conf` into place. Replace
+   `example.com` with your domain. `audit.<DOMAIN>` must be in the port-80
+   block's `server_name`, or certbot cannot prove you own it.
+4. **Certificate.** `sudo certbot --nginx -d audit.<DOMAIN>`, then
+   `sudo nginx -t` and `sudo systemctl reload nginx`.
+5. **Build and restart.** Run `release.sh` (or push to `main` / run the
+   deploy workflow). It builds `apps/audit-web` because the flag is on, and
+   restarts the API so it reads the new settings.
+6. **GitHub, only if you deploy from GitHub Actions.** Add the repository
+   variable `AUDIT_API_BASE` = `https://audit.<DOMAIN>/api/v1` under
+   Settings → Secrets and variables → Actions → Variables. Without it the
+   workflows skip the console. Set it **after** steps 1-4, because the
+   Docker workflow checks the live site once it is set.
+7. **Check it from outside:**
+
+   ```powershell
+   curl.exe -I https://audit.<DOMAIN>/
+   curl.exe -s https://audit.<DOMAIN>/health/ready
+   ```
+
+   The first must answer `200` with `X-Robots-Tag: noindex`. The second must
+   say the API is ready. A `404` for `/` means the console was not built:
+   check the flag and `AUDIT_WEB_PUBLIC_URL`, then release again.
+
+Sign-in at `/api/v1/audit/auth/...` is held to the tighter sign-in rate limit
+like every other surface. Nobody can sign up here: an administrator invites
+each person from the Admin Panel, and each one must set up a one-time code
+app on first sign-in.
+
 ---
 
 ## 12. Environment and secrets
@@ -1491,6 +1559,9 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `ADMIN_WEB_ORIGIN` | API | CORS + links | yes | no | `https://admin.<DOMAIN>` | `http://localhost:5173` | n/a | origin list | CORS refuses the console |
 | `LOGISTICS_WEB_ORIGIN` | API | CORS | conditional | no | `https://carriers.<DOMAIN>` | — | n/a | required when the portal is on | Portal cannot call the API |
 | `LOGISTICS_WEB_PUBLIC_URL` | API | Invitation links | conditional | no | same, **https required in production** | — | n/a | https check in production | Invitations point nowhere |
+| `FEATURE_AUDIT_CONSOLE` | API, `release.sh` | Turns the Audit Console on | no | no | `true` only if you use it | `false` | n/a | boolean | Off: no console routes, and `release.sh` does not build the app |
+| `AUDIT_WEB_ORIGIN` | API | CORS | conditional | no | `https://audit.<DOMAIN>` | `http://localhost:5176` | n/a | needed when the console is on | Console cannot call the API |
+| `AUDIT_WEB_PUBLIC_URL` | API, `release.sh` | Invitation and password-reset links; the build's API base | conditional | no | same, https | `http://localhost:5176` | n/a | needed when the console is on | Invitations point nowhere, and `release.sh` stops |
 | `EMAIL_DRIVER` | API, worker | Mail transport | yes | no | `smtp` | `log` | n/a | production guard | **Refuses to start** on `log` |
 | `STORAGE_DRIVER` | API, worker | Media storage | yes | no | **`s3`** | `local` | n/a | production guard; `s3` requires bucket + both keys | `local` **refuses to start** in production — a VPS disk is one disk |
 | `S3_SSE` / `S3_SSE_KMS_KEY_ID` | API, worker | Encryption at rest for every stored object (pictures, documents, uploads) | yes when `STORAGE_DRIVER=s3` | the key id is not a secret | `AES256`, `aws:kms` (with the key id), or `provider-managed` when the provider encrypts every object anyway (Cloudflare R2; AWS S3 since January 2023; a bucket with default encryption on) | empty | n/a | `env.ts` enum; `aws:kms` needs `S3_SSE_KMS_KEY_ID` | **Refuses to start** in production when empty — see *Encryption at rest* below |

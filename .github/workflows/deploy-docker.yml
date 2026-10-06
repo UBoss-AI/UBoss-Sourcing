@@ -2,11 +2,12 @@
 # Push-to-live for Gloviaa's Docker Compose install.
 #
 # Every push to `main` runs CI. When CI finishes green, this builds that exact
-# commit's customer, admin and logistics sites and puts them live. A red CI run
-# deploys nothing. It can also be started by hand (Actions -> Deploy front ends
-# (Docker) -> Run workflow).
+# commit's customer, admin and logistics sites (and the Audit Console, when
+# AUDIT_API_BASE is set) and puts them live. A red CI run deploys nothing. It
+# can also be started by hand (Actions -> Deploy front ends (Docker) -> Run
+# workflow).
 #
-# Builds the three frontends and backend. The server builds a revision-tagged
+# Builds the frontends and backend. The server builds a revision-tagged
 # API image, backs up production, migrates, and checks readiness before the
 # frontends switch. Production environment files remain on the VPS.
 #
@@ -17,6 +18,8 @@
 #   Secrets:       DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER, DEPLOY_KNOWN_HOSTS
 #   Variables:     CUSTOMER_API_BASE, ADMIN_API_BASE, LOGISTICS_API_BASE,
 #                  CUSTOMER_SITE_URL
+#                  AUDIT_API_BASE (optional - the Audit Console is built,
+#                  shipped and checked only when it is set)
 #
 # The key is restricted on the server to one program, uboss-deploy-gate, which
 # accepts only `receive <release>` and `activate <release>`.
@@ -65,6 +68,7 @@ jobs:
           CUSTOMER_API_BASE: ${{ vars.CUSTOMER_API_BASE }}
           ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
           LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+          AUDIT_API_BASE: ${{ vars.AUDIT_API_BASE }}
           CUSTOMER_SITE_URL: ${{ vars.CUSTOMER_SITE_URL }}
         run: |
           set -euo pipefail
@@ -77,6 +81,12 @@ jobs:
           ( cd apps/customer-web  && npm ci && VITE_API_BASE_URL="$CUSTOMER_API_BASE" VITE_PUBLIC_SITE_URL="$CUSTOMER_SITE_URL" npm run build )
           ( cd apps/admin-web     && npm ci && VITE_API_BASE_URL="$ADMIN_API_BASE"     npm run build )
           ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
+          # Optional, like FEATURE_AUDIT_CONSOLE on the API: unset means not built.
+          if [ -n "$AUDIT_API_BASE" ]; then
+            ( cd apps/audit-web   && npm ci && VITE_API_BASE_URL="$AUDIT_API_BASE"     npm run build )
+          else
+            echo "AUDIT_API_BASE is not set - not building the Audit Console."
+          fi
 
       - name: Build the backend
         env:
@@ -97,8 +107,11 @@ jobs:
       - name: Package and checksum
         run: |
           set -euo pipefail
+          optional=()
+          if [ -d apps/audit-web/dist ]; then optional+=(apps/audit-web/dist); fi
           tar -czf "uboss-web-${RELEASE_SHA}.tgz" \
             apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist \
+            "${optional[@]}" \
             backend/dist backend/prisma backend/prisma.config.ts \
             backend/package.json backend/package-lock.json
           sha256sum "uboss-web-${RELEASE_SHA}.tgz" > "uboss-web-${RELEASE_SHA}.tgz.sha256"
@@ -164,6 +177,7 @@ jobs:
           CUSTOMER_SITE_URL: ${{ vars.CUSTOMER_SITE_URL }}
           ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
           LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+          AUDIT_API_BASE: ${{ vars.AUDIT_API_BASE }}
         run: |
           set -euo pipefail
           check() {
@@ -180,4 +194,7 @@ jobs:
           check customer-web  "$CUSTOMER_SITE_URL"
           check admin-web     "${ADMIN_API_BASE%/api/v1}"
           check logistics-web "${LOGISTICS_API_BASE%/api/v1}"
+          if [ -n "$AUDIT_API_BASE" ]; then
+            check audit-web   "${AUDIT_API_BASE%/api/v1}"
+          fi
           curl -fsS --max-time 20 "${CUSTOMER_SITE_URL%/}/health/ready"

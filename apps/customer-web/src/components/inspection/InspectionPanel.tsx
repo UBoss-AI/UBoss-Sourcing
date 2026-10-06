@@ -9,12 +9,56 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Input, Select, Textarea } from '@/components/ui';
-import { useI18n } from '@/i18n/i18n-context';
+import { Badge, Button, Card, Input, Select, Textarea, type BadgeTone } from '@/components/ui';
+import { useI18n, type Translate, type TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
-import { submitCapa, submitReadiness, uploadCorrectiveEvidence, type InspectionDefect, type InspectionJobView, type InspectionView } from '@/lib/inspection';
+import {
+  downloadInspectionReport,
+  reportLimitations,
+  submitCapa,
+  submitReadiness,
+  uploadCorrectiveEvidence,
+  type InspectionDefect,
+  type InspectionJobView,
+  type InspectionReportView,
+  type InspectionView,
+} from '@/lib/inspection';
 import { ReferenceSample } from './ReferenceSample';
+
+/** Requirement statuses with words of their own; anything newer is shown as sent. */
+const REQUIREMENT_STATUSES = new Set([
+  'NOT_REQUIRED', 'AWAITING_BOOKING', 'BOOKED', 'IN_PROGRESS', 'REPORT_IN_REVIEW', 'FAILED', 'BLOCKED_BY_NCR',
+  'RELEASE_PENDING_APPROVAL', 'RELEASED', 'RELEASED_CONDITIONALLY', 'REEVALUATION_REQUIRED', 'DISPATCHED', 'ON_HOLD',
+]);
+const RESULT_TONES: Record<string, BadgeTone> = { PASS: 'success', FAIL: 'danger', INCONCLUSIVE: 'warning' };
+
+function requirementStatusLabel(t: Translate, status: string): string {
+  return REQUIREMENT_STATUSES.has(status) ? t(`orderMilestones.inspectionStatus.${status}` as TranslationKey) : status;
+}
+
+/** "Passed", "Failed", "Inconclusive - on hold"; a result this build does not know is shown as sent. */
+function inspectionResultLabel(t: Translate, result: string): string {
+  return result in RESULT_TONES ? t(`inspection.result.${result}` as TranslationKey) : result;
+}
+
+function ReportDownload({ report, audience, withRevision }: { report: InspectionReportView; audience: 'BUYER' | 'SELLER'; withRevision: boolean }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const toast = useToast();
+  const download = useMutation({
+    mutationFn: () => downloadInspectionReport(audience, report.id ?? ''),
+    onError: (failure) => { toast.error(errorMessage(t, failure)); },
+  });
+  // Only a signed report has a PDF; a report without an id cannot be asked for.
+  if (report.status !== 'SIGNED' || report.id === undefined || report.id === '') return null;
+  return (
+    <Button size="sm" variant="secondary" disabled={download.isPending} onClick={() => { download.mutate(); }}>
+      {withRevision && report.revision !== undefined
+        ? t('inspection.downloadPdfRevision', { revision: String(report.revision) })
+        : t('inspection.downloadPdf')}
+    </Button>
+  );
+}
 
 function ReadinessForm({ job, onDone }: { job: InspectionJobView; onDone: () => void }): React.JSX.Element {
   const { t } = useI18n();
@@ -94,7 +138,9 @@ export function InspectionPanel({ view, audience, queryKey }: { view: Inspection
     <Card title={t('inspection.title')} bodyClassName="space-y-4 px-5 py-4 text-sm">
       <div className="flex flex-wrap items-center gap-2">
         <Badge>{requirement.level}</Badge>
-        <Badge tone={requirement.gate.allowed === true ? 'success' : 'action'}>{requirement.status}</Badge>
+        <Badge tone={requirement.gate.allowed === true ? 'success' : requirement.status === 'ON_HOLD' ? 'warning' : 'action'}>
+          {requirementStatusLabel(t, requirement.status)}
+        </Badge>
         <span className="text-ink-muted">{requirement.gate.sentence}</span>
       </div>
       <ReferenceSample purchaseOrder={requirement.purchaseOrder} referenceSample={requirement.referenceSample} />
@@ -108,12 +154,33 @@ export function InspectionPanel({ view, audience, queryKey }: { view: Inspection
             {[job.agency?.name, job.inspector?.fullName, formatDateTime(job.scheduledFor), job.inspectionPoint?.label, job.payer].filter(Boolean).join(' · ')}
           </p>
           {job.report !== null && (
-            <p className="mt-2">
-              {t('inspection.report')}: <strong>{job.report.result ?? job.report.status}</strong>
-              {job.report.signedAt !== null && ` · ${t('inspection.signedBy', { name: job.report.signedByName ?? '—' })} ${formatDateTime(job.report.signedAt)}`}
-              {job.report.summary !== null && <span className="block text-ink-muted">{job.report.summary}</span>}
-            </p>
+            <div className="mt-2 space-y-1">
+              <p>
+                {t('inspection.report')}:{' '}
+                {job.report.result === null ? (
+                  <strong>{job.report.status}</strong>
+                ) : (
+                  <Badge tone={RESULT_TONES[job.report.result] ?? 'neutral'}>{inspectionResultLabel(t, job.report.result)}</Badge>
+                )}
+                {job.report.signedAt !== null && ` · ${t('inspection.signedBy', { name: job.report.signedByName ?? '—' })} ${formatDateTime(job.report.signedAt)}`}
+                {job.report.summary !== null && <span className="block text-ink-muted">{job.report.summary}</span>}
+              </p>
+              {reportLimitations(job.report) !== null && (
+                <p className="text-ink-muted">{t('inspection.limitations', { limitations: reportLimitations(job.report) ?? '' })}</p>
+              )}
+            </div>
           )}
+          {(() => {
+            const signed = (job.reports ?? (job.report === null ? [] : [job.report])).filter((report) => report.status === 'SIGNED' && report.id !== undefined);
+            if (signed.length === 0) return null;
+            return (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {signed.map((report) => (
+                  <ReportDownload key={report.id} report={report} audience={audience} withRevision={signed.length > 1} />
+                ))}
+              </div>
+            );
+          })()}
           {job.samplingRecord != null && (
             <p className="mt-1 text-xs text-ink-muted">
               {t('inspection.samplingLine', {

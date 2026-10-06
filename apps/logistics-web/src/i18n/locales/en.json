@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Search the catalogue",
   "errorPage.search.placeholder": "Search products, brands or codes",
   "errorPage.search.submit": "Search",
-  "errorPage.notFound.message": "The link may be out of date, or the page may have moved. Check the address, or go back to the dashboard."
+  "errorPage.notFound.message": "The link may be out of date, or the page may have moved. Check the address, or go back to the dashboard.",
+  "shipment.inspection.released": "Inspection: released. These goods may leave.",
+  "shipment.inspection.notNeeded": "No inspection needed for this shipment.",
+  "shipment.inspection.held": "Held by inspection: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "the order must be inspected before it leaves, and no inspection has been booked yet.",
+  "shipment.inspection.reason.IN_PROGRESS": "the inspection is not finished yet.",
+  "shipment.inspection.reason.FAILED": "the inspection failed. The goods may not leave until a re-inspection passes or a release is approved.",
+  "shipment.inspection.reason.INCONCLUSIVE": "the inspection was inconclusive. The goods are on hold until a re-inspection decides or a release is approved.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "a major finding is still open and must be corrected and verified first.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "a release is waiting for a second approver.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "the goods, packages, container or seal changed after the inspection, so it must be re-evaluated before dispatch.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "the buyer is still within the period to review the inspection report."
 }

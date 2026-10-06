@@ -672,6 +672,23 @@ const housekeepingSweep: JobHandler = async () => {
   } catch (error) {
     logger.error({ err: error }, 'supplier verification expiry warnings failed');
   }
+
+  /*
+   * Audit Console: qualifications whose documents have lapsed become EXPIRED,
+   * and reviewers are told about documents expiring in the next thirty days.
+   * The certificate sweep above already sends affected qualifications back
+   * for re-review; this records the ones whose own expiry date has passed.
+   */
+  try {
+    const { expireQualifications } = await import('../modules/compliance/case.service.js');
+    const { expireComplianceDocuments, warnExpiringDocuments } = await import('../modules/compliance/document.service.js');
+    const documents = await expireComplianceDocuments();
+    const qualifications = await expireQualifications();
+    const warned = await warnExpiringDocuments(30);
+    if (documents + qualifications + warned > 0) logger.info({ documents, qualifications, warned }, 'compliance expiry pass');
+  } catch (error) {
+    logger.error({ err: error }, 'compliance expiry pass failed');
+  }
 };
 
 /**

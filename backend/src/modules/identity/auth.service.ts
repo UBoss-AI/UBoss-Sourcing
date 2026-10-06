@@ -47,7 +47,7 @@ import { issueSession, revokeAllUserSessions, type IssuedSession } from './sessi
  * claim and once against the `users.type` row. A token minted for one surface
  * therefore cannot reach another even if the signing key were shared.
  */
-export type UserKind = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS';
+export type UserKind = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS' | 'AUDIT';
 
 export interface LoginInput {
   email: string;

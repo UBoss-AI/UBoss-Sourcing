@@ -1,7 +1,7 @@
 /**
  * The pre-shipment inspection status on an order card (ENH-010).
  *
- * One of seven card statuses the server works out; nothing when inspection has
+ * One of the card statuses the server works out; nothing when inspection has
  * not been decided for the order yet. Shared by the buyer's order list and
  * Seller Hub's, so both read the same words in the same colours.
  */
@@ -16,6 +16,9 @@ const TONES: Record<string, BadgeTone> = {
   NCR: 'danger',
   REINSPECTION: 'warning',
   RELEASED: 'success',
+  // An inconclusive report: held like a failure, without a finding. The server
+  // currently words it as REQUIRED on a card; this keeps a newer one readable.
+  ON_HOLD: 'warning',
 };
 
 export function InspectionStatusBadge({ status }: { status: string | null | undefined }): React.JSX.Element | null {

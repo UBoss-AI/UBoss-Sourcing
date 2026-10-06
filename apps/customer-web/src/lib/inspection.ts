@@ -1,10 +1,45 @@
 /**
  * Inspection, as the storefront sees it: the buyer's timeline, the seller's
- * readiness and corrective actions, and the agency portal (checklist Master
- * rows 23, 41, 45-54, 94, 95). The server decides every status, result and
- * permission; this file only carries its answers and the requests.
+ * readiness and corrective actions (checklist Master rows 23, 41, 94, 95).
+ * The server decides every status, result and permission; this file only
+ * carries its answers and the requests.
+ *
+ * The agency portal is not here any more: agencies, inspectors and QA work in
+ * the Audit Console, a separate application with its own sign-in.
  */
-import { api, newIdempotencyKey, postFile } from '@/lib/api';
+import { ApiError, api, newIdempotencyKey, postFile, type ApiErrorBody } from '@/lib/api';
+import { resolveApiUrl } from '@/lib/seller-documents';
+
+/**
+ * One report as the buyer or seller sees it. `result` is PASS, FAIL or
+ * INCONCLUSIVE - the last holds the goods like a FAIL without saying they are bad.
+ */
+export interface InspectionReportView {
+  /** Absent from an older server; without it the PDF cannot be asked for. */
+  id?: string;
+  revision?: number;
+  status: string;
+  result: string | null;
+  summary: string | null;
+  /** What the inspector could not check, when the server sends it. */
+  limitations?: string | null;
+  /** The signed content; null for the buyer. May carry `limitations`. */
+  content?: unknown;
+  signedAt: string | null;
+  signedByName: string | null;
+}
+
+/** The inspector's stated limitations, wherever the payload carries them. */
+export function reportLimitations(report: InspectionReportView): string | null {
+  const direct = report.limitations;
+  if (typeof direct === 'string' && direct.trim() !== '') return direct.trim();
+  const content = report.content;
+  if (typeof content === 'object' && content !== null && 'limitations' in content) {
+    const value = (content as { limitations?: unknown }).limitations;
+    if (typeof value === 'string' && value.trim() !== '') return value.trim();
+  }
+  return null;
+}
 
 export interface InspectionDefect {
   id: string;
@@ -31,7 +66,9 @@ export interface InspectionJobView {
   inspectionPoint: { label?: string; city?: string; country?: string } | null;
   readinessSubmittedAt: string | null;
   inspector: { fullName?: string } | null;
-  report: { status: string; result: string | null; summary: string | null; signedAt: string | null; signedByName: string | null } | null;
+  /** Every signed report on the job, oldest first, where the server sends them. */
+  reports?: InspectionReportView[];
+  report: InspectionReportView | null;
   defects?: InspectionDefect[];
   evidence?: { id: string; purpose: string; defectId: string | null; fileName: string }[];
   samplingRecord?: { lotReference?: string; sampledQuantity?: number; acceptedQuantity?: number; rejectedQuantity?: number } | null;
@@ -78,8 +115,6 @@ export interface InspectionView {
 export const inspectionKeys = {
   buyer: (orderId: string) => ['inspection', 'buyer', orderId] as const,
   seller: (groupId: string) => ['inspection', 'seller', groupId] as const,
-  agency: ['inspection', 'agency'] as const,
-  agencyJob: (jobId: string) => ['inspection', 'agency', jobId] as const,
 };
 
 export async function fetchBuyerInspections(orderId: string): Promise<InspectionView[]> {
@@ -131,53 +166,6 @@ export const submitReadiness = (jobId: string, body: unknown): Promise<unknown> 
 export const submitCapa = (defectId: string, body: { sellerResponse: string; correctiveAction: string }): Promise<unknown> =>
   api.post(`/seller/inspection/defects/${defectId}/capa`, body);
 
-export interface AgencyJobRow {
-  id: string;
-  jobNumber: string;
-  kind?: string;
-  status: string;
-  scheduledFor: string | null;
-  sellerName?: string;
-  sellerOrderNumber?: string;
-  orderNumber?: string;
-  acceptDueAt: string | null;
-  reportDueAt: string | null;
-  slaState: 'ON_TIME' | 'ACCEPT_OVERDUE' | 'REPORT_OVERDUE';
-  inspectorMemberId: string | null;
-}
-
-export interface AgencyDashboard {
-  counts: Record<'offered' | 'toAssign' | 'assigned' | 'inProgress' | 'awaitingQa' | 'completed' | 'overdue', number>;
-  jobs: AgencyJobRow[];
-  inspectors: { id: string; fullName: string; role: string; status: string; identityVerifiedAt: string | null; credentialExpiresAt: string | null }[];
-  reports?: { id: string; jobId: string; jobNumber: string; revision: number; status: string; result: string | null; submittedAt: string | null; signedAt: string | null; returnedAt: string | null }[];
-  invoices: { id: string; jobNumber: string; invoiceNumber: string; amountMinor: string; currency: string; payer: string; status: string }[];
-}
-
-export const fetchAgencyDashboard = (): Promise<AgencyDashboard> => api.get('/inspection/agency/dashboard');
-
-export const fetchAgencyMe = (): Promise<{ membership: { agencyName: string; fullName: string; role: string; permissions: string[] } }> =>
-  api.get('/inspection/agency/me');
-
-export async function fetchAgencyJobs(): Promise<AgencyJobRow[]> {
-  return (await api.get<{ jobs: AgencyJobRow[] }>('/inspection/agency/jobs')).jobs;
-}
-
-export async function fetchAgencyJob(jobId: string): Promise<Record<string, unknown>> {
-  return (await api.get<{ job: Record<string, unknown> }>(`/inspection/agency/jobs/${jobId}`)).job;
-}
-
-export const agencyAction = (jobId: string, action: string, body: unknown = {}): Promise<unknown> =>
-  api.post(`/inspection/agency/jobs/${jobId}/${action}`, body, { idempotencyKey: newIdempotencyKey() });
-
-export function uploadAgencyEvidence(jobId: string, file: File, fields: Record<string, string>): Promise<unknown> {
-  const form = new FormData();
-  for (const [key, value] of Object.entries(fields)) form.append(key, value);
-  form.append('capturedAt', new Date().toISOString());
-  form.append('file', file);
-  return postFile(`/inspection/agency/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
-}
-
 export function uploadCorrectiveEvidence(jobId: string, defectId: string, file: File): Promise<unknown> {
   const form = new FormData();
   form.append('purpose', 'CAPA');
@@ -186,23 +174,42 @@ export function uploadCorrectiveEvidence(jobId: string, defectId: string, file: 
   return postFile(`/seller/inspection/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
 }
 
-/** ENH-011: one day of the agency calendar - capacity, booked jobs and seller readiness. */
-export interface AgencyCalendarDay {
-  date: string;
-  booked: number;
-  capacity: number;
-  full: boolean;
-  jobs: {
-    id: string;
-    jobNumber: string;
-    status: string;
-    time: string;
-    inspectionPointType: string;
-    inspectionPoint: { label?: string; city?: string; port?: string; country?: string } | null;
-    readiness: 'READY' | 'NOT_READY';
-    readyDate: string | null;
-  }[];
+/**
+ * Save a signed report as a PDF.
+ *
+ * The seller reads reports on their own orders; the buyer reads one only when
+ * the operator's policy lets buyers see it (the server answers 404 otherwise).
+ * Fetched with the session cookie rather than navigated to, so a refusal comes
+ * back as a sentence on this page - the same way receipts are downloaded.
+ */
+export async function downloadInspectionReport(audience: 'BUYER' | 'SELLER', reportId: string): Promise<void> {
+  const path = audience === 'SELLER'
+    ? `/api/v1/seller/inspection/reports/${encodeURIComponent(reportId)}/pdf`
+    : `/api/v1/inspection/buyer/reports/${encodeURIComponent(reportId)}/pdf`;
+  const response = await fetch(resolveApiUrl(path), { credentials: 'include' });
+  if (!response.ok) {
+    let body: { error?: ApiErrorBody } | null = null;
+    try {
+      body = (await response.json()) as { error?: ApiErrorBody };
+    } catch {
+      body = null;
+    }
+    throw new ApiError(
+      response.status,
+      body?.error ?? { code: 'UNEXPECTED_RESPONSE', message: `HTTP ${String(response.status)}` },
+    );
+  }
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? 'inspection-report.pdf';
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Revoking at once can cancel the download in some browsers.
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 10_000);
 }
-
-export const fetchAgencyCalendar = (from: string, days = 14): Promise<{ capacity: number; days: AgencyCalendarDay[] }> =>
-  api.get('/inspection/agency/calendar', { query: { from, days } });

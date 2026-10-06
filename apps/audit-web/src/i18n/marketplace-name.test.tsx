@@ -1,0 +1,86 @@
+/**
+ * `{{marketplace}}`: the operator's name, never the software vendor's.
+ *
+ * The carrier portal used to tell every carrier on every buyer's deployment
+ * that "Accounts are created by UBOSS operations" and to "Contact UBOSS
+ * operations". The catalogues now say `{{marketplace}}`, and
+ * `<MarketplaceName />` fills it from `GET /config`. See `setMarketplaceName`.
+ *
+ * Strings about the operator's own team doing the work ("Set by {{team}}
+ * operations") say `{{team}}` instead - `OPERATOR_TEAM_NAME`, which falls back
+ * to the marketplace's name. Both placeholders name the operator, so both are
+ * held to the same rules here.
+ */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { api } from '@/lib/api';
+import { i18n, NAMESPACE, setMarketplaceName, setTeamName } from './config';
+import { LANGUAGES } from './languages';
+import { MarketplaceName } from './MarketplaceName';
+import en from './locales/en.json';
+
+const WITH_NAME = Object.entries(en)
+  .filter(([, value]) => value.includes('{{marketplace}}') || value.includes('{{team}}'))
+  .map(([key]) => key as keyof typeof en);
+
+afterEach(async () => {
+  vi.restoreAllMocks();
+  setMarketplaceName(null);
+  setTeamName(null);
+  await i18n.changeLanguage('en');
+});
+
+describe('the marketplace name in the audit console', () => {
+  it('is used where the portal names who runs the marketplace', () => {
+    expect(WITH_NAME).toEqual(
+      expect.arrayContaining(['auth.noSelfSignup']),
+    );
+  });
+
+  it.each(LANGUAGES)('$english names nobody but the operator', async ({ code }) => {
+    await i18n.loadLanguages(code);
+    const catalogue = i18n.getResourceBundle(code, NAMESPACE) as Record<string, string>;
+    for (const value of Object.values(catalogue)) {
+      expect(value).not.toMatch(/UBOSS/);
+    }
+
+    await i18n.changeLanguage(code);
+    setMarketplaceName('Northwind Supply');
+    // No team name of its own: the team goes by the marketplace's name.
+    setTeamName(null);
+    for (const key of WITH_NAME) {
+      const text = i18n.t(key, { ns: NAMESPACE });
+      expect(text, `${code} ${key}`).toContain('Northwind Supply');
+      expect(text, `${code} ${key}`).not.toContain('{{');
+    }
+  });
+
+  it('is the product’s own name until the deployment’s arrives', () => {
+    expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).toContain('invited by Gloviaa Mart,');
+  });
+
+  it('names the marketplace, not the operator’s team, where an account comes from', () => {
+    setMarketplaceName('Gloviaa Mart');
+    setTeamName('UBoss');
+    expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).not.toContain('UBoss');
+  });
+
+  it('takes the name from GET /config', async () => {
+    const get = vi.spyOn(api, 'get').mockResolvedValue({ marketplace: { displayName: 'Northwind Supply' } });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    render(
+      <QueryClientProvider client={client}>
+        <MarketplaceName />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).toBe(
+        "There is no self sign-up. Accounts are invited by Northwind Supply, or by your inspection agency's administrator.",
+      );
+    });
+    expect(get).toHaveBeenCalledWith('/config');
+  });
+});

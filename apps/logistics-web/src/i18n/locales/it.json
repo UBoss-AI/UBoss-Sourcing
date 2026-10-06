@@ -1052,5 +1052,16 @@
   "errorPage.search.label": "Cerca nel catalogo",
   "errorPage.search.placeholder": "Cerca prodotti, marchi o codici",
   "errorPage.search.submit": "Cerca",
-  "errorPage.notFound.message": "Il link potrebbe non essere più valido oppure la pagina potrebbe essere stata spostata. Verifichi l'indirizzo oppure torni alla dashboard."
+  "errorPage.notFound.message": "Il link potrebbe non essere più valido oppure la pagina potrebbe essere stata spostata. Verifichi l'indirizzo oppure torni alla dashboard.",
+  "shipment.inspection.released": "Ispezione: merce svincolata. Può partire.",
+  "shipment.inspection.notNeeded": "Per questa spedizione non è necessaria alcuna ispezione.",
+  "shipment.inspection.held": "Trattenuta dall'ispezione: {{sentence}}",
+  "shipment.inspection.reason.NOT_BOOKED": "l'ordine deve essere ispezionato prima della partenza e non è ancora stata prenotata alcuna ispezione.",
+  "shipment.inspection.reason.IN_PROGRESS": "l'ispezione non è ancora terminata.",
+  "shipment.inspection.reason.FAILED": "l'ispezione non è stata superata. La merce non può partire finché una nuova ispezione non viene superata o uno svincolo non viene approvato.",
+  "shipment.inspection.reason.INCONCLUSIVE": "l'ispezione non è stata conclusiva. La merce resta trattenuta finché una nuova ispezione non decide o uno svincolo non viene approvato.",
+  "shipment.inspection.reason.BLOCKING_NCR_OPEN": "una non conformità grave è ancora aperta e deve prima essere corretta e verificata.",
+  "shipment.inspection.reason.RELEASE_PENDING_APPROVAL": "uno svincolo attende un secondo approvatore.",
+  "shipment.inspection.reason.SCOPE_CHANGED": "merce, colli, container o sigillo sono cambiati dopo l'ispezione, che deve quindi essere rivalutata prima della spedizione.",
+  "shipment.inspection.reason.BUYER_REVIEW_PERIOD": "l'acquirente è ancora nel periodo per esaminare il rapporto di ispezione."
 }

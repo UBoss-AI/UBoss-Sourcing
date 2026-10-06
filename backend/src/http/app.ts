@@ -172,6 +172,9 @@ import {
   registerSellerMessageRoutes,
 } from './routes/messages.js';
 import { registerAdminInspectionRoutes, registerAgencyInspectionRoutes, registerBuyerInspectionRoutes, registerSellerInspectionRoutes } from './routes/inspection.js';
+import { registerAuditConsoleRoutes } from './routes/audit.console.js';
+import { registerAdminAuditConsoleRoutes } from './routes/audit-console.admin.js';
+import { registerSellerComplianceRoutes } from './routes/seller.compliance.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
 import { AUDIT_EXPORT_HEADERS } from '../modules/audit/audit-log.read.js';
@@ -654,6 +657,9 @@ export async function buildApp() {
   // cookie jar and a different `users.type`, which is what stops a credential
   // minted here reaching the console or the storefront.
   await app.register(authRoutes('LOGISTICS'), { prefix: `${API_PREFIX}/logistics/auth` });
+  // The fourth audience: the Audit Console. Its own cookie jar and `users.type`,
+  // so no customer, seller, carrier or admin credential is ever an auditor's.
+  await app.register(authRoutes('AUDIT'), { prefix: `${API_PREFIX}/audit/auth` });
 
   // Public catalog: no auth. Every read is filtered by publicProductWhere().
   // Unauthenticated: the storefront needs branding and capability flags
@@ -682,8 +688,14 @@ export async function buildApp() {
   // decided in the console, and chargebacks from signed payment webhooks.
   // See `modules/disputes/`.
   await app.register(registerCustomerDisputeRoutes, { prefix: `${API_PREFIX}/disputes` });
-  // Inspection: agency portal, seller readiness and CAPA, buyer timeline, admin console.
-  await app.register(registerAgencyInspectionRoutes, { prefix: `${API_PREFIX}/inspection/agency` });
+  // Inspection: the agency's work (in the Audit Console), seller readiness and
+  // CAPA, buyer timeline, admin console.
+  await app.register(registerAgencyInspectionRoutes, { prefix: `${API_PREFIX}/audit/agency` });
+  // The Audit Console's own screens, and the Admin Panel's authority over it.
+  await app.register(registerAuditConsoleRoutes, { prefix: `${API_PREFIX}/audit` });
+  await app.register(registerAdminAuditConsoleRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Compliance in the Seller Hub: qualifications, product cases, documents.
+  await app.register(registerSellerComplianceRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerBuyerInspectionRoutes, { prefix: `${API_PREFIX}/inspection/buyer` });
   await app.register(registerSellerInspectionRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerAdminInspectionRoutes, { prefix: `${API_PREFIX}/admin` });

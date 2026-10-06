@@ -82,6 +82,11 @@ const PUBLIC: string[] = [
   'POST /api/v1/auth/verify-email/resend',
   'POST /api/v1/delivery/options',
   'POST /api/v1/erp-inbound/:slug',
+  // The Audit Console's sign-in, activation and password reset: signed-out by definition.
+  'POST /api/v1/audit/auth/invitations/accept',
+  'POST /api/v1/audit/auth/login',
+  'POST /api/v1/audit/auth/password/forgot',
+  'POST /api/v1/audit/auth/password/reset',
   'POST /api/v1/logistics/auth/invitations/accept',
   'POST /api/v1/logistics/auth/login',
   'POST /api/v1/logistics/auth/password/forgot',

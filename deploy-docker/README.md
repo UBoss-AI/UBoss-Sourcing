@@ -3,7 +3,8 @@
 For a server where the shop runs as a **Docker Compose project** — a folder such
 as `/srv/gloviaa` holding `compose.yml`, with nginx serving the three built
 sites from `apps/customer-web/dist`, `apps/admin-web/dist` and
-`apps/logistics-web/dist`.
+`apps/logistics-web/dist` — and, if you use it, the Audit Console from
+`apps/audit-web/dist`.
 
 After this one-time setup, **every push to `main` goes live by itself**:
 
@@ -109,6 +110,27 @@ outside the environment and cannot see those. No value ends with `/`.
 The admin and carrier site addresses are taken from their `..._API_BASE` with
 `/api/v1` removed.
 
+**Optional: the Audit Console.** Add a fifth variable, `AUDIT_API_BASE` =
+`https://audit.YOURDOMAIN.COM/api/v1`, only if you use it. Without it the
+console is not built, not sent and not checked. Before you add it, on the
+server:
+
+1. Point an `audit` DNS record at the server and get a certificate for
+   `audit.YOURDOMAIN.COM`.
+2. In `compose.yml`, bind-mount `apps/audit-web/dist` into the nginx
+   container, and give nginx a server block for `audit.YOURDOMAIN.COM`
+   modelled on the carrier one. `deploy/nginx/uboss.conf` has the block to
+   copy; `/api` is proxied on the same host.
+3. Set `FEATURE_AUDIT_CONSOLE=true`, `AUDIT_WEB_ORIGIN` and
+   `AUDIT_WEB_PUBLIC_URL` (both `https://audit.YOURDOMAIN.COM`) in the API's
+   environment file.
+4. **Run `setup.sh` again.** The activation program it installs is what
+   accepts `apps/audit-web/dist` in a release; an older copy refuses the
+   archive with "Unexpected archive path refused".
+
+The workflow checks the live console only once `AUDIT_API_BASE` is set, so
+setting it before the DNS name answers turns the deploy red.
+
 ## Step 4: Push
 
 Push to `main`. Watch **Actions**: **CI**, then **Deploy Gloviaa (Docker)**.
@@ -130,6 +152,9 @@ ls -1t /var/lib/uboss-deploy/backups/
 cd /srv/gloviaa && mkdir -p /root/restore && tar -xzf /var/lib/uboss-deploy/backups/web-YYYYMMDD-HHMMSS.tgz -C /root/restore
 for a in customer-web admin-web logistics-web; do rsync -a --delete /root/restore/apps/$a/dist/ /srv/gloviaa/apps/$a/dist/; done
 ```
+
+If you use the Audit Console, add `audit-web` to that list. A backup taken
+before the console was first deployed does not contain it.
 
 The ten newest backups are kept.
 

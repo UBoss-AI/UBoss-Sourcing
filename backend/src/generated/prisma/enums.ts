@@ -12,7 +12,8 @@
 export const UserType = {
   ADMIN: 'ADMIN',
   CUSTOMER: 'CUSTOMER',
-  LOGISTICS: 'LOGISTICS'
+  LOGISTICS: 'LOGISTICS',
+  AUDIT: 'AUDIT'
 } as const
 
 export type UserType = (typeof UserType)[keyof typeof UserType]
@@ -166,7 +167,8 @@ export const ActorType = {
   ADMIN: 'ADMIN',
   CUSTOMER: 'CUSTOMER',
   PROVIDER: 'PROVIDER',
-  LOGISTICS: 'LOGISTICS'
+  LOGISTICS: 'LOGISTICS',
+  AUDIT: 'AUDIT'
 } as const
 
 export type ActorType = (typeof ActorType)[keyof typeof ActorType]
@@ -3048,7 +3050,8 @@ export const InspectionRequirementStatus = {
   RELEASED: 'RELEASED',
   RELEASED_CONDITIONALLY: 'RELEASED_CONDITIONALLY',
   REEVALUATION_REQUIRED: 'REEVALUATION_REQUIRED',
-  DISPATCHED: 'DISPATCHED'
+  DISPATCHED: 'DISPATCHED',
+  ON_HOLD: 'ON_HOLD'
 } as const
 
 export type InspectionRequirementStatus = (typeof InspectionRequirementStatus)[keyof typeof InspectionRequirementStatus]
@@ -3125,6 +3128,7 @@ export type InspectionAgencyRole = (typeof InspectionAgencyRole)[keyof typeof In
 
 
 export const InspectionMemberStatus = {
+  INVITED: 'INVITED',
   ACTIVE: 'ACTIVE',
   DISABLED: 'DISABLED'
 } as const
@@ -3170,7 +3174,8 @@ export type InspectionReportStatus = (typeof InspectionReportStatus)[keyof typeo
 
 export const InspectionResult = {
   PASS: 'PASS',
-  FAIL: 'FAIL'
+  FAIL: 'FAIL',
+  INCONCLUSIVE: 'INCONCLUSIVE'
 } as const
 
 export type InspectionResult = (typeof InspectionResult)[keyof typeof InspectionResult]
@@ -3771,3 +3776,193 @@ export const RiskSignalStatus = {
 } as const
 
 export type RiskSignalStatus = (typeof RiskSignalStatus)[keyof typeof RiskSignalStatus]
+
+
+export const AuditStaffRole = {
+  SUPERVISOR: 'SUPERVISOR',
+  COMPLIANCE_REVIEWER: 'COMPLIANCE_REVIEWER'
+} as const
+
+export type AuditStaffRole = (typeof AuditStaffRole)[keyof typeof AuditStaffRole]
+
+
+export const AuditMemberStatus = {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type AuditMemberStatus = (typeof AuditMemberStatus)[keyof typeof AuditMemberStatus]
+
+
+export const InspectionAgencyKind = {
+  THIRD_PARTY: 'THIRD_PARTY',
+  INTERNAL: 'INTERNAL',
+  SELLER_SELF: 'SELLER_SELF'
+} as const
+
+export type InspectionAgencyKind = (typeof InspectionAgencyKind)[keyof typeof InspectionAgencyKind]
+
+
+export const InspectionStage = {
+  RAW_MATERIAL: 'RAW_MATERIAL',
+  DURING_PRODUCTION: 'DURING_PRODUCTION',
+  PRE_SHIPMENT: 'PRE_SHIPMENT',
+  RECEIVING: 'RECEIVING'
+} as const
+
+export type InspectionStage = (typeof InspectionStage)[keyof typeof InspectionStage]
+
+
+export const InspectionScopeMethod = {
+  FULL: 'FULL',
+  SAMPLE: 'SAMPLE'
+} as const
+
+export type InspectionScopeMethod = (typeof InspectionScopeMethod)[keyof typeof InspectionScopeMethod]
+
+
+export const QuantityUnit = {
+  PIECE: 'PIECE',
+  PAIR: 'PAIR',
+  SET: 'SET',
+  BOX: 'BOX',
+  CARTON: 'CARTON',
+  PALLET: 'PALLET',
+  ROLL: 'ROLL',
+  KILOGRAM: 'KILOGRAM',
+  GRAM: 'GRAM',
+  LITRE: 'LITRE',
+  MILLILITRE: 'MILLILITRE',
+  METRE: 'METRE',
+  SQUARE_METRE: 'SQUARE_METRE'
+} as const
+
+export type QuantityUnit = (typeof QuantityUnit)[keyof typeof QuantityUnit]
+
+
+export const ComplianceObligation = {
+  LEGAL: 'LEGAL',
+  CONTRACTUAL: 'CONTRACTUAL',
+  OPTIONAL_QUALIFICATION: 'OPTIONAL_QUALIFICATION'
+} as const
+
+export type ComplianceObligation = (typeof ComplianceObligation)[keyof typeof ComplianceObligation]
+
+
+export const ComplianceLevel = {
+  SELLER_CATEGORY: 'SELLER_CATEGORY',
+  PRODUCT: 'PRODUCT'
+} as const
+
+export type ComplianceLevel = (typeof ComplianceLevel)[keyof typeof ComplianceLevel]
+
+
+export const ComplianceApplicability = {
+  APPLIES: 'APPLIES',
+  CONDITIONAL: 'CONDITIONAL',
+  UNRESOLVED: 'UNRESOLVED'
+} as const
+
+export type ComplianceApplicability = (typeof ComplianceApplicability)[keyof typeof ComplianceApplicability]
+
+
+export const ComplianceRuleStatus = {
+  DRAFT: 'DRAFT',
+  IN_REVIEW: 'IN_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  RETIRED: 'RETIRED'
+} as const
+
+export type ComplianceRuleStatus = (typeof ComplianceRuleStatus)[keyof typeof ComplianceRuleStatus]
+
+
+export const ComplianceExpiryKind = {
+  DOCUMENT_EXPIRY: 'DOCUMENT_EXPIRY',
+  NO_EXPIRY: 'NO_EXPIRY',
+  PERIODIC_REVIEW: 'PERIODIC_REVIEW'
+} as const
+
+export type ComplianceExpiryKind = (typeof ComplianceExpiryKind)[keyof typeof ComplianceExpiryKind]
+
+
+export const ComplianceDocumentStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type ComplianceDocumentStatus = (typeof ComplianceDocumentStatus)[keyof typeof ComplianceDocumentStatus]
+
+
+export const ComplianceDocumentType = {
+  CERTIFICATE: 'CERTIFICATE',
+  LICENCE: 'LICENCE',
+  REGISTRATION: 'REGISTRATION',
+  DECLARATION_OF_CONFORMITY: 'DECLARATION_OF_CONFORMITY',
+  TEST_REPORT: 'TEST_REPORT',
+  AUTHORISATION: 'AUTHORISATION',
+  OTHER: 'OTHER'
+} as const
+
+export type ComplianceDocumentType = (typeof ComplianceDocumentType)[keyof typeof ComplianceDocumentType]
+
+
+export const ComplianceVerificationMethod = {
+  MANUAL_EVIDENCE: 'MANUAL_EVIDENCE',
+  REGISTRY_LOOKUP: 'REGISTRY_LOOKUP',
+  ISSUER_CONFIRMATION: 'ISSUER_CONFIRMATION'
+} as const
+
+export type ComplianceVerificationMethod = (typeof ComplianceVerificationMethod)[keyof typeof ComplianceVerificationMethod]
+
+
+export const ComplianceVerificationOutcome = {
+  NOT_CHECKED: 'NOT_CHECKED',
+  VERIFIED: 'VERIFIED',
+  UNABLE_TO_VERIFY: 'UNABLE_TO_VERIFY',
+  MISMATCH: 'MISMATCH'
+} as const
+
+export type ComplianceVerificationOutcome = (typeof ComplianceVerificationOutcome)[keyof typeof ComplianceVerificationOutcome]
+
+
+export const ComplianceCaseStatus = {
+  REQUESTED: 'REQUESTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED',
+  QUALIFIED: 'QUALIFIED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED',
+  EXPIRED: 'EXPIRED',
+  REREVIEW_REQUIRED: 'REREVIEW_REQUIRED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type ComplianceCaseStatus = (typeof ComplianceCaseStatus)[keyof typeof ComplianceCaseStatus]
+
+
+export const SupplyRole = {
+  MANUFACTURER: 'MANUFACTURER',
+  IMPORTER: 'IMPORTER',
+  DISTRIBUTOR: 'DISTRIBUTOR',
+  AUTHORISED_REPRESENTATIVE: 'AUTHORISED_REPRESENTATIVE'
+} as const
+
+export type SupplyRole = (typeof SupplyRole)[keyof typeof SupplyRole]
+
+
+export const SubLotReleaseState = {
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type SubLotReleaseState = (typeof SubLotReleaseState)[keyof typeof SubLotReleaseState]

@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**369 tables · 344 enums · 842 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**377 tables · 362 enums · 860 extra indexes and unique keys**, in 57 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -81,6 +81,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 13 | 16 |
 | [Master data (master row 75)](#group-master-data-master-row-75) | 4 | 3 |
+| [Audit console](#group-audit-console) | 8 | 18 |
 
 <a id="group-identity-access"></a>
 
@@ -400,6 +401,7 @@ Table `login_attempts`
 | `ADMIN` |  |
 | `CUSTOMER` |  |
 | `LOGISTICS` | A person who works for a third-party logistics company. |
+| `AUDIT` | A person who works in the Audit Console: the marketplace's own audit supervisors and compliance reviewers, and the staff of an inspection agency. A FOURTH audience for the same reason the third exists: an inspector holds another company's confidential evidence and signs findings, and must never reach a cart, a price… |
 
 <a id="enum-userstatus"></a>
 
@@ -869,6 +871,7 @@ Table `categories`
 - `listingDrafts` ← [SellerListingDraft](#model-sellerlistingdraft) - has many
 - `marketRules` ← [MarketRule](#model-marketrule) - has many
 - `contentBlocks` ← [ContentBlock](#model-contentblock) - has many
+- `complianceCases` ← [ComplianceCase](#model-compliancecase) - has many
 - `rfqRequests` ← [RfqRequest](#model-rfqrequest) - has many
 
 **Indexes and keys**
@@ -2298,6 +2301,7 @@ Table `idempotency_records`
 | `CUSTOMER` |  |
 | `PROVIDER` |  |
 | `LOGISTICS` | A third-party carrier's own staff, acting inside the logistics portal. |
+| `AUDIT` | Somebody signed into the Audit Console: an audit supervisor, a compliance reviewer, or an inspection agency's coordinator, inspector or QA reviewer. |
 
 <a id="enum-orderstatus"></a>
 
@@ -8060,6 +8064,7 @@ A seller business, as a tenant.
 - `beneficialOwners` ← [SellerBeneficialOwner](#model-sellerbeneficialowner) - has many
 - `factories` ← [SellerFactory](#model-sellerfactory) - has many
 - `certifications` ← [SellerCertification](#model-sellercertification) - has many
+- `complianceCases` ← [ComplianceCase](#model-compliancecase) - has many
 - `trustChecks` ← [SellerTrustCheck](#model-sellertrustcheck) - has many
 - `screeningChecks` ← [SellerScreeningCheck](#model-sellerscreeningcheck) - has many
 - `profileChangeRequests` ← [SellerProfileChangeRequest](#model-sellerprofilechangerequest) - has many
@@ -17826,6 +17831,7 @@ An independent inspection company. Never the seller.
 | `affiliatedSellerIdsJson` | Json | yes |  |  | Sellers the agency has declared a relationship with. It is never offered their jobs. |
 | `independenceStatement` | String · Text | yes |  |  |  |
 | `independenceDeclaredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `kind` | [enum InspectionAgencyKind](#enum-inspectionagencykind) |  |  | THIRD_PARTY | Who the agency is to the goods. Only THIRD_PARTY work is independent; an internal or a seller's own inspection is shown as such on every report. |
 | `dailyCapacity` | Int |  |  | 4 | Inspections it can carry out on one day. Booking refuses a full day. |
 | `defaultFeeMinor` | BigInt · BigInt | yes |  |  | What it charges, as a default the invoice can differ from. |
 | `feeCurrency` | String · Char(3) | yes |  |  |  |
@@ -17923,6 +17929,7 @@ One seller order's inspection: whether it is needed, and why.
 - `events` ← [InspectionEvent](#model-inspectionevent) - has many
 - `evidence` ← [InspectionEvidence](#model-inspectionevidence) - has many
 - `bindings` ← [InspectionShipmentBinding](#model-inspectionshipmentbinding) - has many
+- `subLotReleases` ← [InspectionSubLotRelease](#model-inspectionsublotrelease) - has many
 
 **Indexes and keys**
 
@@ -17949,6 +17956,10 @@ A booked inspection, and the agency's work on it.
 | `kind` | [enum InspectionJobKind](#enum-inspectionjobkind) |  |  | INITIAL |  |
 | `reinspectionOfJobId` | String · Char(26) | yes |  |  |  |
 | `status` | [enum InspectionJobStatus](#enum-inspectionjobstatus) |  |  | REQUESTED |  |
+| `stage` | [enum InspectionStage](#enum-inspectionstage) |  |  | PRE_SHIPMENT | When in the life of the goods this inspection happens. Only a PRE_SHIPMENT job can release goods for dispatch. |
+| `scopeMethod` | [enum InspectionScopeMethod](#enum-inspectionscopemethod) |  |  | SAMPLE | Every unit, or a sample. A sample result is never shown as a count of verified units. |
+| `timezone` | String · VarChar(64) | yes |  |  | IANA zone of the inspection point, so a time on the report means the same thing to the inspector and to the buyer. |
+| `qaReviewerMemberId` | String · Char(26) | yes |  |  | The agency's QA reviewer named in advance. Never the inspector. |
 | `bookedByParty` | [enum InspectionParty](#enum-inspectionparty) |  |  |  |  |
 | `bookedById` | String · Char(26) | yes |  |  |  |
 | `bookedByLabel` | String · VarChar(160) |  |  |  |  |
@@ -18003,6 +18014,8 @@ A booked inspection, and the agency's work on it.
 - `evidence` ← [InspectionEvidence](#model-inspectionevidence) - has many
 - `bindings` ← [InspectionShipmentBinding](#model-inspectionshipmentbinding) - has many
 - `invoices` ← [InspectionAgencyInvoice](#model-inspectionagencyinvoice) - has many
+- `quantityRecord` ← [InspectionQuantityRecord](#model-inspectionquantityrecord) - has zero or one
+- `labSamples` ← [InspectionLabSample](#model-inspectionlabsample) - has many
 
 **Indexes and keys**
 
@@ -18059,6 +18072,9 @@ One checklist line's result.
 | `outcome` | [enum InspectionCheckOutcome](#enum-inspectioncheckoutcome) |  |  |  |  |
 | `measuredValue` | String · VarChar(128) | yes |  |  |  |
 | `note` | String · VarChar(1024) | yes |  |  |  |
+| `equipmentRef` | String · VarChar(120) | yes |  |  | The instrument used, and when its calibration runs out. Recorded as the inspector reads it from the instrument; not verified by this software. |
+| `equipmentCalibratedUntil` | DateTime · Date | yes |  |  |  |
+| `labReportEvidenceId` | String · Char(26) | yes |  |  | A laboratory report held as evidence on this job. |
 | `recordedByMemberId` | String · Char(26) |  |  |  |  |
 | `recordedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -18090,7 +18106,9 @@ A defect found, and the non-conformance report (NCR) it becomes.
 | `originalSeverity` | [enum InspectionDefectSeverity](#enum-inspectiondefectseverity) |  |  |  | What the inspector first called it. Differs only after a QA reclassification, which needs a reason and evidence. |
 | `requirementRef` | String · VarChar(128) |  |  |  |  |
 | `description` | String · Text |  |  |  |  |
-| `defectQuantity` | Int |  |  | 1 |  |
+| `defectQuantity` | Int |  |  | 1 | Occurrences of this defect. One unit can carry several defects, so the sum of these is NOT the number of defective units - see unitRefsJson. |
+| `unitRefsJson` | Json | yes |  |  | The sample units this defect was found on ("U-017"). The number of defective units is the size of the union of these across a job's defects. |
+| `checkItemCode` | String · VarChar(48) | yes |  |  | The checklist line the defect was raised against, when there is one. |
 | `status` | [enum InspectionNcrStatus](#enum-inspectionncrstatus) |  |  | OPEN |  |
 | `recordedByMemberId` | String · Char(26) |  |  |  |  |
 | `recordedAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -18198,6 +18216,11 @@ A report revision. SIGNED is final; a returned revision is kept.
 | `signedByMemberId` | String · Char(26) | yes |  |  |  |
 | `signedByName` | String · VarChar(160) | yes |  |  |  |
 | `publishedToBuyerAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `limitations` | String · Text | yes |  |  | What the inspection could not establish, in the inspector's words. |
+| `correctsReportId` | String · Char(26) | yes |  |  | A correction of an issued report. The report it corrects is kept, unchanged, and marked superseded; a correction can never change the result - that takes a re-inspection. |
+| `correctionReason` | String · Text | yes |  |  |  |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `supersededByReportId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -18391,6 +18414,7 @@ Where an order's inspection has got to. A summary for screens and queues; the ga
 | `RELEASED_CONDITIONALLY` |  |
 | `REEVALUATION_REQUIRED` |  |
 | `DISPATCHED` |  |
+| `ON_HOLD` | The signed pre-shipment report was INCONCLUSIVE. Held, like FAILED, but not shown to be bad. |
 
 <a id="enum-inspectionjobstatus"></a>
 
@@ -18479,6 +18503,7 @@ A person's authority inside an inspection agency. Checked by `domain/inspection-
 
 | Value | Meaning |
 |---|---|
+| `INVITED` | Invited to the Audit Console and not yet activated. Holds nothing. |
 | `ACTIVE` |  |
 | `DISABLED` |  |
 
@@ -18532,6 +18557,7 @@ A defect is also a non-conformance report (NCR).
 |---|---|
 | `PASS` |  |
 | `FAIL` |  |
+| `INCONCLUSIVE` | Not enough to decide either way - a laboratory result is outstanding, a sample could not be drawn, a mandatory check could not be performed. Holds the goods exactly as a FAIL does, but says honestly that the lot was not shown to be bad. |
 
 <a id="enum-inspectionreleasekind"></a>
 
@@ -18682,6 +18708,7 @@ erDiagram
         String id PK
         String sellerAccountId FK
         String factoryId FK
+        ComplianceDocumentStatus reviewStatus
     }
     SellerTrustCheck {
         String id PK
@@ -18959,6 +18986,28 @@ A certificate the supplier holds, with its evidence and its own decision.
 | `issuedOn` | DateTime · Date | yes |  |  |  |
 | `expiresOn` | DateTime · Date | yes |  |  |  |
 | `documentId` | String · Char(26) | yes |  |  | The `SellerDocument` that proves it. Required to verify. |
+| `reviewStatus` | [enum ComplianceDocumentStatus](#enum-compliancedocumentstatus) |  |  | SUBMITTED | --- Compliance review (Audit Console) --------------------------------- The review workflow. `state` above is kept in step by the one service that writes either (PENDING while submitted or in review, VERIFIED when APPROVED, REJECTED, EXPIRED), so the existing listing holds and badges read exactly what they did before. |
+| `documentType` | [enum ComplianceDocumentType](#enum-compliancedocumenttype) |  |  | CERTIFICATE |  |
+| `issuingCountry` | String · Char(2) | yes |  |  |  |
+| `legalEntityName` | String · VarChar(255) | yes |  |  | The legal entity named on the document, as written there. |
+| `categoryScopeIdsJson` | Json | yes |  |  | Category ids the document covers. Null is "not stated", which covers nothing - never "everything". |
+| `productScopeIdsJson` | Json | yes |  |  | Product ids it covers, for a product-level document. |
+| `modelScope` | String · Text | yes |  |  | Models, references or families as the document names them. |
+| `requirementCodesJson` | Json | yes |  |  | The requirement codes the seller says it satisfies. A reviewer confirms them at approval; until then they satisfy nothing. |
+| `noExpiryReason` | String · VarChar(1024) | yes |  |  | Why a document without an expiry date is acceptable. Required when `expiresOn` is null. |
+| `verificationMethod` | [enum ComplianceVerificationMethod](#enum-complianceverificationmethod) | yes |  |  |  |
+| `verificationOutcome` | [enum ComplianceVerificationOutcome](#enum-complianceverificationoutcome) |  |  | NOT_CHECKED |  |
+| `verificationSource` | String · VarChar(1024) | yes |  |  | Where it was checked: a registry's address, the issuer's reply. |
+| `reviewMessage` | String · Text | yes |  |  | Seller-visible explanation of the latest review decision. |
+| `internalNote` | String · Text | yes |  |  | Operator-only. |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewerLabel` | String · VarChar(160) | yes |  |  |  |
+| `reviewStartedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `suspendedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `suspendedReason` | String · VarChar(1024) | yes |  |  |  |
+| `revision` | Int |  |  | 1 | Replacement history: a new version points at the one it replaces, and the old one is kept, marked superseded. |
+| `supersedesId` | String · Char(26) | yes |  |  |  |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `state` | [enum TrustCheckState](#enum-trustcheckstate) |  |  | PENDING |  |
 | `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `verifiedByUserId` | String · Char(26) | yes |  |  |  |
@@ -18982,6 +19031,7 @@ A certificate the supplier holds, with its evidence and its own decision.
 - `@@index([sellerAccountId, state], map: "ix_seller_certification_seller")`
 - `@@index([state, expiresOn], map: "ix_seller_certification_expiry")`
 - `@@index([standard], map: "ix_seller_certification_standard")`
+- `@@index([reviewStatus, expiresOn], map: "ix_seller_certification_review")`
 
 <a id="model-sellertrustcheck"></a>
 
@@ -21787,4 +21837,574 @@ One counter per UTC day, event and screen pattern. No identifier of any kind: no
 | `OPEN` | Waiting for a person. A signal never blocks anything on its own. |
 | `CONFIRMED` | A reviewer agreed it is suspicious; any action is taken separately. |
 | `FALSE_POSITIVE` | A reviewer decided it is not suspicious. Kept, so the rule can be tuned. |
+
+<a id="group-audit-console"></a>
+
+## Audit console
+
+[AuditStaffMember](#model-auditstaffmember) · [AuditNotification](#model-auditnotification) · [ComplianceRequirement](#model-compliancerequirement) · [ComplianceCase](#model-compliancecase) · [ComplianceEvent](#model-complianceevent) · [InspectionQuantityRecord](#model-inspectionquantityrecord) · [InspectionLabSample](#model-inspectionlabsample) · [InspectionSubLotRelease](#model-inspectionsublotrelease)
+
+```mermaid
+erDiagram
+    SellerAccount ||--o{ ComplianceCase : "sellerAccount"
+    Category ||--o{ ComplianceCase : "category"
+    InspectionJob ||--o{ InspectionQuantityRecord : "job"
+    InspectionJob ||--o{ InspectionLabSample : "job"
+    InspectionRequirement ||--o{ InspectionSubLotRelease : "requirement"
+    AuditStaffMember {
+        String id PK
+        AuditMemberStatus status
+    }
+    AuditNotification {
+        String id PK
+    }
+    ComplianceRequirement {
+        String id PK
+        ComplianceRuleStatus status
+    }
+    ComplianceCase {
+        String id PK
+        String sellerAccountId FK
+        String categoryId FK
+        ComplianceCaseStatus status
+    }
+    ComplianceEvent {
+        String id PK
+    }
+    InspectionQuantityRecord {
+        String id PK
+        String jobId FK
+    }
+    InspectionLabSample {
+        String id PK
+        String jobId FK
+    }
+    InspectionSubLotRelease {
+        String id PK
+        String requirementId FK
+    }
+```
+
+<a id="model-auditstaffmember"></a>
+
+### AuditStaffMember
+
+Table `audit_staff_members`
+
+A member of the marketplace's own audit team. Agency people are `InspectionAgencyMember` rows instead; one AUDIT account holds exactly one of the two.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `userId` | String · Char(26) |  |  |  |  |
+| `role` | [enum AuditStaffRole](#enum-auditstaffrole) |  |  |  |  |
+| `status` | [enum AuditMemberStatus](#enum-auditmemberstatus) |  |  | INVITED |  |
+| `fullName` | String · VarChar(160) |  |  |  |  |
+| `jobTitle` | String · VarChar(120) | yes |  |  |  |
+| `competenceCategoryIdsJson` | Json | yes |  |  | Categories this reviewer is competent to decide. Null is none. |
+| `invitedByUserId` | String · Char(26) | yes |  |  |  |
+| `activatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `disabledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `disabledReason` | String · VarChar(512) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([userId], map: "uq_audit_staff_user")`
+- `@@index([role, status], map: "ix_audit_staff_role")`
+
+<a id="model-auditnotification"></a>
+
+### AuditNotification
+
+Table `audit_notifications`
+
+The Audit Console's own notification feed. One row per person per event.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `userId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(48) |  |  |  |  |
+| `title` | String · VarChar(200) |  |  |  |  |
+| `body` | String · Text | yes |  |  |  |
+| `link` | String · VarChar(512) | yes |  |  | A path inside the console, e.g. /jobs/&lt;id&gt;. |
+| `subjectType` | String · VarChar(32) | yes |  |  |  |
+| `subjectId` | String · Char(26) | yes |  |  |  |
+| `dedupeKey` | String · VarChar(160) |  |  | "" | Stops the same event notifying the same person twice. '' when unused - never null, see the note on MariaDB UNIQUE and NULL at the top. |
+| `readAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([userId, readAt, createdAt], map: "ix_audit_notification_user")`
+- `@@index([userId, dedupeKey], map: "ix_audit_notification_dedupe")`
+
+<a id="model-compliancerequirement"></a>
+
+### ComplianceRequirement
+
+Table `compliance_requirements`
+
+One version of one compliance requirement. (code, ruleVersion) is unique; a change is a new version, and approving it retires the previous one.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `code` | String · VarChar(64) |  |  |  |  |
+| `ruleVersion` | Int |  |  | 1 |  |
+| `status` | [enum ComplianceRuleStatus](#enum-compliancerulestatus) |  |  | DRAFT |  |
+| `name` | String · VarChar(255) |  |  |  |  |
+| `description` | String · Text |  |  |  |  |
+| `requiredEvidence` | String · Text |  |  |  |  |
+| `obligation` | [enum ComplianceObligation](#enum-complianceobligation) |  |  |  |  |
+| `level` | [enum ComplianceLevel](#enum-compliancelevel) |  |  |  |  |
+| `categoryIdsJson` | Json |  |  |  | Scope. Category ids; `includeDescendants` extends each to its subtree. |
+| `includeDescendants` | Boolean |  |  | true |  |
+| `supplyRolesJson` | Json |  |  |  | Supply roles, origin countries (ISO-3166 alpha-2), destination markets (alpha-2 or "EU") and EU MDR device classes. An empty list is "any". |
+| `originCountriesJson` | Json |  |  |  |  |
+| `destinationMarketsJson` | Json |  |  |  |  |
+| `riskClassesJson` | Json |  |  |  |  |
+| `productTypeNote` | String · VarChar(1024) | yes |  |  |  |
+| `intendedUseNote` | String · VarChar(1024) | yes |  |  |  |
+| `applicability` | [enum ComplianceApplicability](#enum-complianceapplicability) |  |  |  |  |
+| `applicabilityNote` | String · Text | yes |  |  |  |
+| `expiryKind` | [enum ComplianceExpiryKind](#enum-complianceexpirykind) |  |  |  |  |
+| `reviewMonths` | Int | yes |  |  |  |
+| `sourceUrl` | String · VarChar(1024) |  |  |  | Where the requirement comes from, and when somebody last checked it. |
+| `sourceTitle` | String · VarChar(512) |  |  |  |  |
+| `sourcePublisher` | String · VarChar(255) |  |  |  |  |
+| `lastReviewedOn` | DateTime · Date |  |  |  |  |
+| `confidence` | String · VarChar(8) | yes |  |  | HIGH, MEDIUM or LOW: the researcher's confidence, shown beside the rule. |
+| `importedFrom` | String · VarChar(64) | yes |  |  | "research-2026-10-06" for rules loaded from the dated research file. |
+| `effectiveFrom` | DateTime · DateTime(3) | yes |  |  |  |
+| `effectiveTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `draftedByUserId` | String · Char(26) | yes |  |  |  |
+| `draftedByLabel` | String · VarChar(160) |  |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · Text | yes |  |  |  |
+| `retiredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `supersedesId` | String · Char(26) | yes |  |  |  |
+| `lockVersion` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([code, ruleVersion], map: "uq_compliance_requirement_version")`
+- `@@index([status, level], map: "ix_compliance_requirement_status")`
+
+<a id="model-compliancecase"></a>
+
+### ComplianceCase
+
+Table `compliance_cases`
+
+A request to qualify a seller for a category (SELLER_CATEGORY) or one product for a market (PRODUCT), and the decision on it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `caseNumber` | String · VarChar(32) |  |  |  |  |
+| `level` | [enum ComplianceLevel](#enum-compliancelevel) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `categoryId` | String · Char(26) |  | FK → [Category](#model-category) |  | (on delete: Restrict) |
+| `productId` | String · VarChar(26) |  |  | "" | '' for a SELLER_CATEGORY case. Never null: these four columns are a UNIQUE key and MariaDB treats every NULL as distinct. |
+| `supplyRole` | [enum SupplyRole](#enum-supplyrole) |  |  |  |  |
+| `destinationMarket` | String · VarChar(8) |  |  | "" | Alpha-2, or "EU". '' is "the seller's own market only". |
+| `factoryId` | String · VarChar(26) |  |  | "" | The manufacturing site, a `SellerFactory` id, or ''. |
+| `status` | [enum ComplianceCaseStatus](#enum-compliancecasestatus) |  |  | REQUESTED |  |
+| `requestedByParty` | String · VarChar(16) |  |  |  |  |
+| `requestedById` | String · Char(26) | yes |  |  |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewerLabel` | String · VarChar(160) | yes |  |  |  |
+| `reviewStartedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerMessage` | String · Text | yes |  |  | Seller-visible explanation of the latest decision or request. |
+| `internalNote` | String · Text | yes |  |  | Operator-only. |
+| `determinationsJson` | Json | yes |  |  | The reviewer's per-requirement applicability decisions for CONDITIONAL and UNRESOLVED requirements: { code: { decision, reason, by, at } }. |
+| `decisionSnapshotJson` | Json | yes |  |  | The requirement versions and the documents that satisfied them, frozen at the decision. |
+| `expiresAt` | DateTime · DateTime(3) | yes |  |  | The earliest expiry among the documents the decision relied on. |
+| `lockVersion` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `category` → [Category](#model-category) via `categoryId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([caseNumber], map: "uq_compliance_case_number")`
+- `@@unique([level, sellerAccountId, categoryId, productId, supplyRole, destinationMarket, factoryId], map: "uq_compliance_case_scope")`
+- `@@index([status, updatedAt], map: "ix_compliance_case_status")`
+- `@@index([sellerAccountId, status], map: "ix_compliance_case_seller")`
+- `@@index([categoryId], map: "ix_compliance_case_category")`
+
+<a id="model-complianceevent"></a>
+
+### ComplianceEvent
+
+Table `compliance_events`
+
+Append-only history of rules, cases and compliance documents.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `subjectType` | String · VarChar(24) |  |  |  | REQUIREMENT, CASE or DOCUMENT. |
+| `subjectId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(48) |  |  |  |  |
+| `actorType` | String · VarChar(16) |  |  |  | SYSTEM, SELLER, AUDIT or ADMIN. |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `actorLabel` | String · VarChar(160) |  |  |  |  |
+| `summary` | String · VarChar(1000) |  |  |  |  |
+| `sellerVisible` | Boolean |  |  | false | Whether the seller sees this line in the Seller Hub. |
+| `dataJson` | Json | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([subjectType, subjectId, createdAt], map: "ix_compliance_event_subject")`
+- `@@index([sellerAccountId, createdAt], map: "ix_compliance_event_seller")`
+
+<a id="model-inspectionquantityrecord"></a>
+
+### InspectionQuantityRecord
+
+Table `inspection_quantity_records`
+
+What was counted and tested on one job, in exact decimals. One per job.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `unit` | [enum QuantityUnit](#enum-quantityunit) |  |  |  |  |
+| `orderedQuantity` | Decimal · Decimal(18, 3) |  |  |  |  |
+| `declaredQuantity` | Decimal · Decimal(18, 3) | yes |  |  | What the seller says was produced or is available. |
+| `verifiedQuantity` | Decimal · Decimal(18, 3) | yes |  |  | What the inspector physically counted, weighed or measured. |
+| `countingMethod` | String · VarChar(24) | yes |  |  | FULL_COUNT, CARTON_COUNT, WEIGHED, MEASURED, or DECLARED_ONLY. |
+| `countingNote` | String · VarChar(1024) | yes |  |  |  |
+| `packagingJson` | Json | yes |  |  | Packaging conversions: [{ "unit": "CARTON", "contains": "24", "of": "PIECE" }]. |
+| `sampledQuantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `functionallyTestedQuantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `testedConformingQuantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `testedNonconformingQuantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `damagedQuantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `packagingObservations` | String · Text | yes |  |  |  |
+| `labelingObservations` | String · Text | yes |  |  |  |
+| `damageObservations` | String · Text | yes |  |  |  |
+| `recordedByMemberId` | String · Char(26) |  |  |  |  |
+| `lockVersion` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([jobId], map: "uq_insp_quantity_job")`
+
+<a id="model-inspectionlabsample"></a>
+
+### InspectionLabSample
+
+Table `inspection_lab_samples`
+
+A sample taken for laboratory testing, and its chain of custody.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `sampleCode` | String · VarChar(64) |  |  |  |  |
+| `description` | String · VarChar(1024) |  |  |  |  |
+| `quantity` | Decimal · Decimal(18, 3) | yes |  |  |  |
+| `unit` | [enum QuantityUnit](#enum-quantityunit) | yes |  |  |  |
+| `sealNumber` | String · VarChar(64) | yes |  |  |  |
+| `takenAt` | DateTime · DateTime(3) |  |  |  |  |
+| `takenByMemberId` | String · Char(26) |  |  |  |  |
+| `laboratoryName` | String · VarChar(255) | yes |  |  |  |
+| `laboratoryAccreditation` | String · VarChar(255) | yes |  |  | As the laboratory states it, e.g. an ISO/IEC 17025 accreditation number. Recorded, not verified by this software. |
+| `custodyJson` | Json |  |  |  | [{ "at", "from", "to", "note", "byLabel" }], appended only. |
+| `labReportEvidenceId` | String · Char(26) | yes |  |  |  |
+| `resultSummary` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([jobId, sampleCode], map: "uq_insp_lab_sample_code")`
+
+<a id="model-inspectionsublotrelease"></a>
+
+### InspectionSubLotRelease
+
+Table `inspection_sublot_releases`
+
+An authorised release of a clearly identified part of a lot, when the lot as a whole cannot be released. Requested in the Audit Console, approved in the Admin Panel by somebody else, consumed by exactly one dispatch.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `jobId` | String · Char(26) |  |  |  |  |
+| `reportId` | String · Char(26) |  |  |  |  |
+| `subLotCode` | String · VarChar(64) |  |  |  |  |
+| `lotReference` | String · VarChar(64) |  |  |  |  |
+| `quantity` | Decimal · Decimal(18, 3) |  |  |  |  |
+| `unit` | [enum QuantityUnit](#enum-quantityunit) |  |  |  |  |
+| `linesJson` | Json |  |  |  | [{ "orderItemId", "quantity" }] - what may leave, per order line. |
+| `reason` | String · Text |  |  |  | How the sub-lot was separated and identified, and why it may go. |
+| `state` | [enum SubLotReleaseState](#enum-sublotreleasestate) |  |  | PENDING_APPROVAL |  |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `requestedByLabel` | String · VarChar(160) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · VarChar(1024) | yes |  |  |  |
+| `consumedAt` | DateTime · DateTime(3) | yes |  |  | Set by the one dispatch that used it. A second dispatch finds it spent. |
+| `consumedByRef` | String · VarChar(64) | yes |  |  |  |
+| `lockVersion` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([requirementId, subLotCode], map: "uq_insp_sublot_code")`
+- `@@index([state], map: "ix_insp_sublot_state")`
+
+### Enums in Audit console
+
+<a id="enum-auditstaffrole"></a>
+
+#### enum AuditStaffRole
+
+| Value | Meaning |
+|---|---|
+| `SUPERVISOR` | Manages cases and assignments; approves rules and checklists. |
+| `COMPLIANCE_REVIEWER` | Reviews seller documents and qualification cases; drafts rules. |
+
+<a id="enum-auditmemberstatus"></a>
+
+#### enum AuditMemberStatus
+
+| Value | Meaning |
+|---|---|
+| `INVITED` |  |
+| `ACTIVE` |  |
+| `DISABLED` |  |
+
+<a id="enum-inspectionagencykind"></a>
+
+#### enum InspectionAgencyKind
+
+| Value | Meaning |
+|---|---|
+| `THIRD_PARTY` | Independent of buyer and seller. The only kind whose work is described as independent third-party inspection. |
+| `INTERNAL` | The marketplace operator's own inspectors. |
+| `SELLER_SELF` | The seller inspecting its own goods. Recorded, never presented as independent. |
+
+<a id="enum-inspectionstage"></a>
+
+#### enum InspectionStage
+
+| Value | Meaning |
+|---|---|
+| `RAW_MATERIAL` | Incoming raw materials or components, before production. |
+| `DURING_PRODUCTION` |  |
+| `PRE_SHIPMENT` | The finished, packed lot. The only stage that can release goods. |
+| `RECEIVING` | On arrival at the warehouse or the buyer. |
+
+<a id="enum-inspectionscopemethod"></a>
+
+#### enum InspectionScopeMethod
+
+| Value | Meaning |
+|---|---|
+| `FULL` | Every unit was examined. |
+| `SAMPLE` | A sample was examined under an approved plan. The rest was not. |
+
+<a id="enum-quantityunit"></a>
+
+#### enum QuantityUnit
+
+Units a quantity can be counted or measured in.
+
+| Value | Meaning |
+|---|---|
+| `PIECE` |  |
+| `PAIR` |  |
+| `SET` |  |
+| `BOX` |  |
+| `CARTON` |  |
+| `PALLET` |  |
+| `ROLL` |  |
+| `KILOGRAM` |  |
+| `GRAM` |  |
+| `LITRE` |  |
+| `MILLILITRE` |  |
+| `METRE` |  |
+| `SQUARE_METRE` |  |
+
+<a id="enum-complianceobligation"></a>
+
+#### enum ComplianceObligation
+
+| Value | Meaning |
+|---|---|
+| `LEGAL` | Required by law in the market it names. |
+| `CONTRACTUAL` | Required by this marketplace's own terms, or a buyer's contract. |
+| `OPTIONAL_QUALIFICATION` | Shown when held; never required. |
+
+<a id="enum-compliancelevel"></a>
+
+#### enum ComplianceLevel
+
+| Value | Meaning |
+|---|---|
+| `SELLER_CATEGORY` | The seller may sell in a category, in a supply role, into a market. |
+| `PRODUCT` | One product may be sold into one market. |
+
+<a id="enum-complianceapplicability"></a>
+
+#### enum ComplianceApplicability
+
+| Value | Meaning |
+|---|---|
+| `APPLIES` | Applies whenever the rule's scope matches. |
+| `CONDITIONAL` | Applies only when a stated condition holds; a reviewer decides per case. |
+| `UNRESOLVED` | Research could not settle whether it applies. A case cannot be approved while a reviewer leaves it unresolved. |
+
+<a id="enum-compliancerulestatus"></a>
+
+#### enum ComplianceRuleStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` |  |
+| `IN_REVIEW` | Submitted for a supervisor's approval. |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `RETIRED` | Replaced by a newer approved version, or withdrawn. |
+
+<a id="enum-complianceexpirykind"></a>
+
+#### enum ComplianceExpiryKind
+
+| Value | Meaning |
+|---|---|
+| `DOCUMENT_EXPIRY` | The document carries its own expiry date. |
+| `NO_EXPIRY` | Valid until withdrawn; the reviewer records why. |
+| `PERIODIC_REVIEW` | Re-reviewed every `reviewMonths` regardless of the document. |
+
+<a id="enum-compliancedocumentstatus"></a>
+
+#### enum ComplianceDocumentStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` |  |
+| `SUBMITTED` |  |
+| `UNDER_REVIEW` |  |
+| `CHANGES_REQUESTED` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `EXPIRED` |  |
+| `SUSPENDED` |  |
+
+<a id="enum-compliancedocumenttype"></a>
+
+#### enum ComplianceDocumentType
+
+| Value | Meaning |
+|---|---|
+| `CERTIFICATE` |  |
+| `LICENCE` |  |
+| `REGISTRATION` |  |
+| `DECLARATION_OF_CONFORMITY` |  |
+| `TEST_REPORT` |  |
+| `AUTHORISATION` |  |
+| `OTHER` |  |
+
+<a id="enum-complianceverificationmethod"></a>
+
+#### enum ComplianceVerificationMethod
+
+| Value | Meaning |
+|---|---|
+| `MANUAL_EVIDENCE` | A reviewer examined the evidence file and its content. |
+| `REGISTRY_LOOKUP` | A reviewer (or a configured adapter) looked it up in the issuer's or an official registry. |
+| `ISSUER_CONFIRMATION` | The issuer confirmed it in writing. |
+
+<a id="enum-complianceverificationoutcome"></a>
+
+#### enum ComplianceVerificationOutcome
+
+| Value | Meaning |
+|---|---|
+| `NOT_CHECKED` |  |
+| `VERIFIED` | The registry or issuer confirmed the document as described. |
+| `UNABLE_TO_VERIFY` | The check could not be completed - no result, the registry was down, the issuer did not answer. Never the same as "fraudulent". |
+| `MISMATCH` | The registry or issuer said something different from the document. |
+
+<a id="enum-compliancecasestatus"></a>
+
+#### enum ComplianceCaseStatus
+
+| Value | Meaning |
+|---|---|
+| `REQUESTED` |  |
+| `UNDER_REVIEW` |  |
+| `CHANGES_REQUESTED` |  |
+| `QUALIFIED` |  |
+| `REJECTED` |  |
+| `SUSPENDED` |  |
+| `EXPIRED` |  |
+| `REREVIEW_REQUIRED` | Was qualified; a document it relied on changed scope, was replaced, suspended or expired. A reviewer must look again. |
+| `WITHDRAWN` |  |
+
+<a id="enum-supplyrole"></a>
+
+#### enum SupplyRole
+
+The part a seller plays for the goods, per case - a seller can manufacture one category and import another.
+
+| Value | Meaning |
+|---|---|
+| `MANUFACTURER` |  |
+| `IMPORTER` |  |
+| `DISTRIBUTOR` |  |
+| `AUTHORISED_REPRESENTATIVE` |  |
+
+<a id="enum-sublotreleasestate"></a>
+
+#### enum SubLotReleaseState
+
+| Value | Meaning |
+|---|---|
+| `PENDING_APPROVAL` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `CANCELLED` |  |
 

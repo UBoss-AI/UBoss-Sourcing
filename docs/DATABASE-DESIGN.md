@@ -6230,3 +6230,40 @@ Migration `20261101100000_admin_governance_moderation_cms`.
 - `content_blocks` gains `status` (`ENUM('DRAFT', 'PENDING_APPROVAL', 'PUBLISHED')`, existing published rows backfilled to PUBLISHED), `revision`, `submittedById`/`submittedAt`, `approvedById`/`approvedAt`. `isPublished` is kept and is true only while PUBLISHED; the storefront still reads it. `content_block_versions`: one snapshot per save (`revision` UNIQUE with `blockId`), foreign key to `content_blocks` ON DELETE CASCADE ON UPDATE RESTRICT; a restore is written as a new save.
 - Seed rows: the database feature flag `critical_action_approval` (enabled) and the notification template `account.staff_message` (subject and body are what staff wrote).
 - None of the new tables has a `userId` or `customerProfileId` column, so they are outside the buyer GDPR export; a staff message to a customer is in the notification outbox like any other email.
+
+## Audit Console tables (migrations `20261104100000_audit_console`, `20261104100100_inspection_on_hold`)
+
+A fourth sign-in audience. `users.type` gains `AUDIT`, and every `actorType`
+column (audit logs, status histories, inventory movements and others) gains
+`AUDIT`, so a console action is recorded as the console's.
+
+| Table | Holds |
+|---|---|
+| `audit_staff_members` | Marketplace staff in the console (`SUPERVISOR`, `COMPLIANCE_REVIEWER`). Agency members stay in `inspection_agency_members`, with the new console roles |
+| `audit_notifications` | Notifications for console users |
+| `compliance_requirements` | Versioned rules: scope (category, market, product), what is needed, status. Approval needs a different person from the author (maker-checker) |
+| `compliance_cases` | A seller qualification case or a product case, its evaluation and, for `CONDITIONAL` / `UNRESOLVED`, the determination |
+| `compliance_events` | Append-only history of each case |
+| `inspection_quantity_records` | Exact decimal quantities per job and their reconciliation. Never a float |
+| `inspection_lab_samples` | Lab samples and their chain of custody |
+| `inspection_sublot_releases` | A part-lot release: requested by a supervisor, approved by an admin, used by one dispatch |
+
+Changed tables:
+
+- `seller_certifications` — now the compliance document: `reviewStatus`
+  (`DRAFT` … `APPROVED`, `REJECTED`, `EXPIRED`, `SUSPENDED`),
+  `verificationMethod`, `verificationSource`, `verificationOutcome`, scope
+  (products, models, requirement codes), and revisions (`supersedesId`). There is no "authentic" flag, on purpose.
+- `inspection_jobs` — `stage`, `scopeMethod` (`FULL` / `SAMPLE`), the
+  QA reviewer and a time zone. Only a `PRE_SHIPMENT` job can release goods.
+- `inspection_requirements` — status `ON_HOLD`, which holds the goods.
+- `inspection_reports` — result `INCONCLUSIVE`, `limitations`; a correction
+  is a new row (`correctsReportId`) and the original gets `supersededAt` /
+  `supersededByReportId`. It is never overwritten.
+- `inspection_defects` — `unitRefsJson`, so units and occurrences are counted
+  apart.
+- `inspection_check_results` — the equipment used and its calibration date,
+  and a link to the lab report. Checklist kinds and the mandatory / lab /
+  equipment flags live in the checklist definition frozen in the plan.
+- `inspection_agencies` — `kind`: `THIRD_PARTY`, `INTERNAL`, `SELLER_SELF`.
+- `inspection_agency_members` — the console roles and an `INVITED` status.

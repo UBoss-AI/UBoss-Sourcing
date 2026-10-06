@@ -37,7 +37,7 @@ import type { UserKind } from './auth.service.js';
  * beside the type it mirrors so adding a fourth surface fails loudly here
  * rather than quietly letting one through.
  */
-const USER_KINDS: ReadonlySet<string> = new Set<UserKind>(['ADMIN', 'CUSTOMER', 'LOGISTICS']);
+const USER_KINDS: ReadonlySet<string> = new Set<UserKind>(['ADMIN', 'CUSTOMER', 'LOGISTICS', 'AUDIT']);
 
 export interface IssuedSession {
   sessionId: string;
@@ -145,7 +145,12 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
  * behind it.
  */
 export function accessTokenTtlFor(userType: UserKind): number {
-  return userType === 'ADMIN' ? env.ADMIN_ACCESS_TOKEN_TTL_SECONDS : env.ACCESS_TOKEN_TTL_SECONDS;
+  // The Audit Console takes the console's short life, not the storefront's:
+  // its sessions open other companies' certificates and sign findings that
+  // decide whether goods may leave, on laptops at factory gates.
+  return userType === 'ADMIN' || userType === 'AUDIT'
+    ? env.ADMIN_ACCESS_TOKEN_TTL_SECONDS
+    : env.ACCESS_TOKEN_TTL_SECONDS;
 }
 
 // --- Session lifecycle -----------------------------------------------------

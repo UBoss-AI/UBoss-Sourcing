@@ -117,10 +117,11 @@ p('The name of your own business is separate again, and it is yours. Whatever yo
 p('Your name is also used wherever the system has to say who runs the marketplace. A seller choosing who handles their deliveries sees your name on the choice, for example "Self + Northwind". A delivery company is told to contact "Northwind operations". Your staff and delivery companies see your name in their authenticator app. This works in all eight languages. Records that are kept for later, such as the history of a delivery, say "Marketplace operations" instead, so they stay correct if you ever change your name.');
 p('Some names inside the system were left exactly as they were on purpose: folder names, database names, addresses, file names and settings that other systems already point at. Changing those would break working connections and would change nothing anybody sees.');
 h2('1.1 The four working parts');
-p('The project has four working parts. They are separate so customers can shop safely while staff run the business without exposing internal tools to buyers.');
+p('The project has four working parts, plus an optional Audit Console. They are separate so customers can shop safely while staff run the business without exposing internal tools to buyers.');
 table(['Part', 'Who uses it', 'What it does'], [
   ['Customer storefront', 'Buyers, hospitals, clinics and business customers', 'Browse the catalogue, ask AI questions, make orders, manage delivery/account settings and repeat purchases.'],
   ['Admin console', 'Business owner and authorised staff', 'Manage the catalogue, warehouses, inventory, customers, orders, payments, reports, staff and settings.'],
+  ['Audit Console (optional)', 'Inspectors, inspection agencies and the marketplace’s compliance staff', 'Check sellers’ certificates, decide whether a seller or product is qualified, run inspections and sign reports. It has its own sign-in and only exists when the business switches it on.'],
   ['Backend API and database', 'The application itself', 'Applies business rules, permissions, prices, tax, stock reservations, audit history and secure integrations.'],
   ['Background worker', 'The application itself', 'Runs scheduled orders, sends emails/notifications, processes retries, exports and integration work.'],
 ], [2600, 2600, 5600]);
@@ -1028,6 +1029,16 @@ table(['What the seller does', 'What the system does back'], [
 ], [4200, 5800]);
 note('Uploading is not approving', 'A certificate counts for nothing until somebody at the marketplace accepts it. A step waiting on a decision says "being checked" rather than showing a tick — and waiting never stops the seller sending the application in, because the marketplace looks at the documents as part of reviewing the application.', C.blue);
 note('A certificate that has run out is not a certificate', 'If a document was given an expiry date and that date has passed, it stops counting and the step says so. The seller finds out from their own checklist rather than from a refusal weeks later.', C.purple);
+h2('6a.2b Compliance: what a seller must hold, and how it is checked');
+p('When the business uses the Audit Console, a seller has a Compliance page in Seller Hub. It lists what the marketplace requires for the categories and markets the seller sells in, each document the seller has sent and where its review stands, and whether the seller and each product are qualified.');
+table(['What the seller does', 'What the system does back'], [
+  ['Opens Compliance and reads what is required', 'Shows only rules the marketplace has approved, for the seller’s own categories and markets, and what is still missing.'],
+  ['Sends a certificate, saying which products or models it covers', 'Puts it in the reviewers’ queue. A reviewer records how they checked it and what they found, then accepts it, refuses it with a reason, or suspends it.'],
+  ['Replaces a document, or lets one run out', 'Opens the review again for everything that relied on it, so a qualification never rests on paper that no longer counts.'],
+  ['Puts a new product on sale', 'Depending on the business’s setting: lets it through, warns what is missing, or asks for the qualification first. Products already on sale are never switched off by this.'],
+], [4200, 5800]);
+p('Buyers see, on a supplier’s page, which qualifications the supplier holds and for what, and badges for accepted certificates.');
+note('Checked, not guaranteed', 'The system records who checked a certificate, how, and what they found. It never says a document is genuine, because nobody can promise that from a copy.', C.purple);
 note('Checking files for viruses', 'No virus checker is installed with this software. Every uploaded file therefore says plainly that nothing has checked it, rather than claiming to be safe, and that wording is shown to the seller and to staff alike. Whether an unchecked file may be opened is a setting the business running the marketplace decides.', C.orange);
 note('About the signature', 'The application records a typed name, a tick, the version of each document, the time, the address and the browser. This is a record of consent. It is not an electronic signature tied to a verified identity, and the system never describes it as one.', C.orange);
 
@@ -1648,6 +1659,9 @@ page();
 
 // 7
 h1('6b. Inspection Agency Features');
+h2('The Audit Console: where agencies now work');
+p('Agencies no longer work inside the shop. When the business switches the Audit Console on, it gives each agency member an invitation by email. They set a password and add a code from an authenticator app on their phone, and they enter that code every time they sign in. Their old pages in the shop now only say that the work has moved.');
+p('Agency people have one of four roles: agency administrator, coordinator, inspector or quality reviewer. The marketplace’s own staff use the same console as supervisors or compliance reviewers. Each person sees only their own agency’s work.');
 h2('Agency dashboard');
 p('An agency member sees their assignments, the acceptance and report deadlines, and overdue work. Each assignment links to its report. Coordinators can review member identity verification and qualification expiry. Members with invoice permission see invoices, who pays them, their status and amount. Inspectors see only work assigned to them. A failed read can be retried.');
 h2('Packaging and label checks');
@@ -1655,6 +1669,21 @@ p('The assigned inspector opens a separate packaging and label screen. It shows 
 h2('Corrective action and re-inspection');
 p('After a failed inspection, the seller attaches evidence of the correction and describes what was changed. Staff choose the failed inspection when booking the repeat check. Every open finding must have corrective action first, and another active inspection prevents a second booking. The repeat inspection names its original inspection. A passing repeat report closes the corrected findings and preserves the original failed report.');
 p('If a connection retries a booking, a finding or an evidence upload, the system returns the original successful answer instead of creating it again. A customer who asks for a copy of their data also receives their agreed purchase-order contract, signature, amounts and approval decisions. Another buyer’s purchase orders are kept private.');
+
+h2('Deeper inspections');
+table(['What the inspector or agency does', 'What the system does back'], [
+  ['Works on a job marked as raw material, during production, before shipment or on receipt', 'Lets only a check before shipment release goods for dispatch. The other stages are recorded, never treated as a release.'],
+  ['Checks every unit or a sample', 'For a full check, accepts no faulty units at all. For a sample, says plainly in the report how many were looked at out of how many.'],
+  ['Records the quantities ordered, presented and inspected', 'Keeps them as exact figures and shows whether they add up.'],
+  ['Records a fault', 'Keeps how many units were faulty apart from how many faults were seen, so one unit with three faults is not counted as three units.'],
+  ['Sends a sample to a laboratory', 'Records who held the sample and when, from collection to result.'],
+  ['Cannot reach a conclusion', 'Records the result as inconclusive and puts the goods on hold. Held goods cannot be dispatched.'],
+  ['Signs the report', 'Produces a PDF that the agency, staff, the seller and the buyer can open, each as the report’s sharing rules allow.'],
+  ['Corrects a signed report', 'Makes a new version and keeps the original, marked as replaced, so nothing signed is ever rewritten.'],
+  ['Asks to release part of a lot', 'Sends the request to an administrator. Once approved it covers one dispatch only, never the whole lot.'],
+], [4200, 5800]);
+p('The sampling table is labelled as the American military and ANSI standard it follows, not as the ISO standard, because that is what it is. Inspectors and reviewers also get notifications in the console when work is assigned or waiting.');
+note('What the software does not provide', 'It does not make an agency accredited and it does not give legal advice. The standing of a report comes from the agency and the law. The rules about what sellers must hold ship as drafts with their official sources, and none of them counts until someone qualified at the business approves it.', C.purple);
 
 h1('7. Admin Features — Secure Access, Roles and Dashboard');
 h2('7.1 Staff sign-in');
@@ -1953,6 +1982,9 @@ note('Market rule', 'A product only appears to a customer market when it is publ
 page();
 
 // 9
+h2('8.11 Audit Console access and compliance rules');
+p('An administrator with the right permission opens Audit Console access, invites people, gives them a role and can switch them off. Compliance staff write the rules about what a seller must hold for a category, market or product. A rule only counts once a second person approves it, and every change makes a new version. Administrators also approve part-lot releases and upload the evidence behind a release. A list shows products that were already on sale before a rule existed, so they can be reviewed without being switched off.');
+
 h1('9. Admin Features — Warehouses and Inventory');
 h2('9.1 Warehouse management');
 p('The Warehouses screen is where staff manage physical places that hold stock. Warehouses can be listed, searched, filtered and placed on a map.');
@@ -2527,6 +2559,8 @@ h2('12a.11 Where drivers and vehicles are');
 note('Live vehicle tracking is not part of this release', 'The system does not follow vehicles in real time, and nothing in it suggests otherwise. Where a driver’s device has reported a position, the last one is shown with the time it was recorded. Positions are kept for a limited period and then deleted, only the people who need them can see them, and nothing is ever recorded outside a driver’s working hours.', C.orange);
 page();
 
+p('A carrier’s consignment screen shows whether an inspection released the goods or is holding them, so nobody collects goods that may not leave.');
+
 h1('13. System Features — Automation, Notifications and Reliability');
 h2('13.1 Background worker');
 table(['Automatic job', 'What it does'], [
@@ -2657,6 +2691,9 @@ bullets([
   'The audit log records who did what to a ticket, but never what was written or what a file was called. Emails carry a link, never the message.',
   'A person’s copy of their own data includes their tickets, the conversation they can see and a list of their files. Internal notes, priority and assignment are held back as the business’s own working notes. Erasing a person deletes their tickets and their files.',
 ]);
+h2('14.1e Audit Console sign-in');
+p('Everybody in the Audit Console signs in with a password and a code from their phone, every time. Nobody can sign up; they must be invited, and the invitation runs out after a set number of hours. A console session is kept apart from a shop or staff session in the same browser, and a person only ever sees the work their own agency or role allows.');
+
 h2('14.2 Accessibility and responsive use');
 bullets([
   'Customer and admin interfaces are responsive for desktop and smaller screens.',
@@ -2698,6 +2735,8 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Text-message notifications', 'Appear only when the business connects its own text-message service and switches text messages on for a notification. Each customer can still switch them off for most kinds of notification.'],
   ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
   ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
+  ['Audit Console', 'Off by default and turned on by a setting, together with the address the console is reached at. On, inspectors, agencies and compliance staff are invited to their own console, and sellers get a Compliance page. The phone code at sign-in is on by default and cannot be switched off on a live system.'],
+  ['Compliance gate on new listings', 'Off by default. It can be set to warn sellers what is missing, or to require a qualification before a new product goes on sale in a category with an approved rule. Products already on sale are never switched off; they go to a review list.'],
   ['Requests for quotation', 'On by default and can be switched off by a setting. The product page also offers a private label / OEM request template for branding, packaging, drawing or custom specification and target volume. Off, the Request quotes and private label / OEM links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],
   ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
@@ -2987,6 +3026,16 @@ table(['Step', 'Who acts', 'What happens'], [
   ['7', 'The system', 'Shows “Credit note may be due” on the invoice. It does not create one by itself.'],
   ['8', 'A member of finance', 'Creates a credit note “in proportion to the refund”. It gets its own number and PDF, takes back the matching share of the fee and its tax, and the invoice shows as Partly credited.'],
   ['9', 'The seller’s accountant', 'Scans the QR code on the invoice and sees that it is genuine, who issued it and when, and that it has been partly credited.'],
+], [700, 2300, 7000]);
+
+h2('Example Q — An agency checks a container of gloves before it ships');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'An administrator', 'Invites the agency’s coordinator to the Audit Console. The coordinator sets a password and a phone code.'],
+  ['2', 'The coordinator', 'Assigns the booked pre-shipment job to an inspector.'],
+  ['3', 'The inspector', 'Counts what is presented, checks a sample, records two faulty units and sends one sample to a laboratory.'],
+  ['4', 'The system', 'Shows that the counts add up, keeps faulty units apart from faults seen, and records who holds the lab sample.'],
+  ['5', 'The inspector', 'Cannot finish until the lab answers, so records the result as inconclusive. The goods are held and the carrier sees that.'],
+  ['6', 'The inspector', 'When the lab result arrives, signs a passing report. The goods are released for dispatch and the seller and buyer can open the report PDF.'],
 ], [700, 2300, 7000]);
 
 note('Document status', 'This guide is based on the current Gloviaa Mart codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);

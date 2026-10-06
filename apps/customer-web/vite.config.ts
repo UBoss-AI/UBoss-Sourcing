@@ -197,6 +197,12 @@ export default defineConfig(({ mode }) => {
                 target: 'http://localhost:5175',
                 changeOrigin: false,
               },
+              // The Audit Console, the same way and for the same reason: it
+              // has a hostname of its own in production.
+              '/audit': {
+                target: 'http://localhost:5176',
+                changeOrigin: false,
+              },
             }
           : {}),
       },

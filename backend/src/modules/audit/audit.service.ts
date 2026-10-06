@@ -706,6 +706,26 @@ export const AuditAction = {
   PRODUCT_REVIEW_RESPONSE_HIDDEN: 'product_review.response_hidden',
   PRODUCT_REVIEW_RESPONSE_PUBLISHED: 'product_review.response_published',
   PRODUCT_REVIEW_REFUSED: 'product_review.refused',
+  // Audit Console: who may use it, the requirement rules, qualification and
+  // product cases, compliance documents, report corrections and sub-lot
+  // releases. Rule approval is maker-checker: the drafter cannot approve.
+  AUDIT_MEMBER_INVITED: 'audit_console.member_invited',
+  AUDIT_MEMBER_ACTIVATED: 'audit_console.member_activated',
+  AUDIT_MEMBER_CHANGED: 'audit_console.member_changed',
+  AUDIT_MFA_ENABLED: 'audit_console.mfa_enabled',
+  AUDIT_MFA_RECOVERY_USED: 'audit_console.mfa_recovery_used',
+  COMPLIANCE_RULE_DRAFTED: 'compliance.rule_drafted',
+  COMPLIANCE_RULE_SUBMITTED: 'compliance.rule_submitted',
+  COMPLIANCE_RULE_DECIDED: 'compliance.rule_decided',
+  COMPLIANCE_RULE_RETIRED: 'compliance.rule_retired',
+  COMPLIANCE_CASE_REQUESTED: 'compliance.case_requested',
+  COMPLIANCE_CASE_DECIDED: 'compliance.case_decided',
+  COMPLIANCE_DOCUMENT_DECIDED: 'compliance.document_decided',
+  COMPLIANCE_DOCUMENT_DOWNLOADED: 'compliance.document_downloaded',
+  INSPECTION_REPORT_CORRECTED: 'inspection.report_corrected',
+  INSPECTION_SUBLOT_REQUESTED: 'inspection.sublot_requested',
+  INSPECTION_SUBLOT_DECIDED: 'inspection.sublot_decided',
+  INSPECTION_SUBLOT_CONSUMED: 'inspection.sublot_consumed',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];
@@ -719,7 +739,7 @@ export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];
  * shipment" and "a named dispatcher at a named carrier moved it" are the two
  * answers an operator most needs to tell apart after a bad delivery.
  */
-export type AuditActorType = 'SYSTEM' | 'ADMIN' | 'CUSTOMER' | 'PROVIDER' | 'LOGISTICS';
+export type AuditActorType = 'SYSTEM' | 'ADMIN' | 'CUSTOMER' | 'PROVIDER' | 'LOGISTICS' | 'AUDIT';
 
 export interface AuditEntry {
   action: AuditActionKey;

@@ -62,6 +62,12 @@ rsync -a /srv/uboss/repo/apps/admin-web/dist/ /srv/uboss/releases/$NAME/admin-we
 rsync -a /srv/uboss/repo/apps/logistics-web/dist/ /srv/uboss/releases/$NAME/logistics-web/
 ```
 
+Only if you use the Audit Console (`FEATURE_AUDIT_CONSOLE=true`) and built it:
+
+```bash
+rsync -a /srv/uboss/repo/apps/audit-web/dist/ /srv/uboss/releases/$NAME/audit-web/
+```
+
 Give the files to the app's user:
 
 ```bash
@@ -239,6 +245,8 @@ Replace `YOURDOMAIN.COM` with your real domain:
 | `SMOKE_URL` | `https://shop.YOURDOMAIN.COM` |
 
 ✅ **Done when:** all five are listed. No value ends with `/`.
+
+**Optional sixth variable — the Audit Console.** Add `AUDIT_API_BASE` = `https://audit.YOURDOMAIN.COM/api/v1` only if you use the Audit Console, and only after its DNS name, certificate and nginx block exist (`docs/DEPLOYMENT.md` §11.13). Without it the workflow skips the console, and the server accepts a release without it.
 
 > ❌ A wrong `..._API_BASE` gives you a site that opens but where nothing works (you cannot sign in). Check the spelling carefully.
 

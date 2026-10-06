@@ -21,16 +21,16 @@ import {
   asStaff as staffCall,
   buildOrderDesk,
   cleanUpOrderDesk,
-  customer,
-  emailFor,
   staff,
   type OrderDesk,
   type Session,
   type StaffSession,
   type CallOptions,
 } from '../support/order-desk-fixture.js';
+import { activateAndSignIn, auditEmailFor, cleanUpAuditPeople } from '../support/audit-session.js';
 
 const TAG = 'ihttp7';
+const AGENCY_IPS = { agcoord: '10.97.0.21', aginsp: '10.97.0.22', agqa: '10.97.0.23' } as const;
 const RULE_NAME = 'ihttp7 every order';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
@@ -92,23 +92,24 @@ beforeAll(async () => {
   // The order was placed before the rule existed: decide its requirement now.
   await prisma.$transaction(async (tx) => { await ensureRequirement(tx, groupId); });
   admin = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.97.0.20');
-  coordinator = await customer(app, TAG, 'agcoord', '10.97.0.21');
-  inspector = await customer(app, TAG, 'aginsp', '10.97.0.22');
-  qa = await customer(app, TAG, 'agqa', '10.97.0.23');
+  // Agency people sign in to the Audit Console, not the storefront: they are
+  // invited by the operator below and activate their own console accounts.
+  await cleanUpAuditPeople(TAG);
 }, 240_000);
 
 afterAll(async () => {
   await prisma.inspectionPolicy.updateMany({ data: { requirePackingListForReadiness: true } });
   await cleanInspection();
+  await cleanUpAuditPeople(TAG);
   await cleanUpOrderDesk(TAG);
   await app.close();
 });
 
 describe('an inspection from booking to a signed FAIL', () => {
   it('refuses the agency and admin routes without the right session', async () => {
-    expect((await app.inject({ method: 'GET', url: '/api/v1/inspection/agency/jobs' })).statusCode).toBe(401);
+    expect((await app.inject({ method: 'GET', url: '/api/v1/audit/agency/jobs' })).statusCode).toBe(401);
     expect((await app.inject({ method: 'GET', url: '/api/v1/admin/inspection/queue' })).statusCode).toBe(401);
-    expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/inspection/agency/me')).statusCode).toBe(403);
+    expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/audit/agency/me')).statusCode).toBe(401);
   });
 
   it('runs end to end through every role', async () => {
@@ -122,11 +123,15 @@ describe('an inspection from booking to a signed FAIL', () => {
     const competence = product.categoryId === null ? [] : [product.categoryId];
     for (const [who, role] of [['agcoord', 'COORDINATOR'], ['aginsp', 'INSPECTOR'], ['agqa', 'QA_REVIEWER']] as const) {
       const added = await asStaff(app, admin, 'POST', `/inspection/agencies/${agencyId}/members`, {
-        payload: { email: emailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: competence },
+        payload: { email: auditEmailFor(TAG, who), fullName: who, role, idDocumentType: 'PASSPORT', idDocumentNumber: `${who}-1`, competenceCategoryIds: competence },
       });
       expect(added.statusCode, added.body).toBe(201);
       const verified = await app.inject({ method: 'PATCH', url: `/api/v1/admin/inspection/members/${added.json<{ id: string }>().id}`, headers: { cookie: admin.cookies, 'x-csrf-token': admin.csrfToken, 'x-forwarded-for': admin.ip }, payload: { verifyIdentity: true } });
       expect(verified.statusCode, verified.body).toBe(200);
+      const session = await activateAndSignIn(app, added.json<{ userId: string }>().userId, AGENCY_IPS[who]);
+      if (who === 'agcoord') coordinator = session;
+      else if (who === 'aginsp') inspector = session;
+      else qa = session;
     }
 
     const booking = {
@@ -149,17 +154,17 @@ describe('an inspection from booking to a signed FAIL', () => {
     const queue = await asStaff(app, admin, 'GET', '/inspection/queue');
     expect(queue.statusCode, queue.body).toBe(200);
 
-    const accepted = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/accept`, {
+    const accepted = await asCustomer(app, coordinator, 'POST', `/audit/agency/jobs/${jobId}/accept`, {
       payload: { conflictStatement: 'No financial or family link to the seller or buyer.', confirmNoConflict: true },
     });
     expect(accepted.statusCode, accepted.body).toBe(200);
-    const detail = await asCustomer(app, coordinator, 'GET', `/inspection/agency/jobs/${jobId}`);
+    const detail = await asCustomer(app, coordinator, 'GET', `/audit/agency/jobs/${jobId}`);
     expect(detail.statusCode, detail.body).toBe(200);
     expect(detail.json<{ job: { job: { report: unknown } } }>().job.job.report).toBeNull();
     const eligible = detail.json<{ job: { eligibleInspectors: { id: string; fullName: string }[] } }>().job.eligibleInspectors;
     const inspectorMember = eligible.find((member) => member.fullName === 'aginsp');
     expect(inspectorMember, detail.body).toBeDefined();
-    const assigned = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/assign`, { payload: { inspectorMemberId: inspectorMember?.id } });
+    const assigned = await asCustomer(app, coordinator, 'POST', `/audit/agency/jobs/${jobId}/assign`, { payload: { inspectorMemberId: inspectorMember?.id } });
     expect(assigned.statusCode, assigned.body).toBe(200);
 
     const ready = await asCustomer(app, desk.sellerA, 'POST', `/seller/inspection/jobs/${jobId}/readiness`, {
@@ -176,11 +181,11 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(readyAgain.statusCode, readyAgain.body).toBe(200);
 
     const answer = async (): Promise<void> => {
-      const view = await asCustomer(app, inspector, 'GET', `/inspection/agency/jobs/${jobId}`);
+      const view = await asCustomer(app, inspector, 'GET', `/audit/agency/jobs/${jobId}`);
       const items = view.json<{ job: { checklist: { code?: string; itemCode?: string }[] } }>().job.checklist;
       for (const item of items) {
         const code = item.code ?? item.itemCode ?? '';
-        const check = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/checks`, { payload: { itemCode: code, outcome: 'CONFORM' } });
+        const check = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/checks`, { payload: { itemCode: code, outcome: 'CONFORM' } });
         expect(check.statusCode, `check ${code}: ${check.body}`).toBe(200);
       }
     };
@@ -190,34 +195,34 @@ describe('an inspection from booking to a signed FAIL', () => {
       ['sampling', { lotReference: 'LOT-1', sampledQuantity: 3, acceptedQuantity: 2, rejectedQuantity: 1 }],
       ['defects', { severity: 'MAJOR', requirementRef: 'Spec 4.2 seal', description: 'Outer seal torn on one carton', defectQuantity: 1 }],
     ] as const) {
-      const step = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/${action}`, { payload });
+      const step = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/${action}`, { payload });
       expect(step.statusCode, `${action}: ${step.body}`).toBe(200);
     }
 
     await answer();
-    const checkPath = `/inspection/agency/jobs/${jobId}/checks`;
+    const checkPath = `/audit/agency/jobs/${jobId}/checks`;
     expect((await asCustomer(app, coordinator, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM' } })).statusCode).toBe(403);
     expect((await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'NONCONFORM' } })).statusCode).toBe(400);
     const observed = await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM', measuredValue: '24', note: 'Count verified' } });
     expect(observed.statusCode, observed.body).toBe(200);
-    const packaging = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' });
+    const packaging = await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' });
     expect(packaging.statusCode, packaging.body).toBe(201);
-    expect((await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'NOT.IN.PLAN' })).statusCode).toBe(400);
-    expect((await uploadEvidence(desk.rivalBuyer, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' })).statusCode).toBe(403);
-    const findings = await asCustomer(app, inspector, 'GET', `/inspection/agency/jobs/${jobId}`);
+    expect((await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'NOT.IN.PLAN' })).statusCode).toBe(400);
+    expect((await uploadEvidence(desk.rivalBuyer, `/audit/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' })).statusCode).toBe(401);
+    const findings = await asCustomer(app, inspector, 'GET', `/audit/agency/jobs/${jobId}`);
     const packagingView = findings.json<{ job: { job: { checks: { itemCode: string; measuredValue: string; note: string }[]; evidence: { checkItemCode: string; purpose: string }[] } } }>().job.job;
     expect(packagingView.checks).toContainEqual(expect.objectContaining({ itemCode: 'PACK.CARTON_QTY', measuredValue: '24', note: 'Count verified' }));
     expect(packagingView.evidence).toContainEqual(expect.objectContaining({ checkItemCode: 'PACK.CARTON_QTY', purpose: 'PACKAGING' }));
     const defectId = (await prisma.inspectionDefect.findFirstOrThrow({ where: { jobId }, select: { id: true } })).id;
     const evidenceFields: Record<string, string>[] = [{ purpose: 'GENERAL', capturedAt: new Date().toISOString() }, { purpose: 'DEFECT', defectId, capturedAt: new Date().toISOString() }];
     for (const fields of evidenceFields) {
-      const stored = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, fields);
+      const stored = await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, fields);
       expect(stored.statusCode, stored.body).toBe(201);
     }
-    const submitted = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/report/submit`, { payload: { summary: 'One carton with a torn seal.' } });
+    const submitted = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/report/submit`, { payload: { summary: 'One carton with a torn seal.' } });
     expect(submitted.statusCode, submitted.body).toBe(200);
 
-    const signed = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    const signed = await asCustomer(app, qa, 'POST', `/audit/agency/jobs/${jobId}/report/sign`);
     expect(signed.statusCode, signed.body).toBe(200);
     expect(signed.json<{ result: string }>().result).toBe('FAIL');
     // JOURNEY-005: the supplier's public inspection summary counts the signed report.
@@ -251,11 +256,11 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(rival.statusCode, rival.body).toBe(404);
 
     // The dashboard uses the same agency and assignment boundaries as job reads.
-    const invoiced = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/invoice`, {
+    const invoiced = await asCustomer(app, coordinator, 'POST', `/audit/agency/jobs/${jobId}/invoice`, {
       payload: { invoiceNumber: 'ihttp7-INV', amountMinor: '12345', currency: 'INR' },
     });
     expect(invoiced.statusCode, invoiced.body).toBe(200);
-    const dashboard = await asCustomer(app, coordinator, 'GET', '/inspection/agency/dashboard');
+    const dashboard = await asCustomer(app, coordinator, 'GET', '/audit/agency/dashboard');
     expect(dashboard.statusCode, dashboard.body).toBe(200);
     const data = dashboard.json<{ counts: { completed: number }; jobs: { id: string; acceptDueAt: string; reportDueAt: string }[]; inspectors: { fullName: string }[]; invoices: { amountMinor: string }[] }>();
     expect(data.counts.completed).toBe(1);
@@ -266,11 +271,11 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(data.invoices[0]?.amountMinor).toBe('12345');
     const reports = dashboard.json<{ reports: { jobId: string; status: string; result: string | null }[] }>().reports;
     expect(reports).toContainEqual(expect.objectContaining({ jobId, result: 'FAIL' }));
-    const scoped = await asCustomer(app, inspector, 'GET', '/inspection/agency/dashboard');
+    const scoped = await asCustomer(app, inspector, 'GET', '/audit/agency/dashboard');
     expect(scoped.statusCode, scoped.body).toBe(200);
     expect(scoped.json<{ inspectors: unknown[]; invoices: unknown[] }>().inspectors).toEqual([]);
     expect(scoped.json<{ invoices: unknown[] }>().invoices).toEqual([]);
-    expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/inspection/agency/dashboard')).statusCode).toBe(403);
+    expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/audit/agency/dashboard')).statusCode).toBe(401);
 
     // Corrective evidence and repeat inspection stay linked to the immutable failed report.
     const originalJobId = jobId;
@@ -293,7 +298,7 @@ describe('an inspection from booking to a signed FAIL', () => {
       [coordinator, 'accept', { conflictStatement: 'No financial or family link to the seller or buyer.', confirmNoConflict: true }],
       [coordinator, 'assign', { inspectorMemberId: inspectorMember?.id }],
     ] as const) {
-      const response = await asCustomer(app, session, 'POST', `/inspection/agency/jobs/${jobId}/${path}`, { payload });
+      const response = await asCustomer(app, session, 'POST', `/audit/agency/jobs/${jobId}/${path}`, { payload });
       expect(response.statusCode, response.body).toBe(200);
     }
     const repeatReady = await asCustomer(app, desk.sellerA, 'POST', `/seller/inspection/jobs/${jobId}/readiness`, { payload: { lotReference: 'LOT-1', readyDate: new Date().toISOString().slice(0, 10), locationLabel: 'Factory bay 2', contactName: 'Ravi', contactPhone: '+911234567890', packedStatus: 'PACKED', declaration: true } });
@@ -302,13 +307,13 @@ describe('an inspection from booking to a signed FAIL', () => {
       ['conflict', { hasConflict: false }], ['start', {}],
       ['sampling', { lotReference: 'LOT-1', sampledQuantity: 3, acceptedQuantity: 3, rejectedQuantity: 0 }],
     ] as const) {
-      const response = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/${action}`, { payload });
+      const response = await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/${action}`, { payload });
       expect(response.statusCode, response.body).toBe(200);
     }
     await answer();
-    expect((await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'GENERAL' })).statusCode).toBe(201);
-    expect((await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/report/submit`, { payload: { summary: 'Correction verified; all packaging checks conform.' } })).statusCode).toBe(200);
-    const repeatSign = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    expect((await uploadEvidence(inspector, `/audit/agency/jobs/${jobId}/evidence`, { purpose: 'GENERAL' })).statusCode).toBe(201);
+    expect((await asCustomer(app, inspector, 'POST', `/audit/agency/jobs/${jobId}/report/submit`, { payload: { summary: 'Correction verified; all packaging checks conform.' } })).statusCode).toBe(200);
+    const repeatSign = await asCustomer(app, qa, 'POST', `/audit/agency/jobs/${jobId}/report/sign`);
     expect(repeatSign.statusCode, repeatSign.body).toBe(200);
     expect(repeatSign.json<{ result: string }>().result).toBe('PASS');
     expect(await prisma.inspectionDefect.findUnique({ where: { id: defectId }, select: { status: true } })).toEqual({ status: 'VERIFIED_CLOSED' });

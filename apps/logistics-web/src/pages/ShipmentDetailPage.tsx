@@ -39,6 +39,7 @@ import {
   Select,
   Textarea,
 } from '@/components/ui';
+import { InspectionReleaseStatus } from '@/components/InspectionReleaseStatus';
 import { ProofOfDeliveryDialog } from '@/components/ProofOfDeliveryDialog';
 import { useToast } from '@/components/toast-context';
 import { useI18n } from '@/i18n/i18n-context';
@@ -139,6 +140,8 @@ export function ShipmentDetailPage(): React.JSX.Element {
           {t('shipment.readOnly')}
         </Callout>
       ) : null}
+
+      <InspectionReleaseStatus release={data.inspectionRelease} />
 
       <AssignmentPrompt shipment={data} />
 

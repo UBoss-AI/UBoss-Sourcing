@@ -49,6 +49,9 @@ describe('GET /api/v1/config', () => {
       // anybody types, so the disclosure is its own block rather than a
       // boolean the storefront has to interpret.
       'assistant',
+      // Where agencies and the audit team sign in, for the storefront's
+      // "inspection work has moved" page. A public URL; empty when off.
+      'auditConsoleUrl',
       'business',
       // Which bot check the sign-up and sign-in forms must draw, and its
       // site key. A site key is public by the provider's design - it is
