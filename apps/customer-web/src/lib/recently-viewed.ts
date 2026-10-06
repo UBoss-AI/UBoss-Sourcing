@@ -28,6 +28,21 @@ export function readRecentlyViewed(): ViewedItem[] {
   }
 }
 
+/**
+ * Add a picture to an entry saved before pictures were remembered, without
+ * moving it in the list or changing when it was viewed.
+ */
+export function rememberViewedImage(slug: string, imageUrl: string): void {
+  try {
+    const items = readRecentlyViewed().map((entry) =>
+      entry.kind === 'product' && entry.slug === slug && entry.imageUrl === undefined ? { ...entry, imageUrl } : entry,
+    );
+    window.localStorage.setItem(KEY, JSON.stringify(items));
+  } catch {
+    // Storage unavailable: the picture is simply fetched again next time.
+  }
+}
+
 export function recordViewed(item: Omit<ViewedItem, 'viewedAt'>, now = new Date()): void {
   if (item.slug === '' || item.name === '') return;
   try {

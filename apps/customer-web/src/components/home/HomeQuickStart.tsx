@@ -19,10 +19,12 @@
  * appears only when requests for quotation are switched on, and the recent
  * list only when there is something in it.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
-import { readRecentlyViewed } from '@/lib/recently-viewed';
+import { api } from '@/lib/api';
+import { readRecentlyViewed, rememberViewedImage } from '@/lib/recently-viewed';
+import type { ProductDetailResponse } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { Button, ButtonLink } from '@/components/ui';
 
@@ -77,6 +79,27 @@ export function HomeQuickStart(): React.JSX.Element {
   const { t } = useI18n();
   const { business, features } = useStorefront();
   const recent = useMemo(() => readRecentlyViewed().slice(0, 4), []);
+  // Pictures for products viewed before pictures were remembered: fetched
+  // once, then kept, so the cards are not empty boxes.
+  const [images, setImages] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let cancelled = false;
+    for (const item of recent) {
+      if (item.kind !== 'product' || item.imageUrl !== undefined) continue;
+      void api
+        .get<ProductDetailResponse>(`/catalog/products/${encodeURIComponent(item.slug)}`)
+        .then((detail) => {
+          const url = detail.product.primaryImage?.url ?? detail.product.images[0]?.url;
+          if (url === undefined || cancelled) return;
+          rememberViewedImage(item.slug, url);
+          setImages((current) => ({ ...current, [item.slug]: url }));
+        })
+        .catch(() => undefined);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [recent]);
   const [hidden, setHidden] = useState(hiddenNow);
   const showRecent = recent.length > 0 && !hidden;
 
@@ -161,7 +184,7 @@ export function HomeQuickStart(): React.JSX.Element {
                   className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   <span className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-surface-sunken">
-                    {item.imageUrl === undefined ? (
+                    {(item.imageUrl ?? images[item.slug]) === undefined ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -186,7 +209,7 @@ export function HomeQuickStart(): React.JSX.Element {
                       </svg>
                     ) : (
                       <img
-                        src={item.imageUrl}
+                        src={item.imageUrl ?? images[item.slug]}
                         alt=""
                         loading="lazy"
                         className="h-full w-full object-contain p-2"
