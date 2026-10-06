@@ -329,7 +329,7 @@ export async function createShipment(
         shipmentId: id,
         previousStatus: null,
         status: 'CREATED',
-        publicDescription: 'We are preparing your order for despatch.',
+        publicDescription: 'Your order has been received and is being prepared for dispatch.',
         occurredAt: new Date(),
         source: 'SYSTEM_AUTOMATION',
         actorUserId: input.createdById ?? null,
@@ -599,7 +599,7 @@ export async function createShipmentsForOrder(
 
   if (hasOperatorLines) {
     if (pickup === null) {
-      waiting.push('the shop’s own lines have no despatch warehouse');
+      waiting.push('the shop’s own lines have no dispatch warehouse');
     } else {
       created.push(
         await createShipment(
@@ -784,7 +784,7 @@ export async function createShipmentsForOrder(
     throw badRequest(
       ErrorCode.VALIDATION_FAILED,
       waiting.length === 0
-        ? 'This order has nothing to despatch, so no consignment can be raised for it.'
+        ? 'This order has nothing to dispatch, so no consignment can be raised for it.'
         : `No consignment can be raised for this order yet: ${waiting.join('; ')}.`,
       [{ field: 'fulfilmentLocationId', code: 'ORIGIN_UNKNOWN' }],
     );

@@ -10,6 +10,8 @@ export interface ViewedItem {
   kind: 'product' | 'supplier';
   slug: string;
   name: string;
+  /** The product's main picture when it was viewed, for the home page row. */
+  imageUrl?: string;
   viewedAt: string;
 }
 

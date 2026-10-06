@@ -7438,7 +7438,7 @@ reference; **Status** (grouped as Waiting to move, On the way, Needs
 attention, Finished); **Agreed time** (On time, At risk, Past the agreed time);
 **Driver**; **Problems only**; **Clear filters**.
 
-**Columns on a wide screen:** Shipment (and order), Receiving company (with
+**Columns on a wide screen:** Shipment (and order), Ship to (the receiving company, with
 Cold chain and Dangerous goods badges), To, Status, Agreed time, Estimated
 delivery, Driver, Last update. Below `lg` each shipment is a card instead.
 
@@ -7470,7 +7470,7 @@ this company's: "You can read its history and change nothing."
 |---|---|---|---|
 | Waiting for your answer | Can accept work, while the job is offered | The deadline to answer | **Accept this shipment** ("It is yours to collect"). **Turn it down** asks why; UBOSS is told and finds another carrier |
 | Route | Everyone | Collection point, delivery address, distance. With the right permission, the driver's live location (checked every minute) and how old it is | — |
-| Timeline | Everyone | Every status change, who made it (Portal, Driver app, *{marketplace}* operations, Carrier API …), notes and places | — |
+| Timeline | Everyone | Every status change, newest first on a vertical rail with status-coloured dots; the latest entry is highlighted. Each entry leads with a plain headline in the chosen language ("Finding a carrier", "Carrier assigned", or the status name), then the detail, any internal note, and quietly the time (relative, exact on hover), who made it (Portal, Driver app, *{marketplace}* operations, Carrier API …) and the place. Sentences the system writes are translated; text a person typed is shown as written | — |
 | Packages | Everyone | Each package: weight, packaging, batch, collected and delivered scans | — |
 | Update status | Anyone allowed to change status, when the server offers a next step | **New status** lists only the steps the server allows for this person. Some need a **Reason** | **Update status** records it. Choosing **Delivered** replaces it with **Complete the delivery** for a role that may record proof of delivery (partner owner, admin, driver); anyone else is told to ask an administrator at their company |
 | Complete the delivery (dialog) | Roles with `logistics.pod.write` | What this shipment's service level asks for, marked \*: who took it (by default), their role, a signature image, a photograph; plus **Company stamp** and **Anything worth noting** | Pictures only, up to 10 MB. Recording it uploads the pictures to the shipment's documents, records the proof and marks the shipment delivered in one go: "Delivered. Thank you." A refused field shows its error beside it. Trying again after a failure does not upload the pictures twice. If the service level needs a delivery code, the dialog also shows whether a code has been sent to the person receiving it and until when it works, asks for the **Delivery code** (six digits they read out), and offers **Send the code** / **Send a new code** (one a minute, five a day; after that it says no more can be sent today). A wrong code, or one that can no longer be used, shows its message on the code field. The code itself is never shown. If there is nobody to send a code to, the dialog says so and the button is disabled |
@@ -8317,7 +8317,7 @@ JOURNEY-046 and 049 additions. The **Shipment booking** form shows "From IN to D
 
 ## Pass 8 changes to discovery screens (Section 17.1)
 
-- **Home `/`**: under the department rail, a **Buying** card (Browse the catalogue, Request quotes when RFQ is on, Track your orders) and a separate **Selling** card (Sell on {{marketplace}} → `/sell`). **Continue where you left off** lists up to four items this browser viewed, with **Hide** (remembered for 30 days in this browser only).
+- **Home `/`**: under the department rail, a **Buying** card (Browse the catalogue, Request quotes when RFQ is on, Track your orders) and a separate **Selling** card (Sell on {{marketplace}} → `/sell`). Each card has an icon, a one-line description and its actions as buttons. **Continue where you left off** shows up to four items this browser viewed as small cards (picture when one was recorded, name on up to two lines, a "viewed" caption), with **Hide** (remembered for 30 days in this browser only).
 - **Search and category `/search`, `/category/:slug`**: a **Sourcing terms** filter group (Verified supplier, Verified certificate, Samples available, Minimum order, Bulk lead time, Incoterm, Country of origin) with chips in the applied-filter row. The empty result also offers **Request quotes for "…"**. A category shows **Popular specifications** chips and uses its own SEO title and description.
 - **Product `/product/:slug`**: the "Who sells it" block adds **Production capacity** and **Supplier terms** (lead time, samples, OEM / private label, Incoterms, verified certificates) when the seller stated them.
 - **Supplier `/suppliers/:slug`**: "Registered as …" for a registered company, machines under each verified factory, and an **Independent inspections** summary.

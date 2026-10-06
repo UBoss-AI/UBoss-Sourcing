@@ -84,7 +84,7 @@ export async function renderPackingList(
     { heading: 'Consignee', lines: [document.consignee.name, ...document.consignee.lines] },
   ]);
   pdf.boxes([
-    { heading: 'Despatched from', lines: document.origin },
+    { heading: 'Dispatched from', lines: document.origin },
     { heading: 'Delivered to', lines: document.destination },
   ]);
 

@@ -465,7 +465,7 @@ export async function offerAssignmentInTransaction(
       to: 'ACCEPTANCE_PENDING',
       source: 'UBOSS_ADMIN',
       actorUserId: input.offeredByUserId,
-      internalNote: 'Waiting for the carrier to accept.',
+      internalNote: 'The offer has been sent. Waiting for the carrier to accept it.',
     });
 
     await recordLogisticsAudit(
@@ -1026,7 +1026,7 @@ export async function expireStaleAssignments(now = new Date()): Promise<{ expire
           from: assignment.shipment.status,
           to: 'AWAITING_ASSIGNMENT',
           source: 'SYSTEM_AUTOMATION',
-          publicDescription: 'We are arranging a carrier.',
+          publicDescription: 'We are finding a carrier for this delivery.',
           internalNote: 'The carrier did not answer in time.',
           reason: 'Assignment offer expired.',
           assignedPartnerId: null,

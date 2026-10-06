@@ -38,11 +38,11 @@ describe('HomeQuickStart', () => {
       JSON.stringify([{ kind: 'product', slug: 'nitrile-gloves', name: 'Nitrile gloves', viewedAt: new Date().toISOString() }]),
     );
     const first = renderWithProviders(<HomeQuickStart />);
-    expect(screen.getByRole('link', { name: 'Nitrile gloves' }).getAttribute('href')).toBe('/product/nitrile-gloves');
+    expect(screen.getByRole('link', { name: /Nitrile gloves/ }).getAttribute('href')).toBe('/product/nitrile-gloves');
     fireEvent.click(screen.getByRole('button', { name: 'Hide' }));
-    expect(screen.queryByRole('link', { name: 'Nitrile gloves' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Nitrile gloves/ })).toBeNull();
     first.unmount();
     renderWithProviders(<HomeQuickStart />);
-    expect(screen.queryByRole('link', { name: 'Nitrile gloves' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Nitrile gloves/ })).toBeNull();
   });
 });

@@ -243,7 +243,7 @@ export async function requestFreightQuote(input: {
     title: `A freight price is needed for ${group.sellerOrderNumber}`,
     body:
       `${describeLoad(loadType, totals)} No carrier on this account can price this automatically, ` +
-      'so a figure has to be entered by hand before it can be despatched.',
+      'so a figure has to be entered by hand before it can be dispatched.',
     linkPath: `/seller/orders/${group.id}`,
     severity: 'WARNING',
     subjectType: 'seller_freight_quote',

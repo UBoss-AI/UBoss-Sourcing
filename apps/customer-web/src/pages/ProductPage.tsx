@@ -848,7 +848,14 @@ export function ProductPage(): React.JSX.Element {
 
   const product = query.data?.product;
   useEffect(() => {
-    if (product !== undefined) recordViewed({ kind: 'product', slug: product.slug, name: product.name });
+    if (product !== undefined) {
+      recordViewed({
+        kind: 'product',
+        slug: product.slug,
+        name: product.name,
+        ...(product.primaryImage === null ? {} : { imageUrl: product.primaryImage.url }),
+      });
+    }
   }, [product]);
 
   /*

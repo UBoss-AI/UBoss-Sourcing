@@ -27,6 +27,7 @@ import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
+  type BadgeTone,
   Button,
   Callout,
   Card,
@@ -42,7 +43,7 @@ import {
 import { InspectionReleaseStatus } from '@/components/InspectionReleaseStatus';
 import { ProofOfDeliveryDialog } from '@/components/ProofOfDeliveryDialog';
 import { useToast } from '@/components/toast-context';
-import { useI18n } from '@/i18n/i18n-context';
+import { useI18n, type Translate, type TranslationKey } from '@/i18n/i18n-context';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import {
   acceptShipment,
@@ -68,7 +69,7 @@ import {
 import { Permission } from '@/lib/permissions';
 import { useSession } from '@/auth/session-context';
 import { formatDuration, formatWeight, slaTone, statusTone } from '@/lib/shipment-display';
-import type { ShipmentDetail, ShipmentStatus } from '@/lib/types';
+import type { ShipmentDetail, ShipmentStatus, TimelineEntry } from '@/lib/types';
 
 /**
  * The forward moves that count as "sending it on the way", in road order.
@@ -417,7 +418,117 @@ function Rail(): React.JSX.Element {
   return <span className="h-0.5 flex-1 rounded-full bg-border-strong" />;
 }
 
-/** The timeline, oldest first, with the source of every entry. */
+/*
+ * The headline each timeline entry leads with. A handful of early statuses
+ * read better as a sentence about what is happening ("Finding a carrier")
+ * than as the short badge label; every other status leads with its label,
+ * which is already a plain phrase ("In transit", "Delivered"). A stored
+ * description is never the headline: it may be empty, and it is stored in
+ * one language.
+ */
+const TIMELINE_HEADLINES: Partial<Record<ShipmentStatus, TranslationKey>> = {
+  CREATED: 'timeline.headline.CREATED',
+  AWAITING_ASSIGNMENT: 'timeline.headline.AWAITING_ASSIGNMENT',
+  ASSIGNED: 'timeline.headline.ASSIGNED',
+  ACCEPTANCE_PENDING: 'timeline.headline.ACCEPTANCE_PENDING',
+  ACCEPTED: 'timeline.headline.ACCEPTED',
+};
+
+/*
+ * The sentences the server itself writes onto an event, old wording and new,
+ * mapped to translations so the timeline follows the chosen language. `same`
+ * names the status whose headline already says it, so it is not repeated.
+ * Anything not listed was typed by a person (or a carrier feed) and is shown
+ * as written.
+ */
+const SYSTEM_DESCRIPTIONS: Readonly<Record<string, { key: TranslationKey; same?: ShipmentStatus }>> =
+  {
+    'We are preparing your order for despatch.': { key: 'timeline.detail.preparing', same: 'CREATED' },
+    'Your order has been received and is being prepared for dispatch.': {
+      key: 'timeline.detail.preparing',
+      same: 'CREATED',
+    },
+    'A carrier has been assigned.': { key: 'timeline.detail.carrierAssigned', same: 'ASSIGNED' },
+    'We are arranging a carrier.': {
+      key: 'timeline.detail.findingCarrier',
+      same: 'AWAITING_ASSIGNMENT',
+    },
+    'We are finding a carrier for this delivery.': {
+      key: 'timeline.detail.findingCarrier',
+      same: 'AWAITING_ASSIGNMENT',
+    },
+    'We have corrected the status of this delivery.': { key: 'timeline.detail.corrected' },
+  };
+
+const SYSTEM_NOTES: Readonly<Record<string, TranslationKey>> = {
+  'Waiting for the carrier to accept.': 'timeline.note.awaitingAnswer',
+  'The offer has been sent. Waiting for the carrier to accept it.': 'timeline.note.awaitingAnswer',
+  'The carrier did not answer in time.': 'timeline.note.noAnswer',
+};
+
+function timelineDetail(t: Translate, entry: TimelineEntry): string | null {
+  const raw = (entry.publicDescription ?? entry.reason)?.trim() ?? '';
+  if (raw === '' || raw === '—') return null;
+  const known = SYSTEM_DESCRIPTIONS[raw];
+  if (known === undefined) return raw;
+  return known.same === entry.status ? null : t(known.key);
+}
+
+function timelineNote(t: Translate, note: string | null): string | null {
+  const raw = note?.trim() ?? '';
+  if (raw === '') return null;
+  const known = SYSTEM_NOTES[raw];
+  if (known !== undefined) return t(known);
+  const offered = /^Offered to (.+)\.$/.exec(raw);
+  if (offered?.[1] !== undefined) return t('timeline.note.offeredTo', { carrier: offered[1] });
+  const corrected = /^Corrected by (.+)\.$/.exec(raw);
+  if (corrected?.[1] !== undefined) return t('timeline.note.correctedBy', { who: corrected[1] });
+  return raw;
+}
+
+const TIMELINE_DOT: Record<BadgeTone, string> = {
+  neutral: 'bg-surface-sunken text-ink-subtle ring-border',
+  accent: 'bg-accent text-white ring-accent/25',
+  brand: 'bg-brand text-white ring-brand/25',
+  action: 'bg-action text-white ring-action/25',
+  operational: 'bg-operational text-white ring-operational/25',
+  success: 'bg-success text-white ring-success/25',
+  warning: 'bg-warning text-white ring-warning/25',
+  danger: 'bg-danger text-white ring-danger/25',
+};
+
+/** The mark inside a timeline dot: a tick for done, "!" for trouble. */
+function TimelineGlyph({ tone }: { tone: BadgeTone }): React.JSX.Element {
+  if (tone === 'success') {
+    return (
+      <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" aria-hidden="true">
+        <path
+          d="M3.5 8.5l3 3 6-7"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  if (tone === 'warning' || tone === 'danger') {
+    return (
+      <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" aria-hidden="true">
+        <path d="M8 3.5v5.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        <circle cx="8" cy="12" r="1.2" fill="currentColor" />
+      </svg>
+    );
+  }
+  return <span className="h-1.5 w-1.5 rounded-full bg-current" />;
+}
+
+/**
+ * The timeline, newest first, the way a parcel tracker reads: the latest
+ * entry is highlighted, each entry leads with a plain headline and the detail
+ * underneath, and who did it and when sit quietly below. Relative time is
+ * shown; the exact time is on hover and in the `dateTime` attribute.
+ */
 function TimelineCard({ shipmentId }: { shipmentId: string }): React.JSX.Element {
   const { t } = useI18n();
 
@@ -426,8 +537,10 @@ function TimelineCard({ shipmentId }: { shipmentId: string }): React.JSX.Element
     queryFn: () => fetchTimeline(shipmentId),
   });
 
+  const events = [...(timeline.data?.events ?? [])].reverse();
+
   return (
-    <Card title={t('shipment.timeline')} bodyClassName="px-5 py-4">
+    <Card title={t('shipment.timeline')} bodyClassName="px-5 py-5">
       {timeline.isLoading ? (
         <LoadingState />
       ) : timeline.isError ? (
@@ -438,48 +551,100 @@ function TimelineCard({ shipmentId }: { shipmentId: string }): React.JSX.Element
           }}
         />
       ) : (
-        <ol className="relative space-y-4 border-l border-border pl-5">
-          {timeline.data?.events.map((entry) => (
-            <li key={entry.id} className="relative">
-              <span
-                aria-hidden="true"
-                className="absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-border-strong"
-              />
+        <ol className="relative">
+          {events.map((entry, index) => {
+            const tone = statusTone(entry.status);
+            const isLatest = index === 0;
+            const isLast = index === events.length - 1;
+            const headlineKey = TIMELINE_HEADLINES[entry.status];
+            const statusLabel = t(`status.${entry.status}` as never);
+            const headline = headlineKey === undefined ? statusLabel : t(headlineKey);
+            const detail = timelineDetail(t, entry);
+            const note = timelineNote(t, entry.internalNote);
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge tone={statusTone(entry.status)} dot>
-                  {t(`status.${entry.status}` as never)}
-                </Badge>
-                {entry.isCorrection ? (
-                  <Badge tone="warning">{t('source.UBOSS_ADMIN')}</Badge>
-                ) : null}
-                <span className="text-xxs text-ink-subtle">
-                  {t(`source.${entry.source}` as never)}
-                </span>
-              </div>
+            return (
+              <li key={entry.id} className="relative flex gap-4 pb-5 last:pb-0">
+                {/* The rail: a dot per entry, joined to the one below. */}
+                <div className="relative flex w-6 shrink-0 justify-center" aria-hidden="true">
+                  {isLast ? null : (
+                    <span className="absolute -bottom-5 left-1/2 top-6 w-0.5 -translate-x-1/2 rounded-full bg-border" />
+                  )}
+                  <span
+                    className={[
+                      'relative mt-0.5 flex items-center justify-center rounded-full shadow-sm',
+                      isLatest ? 'h-6 w-6 ring-4' : 'h-5 w-5 ring-2',
+                      TIMELINE_DOT[tone],
+                    ].join(' ')}
+                  >
+                    <TimelineGlyph tone={tone} />
+                  </span>
+                </div>
 
-              <p className="mt-1 text-sm text-ink">
-                {entry.publicDescription ?? entry.reason ?? '—'}
-              </p>
+                <div
+                  className={[
+                    'min-w-0 flex-1 rounded-lg',
+                    isLatest
+                      ? 'border border-border bg-surface-sunken/60 px-4 py-3 shadow-sm'
+                      : 'px-1 pt-0.5',
+                  ].join(' ')}
+                >
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p
+                      className={
+                        isLatest ? 'text-base font-semibold text-ink' : 'text-sm font-medium text-ink'
+                      }
+                    >
+                      {headline}
+                    </p>
+                    {isLatest ? (
+                      <Badge tone={tone} dot>
+                        {statusLabel}
+                      </Badge>
+                    ) : null}
+                    {entry.isCorrection ? (
+                      <Badge tone="warning">{t('timeline.correction')}</Badge>
+                    ) : null}
+                  </div>
 
-              {entry.internalNote === null ? null : (
-                <p className="mt-1 rounded bg-surface-sunken px-2 py-1 text-xs text-ink-muted">
-                  {entry.internalNote}
-                </p>
-              )}
+                  {detail === null ? null : (
+                    <p className="mt-0.5 text-sm text-ink-muted">{detail}</p>
+                  )}
 
-              <p className="mt-1 text-xxs text-ink-subtle">
-                <time dateTime={entry.occurredAt}>{formatDateTime(entry.occurredAt)}</time>
-                {entry.locationLabel === null ? '' : ` · ${entry.locationLabel}`}
-                {/*
-                    The carrier's own code, kept even after it was mapped. An
-                    operator arguing with a carrier about a scan needs their
-                    reference, not our translation of it.
-                  */}
-                {entry.externalStatusCode === null ? '' : ` · ${entry.externalStatusCode}`}
-              </p>
-            </li>
-          ))}
+                  {note === null ? null : (
+                    <p className="mt-2 border-l-2 border-border-strong pl-2.5 text-xs text-ink-muted">
+                      <span className="font-medium text-ink-subtle">{t('timeline.noteLabel')}</span>{' '}
+                      {note}
+                    </p>
+                  )}
+
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-xxs text-ink-subtle">
+                    <time dateTime={entry.occurredAt} title={formatDateTime(entry.occurredAt)}>
+                      {formatRelative(entry.occurredAt)}
+                    </time>
+                    <span aria-hidden="true">·</span>
+                    <span>{t(`source.${entry.source}` as never)}</span>
+                    {entry.locationLabel === null ? null : (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span>{entry.locationLabel}</span>
+                      </>
+                    )}
+                    {/*
+                        The carrier's own code, kept even after it was mapped. An
+                        operator arguing with a carrier about a scan needs their
+                        reference, not our translation of it.
+                      */}
+                    {entry.externalStatusCode === null ? null : (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span className="font-mono">{entry.externalStatusCode}</span>
+                      </>
+                    )}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
       )}
     </Card>
