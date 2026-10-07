@@ -166,3 +166,4 @@ The ten newest backups are kept.
 | `Permission denied (publickey)` | Step 2 has not been run, or with a different key. |
 | `checksum mismatch` | The upload was cut off. Run the workflow again. |
 | `serves ..., expected ...` | The files were copied but the site still shows the old build. Check nginx serves the folders named in Step 2. |
+| `Unable to find image 'gloviaa-api:<tag>' locally`, right after `Production configuration validated` | The server's own `/srv/gloviaa/backup.sh` (not in this repository) names an API image that has since been removed. Nothing was changed: the backup runs before any switch. On the server, make its `gpg` step run through `docker compose -f compose.yml run --rm -T --no-deps --user root -v /srv/gloviaa:/backup api gpg ...` instead of `docker run ... gloviaa-api:<tag> gpg ...`, so it always uses the image that is live, and the same in `verify-backup.sh`. Check with `bash backup.sh && bash verify-backup.sh`, then push again. |
