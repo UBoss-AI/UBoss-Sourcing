@@ -1,7 +1,7 @@
 # =============================================================================
-# Dependency updates, weekly, grouped.
+# Dependency updates, monthly (on the 1st), grouped.
 #
-# Grouped deliberately. Twenty separate pull requests every Monday is how a team
+# Grouped deliberately. Twenty separate pull requests every month is how a team
 # learns to ignore Dependabot; one pull request per project, with the patch and
 # minor bumps together, is one review somebody actually does.
 #
@@ -10,7 +10,7 @@
 # grouped update that is failing CI for an unrelated reason.
 #
 # Major versions are left out on purpose. A major is a piece of work with its
-# own testing, not something to merge on a Monday morning - and two of them in
+# own testing, not something to merge on the first of the month - and two of them in
 # this repository (`@hookform/resolvers` and `zod`) must move together or form
 # validation silently stops running.
 # =============================================================================
@@ -20,8 +20,7 @@ updates:
   - package-ecosystem: npm
     directory: /backend
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -36,8 +35,7 @@ updates:
   - package-ecosystem: npm
     directory: /apps/customer-web
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -52,8 +50,7 @@ updates:
   - package-ecosystem: npm
     directory: /apps/admin-web
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -68,8 +65,7 @@ updates:
   - package-ecosystem: npm
     directory: /apps/logistics-web
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -84,8 +80,7 @@ updates:
   - package-ecosystem: npm
     directory: /apps/audit-web
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -100,8 +95,7 @@ updates:
   - package-ecosystem: npm
     directory: /scripts
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 3
@@ -118,8 +112,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Warsaw
     open-pull-requests-limit: 2
