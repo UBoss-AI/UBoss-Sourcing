@@ -7,16 +7,18 @@
  * dashboard page is a list of what it shows rather than a list of class
  * attributes.
  *
- * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web and
- * apps/logistics-web, on the same reasoning as ui.tsx and tailwind.config.js
- * before it: a buyer, an operator and a carrier are looking at one product,
+ * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web,
+ * apps/logistics-web and apps/audit-web (apart from the page ground's
+ * padding, which matches each app's own shell), on the same reasoning as
+ * ui.tsx and tailwind.config.js before it: a buyer, an operator, a carrier
+ * and an auditor are looking at one product,
  * and a card that is frosted on one screen and flat on the next reads as two.
  * The repository has no shared package and introducing one would touch every
  * build config in it; parallel copies with this note is the house convention.
  *
  * Nothing here takes a translation key. Every string is passed in already
- * translated, which is what lets the three copies stay identical — the three
- * apps have three different `TranslationKey` unions.
+ * translated, which is what lets the copies stay identical — each app has
+ * its own `TranslationKey` union.
  *
  * ---
  *

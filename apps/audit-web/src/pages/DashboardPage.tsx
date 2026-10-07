@@ -5,35 +5,65 @@
  *
  *   - an AGENCY member sees their own agency's work: jobs by status, what is
  *     overdue against its deadline, the inspectors, and recent reports;
- *   - audit STAFF see the queues: cases, documents, rules and inspections,
- *     each a tile that opens the list it counts.
+ *   - audit STAFF see the queues as charts: key figures, a ring each for
+ *     cases, documents and rules, and bars for inspection work and the
+ *     categories still waiting for rules. Every slice, bar and figure opens
+ *     the list it counts.
  *
- * Every figure is the server's count. Nothing is added up here except the
- * sum of two of the server's own case counts, and that sum says which two.
+ * Every figure is the server's count. The only arithmetic here is adding the
+ * server's per-status counts together (a ring's total, "open cases", "closed")
+ * and the share of stocked categories with approved rules; each sum names the
+ * statuses it adds.
  */
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EnumBadge, QueryBoundary, ResponsiveTable, CardField, StatTile } from '@/components/console';
-import { Badge, Callout, Card, LinkButton, PageHeader } from '@/components/ui';
+import { BarListCard, KpiTile, type BarRow } from '@/components/dashboard/charts';
+import { BentoCell, BentoGrid, ConsoleGround, ConsoleHeader } from '@/components/dashboard/console';
+import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
+import { Badge, Button, Callout, Card, LinkButton, PageHeader } from '@/components/ui';
 import { useCurrentUser } from '@/auth/session-context';
 import { useI18n, type Translate } from '@/i18n/i18n-context';
-import { consoleKeys, fetchDashboard } from '@/lib/console-api';
+import { consoleKeys, fetchCoverage, fetchDashboard } from '@/lib/console-api';
 import type { AgencyDashboard, StaffDashboard } from '@/lib/console-types';
+import type { DonutSegmentInput } from '@/lib/donut';
 import { enumLabel } from '@/lib/enum-labels';
-import { formatCalendarDate, formatDateTime, formatNumber } from '@/lib/format';
+import { formatCalendarDate, formatDateTime, formatNumber, formatRelative } from '@/lib/format';
 import { agencyKindLabel, roleLabel } from '@/lib/labels';
 import type { AuditRole } from '@/lib/types';
 
 export function DashboardPage(): React.JSX.Element {
   const { t } = useI18n();
-  const query = useQuery({ queryKey: consoleKeys.dashboard(), queryFn: fetchDashboard });
+  const query = useQuery({
+    queryKey: consoleKeys.dashboard(),
+    queryFn: fetchDashboard,
+    // A minute, and only while the tab is in front: the same cadence as the
+    // Admin Panel's dashboard. Anything tighter is load for no gain.
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
+  });
+
+  // The staff view draws its own header inside the chart ground.
+  if (query.data?.audience === 'STAFF') {
+    return (
+      <StaffView
+        data={query.data.staff}
+        updatedAt={query.dataUpdatedAt}
+        refreshing={query.isFetching}
+        onRefresh={() => {
+          void query.refetch();
+        }}
+      />
+    );
+  }
 
   return (
     <>
       <PageHeader title={t('screens.dashboard.title')} description={t('screens.dashboard.description')} />
       <QueryBoundary query={query}>
         {(data) =>
-          data.audience === 'AGENCY' ? <AgencyView data={data.agency} /> : <StaffView data={data.staff} />
+          // Staff data returned above; this branch only ever draws an agency.
+          data.audience === 'AGENCY' ? <AgencyView data={data.agency} /> : null
         }
       </QueryBoundary>
     </>
@@ -219,105 +249,289 @@ function roleText(t: Translate, role: string): string {
 // Staff
 // ---------------------------------------------------------------------------
 
-function StaffView({ data }: { data: StaffDashboard }): React.JSX.Element {
-  const { t } = useI18n();
-  const cases = (status: string): number => data.cases[status] ?? 0;
-  const documents = (status: string): number => data.documents[status] ?? 0;
+/**
+ * The audit team's dashboard, drawn as charts.
+ *
+ * Key figures across the top, one ring per queue (cases, documents, rules),
+ * and ranked bars for the two things that are compared rather than shared
+ * out: inspection work, and the categories still waiting for rules. Every
+ * slice, bar and figure opens the list it counts.
+ *
+ * Every total is the server's. The rings are handed the sum of every status
+ * the server returned, so a status this screen does not break out shows as a
+ * shortfall under the ring rather than silently shrinking 100%.
+ */
+const CASES_CLOSED = ['REJECTED', 'WITHDRAWN', 'SUSPENDED', 'EXPIRED'] as const;
+const DOCUMENTS_CLOSED = ['REJECTED', 'SUSPENDED', 'EXPIRED'] as const;
+const CASES_OPEN = ['REQUESTED', 'UNDER_REVIEW', 'REREVIEW_REQUIRED', 'CHANGES_REQUESTED'] as const;
 
-  const groups: {
-    key: string;
-    title: string;
-    hint: string;
-    tiles: { label: string; value: number; to: string; tone?: 'warning' | 'danger' | 'success'; sub?: string }[];
-  }[] = [
+// The lattice aligns cells to the top; here each row's cards are compared
+// side by side, so they share a height.
+const STRETCH = 'self-stretch';
+
+const sum = (counts: Record<string, number>, keys?: readonly string[]): number =>
+  (keys ?? Object.keys(counts)).reduce((total, key) => total + (counts[key] ?? 0), 0);
+
+function StaffView({
+  data,
+  updatedAt,
+  refreshing,
+  onRefresh,
+}: {
+  data: StaffDashboard;
+  updatedAt: number;
+  refreshing: boolean;
+  onRefresh: () => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const navigate = useNavigate();
+  const coverage = useQuery({ queryKey: consoleKeys.coverage(), queryFn: fetchCoverage });
+
+  const caseCount = (status: string): number => data.cases[status] ?? 0;
+  const documentCount = (status: string): number => data.documents[status] ?? 0;
+  const openCases = sum(data.cases, CASES_OPEN);
+  const toReview = documentCount('SUBMITTED') + documentCount('UNDER_REVIEW');
+
+  // Only categories that hold products: an empty category has no seller to qualify.
+  const stocked = (coverage.data?.categories ?? []).filter((row) => row.products > 0);
+  const covered = stocked.filter((row) => !row.needsReview).length;
+  const missing = stocked
+    .filter((row) => row.needsReview)
+    .sort((a, b) => b.products - a.products || a.name.localeCompare(b.name))
+    .slice(0, 8);
+
+  const updatedIso = new Date(updatedAt).toISOString();
+
+  const donutLabels = {
+    status: t('common.status'),
+    value: t('dashboard.staff.chart.number'),
+    share: t('dashboard.staff.chart.share'),
+    viewAsTable: t('dashboard.staff.chart.viewAsTable'),
+    clearFilter: t('common.clearFilters'),
+    filteredBy: t('dashboard.staff.chart.filteredBy'),
+    empty: t('common.nothingHereYet'),
+    error: t('common.theRequestFailed'),
+    retry: t('dashboard.staff.chart.tryAgain'),
+    loading: t('common.loading'),
+    remainder: t('dashboard.staff.chart.remainder'),
+    clampNote: t('dashboard.staff.chart.clampNote'),
+  };
+
+  // A slice leads to its list. The ring's "selection" is that navigation, so
+  // nothing on this page is ever left filtered.
+  const open = (segments: readonly DonutSegmentInput[]) => (id: string | null) => {
+    const to = segments.find((segment) => segment.id === id)?.to;
+    if (to !== undefined) void navigate(to);
+  };
+
+  const caseSegments: DonutSegmentInput[] = [
+    { id: 'REQUESTED', label: t('enum.caseStatus.REQUESTED'), value: caseCount('REQUESTED'), step: 1, to: '/sellers?status=REQUESTED' },
+    { id: 'UNDER_REVIEW', label: t('enum.caseStatus.UNDER_REVIEW'), value: caseCount('UNDER_REVIEW'), step: 3, to: '/sellers?status=UNDER_REVIEW' },
+    { id: 'CHANGES_REQUESTED', label: t('enum.caseStatus.CHANGES_REQUESTED'), value: caseCount('CHANGES_REQUESTED'), step: 5, to: '/sellers?status=CHANGES_REQUESTED' },
+    { id: 'REREVIEW_REQUIRED', label: t('enum.caseStatus.REREVIEW_REQUIRED'), value: caseCount('REREVIEW_REQUIRED'), step: 'warning', to: '/sellers?status=REREVIEW_REQUIRED' },
+    { id: 'QUALIFIED', label: t('enum.caseStatus.QUALIFIED'), value: caseCount('QUALIFIED'), step: 'success', to: '/sellers?status=QUALIFIED' },
     {
-      key: 'cases',
-      title: t('dashboard.staff.casesHeading'),
-      hint: t('dashboard.staff.casesHint'),
-      tiles: [
-        { label: t('enum.caseStatus.REQUESTED'), value: cases('REQUESTED'), to: '/sellers?status=REQUESTED', tone: 'warning' },
-        { label: t('enum.caseStatus.UNDER_REVIEW'), value: cases('UNDER_REVIEW'), to: '/sellers?status=UNDER_REVIEW' },
-        { label: t('enum.caseStatus.REREVIEW_REQUIRED'), value: cases('REREVIEW_REQUIRED'), to: '/sellers?status=REREVIEW_REQUIRED', tone: 'warning' },
-        { label: t('enum.caseStatus.CHANGES_REQUESTED'), value: cases('CHANGES_REQUESTED'), to: '/sellers?status=CHANGES_REQUESTED' },
-        { label: t('enum.caseStatus.QUALIFIED'), value: cases('QUALIFIED'), to: '/sellers?status=QUALIFIED', tone: 'success' },
-      ],
-    },
-    {
-      key: 'documents',
-      title: t('dashboard.staff.documentsHeading'),
-      hint: t('dashboard.staff.documentsHint'),
-      tiles: [
-        { label: t('enum.documentStatus.SUBMITTED'), value: documents('SUBMITTED'), to: '/documents?status=SUBMITTED', tone: 'warning' },
-        { label: t('enum.documentStatus.UNDER_REVIEW'), value: documents('UNDER_REVIEW'), to: '/documents?status=UNDER_REVIEW' },
-        {
-          label: t('dashboard.staff.expiring30'),
-          value: data.documentsExpiringIn30Days,
-          to: '/documents?expiring=30',
-          tone: 'danger',
-        },
-        { label: t('enum.documentStatus.APPROVED'), value: documents('APPROVED'), to: '/documents?status=APPROVED', tone: 'success' },
-      ],
-    },
-    {
-      key: 'rules',
-      title: t('dashboard.staff.rulesHeading'),
-      hint: t('dashboard.staff.rulesHint'),
-      tiles: [
-        { label: t('enum.ruleStatus.IN_REVIEW'), value: data.rules.waitingForApproval, to: '/rules?status=IN_REVIEW', tone: 'warning' },
-        { label: t('enum.ruleStatus.DRAFT'), value: data.rules.drafts, to: '/rules?status=DRAFT' },
-        { label: t('enum.ruleStatus.APPROVED'), value: data.rules.approved, to: '/rules?status=APPROVED', tone: 'success' },
-      ],
-    },
-    {
-      key: 'inspections',
-      title: t('dashboard.staff.inspectionsHeading'),
-      hint: t('dashboard.staff.inspectionsHint'),
-      tiles: [
-        { label: t('dashboard.staff.jobsOpen'), value: data.inspections.open, to: '/jobs' },
-        { label: t('dashboard.staff.jobsOverdue'), value: data.inspections.overdue, to: '/jobs?overdue=true', tone: 'danger' },
-        { label: t('dashboard.staff.held'), value: data.inspections.held, to: '/jobs', tone: 'warning', sub: t('dashboard.staff.heldHint') },
-        {
-          label: t('dashboard.staff.subLots'),
-          value: data.inspections.subLotsWaiting,
-          to: '/jobs',
-          tone: 'warning',
-          sub: t('dashboard.staff.subLotsHint'),
-        },
-      ],
+      id: 'CLOSED',
+      label: t('dashboard.staff.chart.casesClosed'),
+      detail: t('dashboard.staff.chart.casesClosedDetail'),
+      value: sum(data.cases, CASES_CLOSED),
+      step: 'neutral',
+      to: '/sellers',
     },
   ];
 
+  const documentSegments: DonutSegmentInput[] = [
+    { id: 'SUBMITTED', label: t('enum.documentStatus.SUBMITTED'), value: documentCount('SUBMITTED'), step: 1, to: '/documents?status=SUBMITTED' },
+    { id: 'UNDER_REVIEW', label: t('enum.documentStatus.UNDER_REVIEW'), value: documentCount('UNDER_REVIEW'), step: 3, to: '/documents?status=UNDER_REVIEW' },
+    { id: 'CHANGES_REQUESTED', label: t('enum.documentStatus.CHANGES_REQUESTED'), value: documentCount('CHANGES_REQUESTED'), step: 5, to: '/documents?status=CHANGES_REQUESTED' },
+    { id: 'DRAFT', label: t('enum.documentStatus.DRAFT'), value: documentCount('DRAFT'), step: 6, to: '/documents?status=DRAFT' },
+    { id: 'APPROVED', label: t('enum.documentStatus.APPROVED'), value: documentCount('APPROVED'), step: 'success', to: '/documents?status=APPROVED' },
+    {
+      id: 'CLOSED',
+      label: t('dashboard.staff.chart.documentsClosed'),
+      detail: t('dashboard.staff.chart.documentsClosedDetail'),
+      value: sum(data.documents, DOCUMENTS_CLOSED),
+      step: 'neutral',
+      to: '/documents',
+    },
+  ];
+
+  const ruleSegments: DonutSegmentInput[] = [
+    { id: 'IN_REVIEW', label: t('enum.ruleStatus.IN_REVIEW'), value: data.rules.waitingForApproval, step: 1, to: '/rules?status=IN_REVIEW' },
+    { id: 'DRAFT', label: t('enum.ruleStatus.DRAFT'), value: data.rules.drafts, step: 3, to: '/rules?status=DRAFT' },
+    { id: 'APPROVED', label: t('enum.ruleStatus.APPROVED'), value: data.rules.approved, step: 'success', to: '/rules?status=APPROVED' },
+  ];
+
+  const inspectionRows: BarRow[] = [
+    { id: 'open', label: t('dashboard.staff.jobsOpen'), value: data.inspections.open, to: '/jobs' },
+    { id: 'overdue', label: t('dashboard.staff.jobsOverdue'), value: data.inspections.overdue, to: '/jobs?overdue=true', tone: 'danger' },
+    { id: 'held', label: t('dashboard.staff.held'), value: data.inspections.held, to: '/jobs', tone: 'warning' },
+    { id: 'subLots', label: t('dashboard.staff.subLots'), value: data.inspections.subLotsWaiting, to: '/jobs', tone: 'warning' },
+  ];
+
+  const coverageRows: BarRow[] = missing.map((row) => ({ id: row.categoryId, label: row.name, value: row.products, to: '/rules' }));
+
+  const donut = (title: string, hint: string, center: string, unit: string, segments: DonutSegmentInput[], total: number) => (
+    <ModernDonutCard
+      className="h-full"
+      title={title}
+      description={hint}
+      total={total}
+      centerLabel={center}
+      unitLabel={unit}
+      segments={segments}
+      selectedSegment={null}
+      onSegmentSelect={open(segments)}
+      labels={donutLabels}
+    />
+  );
+
   return (
-    <div className="space-y-8">
+    <ConsoleGround>
+      <ConsoleHeader
+        title={t('screens.dashboard.title')}
+        subtitle={t('dashboard.staff.subtitle')}
+        lastUpdatedLabel={t('dashboard.staff.updated', { when: formatRelative(updatedIso) })}
+        lastUpdatedAt={updatedIso}
+      >
+        <Button variant="secondary" size="sm" onClick={onRefresh} disabled={refreshing}>
+          {t('common.refresh')}
+        </Button>
+      </ConsoleHeader>
+
       {data.rules.approved === 0 && (
-        <Callout tone="warning" title={t('dashboard.staff.noRulesTitle')}>
-          {t('dashboard.staff.noRulesBody')}
-        </Callout>
+        <div className="mb-4">
+          <Callout tone="warning" title={t('dashboard.staff.noRulesTitle')}>
+            {t('dashboard.staff.noRulesBody')}
+          </Callout>
+        </div>
       )}
-      {groups.map((group) => (
-        <section key={group.key} aria-labelledby={`dash-${group.key}`}>
-          <div className="mb-3">
-            <h2 id={`dash-${group.key}`} className="text-title-xs text-ink">
-              {group.title}
-            </h2>
-            <p className="mt-0.5 text-xs text-ink-muted">{group.hint}</p>
-          </div>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {group.tiles.map((tile) => (
-              <li key={tile.label}>
-                <Link to={tile.to} className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-                  <StatTile
-                    label={tile.label}
-                    value={formatNumber(tile.value)}
-                    sub={tile.sub}
-                    {...(tile.value > 0 && tile.tone !== undefined ? { tone: tile.tone } : {})}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </div>
+
+      {/* Key figures: two to a row on a phone, all six in one row on a wide screen. */}
+      <ul className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.kpi.openCases')}
+            value={formatNumber(openCases)}
+            sub={t('dashboard.staff.kpi.openCasesSub')}
+            to="/sellers"
+            {...(openCases > 0 ? { tone: 'warning' as const } : {})}
+          />
+        </li>
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.kpi.documents')}
+            value={formatNumber(toReview)}
+            sub={t('dashboard.staff.kpi.documentsSub')}
+            to="/documents?status=SUBMITTED"
+            {...(toReview > 0 ? { tone: 'warning' as const } : {})}
+          />
+        </li>
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.expiring30')}
+            value={formatNumber(data.documentsExpiringIn30Days)}
+            sub={t('dashboard.staff.kpi.expiringSub')}
+            to="/documents?expiring=30"
+            {...(data.documentsExpiringIn30Days > 0 ? { tone: 'danger' as const } : {})}
+          />
+        </li>
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.kpi.rules')}
+            value={formatNumber(data.rules.approved)}
+            sub={t('dashboard.staff.kpi.rulesSub', {
+              waiting: formatNumber(data.rules.waitingForApproval),
+              drafts: formatNumber(data.rules.drafts),
+            })}
+            to="/rules"
+            {...(data.rules.approved > 0 ? { tone: 'success' as const } : {})}
+          />
+        </li>
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.kpi.coverage')}
+            value={stocked.length === 0 ? '—' : `${String(Math.round((covered / stocked.length) * 100))}%`}
+            sub={
+              stocked.length === 0
+                ? t('dashboard.staff.kpi.coverageNone')
+                : t('dashboard.staff.kpi.coverageSub', { covered: formatNumber(covered), total: formatNumber(stocked.length) })
+            }
+            meter={stocked.length === 0 ? undefined : (covered / stocked.length) * 100}
+            to="/rules"
+          />
+        </li>
+        <li>
+          <KpiTile
+            label={t('dashboard.staff.jobsOverdue')}
+            value={formatNumber(data.inspections.overdue)}
+            sub={t('dashboard.staff.kpi.overdueSub')}
+            to="/jobs?overdue=true"
+            {...(data.inspections.overdue > 0 ? { tone: 'danger' as const } : {})}
+          />
+        </li>
+      </ul>
+
+      <BentoGrid>
+        {/* --- The queues, as rings ---------------------------------------- */}
+        <BentoCell span={3} spanMd={3} className={STRETCH}>
+          {donut(
+            t('dashboard.staff.casesHeading'),
+            t('dashboard.staff.casesHint'),
+            t('dashboard.staff.chart.casesCenter'),
+            t('dashboard.staff.chart.casesUnit'),
+            caseSegments,
+            sum(data.cases),
+          )}
+        </BentoCell>
+        <BentoCell span={3} spanMd={3} className={STRETCH}>
+          {donut(
+            t('dashboard.staff.documentsHeading'),
+            t('dashboard.staff.documentsHint'),
+            t('dashboard.staff.chart.documentsCenter'),
+            t('dashboard.staff.chart.documentsUnit'),
+            documentSegments,
+            sum(data.documents),
+          )}
+        </BentoCell>
+        <BentoCell span={3} spanMd={3} className={STRETCH}>
+          {donut(
+            t('dashboard.staff.rulesHeading'),
+            t('dashboard.staff.rulesHint'),
+            t('dashboard.staff.chart.rulesCenter'),
+            t('dashboard.staff.chart.rulesUnit'),
+            ruleSegments,
+            data.rules.approved + data.rules.waitingForApproval + data.rules.drafts,
+          )}
+        </BentoCell>
+
+        {/* --- Compared, not shared out: bars ------------------------------ */}
+        <BentoCell span={3} spanMd={3} className={STRETCH}>
+          <BarListCard
+            title={t('dashboard.staff.inspectionsHeading')}
+            description={t('dashboard.staff.inspectionsHint')}
+            rows={inspectionRows}
+            actions={
+              <LinkButton to="/jobs" size="sm" variant="ghost">
+                {t('dashboard.staff.openList')}
+              </LinkButton>
+            }
+          />
+        </BentoCell>
+        <BentoCell span={6} spanMd={3} className={STRETCH}>
+          <BarListCard
+            title={t('dashboard.staff.coverageTitle')}
+            description={t('dashboard.staff.coverageHint')}
+            rows={coverageRows}
+            empty={coverage.isLoading ? t('common.loading') : t('dashboard.staff.coverageEmpty')}
+            actions={
+              <LinkButton to="/rules" size="sm" variant="ghost">
+                {t('dashboard.staff.openList')}
+              </LinkButton>
+            }
+          />
+        </BentoCell>
+      </BentoGrid>
+    </ConsoleGround>
   );
 }

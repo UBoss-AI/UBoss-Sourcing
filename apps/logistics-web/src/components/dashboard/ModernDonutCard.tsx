@@ -6,10 +6,10 @@
  * uses this and none of them hard-codes a status in it: it is handed segments
  * and it draws them.
  *
- * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web and
- * apps/logistics-web — see the note at the top of console.tsx. It takes no
+ * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web,
+ * apps/logistics-web and apps/audit-web — see the note at the top of console.tsx. It takes no
  * translation key and no router type for exactly that reason: every string
- * arrives translated and navigation is a callback, so the three copies cannot
+ * arrives translated and navigation is a callback, so the copies cannot
  * drift over a difference in their catalogues.
  *
  * ---

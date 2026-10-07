@@ -15,9 +15,10 @@
  *
  * ---
  *
- * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web and
- * apps/logistics-web. The three dashboards map three different state models
- * onto this — orders, operational queues, consignments — but "what fraction of
+ * KEPT BYTE-IDENTICAL across apps/customer-web, apps/admin-web,
+ * apps/logistics-web and apps/audit-web. The dashboards map different state
+ * models onto this — orders, operational queues, consignments, compliance
+ * queues — but "what fraction of
  * the whole is this, and where does its arc start" is one question with one
  * answer, and a second implementation of it is how two dashboards end up
  * disagreeing about what 100% means.
