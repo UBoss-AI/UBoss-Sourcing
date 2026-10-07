@@ -307,8 +307,10 @@ describe('the reporting window', () => {
     const seven = makeDashboard({ orderCount: 4 });
 
     fetchMock.mockImplementation((url: string) => {
-      const from = new URL(url, 'http://x').searchParams.get('from') ?? '';
-      const span = Date.parse('2026-09-17T00:00:00.000Z') - Date.parse(from);
+      // The window's own length, not its distance from a fixed date: the page
+      // anchors `to` on today, so a hard-coded date makes this test expire.
+      const params = new URL(url, 'http://x').searchParams;
+      const span = Date.parse(params.get('to') ?? '') - Date.parse(params.get('from') ?? '');
       const isSeven = span < 10 * 86_400_000;
 
       // The seven-day answer is slow; the thirty-day answer is instant.
