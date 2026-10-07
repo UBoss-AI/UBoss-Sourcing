@@ -70,7 +70,7 @@ export function AuthLayout({
   wide?: boolean;
 }): React.JSX.Element {
   return (
-    <div className="relative flex min-h-screen flex-col bg-surface-sunken lg:h-[100dvh] lg:overflow-hidden">
+    <div className="relative flex min-h-screen flex-col lg:h-[100dvh] lg:overflow-hidden">
       {/*
         The wash. `aria-hidden` and `pointer-events-none`: it is a light
         source, not content, and it must never sit between a finger and a

@@ -219,7 +219,7 @@ export function LocationGate(): React.JSX.Element {
   })();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         {/* The same reasoning as on the sign-in and change-password screens:
             this is a hard gate, so the language picker has to be reachable

@@ -1168,8 +1168,13 @@ take, rather than marking it dead and silently losing the work.
 *match my device*, *light* and *dark*, remembered per browser. **Dark is the
 default**: anybody who has not chosen sees the dark theme, whatever their
 device is set to. On the dark theme the storefront home page's hero is a
-black sky with slowly drifting stars; everything below it keeps the blue
-ground. When a whole
+black sky with slowly drifting stars. Everywhere else, in all four apps and
+both themes, the background is **ghost fibers**: slow, twisting strands drawn
+by a WebGL shader — indigo with a blue glow on near-black in the dark theme,
+blue strands on pale blue in the light theme. Cards sit on it in white with
+navy-tinted shadows, and the Admin Panel, logistics portal and Audit Console
+have a navy sidebar in the light theme.
+When a whole
 screen cannot be shown, each app shows the same full-page error: a status
 numeral with a ghost for its zero, plain words, and the ways onward. There are
 ten kinds, from 404 and 403 to offline and "a newer version is available". It
@@ -4926,6 +4931,10 @@ inspection agencies and the marketplace's own compliance staff. **Off unless
   an inconclusive result and an on-hold status that holds the goods, a report
   PDF, corrections that keep the original, and part-lot release (supervisor
   asks, admin approves, one dispatch).
+- **A dashboard of charts for the audit team.** Key figures, a ring each for
+  cases, documents and rules by status, and bars for inspection work and for
+  categories with products but no approved rule. Every figure, slice and bar
+  opens the list behind it. Agency members keep their own dashboard.
 
 | Variable | What it does |
 |---|---|

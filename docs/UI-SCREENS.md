@@ -158,8 +158,18 @@ appear only when the app is built with `VITE_DEMO_LOGINS` set.
   admin blocks are kept **identical**; the logistics portal uses the same
   values. The storefront is the spacious one and the panels are denser, but
   that difference is in spacing and type size, never in colour.
-- **White and sky blue.** The page ground is a blue-tinted white, and the
-  cards, header and sidebars on it are pure white.
+- **A moving background.** Behind every screen of all four apps are ghost
+  fibers: slow, twisting strands drawn by a WebGL shader. Dark theme: indigo
+  strands with a blue glow on near-black. Light theme: blue strands on pale
+  blue. On the dark theme the storefront home page's hero keeps its black
+  sky and stars; on the light theme the fibers show through the hero too.
+  With reduced motion it is a still frame.
+- **Sky blue and navy (light theme).** The page ground is a soft blue under
+  the fibers. Cards, the storefront header and
+  the top bars sit on it in pure white with navy-tinted shadows. The sidebar of
+  the Admin Panel, the logistics portal and the Audit Console is navy, with
+  white text and a light-blue highlight on the open page. The storefront's
+  account and Seller Hub sidebars stay white. The dark theme is unchanged.
 - **Colour means something:**
 
   | Colour | Used for |
@@ -8437,7 +8447,7 @@ Its own sign-in. Everyone passes a one-time code (TOTP) after the password.
 | Path | Who | What it does |
 |---|---|---|
 | `/login`, `/activate`, `/forgot-password`, `/reset-password` | anyone invited | Sign in, accept an invitation, reset a password. The second-step code screen follows sign-in |
-| `/dashboard` | all roles | Assignments, deadlines, overdue work, notifications |
+| `/dashboard` | all roles | Agency members: assignments, deadlines, overdue work. Audit staff: the queues drawn as charts (see below) |
 | `/sellers`, `/sellers/:id` | staff reviewers | A seller's qualification cases and documents |
 | `/products`, `/products/:caseId` | staff reviewers | Product cases |
 | `/cases/:id` | staff reviewers | Evaluation, determination for `CONDITIONAL` / `UNRESOLVED`, history |
@@ -8450,6 +8460,28 @@ Its own sign-in. Everyone passes a one-time code (TOTP) after the password.
 | `/checklists` | staff | Checklist items, their kind and mandatory / lab / equipment flags |
 | `/team` | agency admins, supervisors | Members and roles |
 | `/profile` | everyone | Own details and second factor |
+
+**The staff dashboard.** Audit staff (supervisors and compliance reviewers)
+see their `/dashboard` as charts, built from the same card, ring and grid
+pieces as the Admin Panel's dashboard. Top to bottom:
+
+- **Six key figures**: open cases, documents to review, documents expiring
+  within 30 days, rules in force (with how many wait for approval or are in
+  draft), category coverage (the share of categories that hold products and
+  have at least one approved rule, with a thin bar), and inspection jobs past
+  a deadline. Each one opens its list.
+- **Three rings**: cases, seller documents and compliance rules, by status.
+  Rejected, withdrawn, suspended and expired items share one "Closed" slice.
+  The figure in the middle is the total of every status the server returned.
+  Each slice and legend entry opens the list filtered to that status, and
+  every ring has a "View as a table" switch.
+- **Two bar charts**: inspection work (jobs under way, past a deadline, goods
+  held, sub-lot releases waiting), and the categories with products but no
+  approved rule, ranked by how many products they hold (top eight).
+
+It reads `GET /audit/dashboard` and `GET /audit/rules/coverage`, refreshes
+every minute while the tab is in front, and has a Refresh button. Agency
+members' dashboard is unchanged.
 
 Changes elsewhere:
 

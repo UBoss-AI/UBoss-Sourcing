@@ -837,7 +837,7 @@ function SellerLockGate({
     : password.length > 0 && !submit.isPending;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-16">
+    <div className="flex min-h-screen items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center gap-3">
           <CompanyMark name={seller.displayName} logoUrl={seller.logoUrl} className="h-10 w-10" />
@@ -1034,7 +1034,7 @@ export function SellerLayout(): React.JSX.Element {
   const isTrading = seller.isTrading;
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface-sunken lg:flex-row">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* The idle warning, and the re-lock when the server says the time is up. */}
       <SellerSessionGuard session={seller.session} />
       {/* ---- The rail ---------------------------------------------------- */}

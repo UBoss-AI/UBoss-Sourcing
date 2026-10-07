@@ -176,12 +176,15 @@ export default {
       // are tinted with the ink colour rather than pure black — a neutral-grey
       // shadow over a slate-tinted page ground reads as dirt.
       boxShadow: {
-        card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.05)',
+        // Navy-tinted rather than slate, so a white card reads as lifted off the
+        // blue light ground instead of greyed onto it; the second, wider layer
+        // is what gives the card its depth.
+        card: '0 1px 2px 0 rgb(30 50 110 / 0.06), 0 4px 12px -4px rgb(30 50 110 / 0.10)',
         'card-hover':
-          '0 2px 4px -1px rgb(15 23 42 / 0.06), 0 8px 20px -6px rgb(15 23 42 / 0.10)',
-        lift: '0 4px 12px -2px rgb(15 23 42 / 0.10), 0 2px 6px -2px rgb(15 23 42 / 0.06)',
-        popover: '0 4px 6px -1px rgb(15 23 42 / 0.08), 0 10px 24px -4px rgb(15 23 42 / 0.12)',
-        overlay: '0 10px 15px -3px rgb(15 23 42 / 0.10), 0 24px 48px -12px rgb(15 23 42 / 0.28)',
+          '0 2px 4px -1px rgb(30 50 110 / 0.06), 0 8px 20px -6px rgb(30 50 110 / 0.10)',
+        lift: '0 4px 12px -2px rgb(30 50 110 / 0.10), 0 2px 6px -2px rgb(30 50 110 / 0.06)',
+        popover: '0 4px 6px -1px rgb(30 50 110 / 0.08), 0 10px 24px -4px rgb(30 50 110 / 0.12)',
+        overlay: '0 10px 15px -3px rgb(30 50 110 / 0.10), 0 24px 48px -12px rgb(30 50 110 / 0.28)',
       },
 
       // One curve and one duration for the whole UI, set as the *defaults*.

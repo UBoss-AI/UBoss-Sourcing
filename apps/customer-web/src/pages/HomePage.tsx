@@ -72,70 +72,18 @@ import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { applyJsonLd, organizationJsonLd, websiteJsonLd } from '@/lib/seo';
 import type { CategoryNode } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import { useTheme } from '@/app/theme-context';
 
 // ---------------------------------------------------------------------------
 // Greeting
 // ---------------------------------------------------------------------------
 
-/**
- * The home page's ground — the whole page's, not the greeting's.
- *
- * White, brand blue and sky, in pure CSS: two soft washes that put the light
- * where the hub is, a faint engineering grid, and a sparse field of points
- * that carries the WebGL stage's particles on down the page. No image request,
- * nothing to 404, and it renders identically for a deployment that has
- * uploaded nothing.
- *
- * IT USED TO BELONG TO THE GREETING, AND THAT WAS THE CARD.
- *
- * Drawn inside the greeting's rounded, bordered section, it stopped at that
- * section's edges — so the hero read as a panel floating on the body's sunken
- * colour, with a band of that colour between it and the header. It is drawn
- * once now, behind every section of the page, and nothing below it restarts
- * it: the categories, the shelves and the catalogue all sit on the same
- * ground the headline does.
- *
- * The washes are pinned to the top in `rem` rather than stretched in percent,
- * because the page is thousands of pixels tall and a gradient in percent of
- * that would put the hero's light somewhere around the third shelf. The grid
- * and the points run the full height, fading to a floor rather than to
- * nothing, so the page never changes ground halfway down.
- *
- * Everything here is behind the content at a low enough opacity that the text
- * on top of it is still ink on white — the palette's 15.8:1 — rather than ink
- * on a tint nobody measured. Static, so there is nothing for reduced motion to
- * stop; the only moving layer is `HeroStage`, which has its own brakes.
+/*
+ * The home page has no ground of its own. It used to (`HomeBackdrop`: two
+ * washes, a grid and a field of points); the page's ghost fibers
+ * (`components/PageBackdrop.tsx`) are its ground now, as on every other
+ * screen. The one exception is the hero's night sky on the dark theme, below.
  */
-function HomeBackdrop(): React.JSX.Element {
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-[48rem] bg-gradient-to-b from-bloom/30 via-surface to-surface" />
-      <div className="absolute -right-24 -top-40 h-[34rem] w-[34rem] rounded-full bg-bloom/40 blur-3xl" />
-      <div className="absolute -left-24 top-[26rem] h-96 w-96 rounded-full bg-brand/[0.07] blur-3xl" />
-      <div
-        className="absolute inset-0"
-        // Inline rather than an arbitrary Tailwind value: this is a
-        // multi-layer background with a mask, and spelling it out in CSS is
-        // considerably easier to read than the bracket syntax for it.
-        style={{
-          backgroundImage:
-            // The points: two offset tiles of single dots, at sizes that do
-            // not divide each other, so the field never reads as a lattice.
-            'radial-gradient(circle at 30% 40%, rgb(var(--brand) / 0.35) 1px, transparent 1.5px),' +
-            'radial-gradient(circle at 70% 80%, rgb(var(--brand) / 0.22) 1px, transparent 1.5px),' +
-            'linear-gradient(to right, rgb(var(--brand) / 0.045) 1px, transparent 1px),' +
-            'linear-gradient(to bottom, rgb(var(--brand) / 0.045) 1px, transparent 1px)',
-          backgroundSize: '173px 211px, 257px 139px, 44px 44px, 44px 44px',
-          // Full strength behind the headline and the hub, easing to a floor
-          // under the sections below — present all the way down, but never at
-          // a strength that fights a product card's text.
-          WebkitMaskImage: 'linear-gradient(to bottom, black, rgb(0 0 0 / 0.45) 44rem)',
-          maskImage: 'linear-gradient(to bottom, black, rgb(0 0 0 / 0.45) 44rem)',
-        }}
-      />
-    </div>
-  );
-}
 
 /**
  * The greeting itself.
@@ -153,6 +101,7 @@ function HomeBackdrop(): React.JSX.Element {
  */
 function Greeting(): React.JSX.Element {
   const { t } = useI18n();
+  const { resolved } = useTheme();
 
   const { business, features } = useStorefront();
   const { isCustomer, isLoading } = useSession();
@@ -208,43 +157,45 @@ function Greeting(): React.JSX.Element {
      * Full-bleed, and not a card.
      *
      * No border, no radius, no shadow and no ground of its own: the backdrop
-     * is the page's (see `HomeBackdrop`), and a greeting framed as a panel on
+     * is the page's (see `PageBackdrop`), and a greeting framed as a panel on
      * top of it would bring back exactly the floating card this replaced. The
      * section still clips, because the canvas inside it is sized to it and the
      * orbits are allowed to run past the hub's square.
      */
     <section data-stage={stageActive ? 'on' : 'off'} className="relative overflow-hidden">
       {/*
-       * The hero's night sky: on the dark palette a black ground with moving
-       * stars, as in the original Galaxy, and on the light palette the stars
-       * alone as faint dark points (see `.galaxy-ground` in index.css). Sized
-       * to this section, not the page, so the sections below keep the normal
-       * blue ground; it fades out over the last 7rem, like the stage, so the
-       * black hands over to the blue without a seam.
+       * The hero's night sky, on the dark palette only: a black ground with
+       * moving stars, as in the original Galaxy. On the light palette it is
+       * not drawn at all and the page's ghost fibers show through the hero,
+       * as everywhere else. Sized to this section, not the page, and faded
+       * over the last 7rem so the black hands over to the fibers without a
+       * seam.
        */}
-      <div
-        aria-hidden="true"
-        className="galaxy-ground pointer-events-none absolute inset-0"
-        style={{
-          WebkitMaskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
-          maskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
-        }}
-      >
-        <GalaxyStars
-          className="galaxy-stars absolute inset-0"
-          mouseRepulsion
-          mouseInteraction
-          density={1}
-          glowIntensity={0.3}
-          saturation={0}
-          hueShift={140}
-          twinkleIntensity={0.3}
-          rotationSpeed={0.1}
-          repulsionStrength={2}
-          starSpeed={0.5}
-          speed={1}
-        />
-      </div>
+      {resolved === 'dark' && (
+        <div
+          aria-hidden="true"
+          className="galaxy-ground pointer-events-none absolute inset-0"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
+            maskImage: 'linear-gradient(to bottom, black calc(100% - 7rem), transparent)',
+          }}
+        >
+          <GalaxyStars
+            className="galaxy-stars absolute inset-0"
+            mouseRepulsion
+            mouseInteraction
+            density={1}
+            glowIntensity={0.3}
+            saturation={0}
+            hueShift={140}
+            twinkleIntensity={0.3}
+            rotationSpeed={0.1}
+            repulsionStrength={2}
+            starSpeed={0.5}
+            speed={1}
+          />
+        </div>
+      )}
       {/*
        * The stage spans the full width with the section, and fades out over
        * its last few rem. Without the fade the canvas's floor and particle
@@ -488,7 +439,9 @@ function CategoryStrip(): React.JSX.Element | null {
   }
 
   // A malformed answer must not take the home page down; it just shows no strip.
-  const categories = Array.isArray(query.data.categories) ? stockedCategories(query.data.categories) : [];
+  const categories = Array.isArray(query.data.categories)
+    ? stockedCategories(query.data.categories)
+    : [];
 
   if (categories.length === 0) return null;
 
@@ -575,8 +528,6 @@ export function HomePage(): React.JSX.Element {
    */
   return (
     <div className="relative min-h-screen overflow-x-clip">
-      <HomeBackdrop />
-
       <Greeting />
 
       <div className="relative mx-auto max-w-content px-4 pb-6 sm:pb-8">

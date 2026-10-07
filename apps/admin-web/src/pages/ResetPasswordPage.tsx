@@ -74,7 +74,7 @@ function recoveryFor(
 
 function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         {/* In the shell so it is present on the form, the dead-link panel and
             the success panel alike. This screen is reached straight from an

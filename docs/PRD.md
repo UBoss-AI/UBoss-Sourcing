@@ -6501,6 +6501,7 @@ availability is never cached by a proxy.
 | NFR-UI-001 | Light and dark themes from design tokens, both contrast-audited. |
 | NFR-UI-002 | Responsive layouts at phone width; signed-out screens show the earth on wide windows and a drawn globe otherwise. |
 | NFR-UI-003 | The operator's name, never "Gloviaa Mart", heads a deployment that has a business profile. |
+| NFR-UI-004 | A moving background (WebGL "ghost fibers") behind every screen of all four apps, in both themes; the storefront hero keeps its black sky on the dark theme. 30 fps cap, paused when hidden, a still frame under reduced motion; in the light theme the shader holds a luminance floor so page titles and subtitles keep 4.5:1. Built. |
 | NFR-UI-004 | No third-party component source whose licence forbids redistribution is shipped (the product is redistributed to every operator). |
 | NFR-UI-005 | Full-page errors and the appearance control draw only from design tokens, so they follow the chosen theme; decorative motion stops under reduced motion; no picture on an error page is fetched from another site. |
 
@@ -7233,6 +7234,20 @@ and the marketplace's compliance staff. Off by default.
 - Console notifications. Sampling table labelled MIL-STD-105E / ANSI Z1.4,
   not ISO 2859-1.
 - Carrier portal shows inspection released or held.
+
+### FR-AUD-030 — Staff dashboard as charts — built
+
+- Audit staff (supervisors and compliance reviewers) see `/dashboard` as
+  charts: six key figures (open cases, documents to review, documents expiring
+  within 30 days, rules in force, category coverage, inspection jobs past a
+  deadline), a ring each for cases, documents and rules by status, and bars
+  for inspection work and for categories that hold products but have no
+  approved rule.
+- Every figure, slice and bar opens the list it counts, filtered to that
+  status. Each ring can be read as a table.
+- A ring's total is the sum of every status the server returns, so a status
+  the chart does not break out shows as a shortfall rather than vanishing.
+- Agency members' dashboard is unchanged.
 
 ### Not provided by the software
 

@@ -63,7 +63,8 @@ export function AppShell(): React.JSX.Element {
   const active = locateRoute(location.pathname);
 
   return (
-    <div className="min-h-screen bg-surface-sunken text-ink">
+    // No background of its own: the body's tinted ground and wash show through.
+    <div className="min-h-screen text-ink">
       {/*
         The first focusable element on the page, and invisible until it has
         focus. `sr-only focus:not-sr-only` is the whole implementation.

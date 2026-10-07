@@ -8,6 +8,7 @@ import { MarketplaceName } from '@/i18n/MarketplaceName';
 import { ToastProvider } from '@/components/toast';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
 import { ThemeProvider } from '@/app/ThemeProvider';
+import { PageBackdrop } from '@/components/PageBackdrop';
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/app/router';
 // The wordmark's face, Latin Bold only: "Gloviaa Mart" is the one thing set in it.
@@ -28,6 +29,8 @@ createRoot(container).render(
         correct without it — index.html stamps the attribute before React
         exists — and this adopts that decision and owns it from there. */}
     <ThemeProvider>
+      {/* The moving ground behind every screen, the sign-in page included. */}
+      <PageBackdrop />
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <ToastProvider>

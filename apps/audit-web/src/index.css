@@ -117,15 +117,15 @@
        Each has a `-hover` that goes *darker*. Filled status buttons used to
        lighten on hover, which quietly walked white label text down towards
        failing AA at the exact moment the pointer was on it. */
-    --success: 21 128 61;
-    --success-hover: 22 101 52;
-    --success-fill: 21 128 61;
-    --success-fill-hover: 22 101 52;
+    --success: 20 116 56;
+    --success-hover: 18 94 47;
+    --success-fill: 20 116 56;
+    --success-fill-hover: 18 94 47;
     --success-soft: 240 253 244;
-    --warning: 161 98 7;
-    --warning-hover: 133 77 14;
-    --warning-fill: 161 98 7;
-    --warning-fill-hover: 133 77 14;
+    --warning: 146 88 6;
+    --warning-hover: 120 70 12;
+    --warning-fill: 146 88 6;
+    --warning-fill-hover: 120 70 12;
     --warning-soft: 254 252 232;
     --danger: 185 28 28;
     --danger-hover: 153 27 27;
@@ -182,16 +182,27 @@
      * stops passing. That is the ceiling, and it is why this is a tint
      * rather than a colour.
      */
-    --surface-sunken: 245 249 254;
+    --surface-sunken: 238 243 253;
     /* The hover ground for a table row, a menu item, a quiet button. One step
        below `surface-sunken`, so a hovered row inside a sunken panel — which
        in this app is most rows — still visibly moves. */
-    --surface-hover: 235 243 253;
+    --surface-hover: 228 237 252;
     --surface-inverse: 12 35 80;
     --surface-inverse-hover: 19 49 104;
     /* Shared with the storefront, where it is the blurred wash behind the
        greeting graphic. Unused here, and kept so the palettes stay one set. */
     --bloom: 186 230 253;
+
+    /* The light page is tinted rather than white: a cool blue ground with
+     * three faint washes of the brand family (indigo top left, sky top
+     * right, teal at the foot). Kept faint on purpose - every text token
+     * still clears 4.5:1 where two washes overlap at their strongest
+     * (215 229 251), which is why --ink-subtle, --warning and --success are
+     * a step darker than they once were. Dark has no wash. */
+    --page-wash:
+      radial-gradient(60rem 36rem at 0% 0%, rgb(99 102 241 / 0.07), transparent 70%),
+      radial-gradient(52rem 32rem at 100% 0%, rgb(14 165 233 / 0.06), transparent 70%),
+      radial-gradient(56rem 34rem at 50% 100%, rgb(45 212 191 / 0.05), transparent 70%);
 
     /* ===================================================================
      * The console layer — the role dashboards, and only those
@@ -240,7 +251,7 @@
        3.31:1 on a card and 3.13:1 on the page ground. The #CBD5E1 two
        revisions ago sat at 1.48:1 on white, which made every input and pager
        button border effectively invisible to a low-vision user. */
-    --border-strong: 124 143 168;
+    --border-strong: 110 129 154;
     /* The hover boundary for an idle control: darker, and still not the focus
        ring, so hovering an input is felt without being announced. */
     --border-hover: 94 116 144;
@@ -256,7 +267,7 @@
        informational text, however quiet it looks. It went a step darker when
        the page ground went sky: a tinted ground is a darker ground, and the
        quietest text on it has to pay for that. */
-    --ink-subtle: 92 109 135;
+    --ink-subtle: 82 97 122;
     /*
      * The Gloviaa Mart wordmark and its tagline in the header. Their own tokens
      * rather than ink and ink-subtle: the tagline set in ink-subtle is what
@@ -447,6 +458,7 @@
       --surface-raised: 26 38 58;
       --surface-sunken: 12 19 32;
       --surface-hover: 30 43 65;
+      --page-wash: none;
       --surface-media: 255 255 255;
       --bloom: 40 70 132;
 
@@ -529,6 +541,7 @@
     --surface-raised: 26 38 58;
     --surface-sunken: 12 19 32;
     --surface-hover: 30 43 65;
+    --page-wash: none;
     --surface-media: 255 255 255;
     --bloom: 40 70 132;
 
@@ -586,6 +599,8 @@
 
   body {
     @apply bg-surface-sunken text-ink antialiased;
+    background-image: var(--page-wash);
+    background-attachment: fixed;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
@@ -824,8 +839,11 @@
    * the frosted cards need something to be frosted OVER. On a flat white page a
    * backdrop blur has nothing to blur and the card just looks slightly grey.
    */
+  /* No ground of its own any more: the page's ghost fibers (PageBackdrop)
+   * are the dashboard's ground too. --console stays defined for the parts
+   * that still use it. */
   .console-ground {
-    background-color: rgb(var(--console));
+    background-color: transparent;
   }
 
   /*
@@ -842,6 +860,8 @@
    * being a wash behind nothing and start being a tint under text.
    */
   .console-backdrop {
+    /* Superseded by the page's ghost fibers; kept so it can be brought back. */
+    display: none;
     position: absolute;
     inset: 0;
     overflow: hidden;
@@ -1378,5 +1398,70 @@
 
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/*
+ * The navy chrome: the staff consoles' sidebar in the light theme.
+ *
+ * A white sidebar on a near-white page is what made the light theme read as
+ * "all white". This paints the sidebar the brand's navy instead, by
+ * redefining the colour tokens for that one subtree - so every row, icon,
+ * badge and divider inside it keeps its own classes and simply picks up the
+ * navy values. They are the dark theme's own text and accent steps, already
+ * audited for a dark ground; on this navy the weakest pair, the active row's
+ * text on its highlight, is 4.52:1.
+ *
+ * Light only, and declared twice for the same reason the dark palette is: once
+ * for an explicit light choice, once for a light operating system with no
+ * choice made. In the dark theme the class does nothing.
+ */
+:root[data-theme='light'] .theme-chrome {
+  --surface: 13 33 79;
+  --surface-raised: 20 42 94;
+  --surface-sunken: 9 24 60;
+  --surface-hover: 29 52 110;
+  --border: 44 64 110;
+  --border-subtle: 33 52 98;
+  --border-strong: 116 136 164;
+  --border-hover: 148 167 193;
+  --ink: 232 238 248;
+  --ink-muted: 175 189 210;
+  --ink-subtle: 145 161 185;
+  --brand: 138 180 255;
+  --brand-hover: 176 205 255;
+  --brand-soft: 34 66 140;
+  --brand-soft-hover: 40 76 158;
+  --ring: 138 180 255;
+  --brand-wordmark: 248 250 255;
+  --brand-tagline: 199 216 242;
+  --brand-wordmark-glow: 0 0 14px rgb(138 180 255 / 0.28), 0 1px 1px rgb(2 6 23 / 0.45);
+  color-scheme: dark;
+  background-image: linear-gradient(180deg, rgb(18 42 98), rgb(10 26 64));
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .theme-chrome {
+    --surface: 13 33 79;
+    --surface-raised: 20 42 94;
+    --surface-sunken: 9 24 60;
+    --surface-hover: 29 52 110;
+    --border: 44 64 110;
+    --border-subtle: 33 52 98;
+    --border-strong: 116 136 164;
+    --border-hover: 148 167 193;
+    --ink: 232 238 248;
+    --ink-muted: 175 189 210;
+    --ink-subtle: 145 161 185;
+    --brand: 138 180 255;
+    --brand-hover: 176 205 255;
+    --brand-soft: 34 66 140;
+    --brand-soft-hover: 40 76 158;
+    --ring: 138 180 255;
+    --brand-wordmark: 248 250 255;
+    --brand-tagline: 199 216 242;
+    --brand-wordmark-glow: 0 0 14px rgb(138 180 255 / 0.28), 0 1px 1px rgb(2 6 23 / 0.45);
+    color-scheme: dark;
+    background-image: linear-gradient(180deg, rgb(18 42 98), rgb(10 26 64));
   }
 }

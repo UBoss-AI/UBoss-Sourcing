@@ -195,7 +195,8 @@ export function DesktopSidebar({
           // pages of different heights load. Wheel, trackpad, touch and keyboard
           // all still scroll it — only the drawn bar is gone.
           '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          'border-r border-border bg-surface px-2.5 py-4 md:flex',
+          // `theme-chrome` paints it navy in the light theme; see index.css.
+          'theme-chrome border-r border-border bg-surface px-2.5 py-4 md:flex',
           className,
         )}
         animate={{ width: animate ? (open ? OPEN_WIDTH : RAIL_WIDTH) : OPEN_WIDTH }}
@@ -338,7 +339,7 @@ export function MobileSidebar({
             className={cx(
               'absolute inset-y-0 left-0 flex w-[17rem] max-w-[85%] flex-col overflow-y-auto',
               '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              'border-r border-border bg-surface px-2.5 py-4 shadow-xl',
+              'theme-chrome border-r border-border bg-surface px-2.5 py-4 shadow-xl',
               className,
             )}
             initial={reduced ? { opacity: 0 } : { x: '-100%' }}

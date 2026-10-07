@@ -100,7 +100,7 @@ export function AdminMfaGate(): React.JSX.Element {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       {/* Wide enough for the code and the key side by side while enrolling;
           the challenge is one input and stays the width of every other gate. */}
       <div className={enrolling ? 'w-full max-w-xl' : 'w-full max-w-sm'}>

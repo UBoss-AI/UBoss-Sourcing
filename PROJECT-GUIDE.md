@@ -353,14 +353,29 @@ padding, type steps and radii, never in the colours.
 
 ### What the product looks like
 
-White and sky blue, with blue as the accent — and a dark theme beside it,
-described below. The rule that produces the light one:
+Sky blue and navy, with blue as the accent — and a dark theme beside it,
+described below. The rules that produce the light one:
 
-- **The page ground is a blue-tinted white** (`--surface-sunken`), and
-  everything that sits on it — cards, the storefront header, the admin sidebar,
-  the top bar — is **pure white**. That inversion is the whole scheme. Both
-  chromes used to be a navy band; the separation now comes from the page being
-  cool rather than from the chrome being dark.
+- **The page ground moves: ghost fibers** — slow, twisting strands drawn by
+  a WebGL shader behind every screen of all four apps (see "The moving
+  background" below). In the light theme they are blue strands on the pale
+  blue ground (`--surface-sunken`, `238 243 253`); in the dark theme, indigo
+  strands with a blue glow on near-black. Cards, the storefront header and the
+  top bars sit on it in **pure white**, and their shadows are navy-tinted
+  rather than grey, so a card reads as lifted off the blue rather than greyed
+  onto it. Where WebGL is missing, the static ground (`--surface-sunken` and
+  the faint `--page-wash`) shows instead.
+- **The staff consoles' sidebar is navy** in the light theme — the Admin
+  Panel, the logistics portal and the Audit Console. It is the `theme-chrome`
+  class on the shared sidebar, which redefines the colour tokens for that one
+  subtree to the dark theme's own text and accent steps over a navy gradient.
+  Nothing inside the sidebar knows; every row keeps its classes. In the dark
+  theme the class does nothing. (A white sidebar on a near-white page was
+  tried before this and read as "all white".)
+- **The washes are why some text tokens are a step darker.** Every text token
+  still clears 4.5:1 where two washes overlap at their strongest, which meant
+  darkening `--ink-subtle`, `--warning`, `--success` and `--border-strong`
+  slightly. The contrast audit in each app checks this.
 - **Hairlines are tinted to match** (`--border`), so a card edge belongs to the
   ground it is drawn on instead of being a grey line over a cool surface.
 - **Blue is navigation and primary actions. Orange is the buy path, and
@@ -369,6 +384,44 @@ described below. The rule that produces the light one:
   like a link would stop being noticed as either.
 - **Teal is a standing arrangement** — schedules, Autopay — so committing to
   a repeat delivery never has to borrow the buy path's orange.
+
+### The moving background
+
+Every screen of all four apps — storefront, Admin Panel, logistics portal and
+Audit Console, sign-in pages included — sits on **ghost fibers**: slow,
+twisting strands drawn by one WebGL2 fragment shader.
+
+- `components/GhostFibers.tsx` draws them; `components/PageBackdrop.tsx`
+  mounts them once, in `main.tsx`, as a fixed layer under everything
+  (`-z-10`). Both files are kept byte-identical across the four apps. No
+  library: it is one triangle and one shader.
+- Anything with its own background covers it — cards, top bars, the navy
+  sidebar — so it shows in the page margins and behind headings. The
+  dashboards' own ground (`.console-ground`) and its glows and grid
+  (`.console-backdrop`) are switched off for it, and so are the full-screen
+  `bg-surface-sunken` grounds of the sign-in, password and Seller Hub layouts.
+- **Dark theme:** indigo strands (`#140E35`) with a blue glow (`#3437A0`) on
+  near-black (`#120F17`).
+- **Light theme:** blue strands — a wash of blue (`#60A5FA`) and sky
+  (`#38BDF8`) that drifts, a haze of the same along each strand, cores in
+  `#3437A0` — on the pale blue ground. The shader holds every pixel at or
+  above 62% relative luminance by lifting it toward a light blue
+  (`#9BD7FF`), so strands stay blue instead of washing to white, and page
+  titles and subtitles (`--ink`, `--ink-muted`) keep 4.5:1 anywhere. The
+  smallest grey (`--ink-subtle`) and blue links drawn straight on the page
+  can dip to about 4:1 where a strand's core passes under them. Because the
+  floor stops the strands getting darker, they are made visible by area
+  instead: thicker strands (`lineSharpness` 8 rather than 16), a wider glow
+  round each (`glowFalloff` 6, `glowIntensity` 2.2) and less fade toward the
+  window's edges (`vignette` 0.45).
+- **The storefront home page's hero** keeps its black sky and stars on the
+  dark theme and covers the fibers there. On the light theme the stars are
+  not drawn and the fibers show through the hero. The old `HomeBackdrop`
+  (washes, grid and points) is gone.
+- **Cost:** 30 frames a second, a drawing buffer at three quarters of the
+  CSS size, and no frames while the tab is hidden or the page is off screen.
+  With `prefers-reduced-motion` it draws one still frame. Without WebGL2 it
+  draws nothing.
 
 ### There are two themes, and one of them is dark
 
@@ -20992,6 +21045,31 @@ Console. Sellers and buyers still see inspections on their orders as before.
 - **Notifications** to console users are stored in `audit_notifications`.
 - The sampling table is labelled **MIL-STD-105E / ANSI Z1.4**, which is what it
   is. It is not ISO 2859-1.
+
+### The staff dashboard
+
+Supervisors and compliance reviewers land on `/dashboard`, which shows the
+team's queues as charts. Agency members keep their own dashboard (their jobs,
+reports and inspectors), unchanged.
+
+- **Key figures** across the top: open cases, documents to review, documents
+  expiring within 30 days, rules in force, category coverage, and inspection
+  jobs past a deadline.
+- **Rings** for cases, seller documents and compliance rules, by status. The
+  number in the middle is the total of every status the server sent; closed
+  statuses (rejected, withdrawn, suspended, expired) share one slice.
+- **Bars** for inspection work, and for categories that hold products but
+  have no approved rule, ranked by product count.
+- Every figure, slice and bar opens the list it counts. The page refreshes
+  every minute while it is in front.
+- **Category coverage** counts only categories that hold products. A category
+  is covered when at least one approved rule reaches it; that is the same
+  "needs review" test the Compliance rules page uses.
+
+It uses no new endpoint: `GET /audit/dashboard` and `GET /audit/rules/coverage`.
+The ring, card and grid components are copies of the Admin Panel's dashboard
+pieces (`components/dashboard/console.tsx`, `ModernDonutCard.tsx`,
+`lib/donut.ts`), so the two dashboards look and behave alike.
 
 ### Elsewhere
 

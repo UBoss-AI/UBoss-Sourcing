@@ -6,6 +6,7 @@ import { SessionProvider } from '@/auth/SessionProvider';
 import { StepUpProvider } from '@/auth/StepUpProvider';
 import { StorefrontProvider } from '@/app/StorefrontProvider';
 import { ThemeProvider } from '@/app/ThemeProvider';
+import { PageBackdrop } from '@/components/PageBackdrop';
 import { LocaleProvider } from '@/app/LocaleProvider';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
@@ -42,6 +43,8 @@ createRoot(container).render(
         is already correct without it — index.html stamps the attribute before
         React exists — and this adopts that decision and owns it from there. */}
     <ThemeProvider>
+      {/* The moving ground behind every screen, the sign-in page included. */}
+      <PageBackdrop />
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <StorefrontProvider>
