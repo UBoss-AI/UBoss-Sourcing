@@ -59,6 +59,11 @@ process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
 // different TOTP for every helper login; dedicated MFA tests cover that gate.
 process.env.FEATURE_ADMIN_MFA = 'false';
 
+// The agreement screen after sign-in, for the same reason: every suite that
+// signs somebody in would first have to publish Terms and a Privacy Policy and
+// accept both. `agreement-gate.test.ts` switches it back on for itself.
+process.env.FEATURE_AGREEMENT_GATE = 'false';
+
 // The Audit Console, on, with the same reasoning for its second factor:
 // unrelated suites sign agency people in without a TOTP, and
 // `audit-console.test.ts` switches the factor back on for itself.

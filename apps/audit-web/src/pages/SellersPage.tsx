@@ -7,7 +7,9 @@
  *                     qualifications, product cases, and the documents behind them.
  *
  * `?status=` takes a case status, which is what the server filters sellers by
- * (a seller with at least one case in that status).
+ * (a seller with at least one case in that status). `?health=` takes a health
+ * band and `?sort=risk` lists the riskiest seller first - Amazon's Account
+ * Health rating, worked out by the server for every seller in the list.
  */
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -35,6 +37,12 @@ import { enumLabel } from '@/lib/enum-labels';
 import { formatCalendarDate, formatDateTime, formatNumber } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { useDebounced } from '@/lib/use-debounced';
+import { HealthBadge } from '@/components/health';
+import type { HealthBand } from '@/lib/console-types';
+import { SellerHealthCard, VerificationReportCard } from './sellers/SellerHealthPanels';
+
+const HEALTH_BANDS: readonly HealthBand[] = ['HEALTHY', 'AT_RISK', 'UNHEALTHY'];
+const SORTS = ['name', 'risk'] as const;
 import { CASE_STATUSES, pick } from './compliance/compliance-constants';
 import { OpenCaseDialog } from './compliance/OpenCaseDialog';
 
@@ -44,21 +52,31 @@ export function SellersPage(): React.JSX.Element {
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const status = pick(params.get('status'), CASE_STATUSES);
+  const health = pick(params.get('health'), HEALTH_BANDS);
+  const sort = pick(params.get('sort'), SORTS) === 'risk' ? 'risk' : 'name';
   const debounced = useDebounced(search.trim());
   const [opening, setOpening] = useState<BackfillRow | null>(null);
 
-  const filters = { ...(debounced === '' ? {} : { search: debounced }), ...(status === '' ? {} : { status }) };
+  const filters = {
+    ...(debounced === '' ? {} : { search: debounced }),
+    ...(status === '' ? {} : { status }),
+    ...(health === '' ? {} : { health }),
+    sort,
+  } as const;
   const query = useQuery({
     queryKey: consoleKeys.sellers(filters),
     queryFn: () => fetchSellers(filters),
     placeholderData: keepPreviousData,
   });
 
-  const setStatus = (next: string): void => {
+  const setParam = (name: string, next: string): void => {
     const copy = new URLSearchParams(params);
-    if (next === '') copy.delete('status');
-    else copy.set('status', next);
+    if (next === '') copy.delete(name);
+    else copy.set(name, next);
     setParams(copy, { replace: true });
+  };
+  const setStatus = (next: string): void => {
+    setParam('status', next);
   };
 
   const columns: Column<SellerRow>[] = [
@@ -70,6 +88,12 @@ export function SellersPage(): React.JSX.Element {
           {row.name}
         </Link>
       ),
+    },
+    {
+      key: 'health',
+      header: t('health.column'),
+      nowrap: true,
+      render: (row) => <HealthBadge band={row.health.band} score={row.health.score} />,
     },
     { key: 'kind', header: t('sellers.col.kind'), secondary: true, render: (row) => enumLabel(t, 'sellerKind', row.kind) },
     {
@@ -126,13 +150,39 @@ export function SellersPage(): React.JSX.Element {
                 ))}
               </Select>
             </ToolbarField>
-            {(search !== '' || status !== '') && (
+            <ToolbarField label={t('health.column')}>
+              <Select
+                value={health}
+                onChange={(event) => {
+                  setParam('health', event.target.value);
+                }}
+              >
+                <option value="">{t('common.all')}</option>
+                {HEALTH_BANDS.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`health.band.${value}`)}
+                  </option>
+                ))}
+              </Select>
+            </ToolbarField>
+            <ToolbarField label={t('health.sort')}>
+              <Select
+                value={sort}
+                onChange={(event) => {
+                  setParam('sort', event.target.value === 'risk' ? 'risk' : '');
+                }}
+              >
+                <option value="name">{t('health.sortName')}</option>
+                <option value="risk">{t('health.sortRisk')}</option>
+              </Select>
+            </ToolbarField>
+            {(search !== '' || status !== '' || health !== '' || sort !== 'name') && (
               <ToolbarActions>
                 <Button
                   variant="ghost"
                   onClick={() => {
                     setSearch('');
-                    setStatus('');
+                    setParams(new URLSearchParams(), { replace: true });
                   }}
                 >
                   {t('common.clearFilters')}
@@ -158,6 +208,9 @@ export function SellersPage(): React.JSX.Element {
                       </Link>
                       <EnumBadge family="sellerStatus" value={row.applicationStatus} />
                     </div>
+                    <CardField label={t('health.column')}>
+                      <HealthBadge band={row.health.band} score={row.health.score} />
+                    </CardField>
                     <CardField label={t('sellers.col.qualifications')}>{formatNumber(row.qualifications)}</CardField>
                     <CardField label={t('sellers.col.openCases')}>{formatNumber(row.casesOpen)}</CardField>
                     <CardField label={t('sellers.col.documentsWaiting')}>{formatNumber(row.documentsWaiting)}</CardField>
@@ -296,6 +349,10 @@ function SellerScreen({ detail, back }: { detail: SellerDetail; back: { to: stri
       />
 
       <div className="space-y-6">
+        <SellerHealthCard detail={detail} />
+        <VerificationReportCard detail={detail} />
+
+        <div id="seller-identity" className="scroll-mt-20">
         <Card title={t('sellers.detail.identity')} description={t('sellers.detail.identityHint')} bodyClassName="px-5 py-4">
           <Callout tone="info" className="mb-4">
             {t('sellers.detail.identityNote')}
@@ -352,7 +409,9 @@ function SellerScreen({ detail, back }: { detail: SellerDetail; back: { to: stri
             </>
           )}
         </Card>
+        </div>
 
+        <div id="seller-qualifications" className="scroll-mt-20">
         <CasesCard
           title={t('sellers.detail.qualifications')}
           description={t('sellers.detail.qualificationsHint')}
@@ -360,6 +419,7 @@ function SellerScreen({ detail, back }: { detail: SellerDetail; back: { to: stri
           empty={t('sellers.detail.noQualifications')}
           linkBase="/cases"
         />
+        </div>
         <CasesCard
           title={t('sellers.detail.productCases')}
           description={t('sellers.detail.productCasesHint')}
@@ -367,7 +427,9 @@ function SellerScreen({ detail, back }: { detail: SellerDetail; back: { to: stri
           empty={t('sellers.detail.noProductCases')}
           linkBase="/products"
         />
-        <DocumentsCard rows={detail.documents} />
+        <div id="seller-documents" className="scroll-mt-20">
+          <DocumentsCard rows={detail.documents} />
+        </div>
       </div>
     </>
   );

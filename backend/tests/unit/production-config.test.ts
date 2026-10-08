@@ -361,3 +361,15 @@ describe('seller settlement statements', () => {
     ).toEqual([]);
   });
 });
+
+describe('seller turnover minimum', () => {
+  // The .env.example sets this explicitly, so a pattern that rejects plain
+  // digits stops the API from starting on any server that copied it.
+  it('accepts the documented minimum written out in minor units', () => {
+    expect(issuesFor('SELLER_TURNOVER_MIN_MINOR', { SELLER_TURNOVER_MIN_MINOR: '30000000000' })).toEqual([]);
+  });
+
+  it('refuses a figure that is not whole minor units', () => {
+    expect(issuesFor('SELLER_TURNOVER_MIN_MINOR', { SELLER_TURNOVER_MIN_MINOR: '30 crore' })).toHaveLength(1);
+  });
+});

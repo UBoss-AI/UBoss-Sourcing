@@ -230,6 +230,17 @@ export function ReportsIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** A trend line over a baseline: analytics and insights. */
+export function InsightsIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M3.6 20.4h16.8" />
+      <path d="M4.8 15.6l4.4-4.4 3.6 3.2 6.4-7.2" />
+      <path d="M15.2 7.2h4v4" />
+    </Icon>
+  );
+}
+
 export function AuditIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

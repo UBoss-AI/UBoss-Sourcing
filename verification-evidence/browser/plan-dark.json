@@ -1,0 +1,45 @@
+{
+ "base": "http://localhost:5174",
+ "widths": [
+  320,
+  375,
+  768,
+  1024,
+  1440
+ ],
+ "focusWidth": 1440,
+ "tabs": 10,
+ "dark": true,
+ "denyMic": true,
+ "pages": [
+  {
+   "name": "home-dark",
+   "path": "/",
+   "signIn": true
+  },
+  {
+   "name": "wishlist-dark",
+   "path": "/account/wishlist",
+   "signIn": true
+  },
+  {
+   "name": "region-dark",
+   "path": "/account/region",
+   "signIn": true
+  },
+  {
+   "name": "payment-result",
+   "signIn": true,
+   "pathFrom": "fetch('/api/v1/orders?limit=20',{credentials:'include'}).then(r=>r.json()).then(b=>{const l=b.orders||b.data||b.items||[];const o=l.find(x=>/PAID|CONFIRMED|PROCESSING|SHIPPED|DELIVERED/.test(x.status))||l[0];return o?('/checkout/payment/'+o.id+'/confirmation'):null})"
+  },
+  {
+   "name": "voice-denied",
+   "path": "/",
+   "signIn": true,
+   "widths": [
+    1440
+   ],
+   "after": "(async()=>{const b=[...document.querySelectorAll('button')].find(x=>x.getAttribute('aria-label')==='Search by voice');if(!b)return 'NO VOICE BUTTON (SpeechRecognition unsupported?)';b.click();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,200));const st=[...document.querySelectorAll('[role=status]')].map(x=>x.textContent.trim()).filter(Boolean).join(' | ');if(/refused|denied|not allowed|microphone/i.test(st)){const inp=document.querySelector('input[type=search],input[name=q],input[placeholder]');inp.focus();document.execCommand('insertText',false,'gloves');return {status:st,inputAfter:inp.value,buttonStill:!!b.isConnected,activeIsInput:document.activeElement===inp};}}return 'no status after 8s: '+[...document.querySelectorAll('[role=status]')].map(x=>x.textContent).join('|')})()"
+  }
+ ]
+}

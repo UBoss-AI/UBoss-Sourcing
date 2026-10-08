@@ -9,6 +9,7 @@
  * here is typed `number` and it is an amount, that is a bug — a paisa-precise
  * total can exceed `2^53`, which is why it crosses the wire as a string.
  */
+import type { TurnoverPolicy } from './turnover';
 import type { Money } from './format';
 import type { BuyablePackaging, LinePackaging } from './bulk-packaging';
 import type { RatingBadge } from './ratings';
@@ -204,6 +205,14 @@ export interface StorefrontConfig {
   ordering?: {
     piecesPerCarton: number;
   };
+
+  /**
+   * The seller turnover eligibility policy - this marketplace's own, never a
+   * legal requirement - so the "Sell" page can state it before anybody
+   * applies. The minimum is a string of whole minor units. Absent from an
+   * older backend, in which case no turnover is asked for.
+   */
+  sellerEligibility?: TurnoverPolicy;
 
   /**
    * What the chat widget has to say about itself before anyone types.

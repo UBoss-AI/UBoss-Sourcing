@@ -39,6 +39,10 @@ export type ConsentRecordMinAggregateOutputType = {
   legalDocumentId: string | null
   locale: string | null
   acceptanceSource: string | null
+  action: $Enums.ConsentAction | null
+  scope: $Enums.AgreementScope | null
+  activeDocumentId: string | null
+  clearedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,6 +61,10 @@ export type ConsentRecordMaxAggregateOutputType = {
   legalDocumentId: string | null
   locale: string | null
   acceptanceSource: string | null
+  action: $Enums.ConsentAction | null
+  scope: $Enums.AgreementScope | null
+  activeDocumentId: string | null
+  clearedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -75,6 +83,10 @@ export type ConsentRecordCountAggregateOutputType = {
   legalDocumentId: number
   locale: number
   acceptanceSource: number
+  action: number
+  scope: number
+  activeDocumentId: number
+  clearedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -95,6 +107,10 @@ export type ConsentRecordMinAggregateInputType = {
   legalDocumentId?: true
   locale?: true
   acceptanceSource?: true
+  action?: true
+  scope?: true
+  activeDocumentId?: true
+  clearedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -113,6 +129,10 @@ export type ConsentRecordMaxAggregateInputType = {
   legalDocumentId?: true
   locale?: true
   acceptanceSource?: true
+  action?: true
+  scope?: true
+  activeDocumentId?: true
+  clearedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -131,6 +151,10 @@ export type ConsentRecordCountAggregateInputType = {
   legalDocumentId?: true
   locale?: true
   acceptanceSource?: true
+  action?: true
+  scope?: true
+  activeDocumentId?: true
+  clearedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -222,6 +246,10 @@ export type ConsentRecordGroupByOutputType = {
   legalDocumentId: string | null
   locale: string | null
   acceptanceSource: string | null
+  action: $Enums.ConsentAction | null
+  scope: $Enums.AgreementScope | null
+  activeDocumentId: string | null
+  clearedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ConsentRecordCountAggregateOutputType | null
@@ -261,6 +289,10 @@ export type ConsentRecordWhereInput = {
   legalDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   locale?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   acceptanceSource?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  action?: Prisma.EnumConsentActionNullableFilter<"ConsentRecord"> | $Enums.ConsentAction | null
+  scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -282,6 +314,10 @@ export type ConsentRecordOrderByWithRelationInput = {
   legalDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   locale?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptanceSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  action?: Prisma.SortOrderInput | Prisma.SortOrder
+  scope?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clearedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -292,7 +328,7 @@ export type ConsentRecordOrderByWithRelationInput = {
 
 export type ConsentRecordWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_legalDocumentId?: Prisma.ConsentRecordUserIdLegalDocumentIdCompoundUniqueInput
+  userId_activeDocumentId?: Prisma.ConsentRecordUserIdActiveDocumentIdCompoundUniqueInput
   AND?: Prisma.ConsentRecordWhereInput | Prisma.ConsentRecordWhereInput[]
   OR?: Prisma.ConsentRecordWhereInput[]
   NOT?: Prisma.ConsentRecordWhereInput | Prisma.ConsentRecordWhereInput[]
@@ -308,12 +344,16 @@ export type ConsentRecordWhereUniqueInput = Prisma.AtLeast<{
   legalDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   locale?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   acceptanceSource?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  action?: Prisma.EnumConsentActionNullableFilter<"ConsentRecord"> | $Enums.ConsentAction | null
+  scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   company?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
   legalDocument?: Prisma.XOR<Prisma.LegalDocumentNullableScalarRelationFilter, Prisma.LegalDocumentWhereInput> | null
-}, "id" | "userId_legalDocumentId">
+}, "id" | "userId_activeDocumentId">
 
 export type ConsentRecordOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -329,6 +369,10 @@ export type ConsentRecordOrderByWithAggregationInput = {
   legalDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   locale?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptanceSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  action?: Prisma.SortOrderInput | Prisma.SortOrder
+  scope?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clearedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ConsentRecordCountOrderByAggregateInput
@@ -353,6 +397,10 @@ export type ConsentRecordScalarWhereWithAggregatesInput = {
   legalDocumentId?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
   locale?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
   acceptanceSource?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
+  action?: Prisma.EnumConsentActionNullableWithAggregatesFilter<"ConsentRecord"> | $Enums.ConsentAction | null
+  scope?: Prisma.EnumAgreementScopeNullableWithAggregatesFilter<"ConsentRecord"> | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
+  clearedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ConsentRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ConsentRecord"> | Date | string
 }
@@ -368,6 +416,10 @@ export type ConsentRecordCreateInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
@@ -389,6 +441,10 @@ export type ConsentRecordUncheckedCreateInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -404,6 +460,10 @@ export type ConsentRecordUpdateInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
@@ -425,6 +485,10 @@ export type ConsentRecordUncheckedUpdateInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -443,6 +507,10 @@ export type ConsentRecordCreateManyInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -458,6 +526,10 @@ export type ConsentRecordUpdateManyMutationInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -476,6 +548,10 @@ export type ConsentRecordUncheckedUpdateManyInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,9 +572,9 @@ export type ConsentRecordOrderByRelevanceInput = {
   search: string
 }
 
-export type ConsentRecordUserIdLegalDocumentIdCompoundUniqueInput = {
+export type ConsentRecordUserIdActiveDocumentIdCompoundUniqueInput = {
   userId: string
-  legalDocumentId: string
+  activeDocumentId: string
 }
 
 export type ConsentRecordCountOrderByAggregateInput = {
@@ -515,6 +591,10 @@ export type ConsentRecordCountOrderByAggregateInput = {
   legalDocumentId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   acceptanceSource?: Prisma.SortOrder
+  action?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
+  activeDocumentId?: Prisma.SortOrder
+  clearedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -533,6 +613,10 @@ export type ConsentRecordMaxOrderByAggregateInput = {
   legalDocumentId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   acceptanceSource?: Prisma.SortOrder
+  action?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
+  activeDocumentId?: Prisma.SortOrder
+  clearedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -551,6 +635,10 @@ export type ConsentRecordMinOrderByAggregateInput = {
   legalDocumentId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   acceptanceSource?: Prisma.SortOrder
+  action?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
+  activeDocumentId?: Prisma.SortOrder
+  clearedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -643,6 +731,14 @@ export type EnumConsentPurposeFieldUpdateOperationsInput = {
   set?: $Enums.ConsentPurpose
 }
 
+export type NullableEnumConsentActionFieldUpdateOperationsInput = {
+  set?: $Enums.ConsentAction | null
+}
+
+export type NullableEnumAgreementScopeFieldUpdateOperationsInput = {
+  set?: $Enums.AgreementScope | null
+}
+
 export type ConsentRecordCreateNestedManyWithoutLegalDocumentInput = {
   create?: Prisma.XOR<Prisma.ConsentRecordCreateWithoutLegalDocumentInput, Prisma.ConsentRecordUncheckedCreateWithoutLegalDocumentInput> | Prisma.ConsentRecordCreateWithoutLegalDocumentInput[] | Prisma.ConsentRecordUncheckedCreateWithoutLegalDocumentInput[]
   connectOrCreate?: Prisma.ConsentRecordCreateOrConnectWithoutLegalDocumentInput | Prisma.ConsentRecordCreateOrConnectWithoutLegalDocumentInput[]
@@ -696,6 +792,10 @@ export type ConsentRecordCreateWithoutUserInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.BuyerCompanyCreateNestedOneWithoutConsentsInput
@@ -715,6 +815,10 @@ export type ConsentRecordUncheckedCreateWithoutUserInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -762,6 +866,10 @@ export type ConsentRecordScalarWhereInput = {
   legalDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   locale?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   acceptanceSource?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  action?: Prisma.EnumConsentActionNullableFilter<"ConsentRecord"> | $Enums.ConsentAction | null
+  scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
 }
@@ -777,6 +885,10 @@ export type ConsentRecordCreateWithoutCompanyInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
@@ -796,6 +908,10 @@ export type ConsentRecordUncheckedCreateWithoutCompanyInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -837,6 +953,10 @@ export type ConsentRecordCreateWithoutLegalDocumentInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
@@ -856,6 +976,10 @@ export type ConsentRecordUncheckedCreateWithoutLegalDocumentInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -899,6 +1023,10 @@ export type ConsentRecordCreateManyUserInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -914,6 +1042,10 @@ export type ConsentRecordUpdateWithoutUserInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneWithoutConsentsNestedInput
@@ -933,6 +1065,10 @@ export type ConsentRecordUncheckedUpdateWithoutUserInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -950,6 +1086,10 @@ export type ConsentRecordUncheckedUpdateManyWithoutUserInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -967,6 +1107,10 @@ export type ConsentRecordCreateManyCompanyInput = {
   legalDocumentId?: string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -982,6 +1126,10 @@ export type ConsentRecordUpdateWithoutCompanyInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
@@ -1001,6 +1149,10 @@ export type ConsentRecordUncheckedUpdateWithoutCompanyInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1018,6 +1170,10 @@ export type ConsentRecordUncheckedUpdateManyWithoutCompanyInput = {
   legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1035,6 +1191,10 @@ export type ConsentRecordCreateManyLegalDocumentInput = {
   withdrawnAt?: Date | string | null
   locale?: string | null
   acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1050,6 +1210,10 @@ export type ConsentRecordUpdateWithoutLegalDocumentInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
@@ -1069,6 +1233,10 @@ export type ConsentRecordUncheckedUpdateWithoutLegalDocumentInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1086,6 +1254,10 @@ export type ConsentRecordUncheckedUpdateManyWithoutLegalDocumentInput = {
   withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1106,6 +1278,10 @@ export type ConsentRecordSelect<ExtArgs extends runtime.Types.Extensions.Interna
   legalDocumentId?: boolean
   locale?: boolean
   acceptanceSource?: boolean
+  action?: boolean
+  scope?: boolean
+  activeDocumentId?: boolean
+  clearedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1129,11 +1305,15 @@ export type ConsentRecordSelectScalar = {
   legalDocumentId?: boolean
   locale?: boolean
   acceptanceSource?: boolean
+  action?: boolean
+  scope?: boolean
+  activeDocumentId?: boolean
+  clearedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ConsentRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "companyId" | "purpose" | "textVersion" | "textHash" | "acceptedAt" | "ipAddress" | "userAgent" | "withdrawnAt" | "legalDocumentId" | "locale" | "acceptanceSource" | "createdAt" | "updatedAt", ExtArgs["result"]["consentRecord"]>
+export type ConsentRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "companyId" | "purpose" | "textVersion" | "textHash" | "acceptedAt" | "ipAddress" | "userAgent" | "withdrawnAt" | "legalDocumentId" | "locale" | "acceptanceSource" | "action" | "scope" | "activeDocumentId" | "clearedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["consentRecord"]>
 export type ConsentRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   company?: boolean | Prisma.ConsentRecord$companyArgs<ExtArgs>
@@ -1180,10 +1360,33 @@ export type $ConsentRecordPayload<ExtArgs extends runtime.Types.Extensions.Inter
      */
     locale: string | null
     /**
-     * Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or
-     * LOGISTICS_INVITATION. Null for the company-application declarations.
+     * Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION,
+     * LOGISTICS_INVITATION or AGREEMENT_SCREEN. Null for the company-application
+     * declarations.
      */
     acceptanceSource: string | null
+    /**
+     * Terms accepted, or privacy notice acknowledged. Null for the
+     * company-application declarations, whose wording lives in code.
+     */
+    action: $Enums.ConsentAction | null
+    /**
+     * The kind of account the person was acting as. Null where nobody knows -
+     * the declarations, and nothing else.
+     */
+    scope: $Enums.AgreementScope | null
+    /**
+     * `legalDocumentId` while this record is in force, null once cleared.
+     * Exists for the unique index: one active record per person per document,
+     * any number of cleared ones. The CHECK constraint keeps it honest.
+     */
+    activeDocumentId: string | null
+    /**
+     * When the person unticked this on the agreement screen, before pressing
+     * Continue. Not a withdrawal: `withdrawnAt` is for that, and clearing one
+     * box withdraws no consent to anything else.
+     */
+    clearedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["consentRecord"]>
@@ -1571,6 +1774,10 @@ export interface ConsentRecordFieldRefs {
   readonly legalDocumentId: Prisma.FieldRef<"ConsentRecord", 'String'>
   readonly locale: Prisma.FieldRef<"ConsentRecord", 'String'>
   readonly acceptanceSource: Prisma.FieldRef<"ConsentRecord", 'String'>
+  readonly action: Prisma.FieldRef<"ConsentRecord", 'ConsentAction'>
+  readonly scope: Prisma.FieldRef<"ConsentRecord", 'AgreementScope'>
+  readonly activeDocumentId: Prisma.FieldRef<"ConsentRecord", 'String'>
+  readonly clearedAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
 }

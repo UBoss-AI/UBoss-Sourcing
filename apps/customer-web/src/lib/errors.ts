@@ -86,6 +86,8 @@ const PREORDER_CODES = new Set([
   'PREORDER_ACKNOWLEDGEMENT_REQUIRED',
   'PREORDER_INFO_OUTDATED',
   'PREORDER_CONTAINER_NOT_CONFIGURED',
+  'PREORDER_PRODUCT_OPTION_REQUIRED',
+  'PREORDER_PRODUCT_OPTION_NOT_OFFERED',
   'PREORDER_PROPOSAL_INVALID',
   'PREORDER_STOCK_CHANGED',
 ]);
@@ -195,6 +197,9 @@ const TERMS_CODES = new Set([
   'TERMS_ACCEPTANCE_REQUIRED',
   'TERMS_VERSION_OUTDATED',
   'TERMS_DOCUMENT_UNAVAILABLE',
+  // The agreement screen after sign-in.
+  'AGREEMENTS_REQUIRED',
+  'AGREEMENT_DOCUMENT_NOT_APPLICABLE',
 ]);
 
 export function isTermsError(code: string): boolean {
@@ -262,6 +267,9 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     // Only staff approve sellers, so a seller meets this only if a screen
     // they share with staff ever relays it. Worded all the same.
     if (error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING') return t('errors.sellerApprovalEvidenceMissing');
+    // The marketplace's own turnover policy refused the application or its
+    // submission. Said respectfully, and never as a legal requirement.
+    if (error.code === 'SELLER_TURNOVER_NOT_ELIGIBLE') return t('errors.sellerTurnoverNotEligible');
     if (error.code === 'LISTING_BLOCKED') return t('errors.listingBlocked');
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');

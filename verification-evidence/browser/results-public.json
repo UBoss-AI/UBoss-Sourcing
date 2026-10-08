@@ -1,0 +1,487 @@
+{
+ "ranAt": "2026-09-28T20:54:57.179Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "page": "home-guest",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-320.png"
+  },
+  {
+   "page": "home-guest",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-375.png"
+  },
+  {
+   "page": "home-guest",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-768.png"
+  },
+  {
+   "page": "home-guest",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1024.png"
+  },
+  {
+   "page": "home-guest",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "AI Assistant",
+    "Products",
+    "Search the catalogue",
+    "Image searchImage search"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1440.png"
+  },
+  {
+   "page": "login",
+   "path": "/login",
+   "w": 320,
+   "finalPath": "/login",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-320.png"
+  },
+  {
+   "page": "login",
+   "path": "/login",
+   "w": 375,
+   "finalPath": "/login",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-375.png"
+  },
+  {
+   "page": "login",
+   "path": "/login",
+   "w": 768,
+   "finalPath": "/login",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-768.png"
+  },
+  {
+   "page": "login",
+   "path": "/login",
+   "w": 1024,
+   "finalPath": "/login",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-1024.png"
+  },
+  {
+   "page": "login",
+   "path": "/login",
+   "w": 1440,
+   "finalPath": "/login",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "EnglishNederlandsFrançaisDeu",
+    "Individual",
+    "INPUT",
+    "INPUT",
+    "Show"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-1440.png"
+  },
+  {
+   "page": "legal-terms",
+   "path": "/legal/terms",
+   "w": 320,
+   "finalPath": "/legal/terms",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Terms and Conditions (development placeholder)"
+   ],
+   "title": "Terms and Conditions (development placeholder) · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-terms-320.png"
+  },
+  {
+   "page": "legal-terms",
+   "path": "/legal/terms",
+   "w": 375,
+   "finalPath": "/legal/terms",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Terms and Conditions (development placeholder)"
+   ],
+   "title": "Terms and Conditions (development placeholder) · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-terms-375.png"
+  },
+  {
+   "page": "legal-terms",
+   "path": "/legal/terms",
+   "w": 768,
+   "finalPath": "/legal/terms",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Terms and Conditions (development placeholder)"
+   ],
+   "title": "Terms and Conditions (development placeholder) · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-terms-768.png"
+  },
+  {
+   "page": "legal-terms",
+   "path": "/legal/terms",
+   "w": 1024,
+   "finalPath": "/legal/terms",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Terms and Conditions (development placeholder)"
+   ],
+   "title": "Terms and Conditions (development placeholder) · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-terms-1024.png"
+  },
+  {
+   "page": "legal-terms",
+   "path": "/legal/terms",
+   "w": 1440,
+   "finalPath": "/legal/terms",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Terms and Conditions (development placeholder)"
+   ],
+   "title": "Terms and Conditions (development placeholder) · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Print",
+    "Download PDF",
+    "About Gloviaa Mart",
+    "All products",
+    "My orders"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-terms-1440.png"
+  },
+  {
+   "page": "support",
+   "path": "/support",
+   "w": 320,
+   "finalPath": "/support",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "How can we help?"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "support-320.png"
+  },
+  {
+   "page": "support",
+   "path": "/support",
+   "w": 375,
+   "finalPath": "/support",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "How can we help?"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "support-375.png"
+  },
+  {
+   "page": "support",
+   "path": "/support",
+   "w": 768,
+   "finalPath": "/support",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "How can we help?"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "support-768.png"
+  },
+  {
+   "page": "support",
+   "path": "/support",
+   "w": 1024,
+   "finalPath": "/support",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "How can we help?"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "support-1024.png"
+  },
+  {
+   "page": "support",
+   "path": "/support",
+   "w": 1440,
+   "finalPath": "/support",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "How can we help?"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Accounts and verification5 q",
+    "How do I create an account f",
+    "How do I create a company ac",
+    "Why does a company account n",
+    "How can I check my verificat"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "support-1440.png"
+  }
+ ]
+}

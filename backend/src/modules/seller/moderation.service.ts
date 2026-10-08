@@ -35,6 +35,8 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { syncMarketplacePrice } from '../catalog/marketplace-price.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { listDocumentsForReview } from './document.service.js';
+import { env } from '../../config/env.js';
+import { countSellerVerifiers, currentDecisionOf, verificationHistory } from './verification.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
 import { readEvidenceRequest } from './listing-draft.service.js';
@@ -50,6 +52,11 @@ import type { SellerApplicationStatusName } from '../../domain/seller-state.js';
 export interface ApplicationQueueQuery {
   status?: SellerApplicationStatusName | null;
   search?: string | null;
+  /**
+   * Only applications sent back after the Audit Team asked for corrections:
+   * SUBMITTED again, with an earlier ACTION_REQUIRED on their history.
+   */
+  resubmitted?: boolean;
   page?: number;
   pageSize?: number;
 }
@@ -66,6 +73,8 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
     completedSteps: number;
     requiredSteps: number;
     documentCount: number;
+    /** Sent back after a request for corrections. */
+    resubmitted: boolean;
   }[];
   total: number;
   counts: Record<string, number>;
@@ -74,9 +83,11 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
   const pageSize = Math.min(100, Math.max(1, query.pageSize ?? 25));
   const search = query.search?.trim() ?? '';
 
+  const correctionsAsked = { action: 'seller.application.action_required' };
   const where = {
     archivedAt: null,
     ...(query.status === null || query.status === undefined ? {} : { status: query.status }),
+    ...(query.resubmitted === true ? { status: 'SUBMITTED' as const, auditLogs: { some: correctionsAsked } } : {}),
     ...(search.length === 0
       ? {}
       : {
@@ -84,7 +95,7 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
         }),
   };
 
-  const [rows, total, grouped] = await Promise.all([
+  const [rows, total, grouped, resubmittedCount] = await Promise.all([
     prisma.sellerAccount.findMany({
       where,
       // Oldest submission first. A review queue sorted newest-first starves the
@@ -102,7 +113,7 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
         kind: true,
         submittedAt: true,
         onboarding: { select: { completedSteps: true, requiredSteps: true } },
-        _count: { select: { documents: { where: { supersededAt: null } } } },
+        _count: { select: { documents: { where: { supersededAt: null } }, auditLogs: { where: correctionsAsked } } },
       },
     }),
     prisma.sellerAccount.count({ where }),
@@ -111,6 +122,7 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
       where: { archivedAt: null },
       _count: { _all: true },
     }),
+    prisma.sellerAccount.count({ where: { archivedAt: null, status: 'SUBMITTED', auditLogs: { some: correctionsAsked } } }),
   ]);
 
   return {
@@ -125,9 +137,13 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
       completedSteps: row.onboarding?.completedSteps ?? 0,
       requiredSteps: row.onboarding?.requiredSteps ?? 0,
       documentCount: row._count.documents,
+      resubmitted: row.status === 'SUBMITTED' && row._count.auditLogs > 0,
     })),
     total,
-    counts: Object.fromEntries(grouped.map((entry) => [String(entry.status), entry._count._all])),
+    counts: {
+      ...Object.fromEntries(grouped.map((entry) => [String(entry.status), entry._count._all])),
+      RESUBMITTED: resubmittedCount,
+    },
   };
 }
 
@@ -286,12 +302,31 @@ export async function readApplication(sellerAccountId: string) {
    * row carries `storageKey` - the object's address in the store - and there is
    * no reason for that to be in a browser at all.
    */
-  const [documents, kyb] = await Promise.all([
+  const [documents, kyb, history, reviewers] = await Promise.all([
     listDocumentsForReview(account.id),
     readKybReview(account.id),
+    verificationHistory(account.id),
+    countSellerVerifiers(),
   ]);
 
-  return { ...account, documents, kyb };
+  return {
+    ...account,
+    documents,
+    kyb,
+    /*
+     * Who verifies this seller and what they decided. The Audit Team owns the
+     * decisions; both panels read this. `reviewersAvailable` false is the
+     * setup state - the console is off, or nobody active may verify - and
+     * nothing falls back to admin approval.
+     */
+    verification: {
+      ownedBy: 'AUDIT' as const,
+      consoleEnabled: env.FEATURE_AUDIT_CONSOLE,
+      reviewersAvailable: env.FEATURE_AUDIT_CONSOLE && reviewers > 0,
+      currentDecision: currentDecisionOf(history),
+      history,
+    },
+  };
 }
 
 export interface SellerCommissionInput {
@@ -417,6 +452,13 @@ export interface ApplicationDecisionInput {
   /** Operator-only. */
   internalNote?: string | null;
   adminUserId: string;
+  /**
+   * Which console decided. AUDIT for every verification decision (the Audit
+   * Team owns them); ADMIN only for suspending a seller or lifting a
+   * suspension, which stay operational controls in the Admin Panel. The
+   * routes decide which is allowed - this records who it was.
+   */
+  actorType?: 'ADMIN' | 'AUDIT';
   /** Whether a rejected seller may try again. Only meaningful with REJECTED. */
   resubmissionAllowed?: boolean;
   correlationId?: string | null;
@@ -451,6 +493,7 @@ export async function decideApplication(input: ApplicationDecisionInput): Promis
     sellerAccountId: input.sellerAccountId,
     to: input.to,
     actor: 'OPERATOR',
+    operatorType: input.actorType ?? 'ADMIN',
     actorUserId: input.adminUserId,
     reason: input.reason ?? null,
     internalNote: input.internalNote ?? null,
@@ -493,7 +536,7 @@ export async function decideApplication(input: ApplicationDecisionInput): Promis
 const APPLICATION_NOTICE_TITLES: Record<SellerApplicationStatusName, string> = {
   DRAFT: 'Your application was reopened',
   SUBMITTED: 'Your application was received',
-  UNDER_REVIEW: 'We are reviewing your application',
+  UNDER_REVIEW: 'Your application is under Audit Team review',
   ACTION_REQUIRED: 'Your application needs something from you',
   APPROVED: 'You can start selling',
   REJECTED: 'Your application was not accepted',

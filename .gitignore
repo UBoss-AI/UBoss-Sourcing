@@ -89,3 +89,8 @@ vitest-report.json
 
 # Headless Chrome profiles from browser evidence runs
 verification-evidence/**/profile/
+
+# Third-party source policies the Gloviaa Mart drafts were adapted from.
+# Copyrighted text that must never ship in a product other companies buy;
+# see legal/README.md.
+legal/source/

@@ -44,6 +44,7 @@ export type LegalDocumentMinAggregateOutputType = {
   body: string | null
   changeSummary: string | null
   effectiveAt: Date | null
+  requiresReacceptance: boolean | null
   contentSha256: string | null
   publishedAt: Date | null
   publishedById: string | null
@@ -63,6 +64,7 @@ export type LegalDocumentMaxAggregateOutputType = {
   body: string | null
   changeSummary: string | null
   effectiveAt: Date | null
+  requiresReacceptance: boolean | null
   contentSha256: string | null
   publishedAt: Date | null
   publishedById: string | null
@@ -82,6 +84,7 @@ export type LegalDocumentCountAggregateOutputType = {
   body: number
   changeSummary: number
   effectiveAt: number
+  requiresReacceptance: number
   contentSha256: number
   publishedAt: number
   publishedById: number
@@ -103,6 +106,7 @@ export type LegalDocumentMinAggregateInputType = {
   body?: true
   changeSummary?: true
   effectiveAt?: true
+  requiresReacceptance?: true
   contentSha256?: true
   publishedAt?: true
   publishedById?: true
@@ -122,6 +126,7 @@ export type LegalDocumentMaxAggregateInputType = {
   body?: true
   changeSummary?: true
   effectiveAt?: true
+  requiresReacceptance?: true
   contentSha256?: true
   publishedAt?: true
   publishedById?: true
@@ -141,6 +146,7 @@ export type LegalDocumentCountAggregateInputType = {
   body?: true
   changeSummary?: true
   effectiveAt?: true
+  requiresReacceptance?: true
   contentSha256?: true
   publishedAt?: true
   publishedById?: true
@@ -233,6 +239,7 @@ export type LegalDocumentGroupByOutputType = {
   body: string
   changeSummary: string | null
   effectiveAt: Date
+  requiresReacceptance: boolean
   contentSha256: string | null
   publishedAt: Date | null
   publishedById: string | null
@@ -273,6 +280,7 @@ export type LegalDocumentWhereInput = {
   body?: Prisma.StringFilter<"LegalDocument"> | string
   changeSummary?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   effectiveAt?: Prisma.DateTimeFilter<"LegalDocument"> | Date | string
+  requiresReacceptance?: Prisma.BoolFilter<"LegalDocument"> | boolean
   contentSha256?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"LegalDocument"> | Date | string | null
   publishedById?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
@@ -296,6 +304,7 @@ export type LegalDocumentOrderByWithRelationInput = {
   body?: Prisma.SortOrder
   changeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveAt?: Prisma.SortOrder
+  requiresReacceptance?: Prisma.SortOrder
   contentSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -324,6 +333,7 @@ export type LegalDocumentWhereUniqueInput = Prisma.AtLeast<{
   body?: Prisma.StringFilter<"LegalDocument"> | string
   changeSummary?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   effectiveAt?: Prisma.DateTimeFilter<"LegalDocument"> | Date | string
+  requiresReacceptance?: Prisma.BoolFilter<"LegalDocument"> | boolean
   contentSha256?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"LegalDocument"> | Date | string | null
   publishedById?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
@@ -347,6 +357,7 @@ export type LegalDocumentOrderByWithAggregationInput = {
   body?: Prisma.SortOrder
   changeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveAt?: Prisma.SortOrder
+  requiresReacceptance?: Prisma.SortOrder
   contentSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -372,6 +383,7 @@ export type LegalDocumentScalarWhereWithAggregatesInput = {
   body?: Prisma.StringWithAggregatesFilter<"LegalDocument"> | string
   changeSummary?: Prisma.StringNullableWithAggregatesFilter<"LegalDocument"> | string | null
   effectiveAt?: Prisma.DateTimeWithAggregatesFilter<"LegalDocument"> | Date | string
+  requiresReacceptance?: Prisma.BoolWithAggregatesFilter<"LegalDocument"> | boolean
   contentSha256?: Prisma.StringNullableWithAggregatesFilter<"LegalDocument"> | string | null
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LegalDocument"> | Date | string | null
   publishedById?: Prisma.StringNullableWithAggregatesFilter<"LegalDocument"> | string | null
@@ -391,6 +403,7 @@ export type LegalDocumentCreateInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -413,6 +426,7 @@ export type LegalDocumentUncheckedCreateInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -435,6 +449,7 @@ export type LegalDocumentUpdateInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -457,6 +472,7 @@ export type LegalDocumentUncheckedUpdateInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -479,6 +495,7 @@ export type LegalDocumentCreateManyInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -498,6 +515,7 @@ export type LegalDocumentUpdateManyMutationInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -516,6 +534,7 @@ export type LegalDocumentUncheckedUpdateManyInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -562,6 +581,7 @@ export type LegalDocumentCountOrderByAggregateInput = {
   body?: Prisma.SortOrder
   changeSummary?: Prisma.SortOrder
   effectiveAt?: Prisma.SortOrder
+  requiresReacceptance?: Prisma.SortOrder
   contentSha256?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedById?: Prisma.SortOrder
@@ -581,6 +601,7 @@ export type LegalDocumentMaxOrderByAggregateInput = {
   body?: Prisma.SortOrder
   changeSummary?: Prisma.SortOrder
   effectiveAt?: Prisma.SortOrder
+  requiresReacceptance?: Prisma.SortOrder
   contentSha256?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedById?: Prisma.SortOrder
@@ -600,6 +621,7 @@ export type LegalDocumentMinOrderByAggregateInput = {
   body?: Prisma.SortOrder
   changeSummary?: Prisma.SortOrder
   effectiveAt?: Prisma.SortOrder
+  requiresReacceptance?: Prisma.SortOrder
   contentSha256?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedById?: Prisma.SortOrder
@@ -717,6 +739,7 @@ export type LegalDocumentCreateWithoutOrdersPlacedInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -738,6 +761,7 @@ export type LegalDocumentUncheckedCreateWithoutOrdersPlacedInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -775,6 +799,7 @@ export type LegalDocumentUpdateWithoutOrdersPlacedInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -796,6 +821,7 @@ export type LegalDocumentUncheckedUpdateWithoutOrdersPlacedInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -817,6 +843,7 @@ export type LegalDocumentCreateWithoutAcceptancesInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -838,6 +865,7 @@ export type LegalDocumentUncheckedCreateWithoutAcceptancesInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -875,6 +903,7 @@ export type LegalDocumentUpdateWithoutAcceptancesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -896,6 +925,7 @@ export type LegalDocumentUncheckedUpdateWithoutAcceptancesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -917,6 +947,7 @@ export type LegalDocumentCreateWithoutSupersededByInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -938,6 +969,7 @@ export type LegalDocumentUncheckedCreateWithoutSupersededByInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -964,6 +996,7 @@ export type LegalDocumentCreateWithoutSupersedesInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -985,6 +1018,7 @@ export type LegalDocumentUncheckedCreateWithoutSupersedesInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -1027,6 +1061,7 @@ export type LegalDocumentUpdateWithoutSupersededByInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1048,6 +1083,7 @@ export type LegalDocumentUncheckedUpdateWithoutSupersededByInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,6 +1124,7 @@ export type LegalDocumentScalarWhereInput = {
   body?: Prisma.StringFilter<"LegalDocument"> | string
   changeSummary?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   effectiveAt?: Prisma.DateTimeFilter<"LegalDocument"> | Date | string
+  requiresReacceptance?: Prisma.BoolFilter<"LegalDocument"> | boolean
   contentSha256?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"LegalDocument"> | Date | string | null
   publishedById?: Prisma.StringNullableFilter<"LegalDocument"> | string | null
@@ -1107,6 +1144,7 @@ export type LegalDocumentCreateManySupersedesInput = {
   body: string
   changeSummary?: string | null
   effectiveAt: Date | string
+  requiresReacceptance?: boolean
   contentSha256?: string | null
   publishedAt?: Date | string | null
   publishedById?: string | null
@@ -1125,6 +1163,7 @@ export type LegalDocumentUpdateWithoutSupersedesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1146,6 +1185,7 @@ export type LegalDocumentUncheckedUpdateWithoutSupersedesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1167,6 +1207,7 @@ export type LegalDocumentUncheckedUpdateManyWithoutSupersedesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requiresReacceptance?: Prisma.BoolFieldUpdateOperationsInput | boolean
   contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1234,6 +1275,7 @@ export type LegalDocumentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   body?: boolean
   changeSummary?: boolean
   effectiveAt?: boolean
+  requiresReacceptance?: boolean
   contentSha256?: boolean
   publishedAt?: boolean
   publishedById?: boolean
@@ -1260,6 +1302,7 @@ export type LegalDocumentSelectScalar = {
   body?: boolean
   changeSummary?: boolean
   effectiveAt?: boolean
+  requiresReacceptance?: boolean
   contentSha256?: boolean
   publishedAt?: boolean
   publishedById?: boolean
@@ -1269,7 +1312,7 @@ export type LegalDocumentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LegalDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "version" | "locale" | "status" | "title" | "body" | "changeSummary" | "effectiveAt" | "contentSha256" | "publishedAt" | "publishedById" | "supersedesId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["legalDocument"]>
+export type LegalDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "version" | "locale" | "status" | "title" | "body" | "changeSummary" | "effectiveAt" | "requiresReacceptance" | "contentSha256" | "publishedAt" | "publishedById" | "supersedesId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["legalDocument"]>
 export type LegalDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supersedes?: boolean | Prisma.LegalDocument$supersedesArgs<ExtArgs>
   supersededBy?: boolean | Prisma.LegalDocument$supersededByArgs<ExtArgs>
@@ -1310,6 +1353,12 @@ export type $LegalDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * date is not in force, and cannot be accepted, until then.
      */
     effectiveAt: Date
+    /**
+     * Whether people who accepted an earlier version must accept this one
+     * before they can carry on. False for a correction that changes nothing
+     * anybody agreed to; the first version of a kind always asks.
+     */
+    requiresReacceptance: boolean
     /**
      * SHA-256 of the canonical text (kind, version, locale, title and body),
      * set when the document is published. Copied onto every acceptance.
@@ -1707,6 +1756,7 @@ export interface LegalDocumentFieldRefs {
   readonly body: Prisma.FieldRef<"LegalDocument", 'String'>
   readonly changeSummary: Prisma.FieldRef<"LegalDocument", 'String'>
   readonly effectiveAt: Prisma.FieldRef<"LegalDocument", 'DateTime'>
+  readonly requiresReacceptance: Prisma.FieldRef<"LegalDocument", 'Boolean'>
   readonly contentSha256: Prisma.FieldRef<"LegalDocument", 'String'>
   readonly publishedAt: Prisma.FieldRef<"LegalDocument", 'DateTime'>
   readonly publishedById: Prisma.FieldRef<"LegalDocument", 'String'>

@@ -1,8 +1,12 @@
 /**
- * Deciding a seller application: suspend, approve, send back (checklist
- * SCREEN-066).
+ * The Admin Panel's seller page (checklist SCREEN-066). Seller verification
+ * belongs to the Audit Team, so this page is read-only for it:
  *
- *   - only the moves the status allows are offered;
+ *   - no verification decision is offered at any status - no review,
+ *     corrections, approval or rejection - and the read-only notice says who
+ *     owns it, with the decision history;
+ *   - the two operational controls stay: suspend a verified seller, lift a
+ *     suspension;
  *   - staff without customer.status.write are offered none;
  *   - Suspend asks what the seller should be told and will not go without it;
  *   - a decision posts to the decision route, with the version it was made
@@ -36,6 +40,7 @@ vi.mock('@/components/governance', async (importOriginal) => {
 vi.mock('@/pages/seller/SellerFactoriesPanel', () => ({ SellerFactoriesPanel: () => null }));
 vi.mock('@/pages/seller/SellerOffersPanel', () => ({ SellerOffersPanel: () => null }));
 vi.mock('./seller/SellerKybReviewPanel', () => ({ SellerKybReviewPanel: () => null }));
+vi.mock('./seller/SellerTurnoverPanel', () => ({ SellerTurnoverPanel: () => null }));
 
 const lib = await import('@/lib/sellers');
 const fetchApplication = vi.mocked(lib.fetchSellerApplication);
@@ -86,6 +91,29 @@ function seller(status: SellerApplicationDetail['status']): SellerApplicationDet
     agreements: [],
     verificationCases: [],
     members: [],
+    verification: {
+      ownedBy: 'AUDIT',
+      consoleEnabled: true,
+      reviewersAvailable: true,
+      currentDecision: {
+        id: 'h1',
+        action: 'seller.application.approved',
+        at: '2026-09-25T10:00:00.000Z',
+        summary: 'Application moved to approved.',
+        actorType: 'AUDIT',
+        actorLabel: 'reviewer@audit.example.test',
+      },
+      history: [
+        {
+          id: 'h1',
+          action: 'seller.application.approved',
+          at: '2026-09-25T10:00:00.000Z',
+          summary: 'Application moved to approved.',
+          actorType: 'AUDIT',
+          actorLabel: 'reviewer@audit.example.test',
+        },
+      ],
+    },
   };
 }
 
@@ -133,9 +161,37 @@ describe('SellerDetailPage decisions', () => {
     renderPage(DECIDE);
 
     expect(await screen.findByRole('button', { name: 'Suspend' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Send back' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Send back' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Reject' })).toBeNull();
+  });
+
+  it('offers no verification decision on an application waiting for the Audit Team, and says who owns it', async () => {
+    for (const status of ['SUBMITTED', 'UNDER_REVIEW', 'ACTION_REQUIRED', 'REJECTED'] as const) {
+      fetchApplication.mockResolvedValue(seller(status));
+      renderPage(DECIDE);
+      expect((await screen.findAllByText('Read-only — seller verification is managed by the Audit Team.')).length).toBeGreaterThan(0);
+      for (const name of ['Approve', 'Reject', 'Send back', 'Take it on', 'Accept', 'Suspend', 'Lift suspension']) {
+        expect(screen.queryByRole('button', { name }), `${status}: ${name}`).toBeNull();
+      }
+      cleanup();
+    }
+  });
+
+  it('shows the responsible auditor and the decision history', async () => {
+    fetchApplication.mockResolvedValue(seller('APPROVED'));
+    renderPage(['customer.read']);
+    expect((await screen.findAllByText(/reviewer@audit\.example\.test/)).length).toBeGreaterThan(0);
+    expect(screen.getByText('Application moved to approved.')).toBeTruthy();
+  });
+
+  it('says plainly when no Audit Team reviewer is set up', async () => {
+    const waiting = seller('SUBMITTED');
+    waiting.verification = { ...waiting.verification, reviewersAvailable: false, currentDecision: null, history: [] };
+    fetchApplication.mockResolvedValue(waiting);
+    renderPage(DECIDE);
+    expect(await screen.findByText('No Audit Team reviewer is set up yet')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull();
   });
 
   it('offers a decision to nobody without customer.status.write', async () => {
@@ -180,12 +236,12 @@ describe('SellerDetailPage decisions', () => {
     });
   });
 
-  it('lets a suspended seller be approved again, with no reason needed', async () => {
+  it('lets a suspension be lifted, with no reason needed', async () => {
     fetchApplication.mockResolvedValue(seller('SUSPENDED'));
     renderPage(DECIDE);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Approve' }));
-    const confirm = (await screen.findAllByRole('button', { name: 'Approve' })).at(-1) as HTMLButtonElement;
+    fireEvent.click(await screen.findByRole('button', { name: 'Lift suspension' }));
+    const confirm = (await screen.findAllByRole('button', { name: 'Lift suspension' })).at(-1) as HTMLButtonElement;
     fireEvent.click(confirm);
 
     await waitFor(() => {
@@ -202,7 +258,7 @@ describe('SellerDetailPage decisions', () => {
     fetchApplication.mockResolvedValue(seller('DRAFT'));
     renderPage(DECIDE);
 
-    expect(await screen.findByText('This seller has not sent their application in yet.')).toBeTruthy();
+    expect((await screen.findAllByText('Read-only — seller verification is managed by the Audit Team.')).length).toBeGreaterThan(0);
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull();
   });
 });

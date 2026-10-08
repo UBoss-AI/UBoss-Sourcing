@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { useSession } from './session-context';
 import { LocationGate } from './LocationGate';
 import { AdminMfaGate } from './AdminMfaGate';
+import { PortalAgreementGate } from './PortalAgreementGate';
 import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { Spinner } from '@/components/ui';
 import { ErrorPage } from '@/components/error-page/ErrorPage';
@@ -23,7 +24,7 @@ import { useI18n } from '@/i18n/i18n-context';
 export function RequireAuth({ children }: { children: ReactNode }): React.JSX.Element {
   const { t } = useI18n();
 
-  const { user, isLoading } = useSession();
+  const { user, isLoading, logout } = useSession();
   const location = useLocation();
 
   if (isLoading) {
@@ -73,7 +74,12 @@ export function RequireAuth({ children }: { children: ReactNode }): React.JSX.El
     return <LocationGate />;
   }
 
-  return <>{children}</>;
+  /**
+   * Last, the staff terms and the Privacy Policy - the same order the server
+   * applies its gates in. Accepted once and recorded, not ticked on every
+   * sign-in: asked again only when a new version requires it.
+   */
+  return <PortalAgreementGate signOut={logout}>{children}</PortalAgreementGate>;
 }
 
 export function RequirePermission({

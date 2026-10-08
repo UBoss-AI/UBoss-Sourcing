@@ -3,12 +3,12 @@
  *
  *   - the panel lists what the approval gate is still waiting for;
  *   - a screening is always presented as a person's check, never automated;
- *   - a reader without customer.status.write sees results but cannot record;
- *   - recording sends the result, the lists checked and the subject;
+ *   - nobody can record a screening here, whatever their permissions: the
+ *     Audit Team does that in the Audit Console;
  *   - a category blocked by a market rule says so, with the rule's reason.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
 import { SessionContext, type SessionState } from '@/auth/session-context';
@@ -100,7 +100,7 @@ function renderPanel(kyb: SellerKybReview, permissions: string[]): void {
       <QueryClientProvider client={client}>
         <ToastProvider>
           <SessionContext.Provider value={session}>
-            <SellerKybReviewPanel sellerAccountId="01SELLER000000000000000001" legalName="Rao Surgical Private Limited" kyb={kyb} />
+            <SellerKybReviewPanel legalName="Rao Surgical Private Limited" kyb={kyb} />
           </SessionContext.Provider>
         </ToastProvider>
       </QueryClientProvider>
@@ -146,37 +146,10 @@ describe('SellerKybReviewPanel', () => {
     expect(screen.getByText('Declared ownership adds up to 75.50%.')).toBeTruthy();
   });
 
-  it('lets a reader see results but not record one', () => {
-    renderPanel(review(), ['customer.read']);
-    expect(screen.queryByRole('button', { name: 'Record a screening' })).toBeNull();
-  });
-
-  it('records a screening of an owner, and insists on the lists checked', async () => {
-    post.mockResolvedValue({});
+  it('lets nobody record a screening, not even staff who can suspend sellers', () => {
     renderPanel(review(), ['customer.read', 'customer.status.write']);
-
-    const buttons = screen.getAllByRole('button', { name: 'Record a screening' });
-    const ownerButton = buttons[1];
-    if (ownerButton === undefined) throw new Error('no owner button');
-    fireEvent.click(ownerButton);
-
-    fireEvent.change(screen.getByLabelText(/Result/), { target: { value: 'POTENTIAL_MATCH' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save screening' }));
-    expect(await screen.findByText('Say which lists you checked.')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Record a screening' })).toBeNull();
     expect(post).not.toHaveBeenCalled();
-
-    fireEvent.change(screen.getByLabelText(/Lists checked/), { target: { value: 'UN list; EU list' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save screening' }));
-
-    await waitFor(() => {
-      expect(post).toHaveBeenCalledWith('/admin/sellers/01SELLER000000000000000001/screening', {
-        subjectType: 'BENEFICIAL_OWNER',
-        beneficialOwnerId: OWNER_ID,
-        result: 'POTENTIAL_MATCH',
-        listsChecked: 'UN list; EU list',
-        note: null,
-      });
-    });
   });
 
   it('says so when the evidence is complete', () => {

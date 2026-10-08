@@ -1,5 +1,9 @@
 /**
- * Seller applications — the review queue.
+ * Seller applications, as the Admin Panel monitors them.
+ *
+ * Read-only for verification: the Audit Team reviews, approves and rejects
+ * applications in the Audit Console. This list shows where each one stands,
+ * so the operator can follow progress without owning the decisions.
  *
  * Sorted oldest submission first, and that is deliberate: a queue sorted
  * newest-first starves the seller who has been waiting longest, which is the
@@ -14,7 +18,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
-import { Badge, PageHeader, Toolbar, ToolbarField } from '@/components/ui';
+import { Badge, Callout, PageHeader, Toolbar, ToolbarField } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
 import { Input, Select } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import {
@@ -28,9 +33,9 @@ import { VerifiedSuppliersPanels } from '@/pages/seller/VerifiedSuppliersPanels'
 
 const STATUSES = [
   { value: '', label: 'Every application' },
-  { value: 'SUBMITTED', label: 'Waiting for review' },
-  { value: 'UNDER_REVIEW', label: 'Being reviewed' },
-  { value: 'ACTION_REQUIRED', label: 'Sent back' },
+  { value: 'SUBMITTED', label: 'Awaiting verification' },
+  { value: 'UNDER_REVIEW', label: 'Under Audit Team review' },
+  { value: 'ACTION_REQUIRED', label: 'Corrections requested' },
   { value: 'APPROVED', label: 'Approved' },
   { value: 'REJECTED', label: 'Rejected' },
   { value: 'SUSPENDED', label: 'Suspended' },
@@ -40,6 +45,7 @@ const STATUSES = [
 const PAGE_SIZE = 25;
 
 export function SellersPage(): React.JSX.Element {
+  const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -156,9 +162,11 @@ export function SellersPage(): React.JSX.Element {
         description={
           waiting === 0
             ? 'Businesses applying to sell on the marketplace.'
-            : `${String(waiting)} ${waiting === 1 ? 'application is' : 'applications are'} waiting for a decision.`
+            : `${String(waiting)} ${waiting === 1 ? 'application is' : 'applications are'} with the Audit Team for verification.`
         }
       />
+
+      <Callout tone="info">{t('sellerVerification.listNotice')}</Callout>
 
       <Toolbar>
         <ToolbarField label="Status">

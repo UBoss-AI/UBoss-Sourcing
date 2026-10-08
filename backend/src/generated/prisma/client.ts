@@ -3142,6 +3142,29 @@ export type SellerTrustCheck = Prisma.SellerTrustCheckModel
  */
 export type SellerScreeningCheck = Prisma.SellerScreeningCheckModel
 /**
+ * Model SellerTurnoverDeclaration
+ * A seller's declared annual turnover, and what a reviewer decided about it.
+ * 
+ * The marketplace's own eligibility policy (`SELLER_TURNOVER_*`): only a
+ * business whose turnover for its most recently completed financial year
+ * EXCEEDS the configured minimum may apply. The rule lives in
+ * `domain/seller-turnover.ts`; this row is the evidence.
+ * 
+ * Three different facts, kept apart on purpose: what the seller DECLARED
+ * (amount, period, declaration time), whether a person has VERIFIED it
+ * (`verificationState`, reviewer, reason) and whether the seller is APPROVED
+ * (`SellerAccount.status`). A declaration never approves anybody.
+ * 
+ * Rows accumulate like screening checks: changing the amount, the period or
+ * the supporting evidence makes a new current row in AWAITING_INPUT or
+ * IN_PROGRESS, so a verification of one figure is never carried onto
+ * another, and the earlier decision stays readable.
+ * 
+ * Business financial data, not personal data. Read only by the seller's own
+ * owners and administrators and by staff with seller-review rights.
+ */
+export type SellerTurnoverDeclaration = Prisma.SellerTurnoverDeclarationModel
+/**
  * Model SellerProfileChangeRequest
  * A change to a verified field, waiting for the operator. The live value is
  * untouched until it is approved.

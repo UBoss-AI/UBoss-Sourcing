@@ -9930,6 +9930,7 @@ model SellerAccount {
   complianceCases       ComplianceCase[]
   trustChecks           SellerTrustCheck[]
   screeningChecks       SellerScreeningCheck[]
+  turnoverDeclarations  SellerTurnoverDeclaration[]
   profileChangeRequests SellerProfileChangeRequest[]
   listingTrust          SellerListingTrust[]
   /// Reviews of goods this seller sold - the source of its seller score.
@@ -18899,6 +18900,16 @@ enum PreorderStockHoldStatus {
   TRANSFERRED
 }
 
+/// What a preorder is for: the product as listed, or made to the buyer's
+/// design. Each has its own minimum on `PreorderPolicy`.
+enum PreorderProductOption {
+  /// The product exactly as listed, under its own brand.
+  ORIGINAL_BRAND
+  /// Made to the buyer's own design or brand - the same meaning as
+  /// `SellerListingTrust.oemAvailable`.
+  OEM
+}
+
 /// Whether a container capacity is the seller's verified figure or the
 /// system's arithmetic.
 enum ContainerCapacitySource {
@@ -18936,10 +18947,32 @@ model PreorderPolicy {
 
   isEnabled Boolean @default(false)
 
+  /// The unit BOTH minimums below are counted in, and the increment and
+  /// maximum too, so "500 cartons OEM, 10 cartons Original Brand" can never
+  /// become one figure in cartons and the other in pieces.
   moqUnit           PreorderQuantityUnit @default(PIECE)
-  /// Null means the seller has not set one. Never defaulted: a preorder with
-  /// no minimum would be an ordinary order with extra steps.
-  moqQuantity       Int?
+  /// The single minimum from before OEM and Original Brand were separate.
+  /// Kept only so the migration that split it can be audited; nothing reads or
+  /// writes it. See `20261107100000_preorder_product_options`.
+  legacyMoqQuantity Int?                 @map("moqQuantity")
+
+  /// Whether a buyer may preorder the product exactly as listed, under its
+  /// own brand, and the least they may ask for. Null means not set. Never
+  /// defaulted: a preorder with no minimum would be an ordinary order with
+  /// extra steps.
+  originalBrandEnabled     Boolean @default(false)
+  originalBrandMoqQuantity Int?
+  /// Whether a buyer may preorder it made to their own design or brand (OEM),
+  /// and the least they may ask for. Independent of Original Brand: both may
+  /// be offered at once, with different minimums.
+  oemEnabled               Boolean @default(false)
+  oemMoqQuantity           Int?
+  /// Set by the migration where the old single minimum could have been meant
+  /// for OEM too (the seller advertises OEM on that product). Preorders keep
+  /// working as Original Brand; the Seller Hub asks the seller to confirm.
+  /// Cleared on the seller's next save.
+  productOptionsReviewRequired Boolean @default(false)
+
   incrementQuantity Int                  @default(1)
   maxQuantity       Int?
 
@@ -19081,6 +19114,16 @@ model PreorderRequest {
   unitQuantity       Int
   unitsPerPackage    Int
   requestedBaseUnits Int
+
+  /// OEM or Original Brand, and the minimum that applied to it, frozen at
+  /// submission: the seller's figure in the seller's unit, and the same in
+  /// pieces. All four null on a request made before the two were separate -
+  /// those were made under one minimum and are left exactly as they were
+  /// (chk_preorder_request_product_option).
+  productOption                 PreorderProductOption?
+  productOptionMoqQuantity      Int?
+  productOptionMoqUnit          PreorderQuantityUnit?
+  productOptionMinimumBaseUnits Int?
 
   /// For a 20-ft or 40-ft container request: the seller's container loading as
   /// it stood at submission - pieces per carton, cartons per container, carton
@@ -20455,6 +20498,29 @@ enum ConsentPurpose {
   /// The terms a carrier's staff accept when they activate a logistics portal
   /// account. The row points at the exact `LegalDocument` that was shown.
   LOGISTICS_PARTNER_TERMS
+  /// The Seller Addendum, accepted on the Seller Hub's agreement screen.
+  SELLER_TERMS
+  /// The operator's staff terms, accepted on the console's agreement screen.
+  STAFF_TERMS
+  /// The Audit Console's terms, accepted on that console's agreement screen.
+  AUDIT_CONSOLE_TERMS
+}
+
+/// What a person did on the agreement screen. Kept apart from the purpose so a
+/// privacy notice can never be recorded as "accepted": it is acknowledged.
+enum ConsentAction {
+  TERMS_ACCEPTED
+  PRIVACY_NOTICE_ACKNOWLEDGED
+}
+
+/// Which kind of account the agreement screen was asking for. One person can
+/// be a buyer and a seller; the scope says which screen they were on.
+enum AgreementScope {
+  BUYER
+  SELLER
+  LOGISTICS
+  STAFF
+  AUDIT
 }
 
 model BuyerCompany {
@@ -21105,9 +21171,24 @@ model ConsentRecord {
   legalDocumentId  String? @db.Char(26)
   /// The language of that document, e.g. "pl". Copied from the document.
   locale           String? @db.VarChar(10)
-  /// Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or
-  /// LOGISTICS_INVITATION. Null for the company-application declarations.
+  /// Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION,
+  /// LOGISTICS_INVITATION or AGREEMENT_SCREEN. Null for the company-application
+  /// declarations.
   acceptanceSource String? @db.VarChar(48)
+  /// Terms accepted, or privacy notice acknowledged. Null for the
+  /// company-application declarations, whose wording lives in code.
+  action           ConsentAction?
+  /// The kind of account the person was acting as. Null where nobody knows -
+  /// the declarations, and nothing else.
+  scope            AgreementScope?
+  /// `legalDocumentId` while this record is in force, null once cleared.
+  /// Exists for the unique index: one active record per person per document,
+  /// any number of cleared ones. The CHECK constraint keeps it honest.
+  activeDocumentId String? @db.Char(26)
+  /// When the person unticked this on the agreement screen, before pressing
+  /// Continue. Not a withdrawal: `withdrawnAt` is for that, and clearing one
+  /// box withdraws no consent to anything else.
+  clearedAt        DateTime? @db.DateTime(3)
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_consent_record_user")
   company       BuyerCompany?  @relation(fields: [companyId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_consent_record_company")
@@ -21118,10 +21199,12 @@ model ConsentRecord {
 
   @@index([userId, purpose], map: "ix_consent_record_user")
   @@index([companyId], map: "ix_consent_record_company")
-  /// One acceptance per person per document. A retried or doubled request
-  /// cannot write a second one. NULL (the company declarations) is distinct
-  /// in a MariaDB UNIQUE index, so those rows are not affected.
-  @@unique([userId, legalDocumentId], map: "uq_consent_record_user_document")
+  /// One ACTIVE acceptance per person per document. A retried or doubled
+  /// request cannot write a second one. NULL - a cleared record, or a company
+  /// declaration - is distinct in a MariaDB UNIQUE index, so those rows are
+  /// not affected and a cleared acceptance can be given again.
+  @@unique([userId, activeDocumentId], map: "uq_consent_record_user_active_document")
+  @@index([userId, legalDocumentId], map: "ix_consent_record_user_document")
   @@index([legalDocumentId], map: "ix_consent_record_legal_document")
   @@map("consent_records")
 }
@@ -21149,10 +21232,12 @@ enum LegalDocumentKind {
   PROHIBITED_PRODUCTS
   /// How returns work: the window, what can be returned, refunds or replacements.
   RETURNS_POLICY
-  /// Terms for the operator's own staff, shown on the admin console's sign-in
-  /// and agreed to on every sign-in. No acceptance is recorded for this kind:
-  /// the tick gates the sign-in form and is never sent to the server.
+  /// Terms for the operator's own staff, accepted on the admin console's
+  /// agreement screen after sign-in and recorded like every other kind.
   STAFF_TERMS
+  /// Terms for Audit Console users - inspection agencies and auditors -
+  /// accepted on that console's agreement screen.
+  AUDIT_CONSOLE_TERMS
 }
 
 enum LegalDocumentStatus {
@@ -21191,6 +21276,10 @@ model LegalDocument {
   /// When this version starts to apply. A version published with a future
   /// date is not in force, and cannot be accepted, until then.
   effectiveAt   DateTime @db.DateTime(3)
+  /// Whether people who accepted an earlier version must accept this one
+  /// before they can carry on. False for a correction that changes nothing
+  /// anybody agreed to; the first version of a kind always asks.
+  requiresReacceptance Boolean @default(true)
 
   /// SHA-256 of the canonical text (kind, version, locale, title and body),
   /// set when the document is published. Copied onto every acceptance.
@@ -23014,6 +23103,69 @@ model SellerScreeningCheck {
   @@index([sellerAccountId, isCurrent], map: "ix_seller_screening_current")
   @@index([state], map: "ix_seller_screening_state")
   @@map("seller_screening_checks")
+}
+
+/// A seller's declared annual turnover, and what a reviewer decided about it.
+///
+/// The marketplace's own eligibility policy (`SELLER_TURNOVER_*`): only a
+/// business whose turnover for its most recently completed financial year
+/// EXCEEDS the configured minimum may apply. The rule lives in
+/// `domain/seller-turnover.ts`; this row is the evidence.
+///
+/// Three different facts, kept apart on purpose: what the seller DECLARED
+/// (amount, period, declaration time), whether a person has VERIFIED it
+/// (`verificationState`, reviewer, reason) and whether the seller is APPROVED
+/// (`SellerAccount.status`). A declaration never approves anybody.
+///
+/// Rows accumulate like screening checks: changing the amount, the period or
+/// the supporting evidence makes a new current row in AWAITING_INPUT or
+/// IN_PROGRESS, so a verification of one figure is never carried onto
+/// another, and the earlier decision stays readable.
+///
+/// Business financial data, not personal data. Read only by the seller's own
+/// owners and administrators and by staff with seller-review rights.
+model SellerTurnoverDeclaration {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// Whole minor units (paise for INR). Compared as an integer, never a float.
+  amountMinor BigInt
+  currency    String @db.Char(3)
+
+  /// The reporting period: twelve months, first day to last day.
+  financialYearStart DateTime @db.Date
+  financialYearEnd   DateTime @db.Date
+
+  /// The minimum in force when this was declared, and the policy version.
+  minimumMinor  BigInt
+  policyVersion String @db.VarChar(32)
+
+  /// When the seller ticked the accuracy declaration, and who did.
+  declaredAt          DateTime @db.DateTime(3)
+  declaredByProfileId String?  @db.Char(26)
+
+  /// AWAITING_INPUT - no supporting document yet. IN_PROGRESS - waiting for a
+  /// reviewer. VERIFIED / FAILED - a reviewer decided, with a reason.
+  verificationState SellerVerificationState @default(AWAITING_INPUT)
+  /// Seller-visible: why it was verified or refused.
+  decisionReason    String?                 @db.Text
+  /// Operator-only. Never serialised to a seller route.
+  internalNote      String?                 @db.Text
+  reviewedByUserId  String?                 @db.Char(26)
+  reviewedAt        DateTime?               @db.DateTime(3)
+
+  /// Why this row stopped being current: AMENDED or EVIDENCE_CHANGED.
+  supersededReason String?  @db.VarChar(32)
+  isCurrent        Boolean  @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_turnover_seller")
+
+  @@index([sellerAccountId, isCurrent], map: "ix_seller_turnover_current")
+  @@index([verificationState], map: "ix_seller_turnover_state")
+  @@map("seller_turnover_declarations")
 }
 
 /// A change to a verified field, waiting for the operator. The live value is

@@ -101,6 +101,20 @@ export const router = createBrowserRouter(
 
         // --- Verification ------------------------------------------------
         {
+          path: 'seller-verification',
+          ...lazyRoute(
+            () => import('@/pages/seller-verification/SellerVerificationQueuePage').then((m) => m.SellerVerificationQueuePage),
+            [Permission.SELLER_READ],
+          ),
+        },
+        {
+          path: 'seller-verification/:id',
+          ...lazyRoute(
+            () => import('@/pages/seller-verification/SellerVerificationDetailPage').then((m) => m.SellerVerificationDetailPage),
+            [Permission.SELLER_READ],
+          ),
+        },
+        {
           path: 'sellers',
           ...lazyRoute(
             () => import('@/pages/SellersPage').then((m) => m.SellersPage),
@@ -162,6 +176,10 @@ export const router = createBrowserRouter(
         {
           path: 'reports',
           ...lazyRoute(() => import('@/pages/ReportsPage').then((m) => m.ReportsPage), JOB_SCREENS),
+        },
+        {
+          path: 'insights',
+          ...lazyRoute(() => import('@/pages/InsightsPage').then((m) => m.InsightsPage), [Permission.JOB_OVERSEE]),
         },
         {
           path: 'corrective-actions',

@@ -15,6 +15,8 @@ import {
   checkDeliverySplits,
   checkPreorderQuantity,
   indicativePrice,
+  lowestOfferedRules,
+  optionTermsFor,
   orderableUnits,
   preorderDeliveryWindow,
   quantityRulesFor,
@@ -37,7 +39,11 @@ function policy(overrides: Partial<PolicyTerms> = {}): PolicyTerms {
     version: 1,
     isEnabled: true,
     moqUnit: 'PIECE',
-    moqQuantity: 1000,
+    originalBrandEnabled: true,
+    originalBrandMoqQuantity: 1000,
+    oemEnabled: false,
+    oemMoqQuantity: null,
+    productOptionsReviewRequired: false,
     incrementQuantity: 100,
     maxQuantity: null,
     capacityBaseUnits: null,
@@ -80,8 +86,9 @@ describe('which policy applies', () => {
 describe('the minimum, in pieces', () => {
   it('converts a pallet minimum and its step through the same pallet size', () => {
     const result = quantityRulesFor(
-      policy({ moqUnit: 'UK_PALLET', moqQuantity: 10, incrementQuantity: 2 }),
+      policy({ moqUnit: 'UK_PALLET', originalBrandMoqQuantity: 10, incrementQuantity: 2 }),
       { PIECE: 1, UK_PALLET: 1200 },
+      'ORIGINAL_BRAND',
     );
     expect(result.rules).toEqual({
       minimumBaseUnits: 12_000,
@@ -91,20 +98,108 @@ describe('the minimum, in pieces', () => {
   });
 
   it('refuses a minimum set in a unit the offer has no active packaging for', () => {
-    const result = quantityRulesFor(policy({ moqUnit: 'CONTAINER', moqQuantity: 1 }), { PIECE: 1 });
+    const result = quantityRulesFor(
+      policy({ moqUnit: 'CONTAINER', originalBrandMoqQuantity: 1 }),
+      { PIECE: 1 },
+      'ORIGINAL_BRAND',
+    );
     expect(result.rules).toBeNull();
     expect(result.issues.map((issue) => issue.field)).toContain('moqUnit');
   });
 
   it('refuses a policy with no minimum instead of inventing one', () => {
-    const result = quantityRulesFor(policy({ moqQuantity: null }), { PIECE: 1 });
+    const result = quantityRulesFor(
+      policy({ originalBrandMoqQuantity: null }),
+      { PIECE: 1 },
+      'ORIGINAL_BRAND',
+    );
     expect(result.rules).toBeNull();
-    expect(result.issues.map((issue) => issue.field)).toContain('moqQuantity');
+    expect(result.issues.map((issue) => issue.field)).toContain('originalBrandMoqQuantity');
   });
 
   it('refuses fixed pricing with no price band', () => {
-    const result = quantityRulesFor(policy({ pricingMode: 'FIXED', tiers: [] }), { PIECE: 1 });
+    const result = quantityRulesFor(
+      policy({ pricingMode: 'FIXED', tiers: [] }),
+      { PIECE: 1 },
+      'ORIGINAL_BRAND',
+    );
     expect(result.rules).toBeNull();
+  });
+});
+
+describe('OEM and Original Brand minimums', () => {
+  const both = policy({
+    oemEnabled: true,
+    oemMoqQuantity: 500,
+    originalBrandEnabled: true,
+    originalBrandMoqQuantity: 10,
+    incrementQuantity: 1,
+  });
+
+  it('gives each option its own minimum', () => {
+    expect(quantityRulesFor(both, { PIECE: 1 }, 'OEM').rules?.minimumBaseUnits).toBe(500);
+    expect(quantityRulesFor(both, { PIECE: 1 }, 'ORIGINAL_BRAND').rules?.minimumBaseUnits).toBe(10);
+  });
+
+  it('judges 100 pieces valid for Original Brand and short for OEM', () => {
+    const oem = quantityRulesFor(both, { PIECE: 1 }, 'OEM').rules;
+    const original = quantityRulesFor(both, { PIECE: 1 }, 'ORIGINAL_BRAND').rules;
+    if (oem === null || original === null) throw new Error('expected rules');
+    expect(checkPreorderQuantity(100, original)).toBeNull();
+    expect(checkPreorderQuantity(100, oem)).toEqual({ code: 'BELOW_MINIMUM', minimumBaseUnits: 500 });
+    // Below, at and above each minimum.
+    expect(checkPreorderQuantity(9, original)?.code).toBe('BELOW_MINIMUM');
+    expect(checkPreorderQuantity(10, original)).toBeNull();
+    expect(checkPreorderQuantity(499, oem)?.code).toBe('BELOW_MINIMUM');
+    expect(checkPreorderQuantity(500, oem)).toBeNull();
+    expect(checkPreorderQuantity(501, oem)).toBeNull();
+  });
+
+  it('converts both minimums through the same pack size, never a fixed one', () => {
+    const cartons = policy({
+      moqUnit: 'CARTON',
+      oemEnabled: true,
+      oemMoqQuantity: 50,
+      originalBrandMoqQuantity: 2,
+      incrementQuantity: 1,
+    });
+    const sizes = { PIECE: 1, CARTON: 24 };
+    expect(quantityRulesFor(cartons, sizes, 'OEM').rules).toEqual({
+      minimumBaseUnits: 1200,
+      incrementBaseUnits: 24,
+      maximumBaseUnits: null,
+    });
+    expect(quantityRulesFor(cartons, sizes, 'ORIGINAL_BRAND').rules?.minimumBaseUnits).toBe(48);
+    // No carton size: neither option gets an invented minimum.
+    expect(optionTermsFor(cartons, { PIECE: 1 }).map((entry) => entry.status)).toEqual([
+      'NOT_CONFIGURED',
+      'NOT_CONFIGURED',
+    ]);
+  });
+
+  it('refuses an option that is not offered, even with a minimum stored', () => {
+    const originalOnly = policy({ oemEnabled: false, oemMoqQuantity: 500 });
+    expect(quantityRulesFor(originalOnly, { PIECE: 1 }, 'OEM').rules).toBeNull();
+    expect(optionTermsFor(originalOnly, { PIECE: 1 }).map((entry) => entry.status)).toEqual([
+      'NOT_OFFERED',
+      'OFFERED',
+    ]);
+  });
+
+  it('marks an enabled option with no minimum as not configured, not as 1', () => {
+    const terms = optionTermsFor(policy({ oemEnabled: true, oemMoqQuantity: null }), { PIECE: 1 });
+    expect(terms[0]).toMatchObject({ option: 'OEM', status: 'NOT_CONFIGURED', rules: null });
+  });
+
+  it('opens preorders at the lowest offered minimum, and closes them when none is offered', () => {
+    expect(lowestOfferedRules(optionTermsFor(both, { PIECE: 1 })).rules?.minimumBaseUnits).toBe(10);
+    const oemOnly = policy({ oemEnabled: true, oemMoqQuantity: 500, originalBrandEnabled: false });
+    expect(lowestOfferedRules(optionTermsFor(oemOnly, { PIECE: 1 })).rules?.minimumBaseUnits).toBe(500);
+    const none = lowestOfferedRules(
+      optionTermsFor(policy({ originalBrandEnabled: false }), { PIECE: 1 }),
+    );
+    expect(none.rules).toBeNull();
+    expect(none.issues.map((issue) => issue.field)).toEqual(['productOptions']);
   });
 });
 

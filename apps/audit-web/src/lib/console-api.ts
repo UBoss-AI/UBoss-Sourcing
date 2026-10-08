@@ -22,6 +22,8 @@ import type {
   DocumentDetail,
   DocumentRow,
   EvidenceItem,
+  HealthBand,
+  InsightsResponse,
   JobDetail,
   JobRow,
   PlanRow,
@@ -71,6 +73,7 @@ export const consoleKeys = {
   rulesAll: () => ['audit', 'console', 'rules'] as const,
   rule: (id: string) => ['audit', 'console', 'rule', id] as const,
   coverage: () => ['audit', 'console', 'coverage'] as const,
+  insights: () => ['audit', 'console', 'insights'] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -377,8 +380,11 @@ export const resendAgencyInvitation = (memberId: string, key: Key): Promise<{ ex
 // Sellers and cases
 // ---------------------------------------------------------------------------
 
-export const fetchSellers = (filters: { search?: string; status?: string }): Promise<SellersResponse> =>
-  api.get('/audit/sellers', { query: { search: filters.search, status: filters.status } });
+export const fetchSellers = (filters: { search?: string; status?: string; health?: HealthBand; sort?: 'name' | 'risk' }): Promise<SellersResponse> =>
+  api.get('/audit/sellers', { query: { search: filters.search, status: filters.status, health: filters.health, sort: filters.sort } });
+
+/** Quality insights for the audit team: QIMA-style pass/fail, findings, suppliers and agencies. */
+export const fetchInsights = (): Promise<InsightsResponse> => api.get('/audit/insights');
 
 export const fetchSeller = (id: string): Promise<SellerDetail> => api.get(`/audit/sellers/${enc(id)}`);
 

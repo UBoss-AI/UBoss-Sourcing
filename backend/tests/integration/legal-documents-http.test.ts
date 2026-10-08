@@ -138,6 +138,27 @@ describe('legal document HTTP permissions', () => {
     expect(invalid.statusCode).toBe(400);
   });
 
+  it('refuses to publish a document that still has blanks to fill in, and keeps the re-acceptance choice', async () => {
+    const created = await app.inject({
+      method: 'POST', url: '/api/v1/admin/legal-documents', headers: headers(owner),
+      payload: { ...body(), body: 'Operated by [[DECISION: registered legal name]].', requiresReacceptance: false },
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    const id = created.json<{ id: string; requiresReacceptance: boolean }>().id;
+    documentIds.push(id);
+    expect(created.json<{ requiresReacceptance: boolean }>().requiresReacceptance).toBe(false);
+
+    const refused = await app.inject({
+      method: 'POST', url: `/api/v1/admin/legal-documents/${id}/publish`, headers: headers(owner),
+    });
+    expect(refused.statusCode).toBe(422);
+    const error = refused.json<{ error: { code: string; details: { meta: { placeholder: string } }[] } }>().error;
+    expect(error.code).toBe('LEGAL_DOCUMENT_HAS_PLACEHOLDERS');
+    expect(error.details[0]?.meta.placeholder).toBe('[[DECISION: registered legal name]]');
+    expect(await prisma.legalDocument.findUnique({ where: { id } })).toMatchObject({ status: 'DRAFT', contentSha256: null });
+    expect(await prisma.auditLog.count({ where: { resourceId: id, action: 'legal_document.published' } })).toBe(0);
+  });
+
   it('publishes once under concurrent requests, preserves the hash and audits only the winner', async () => {
     const id = await draft();
     const publish = () => app.inject({

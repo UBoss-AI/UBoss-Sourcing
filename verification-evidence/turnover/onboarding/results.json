@@ -1,0 +1,48 @@
+{
+ "ranAt": "2026-10-08T08:04:05.135Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": "no-card:/seller/onboarding:T\n\nTurnover Check Shop\n\nSELLER HUB\n\nHome\nListings\nBrands\nBuyer requests\nInventory\nBulk update\nOrders\nPreorders\nRequests for quotation\nClaims\nReviews\nLogistics\nCarriers\nPayments\nPerformance\nInvoicing\nE",
+   "darkClass": "|dark",
+   "page": "onboarding-turnover",
+   "path": "/seller/onboarding",
+   "w": 1024,
+   "finalPath": "/seller/onboarding",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 0,
+   "h1": [],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "onboarding-turnover-1024.png"
+  },
+  {
+   "afterResult": "no-card:/seller/onboarding:Home\nListings\nBrands\nBuyer requests\nInventory\nBulk update\nOrders\nPreorders\nRequests for quotation\nClaims\nReviews\nLogistics\nCarriers\nPayments\nPerformance\nInvoicing\nERP integrations\nNotifications\nActivi",
+   "darkClass": "|dark",
+   "page": "onboarding-turnover",
+   "path": "/seller/onboarding",
+   "w": 375,
+   "finalPath": "/seller/onboarding",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 0,
+   "h1": [],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "onboarding-turnover-375.png"
+  }
+ ]
+}

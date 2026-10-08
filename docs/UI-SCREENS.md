@@ -79,6 +79,7 @@ This file is written in Markdown with LF line endings. The diagrams are
 6. [Admin panel screens](#6-admin-panel-screens)
 7. [Logistics portal screens](#7-logistics-portal-screens)
 8. [Key flows](#8-key-flows)
+9a. [The agreement screen after sign-in](#9a-the-agreement-screen-after-sign-in)
 9. [Shared components worth knowing](#9-shared-components-worth-knowing)
 10. [Glossary](#10-glossary)
 11. [Screenshots](#11-screenshots)
@@ -1445,6 +1446,27 @@ not sent to the API.
   first name and initial, **Publish review** or **Save changes**, and **Delete
   review** for an existing one. A hidden review shows why staff hid it.
 
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
+
 **States.** "Loading the product". A product that does not exist shows the
 "We could not find that page" screen.
 
@@ -1488,9 +1510,10 @@ for the marketplace's own stock). Read from `sourcing` on
 **On the screen.** The split layout: a turning earth on the left from `lg`
 up, the form on the right. The language picker. **Email address**,
 **Password** with a **Show** / **Hide** button (it says what pressing it will
-do, and a screen reader hears whether the password is shown), "I accept the
-terms of business" (with the store's policy links), **Sign in →**, **Forgot
-your password?**. Then either a way to create an account (when sign-up is
+do, and a screen reader hears whether the password is shown), **Sign in →**,
+**Forgot your password?**. There is no terms tick: the Terms and the Privacy
+Policy are accepted once on the agreement screen after signing in (see
+[9a](#9a-the-agreement-screen-after-sign-in)). Then either a way to create an account (when sign-up is
 switched on) or "Accounts are set up by our team…".
 
 **Two tabs: Individual and Company.** When the store offers company accounts
@@ -1935,6 +1958,32 @@ customer starts a seller application under the account they already have.
 
 - **What you get** (four points) and **How it works** (four steps). "Every
   seller is checked before they can list anything."
+- **Seller eligibility** card (`pages/seller/TurnoverEligibilityCard.tsx`),
+  above the application form, shown only while the operator's turnover policy
+  is on (`SELLER_TURNOVER_REQUIRED`). A shield icon, the title "Seller
+  eligibility" and a **Platform policy** badge. "Businesses with annual turnover
+  exceeding ₹30 crore are eligible to apply to sell on {{marketplace}}." and
+  "Equivalent to INR 300 million. Eligibility is based on your most recently
+  completed financial year and is subject to verification." A large **More than
+  ₹30 crore** tile. The figures come from the policy, not from the page.
+  - **Guests** see the policy only.
+  - **Signed-in customers** also get: a **Financial year** selector (the most
+    recent completed year for April, January, July and October year-ends; April
+    first by default) with an info button whose tooltip explains the reporting
+    period and opens by keyboard; **Annual turnover (INR)** with a
+    **Crore / INR** switch that converts exactly; a live "Exactly ₹…" line; and
+    inline errors for a negative, malformed, too-precise (more than 2 decimals in
+    INR, 9 in crore) or too-large figure.
+  - Above the minimum: "Turnover requirement met." and that it is subject to
+    verification. At or below it: "Your business does not currently meet our
+    seller turnover requirement. Annual turnover must exceed ₹30 crore to
+    apply." and a **Continue shopping** link.
+  - An unticked declaration: "I confirm that the turnover and financial-year
+    details provided are accurate and can be supported by business records."
+    **Start application** stays disabled until the figure is eligible **and**
+    the box is ticked. The tick alone never makes anyone eligible; the server
+    checks the figure again.
+  - Light and dark themes, phone width, keyboard, and all eight languages.
 - **Start your seller application** (signed-in customers): **Registered
   business name**, **Shop name buyers will see** (checked as you type: "That
   name is available." or "Another seller already trades under that name."),
@@ -1945,9 +1994,10 @@ customer starts a seller application under the account they already have.
 
 **API calls**
 
+- `GET /api/v1/config` (`sellerEligibility`: the minimum, currency, policy version and suggested year)
 - `GET /api/v1/sellers/me`
 - `GET /api/v1/sellers/display-name-available?name=…`
-- `POST /api/v1/sellers/apply`
+- `POST /api/v1/sellers/apply` (with `turnover`; refused `409 SELLER_TURNOVER_NOT_ELIGIBLE` at or below the minimum)
 
 #### `/support` — Support
 
@@ -4017,7 +4067,7 @@ counts. A rate over nothing is a dash, never 0%.
 | | |
 |---|---|
 | **Who** | Every seller. Answers can be changed only while the application is a draft or sent back. Documents can be uploaded in every status except rejected and suspended (so an approved seller can upload a renewed certificate) |
-| **File** | `pages/seller/SellerOnboardingPage.tsx`, `lib/onboarding-draft.ts`, `lib/form-autosave.ts` |
+| **File** | `pages/seller/SellerOnboardingPage.tsx`, `pages/seller/TurnoverStepPanel.tsx`, `lib/onboarding-draft.ts`, `lib/form-autosave.ts` |
 
 **Purpose.** The application to sell. The steps and the questions come from
 the server and depend on the country the business is registered in and the
@@ -4030,13 +4080,26 @@ chosen step with **← Back** and **Continue: … →**.
 | Step | Required | What is asked |
 |---|---|---|
 | Contact verification | Yes | The email and mobile number, confirmed through the account (link to your account details) |
-| Business identity | Yes | Company registration number, tax number (GSTIN, VAT number …, named for the country), the registered address in six parts, website, EORI number |
+| Business identity | Yes | The **Seller eligibility** turnover panel at the top (see below), then company registration number, tax number (GSTIN, VAT number …, named for the country), the registered address in six parts, website, EORI number |
 | Identity and documents | Yes | Tax reference (PAN, UTR …), the authorised representative and their email, and two files: a business registration document and photo identification |
 | Store details | Yes | The shop name (read-only; chosen when applying), about your business, support email and phone |
 | Pickup and returns | Yes | A summary of your places. They are added on the Profile page. At least one place must dispatch and one must take returns |
 | Payout account | No | Whether the marketplace has a payout provider; the bank account is connected through it |
 | Compliance | Only if the store requires it | Certificates such as a quality certificate or Declaration of Conformity; country-specific licences |
 | Agreements | Yes | Tick "I accept" for five documents (seller agreement, commission schedule, returns and refunds policy, privacy policy, a declaration that you may sell what you list), type **Your full name**, and **Record my acceptance**. This is recorded as consent with the version, time, address and browser; it is not an electronic signature. Only the Owner may do it |
+
+**Turnover on Business identity.** Owners and administrators see the same
+**Seller eligibility** card as on `/sell`, with the declared year and figure,
+a **Save** button, a verification badge (waiting for a document, waiting for
+review, Verified, Not verified), the reviewer's reason when there is one, and
+the policy version and date of the declaration. Under it, **Supporting
+evidence**: upload a document (for example audited accounts), list, **Open**
+and **Remove** it, through the same document upload as the other steps. The
+step stays *In progress* with a "Still needed" line about turnover until an
+eligible figure is saved. A figure at or below the minimum is still saved, so
+nothing typed is lost, but **Send for review** is refused. Changing the figure
+or the evidence after a decision sends it back for review. Sellers approved
+before the rule are not asked for it. Other roles do not see the panel.
 
 **Documents.** Choose what the file is, the issue and expiry dates (you are
 warned before a certificate runs out), pick the file (PDF or image, up to
@@ -4057,6 +4120,7 @@ will be in touch."
 **API calls**
 
 - `GET /api/v1/seller/onboarding`
+- `GET` and `PUT /api/v1/seller/turnover`
 - `GET` and `PATCH /api/v1/seller/business-profile`
 - `PATCH /api/v1/seller/store-profile`
 - `GET /api/v1/seller/locations`
@@ -5008,19 +5072,20 @@ The permission keys, grouped the way the code groups them:
 
 ### 6.2 Signing in, and the gates after it
 
-Signing in to the admin panel is four steps. The last three are drawn **in
+Signing in to the admin panel is up to five steps. The last four are drawn **in
 place of the whole panel**, not reached by a link, so none of them can be
 skipped by typing another address.
 
 | Step | When it appears | What the person does | API |
 |---|---|---|---|
-| 1. Sign in (`/login`) | Not signed in | Email, password, tick the terms. **Sign in →** | `POST /api/v1/admin/auth/login` |
+| 1. Sign in (`/login`) | Not signed in | Email and password. **Sign in →** | `POST /api/v1/admin/auth/login` |
 | 2. Choose your password | Signed in with the temporary password that was emailed | Temporary password, new password (12 to 128 characters), confirm. **Save and continue**. The panel then signs in again with the new password | `POST /api/v1/admin/auth/password/change`, then `POST /api/v1/admin/auth/login` |
 | 3. Two-step sign-in required | Always, for every administrator. First time: set it up. After that: once per session | First time: scan the QR code (drawn in the browser), save the recovery codes, tick "I have saved the recovery codes somewhere secure", type the six-digit code. Later: type the code or a recovery code. **Verify and continue** | `POST /api/v1/admin/auth/mfa/setup`, `POST /api/v1/admin/auth/mfa/verify` |
 | 4. Allow location access | When the deployment asks where a sign-in comes from | The browser asks for the position. Each failure has its own message (denied, unavailable, timed out, not supported). **Retry** or **Sign out instead** | `POST /api/v1/admin/auth/session/location` |
+| 5. Before you continue | The staff terms or the Privacy Policy are published and this person has not accepted or acknowledged the version that counts | The agreement screen ([9a](#9a-the-agreement-screen-after-sign-in)): **I agree** to the staff terms, **I acknowledge** the Privacy Policy, **Continue** | `GET`/`POST`/`DELETE /api/v1/admin/auth/agreements…` |
 
 Files: `src/pages/LoginPage.tsx`, `src/pages/ChangePasswordPage.tsx`,
-`src/auth/AdminMfaGate.tsx`, `src/auth/LocationGate.tsx`,
+`src/auth/AdminMfaGate.tsx`, `src/auth/LocationGate.tsx`, `src/auth/PortalAgreementGate.tsx`,
 `src/auth/guards.tsx`, `src/auth/session.tsx`.
 
 Local screenshot of the sign-in page: `12-admin-login.png`.
@@ -5033,33 +5098,17 @@ Local screenshot of the sign-in page: `12-admin-login.png`.
 | **File** | `src/pages/LoginPage.tsx` |
 
 **On the screen.** The split sign-in layout with the earth on the left from
-`lg` up. The language picker at the top. **Email address**, **Password**, and
-the terms tick (never ticked in advance), with links to the operator's
-policies. **Sign in →** and **Forgot your password?**.
+`lg` up. The language picker at the top. **Email address**, **Password**,
+**Sign in →** and **Forgot your password?**. There is no terms tick any more:
+the staff terms and the Privacy Policy are accepted on the agreement screen
+after signing in, once, and asked again only when a new version requires it.
 
-The terms tick depends on whether the operator has published **staff terms**
-(Legal documents → *Staff terms*):
-
-- **Published.** "I have read and agree to the *Staff Terms*." Ticking the
-  box, pressing Space or Enter on it, or clicking the words opens the staff
-  terms in a dialog: title, version, date in force, language, the full text
-  in one scrolling area, **Download PDF**, and **Cancel** / **I agree** in a
-  footer that stays in view. **I agree** stays disabled, with "Read all terms
-  before accepting.", until the end of the text has been in view; only
-  **I agree** ticks the box. Under the box: "Open the terms, read them to the
-  end and agree.", then "You agreed to version … You agree again each time
-  you sign in." The operator's other policies are linked on their own line.
-- **Not published, or not reachable.** The plain "I accept the terms of use"
-  box, with the policy links beside it.
-
-Either way the tick is required to sign in and is not sent to the server. A "No account
+A "No account
+yet?" noteA "No account
 yet?" note: staff accounts are created by an administrator. After too many
 attempts: "Too many attempts. Wait a few minutes before trying again."
 
-**API calls:** `GET /api/v1/config` (the policy links),
-`GET /api/v1/legal/current?kind=STAFF_TERMS&locale=…` (the staff terms; 503
-means none are published), `POST /api/v1/admin/auth/login`,
-`GET /api/v1/admin/auth/me`
+**API calls:** `POST /api/v1/admin/auth/login`, `GET /api/v1/admin/auth/me`
 
 #### `/forgot-password` — Reset your password
 
@@ -6093,11 +6142,14 @@ have run yet.", "No notes yet."
 | **Who** | `customer.read` |
 | **File** | `src/pages/SellersPage.tsx` |
 
-**Purpose.** Businesses applying to sell on the marketplace, oldest first.
+**Purpose.** Businesses applying to sell on the marketplace, oldest first, so
+the operator can follow verification. Read-only for verification: the Audit
+Team reviews, approves and rejects applications in the Audit Console.
 
-**On the screen.** "N applications are waiting for a decision." A status
-filter with counts: Waiting for review, Being reviewed, Sent back, Approved,
-Rejected, Suspended, Not submitted yet. Search by name. Columns: Business,
+**On the screen.** "N applications are with the Audit Team for verification."
+A notice that seller verification is managed by the Audit Team. A status
+filter with counts: Awaiting verification, Under Audit Team review,
+Corrections requested, Approved, Rejected, Suspended, Not submitted yet. Search by name. Columns: Business,
 Type, Registered in, Application (steps done, with a bar), Documents,
 Submitted, Status.
 
@@ -6121,19 +6173,41 @@ on the storefront's home page.
 
 | | |
 |---|---|
-| **Who** | `customer.read` to open. Decisions on the application and its documents need `customer.status.write`; the commission needs `settings.write` (both checked by the server) |
-| **File** | `src/pages/SellerDetailPage.tsx` |
+| **Who** | `customer.read` to open. Suspending a seller or lifting a suspension needs `customer.status.write`; the commission needs `settings.write` (both checked by the server). No permission here can decide verification |
+| **File** | `src/pages/SellerDetailPage.tsx`, `src/pages/seller/SellerTurnoverPanel.tsx` |
 
-**Purpose.** Read one application in full, decide each document, and decide
-the application.
+**Purpose.** Read one application in full and follow its verification.
+Verification itself - review, corrections, document and turnover decisions,
+screenings, approval, rejection - is the Audit Team's, in the Audit Console
+(`/seller-verification/:id`). This page is read-only for it.
+
+**Seller verification** (first card): "Read-only — seller verification is
+managed by the Audit Team.", the verification status, **Last decided by**
+(console and reviewer email, with the time), and the verification history:
+each step with its time and who took it - "Audit Team · email", "Admin Panel ·
+email" for a decision made here before the Audit Team took over, "Seller", or
+"Automatic". When no active audit supervisor or compliance reviewer exists, a
+warning says applications wait until one is invited; nothing falls back to
+approval here.
 
 **Main column:** what the seller was told last; **The business** (names, type,
 country, registration and tax numbers, EORI, EUDAMED SRN, website, years
 trading, registered address, what they sell, country-specific numbers);
 **Who represents it** and who can use the account; **Documents** (each with
-type, file, dates, virus-scan state, decision; **Open**, **Accept**, **Send
-back** with a reason); **Where they ship from**; **What they have accepted**
+type, file, dates, virus-scan state, the Audit Team's decision and reason;
+**Open** only); **Where they ship from**; **What they have accepted**
 (agreements, version, who, when, from which IP).
+
+**Annual turnover** (main column, under the KYB review panel): a badge saying
+whether the declared figure **exceeds** or **does not exceed** the minimum, the
+verification badge, the exact declared amount (and in crore), the financial
+year, the minimum and policy version in force when it was declared, when it
+was declared, the reviewer and when, the reason the seller was given, the
+internal note, the supporting documents with **Open** (single-use links), and
+the history of earlier declarations. Read-only: the Audit Team verifies the
+turnover in the Audit Console. The side column's approval
+readiness list also names a turnover that is not declared, not eligible or not
+verified.
 
 **Their listings** (main column, `product.read`): every listing this seller
 has, a page of 25, with its code, product, last change and status. Staff with
@@ -6150,31 +6224,30 @@ details, pickup and returns, payout account, compliance, agreements),
 with **Change**), **Internal notes** (never shown to the seller), and links to
 their catalogue.
 
-**The decision buttons depend on the status**
+**The buttons depend on the status** - operational controls only
 
 | Status now | Buttons |
 |---|---|
-| Not submitted | none |
-| Waiting for review | Take it on, Approve, Send back, Reject |
-| Being reviewed | Approve, Send back, Reject |
-| Sent back | Reject (the seller resubmits themselves) |
-| Approved | Suspend, Send back |
-| Suspended | Approve (reinstate), Send back, Reject |
-| Rejected | Send back (reopen) |
+| Approved | Suspend |
+| Suspended | Lift suspension |
+| Any other | none (the Audit Team decides) |
 
-Staff without `customer.status.write` are offered none of these buttons (the
-server would refuse them anyway). Each decision asks "What should the seller be
-told?" (required to send back, reject or suspend) and an internal note. Reject has "They may apply again". If
-somebody else decided first, the server refuses the stale decision.
+Staff without `customer.status.write` are offered neither. Suspend asks "What
+should the seller be told?" (required) and an internal note; with maker-checker
+on it waits for a second member of staff. Lifting a suspension still runs the
+evidence gate. If somebody else changed the seller first, the server refuses
+the stale decision.
 
 **API calls**
 
+- `GET /api/v1/admin/sellers/:id`**API calls**
+
 - `GET /api/v1/admin/sellers/:id`
 - `GET /api/v1/admin/settings/business`
-- `POST /api/v1/admin/sellers/:id/decision`
+- `POST /api/v1/admin/sellers/:id/decision` (`SUSPENDED`, or `APPROVED` to lift a suspension)
+- `GET /api/v1/admin/sellers/:id/turnover`
 - `PATCH /api/v1/admin/sellers/:id/commission`
 - `POST /api/v1/admin/seller-documents/:documentId/link`
-- `POST /api/v1/admin/seller-documents/:documentId/decision`
 - `GET /api/v1/admin/sellers/:id/offers?page=…&pageSize=25`
 - `POST /api/v1/admin/seller-offers/:id/block`, `POST /api/v1/admin/seller-offers/:id/unblock`
 
@@ -7095,11 +7168,14 @@ it applies from, the date it was published, and how many people accepted it
 (never who). A red alert when no buyer Terms are in force - storefront sign-up
 and invited-customer activation are refused until there are - and an amber one
 when no carrier terms are. A table for each published policy, and one for
-the **Staff terms**, which the console's own sign-in shows; with none in force
-the sign-in shows a plain tick box, so there is no alert for it. **New version**.
+the **Staff terms** and the **Audit Console terms**, which staff and Audit
+Console users accept on the agreement screen. A kind with nothing in force is
+simply not asked for there. **New version**.
 
-**On the screen (a draft).** **Document**, **Language** (the eight the system
-speaks), **Version** (for example 2026-10-01; the same name for each language
+**On the screen (a draft).** **Document** (now including **Audit Console
+terms**), **Language** (the eight the system speaks), **Ask everyone to accept
+this version again** (on by default; turn it off only for a correction, so
+people who accepted an earlier version are not asked again), **Version** (for example 2026-10-01; the same name for each language
 of the same text), **In force from** (a date in the past becomes the moment you
 publish), **Title**, **What has changed** (optional), and the text, with a
 line explaining that `## ` starts a heading and `- ` a bullet. Beside it a
@@ -7957,6 +8033,7 @@ when it runs, by the same calculation the review screen used.
 
 ```mermaid
 flowchart TD
+  Elig["/sell: Seller eligibility: year, turnover above the minimum, declaration"] --> Sell
   Sell["/sell: Start your application (name, shop name, country, kind)"] --> Onb["/seller/onboarding"]
   Onb --> Lock["Choose a Seller Hub password (first visit)"]
   Lock --> Steps["Fill in the steps in any order; answers save as you type"]
@@ -7965,7 +8042,7 @@ flowchart TD
   Agree --> Submit{"Every required step done?"}
   Submit -->|"No"| Steps
   Submit -->|"Yes"| Send["Send for review"]
-  Send --> AdminQ["Admin /sellers/:id: Take it on, decide documents"]
+  Send --> AdminQ["Admin /sellers/:id: Take it on, decide documents, verify turnover"]
   AdminQ --> Decision{"Decision"}
   Decision -->|"Send back"| Steps
   Decision -->|"Reject"| Rejected(["Not approved"])
@@ -8172,6 +8249,60 @@ and response-time (SLA) timers.
 
 ---
 
+## 9a. The agreement screen after sign-in
+
+**Who sees it.** Every signed-in person whose Terms or Privacy Policy
+acknowledgment is owed: buyers on the storefront (`layout/StoreAgreementGate.tsx`),
+seller members in the Seller Hub (`layout/SellerAgreementGate.tsx`, before the
+Hub's own lock), carrier staff, operator staff and Audit Console users
+(`auth/PortalAgreementGate.tsx`, after the second-factor and location screens).
+It covers the page that was asked for, so **Continue** lands there. Files:
+`components/agreement-kit/` - the same files in all four apps.
+
+**On the screen.** The marketplace's name, **Before you continue**, one
+sentence, then two cards, each with one box:
+
+- "I agree to the **Terms & Conditions**." A seller's Terms are the Terms of
+  Use and the Seller Addendum, shown one after the other in the same dialog.
+- "I acknowledge that I have read the **Privacy Policy**."
+
+Under each box: not yet done, or "Accepted: version …, date. Untick to clear it
+before you continue." A note that neither box switches on marketing, analytics
+or any other optional use of data. **Sign out** and **Continue** (disabled with
+"Continue becomes available once both are saved." until both are). Links to
+**Contact support** and, on the storefront, **Privacy requests**.
+
+**What it does.** Clicking a box, its sentence or the document's name (or
+Space or Enter on the box) opens the document and ticks nothing. The dialog has
+the title, a fixed header and footer, version, date in force and language, the
+text in its own scrolling area, **Open in a new tab** (storefront) and
+**Download PDF**. The footer reads "Scroll to the end to enable acknowledgment."
+until the end has been in view; then **I agree** or **I acknowledge** is enabled.
+Text that fits enables it at once. **Cancel**, **Close** and Escape record
+nothing. After the server saves the record the dialog closes and that one box is
+ticked. A failed save leaves the box empty with "That was not saved…". A version
+published while reading is shown in place with "A new version was published
+while you were reading…" and the reading starts over. A document already
+recorded opens read-only with "Recorded on …". A document that failed to load
+offers **Try again** and can never be accepted. Clicking a ticked box before
+Continue clears that one record.
+
+**API calls:** `GET {prefix}/agreements`, `POST {prefix}/agreements/terms`,
+`POST {prefix}/agreements/privacy`, `DELETE {prefix}/agreements/terms|privacy`,
+where `{prefix}` is `/api/v1/auth` (storefront; Seller Hub adds `scope=SELLER`),
+`/api/v1/admin/auth`, `/api/v1/logistics/auth` or `/api/v1/audit/auth`.
+
+**Reachable before agreeing.** Storefront: `/legal/*`, `/support`,
+`/account/support…` and `/privacy-requests` (a page holding only the
+data-request panel). Seller Hub: `/seller/support…`. Carrier portal:
+`/support…`.
+
+**Afterwards.** The records, read-only, with **Read** and **Download PDF**:
+the storefront's profile page (`/account/profile`), the carrier portal's and the
+Audit Console's profile pages, and in the admin console the user menu's
+**Terms and privacy** item (`/my-agreements`). API:
+`GET {prefix}/agreements/history`.
+
 ## 9. Shared components worth knowing
 
 The three apps share no code in the browser, so each has its own copy of
@@ -8368,7 +8499,7 @@ The ring and its table also count high-risk signals, failed inspections with no 
 #### `/customers/:id` and `/sellers/:id` — reason, approval, history, messages
 
 - **Suspend customer** now asks for a reason, and the button stays disabled until there is one. With maker-checker on, the toast says the request is waiting for a second member of staff; nothing changes yet.
-- On the seller page, **Suspend** and **Reject** behave the same way.
+- On the seller page, **Suspend** behaves the same way. (Reject is no longer on this page: the Audit Team decides applications.)
 - **Waiting for a second approver** card (only while a request for this record is open), with Approve / Reject.
 - **Communication** card: **Write a message** (subject and message; a customer gets an email, a seller a Seller Hub notice and an email). Needs `customer.write`.
 - **History** card: the audit trail of this record, newest first, with a link to the full audit screen. Needs `audit.read`.
@@ -8448,7 +8579,9 @@ Its own sign-in. Everyone passes a one-time code (TOTP) after the password.
 |---|---|---|
 | `/login`, `/activate`, `/forgot-password`, `/reset-password` | anyone invited | Sign in, accept an invitation, reset a password. The second-step code screen follows sign-in |
 | `/dashboard` | all roles | Agency members: assignments, deadlines, overdue work. Audit staff: the queues drawn as charts (see below) |
-| `/sellers`, `/sellers/:id` | staff reviewers | A seller's qualification cases and documents |
+| `/seller-verification` | staff reviewers (`audit.seller.read`) | **Seller verification** queue (sidebar, first under Verification). Tabs: New applications, In review, Corrections requested, Resubmitted, Approved, Rejected, All - with a count on each of the first four. Search by name; oldest submission first; pages of 25. Loading, empty (per tab), error and refreshing states; a card layout on a phone |
+| `/seller-verification/:id` | staff reviewers; decisions need `audit.seller.verify` | One application: status, **Verification decision** card (submitted, approved, last decided by, applying again allowed, the message to the seller and the internal note), **Business details** as submitted (never edited here), **Documents** (Open, Accept, Refuse with a required reason), ownership and screening (record a manual screening), what approval is still waiting for, **Annual turnover** (Verified / Not verified with a reason), **Verification history** (Audit Team, Admin Panel, Seller, Automatic, with the reviewer). Buttons by status: Start review, Approve seller, Request corrections, Reject application; each opens a confirmation dialog, and Request corrections and Reject require the message to the seller. Reject has "Let the seller apply again". A decision made by a colleague meanwhile is refused and the screen says to reload. Lifting a suspension is not offered (Admin Panel) |
+| `/sellers`, `/sellers/:id` | staff reviewers | Sellers with their health rating (filter by band, riskiest first); one seller's health card, verification report, qualification cases and documents |
 | `/products`, `/products/:caseId` | staff reviewers | Product cases |
 | `/cases/:id` | staff reviewers | Evaluation, determination for `CONDITIONAL` / `UNRESOLVED`, history |
 | `/documents` | staff reviewers | Certificate review: method, outcome, approve, reject, suspend |
@@ -8456,6 +8589,7 @@ Its own sign-in. Everyone passes a one-time code (TOTP) after the password.
 | `/jobs`, `/jobs/:id` | agency and staff | The inspection job: stage, scope, checklist, quantities and reconciliation, defects with unit references, lab samples and custody, evidence, report and PDF, corrections, sub-lot release request |
 | `/calendar` | agency | Jobs by date |
 | `/reports` | agency and staff | Reports, including superseded ones |
+| `/insights` | audit staff (`audit.job.oversee`) | Quality analytics: pass rate, results by month, findings, best and worst suppliers, agency performance |
 | `/corrective-actions` | agency and staff | Open corrective actions |
 | `/checklists` | staff | Checklist items, their kind and mandatory / lab / equipment flags |
 | `/team` | agency admins, supervisors | Members and roles |
@@ -8482,6 +8616,36 @@ pieces as the Admin Panel's dashboard. Top to bottom:
 It reads `GET /audit/dashboard` and `GET /audit/rules/coverage`, refreshes
 every minute while the tab is in front, and has a Refresh button. Agency
 members' dashboard is unchanged.
+
+**Seller health (`/sellers`, `/sellers/:id`).** Modelled on Amazon's Account
+Health page. The list has a **Health** column (band and score), a band filter
+(`?health=`) and a "Riskiest first" order (`?sort=risk`). A seller's page
+opens with two cards:
+
+- **Seller health**: the score on a red / amber / green bar (zones drawn wide,
+  not to scale, with the score always written), the band and what it means,
+  four counters (critical, high, medium, low), the open issues worst first —
+  each with a sentence on what it means and a **Go to fix** link (corrective
+  actions, the seller's inspection jobs, or the identity, qualifications or
+  documents section further down the same page) — and the inspection pass rate
+  against the 10% target.
+- **Verification report** (Alibaba's Verified Supplier assessment): legal
+  status, sanctions screening, production sites, certifications, category
+  qualifications and quality record, each with a state mark and the counts
+  behind it; a **Verified seller** / **Not fully verified** badge; and the
+  approved certificates with issuer and expiry, each opening the document.
+
+Both read `GET /audit/sellers/:id`.
+
+**Quality analytics (`/insights`).** Modelled on QIMA's quality insights. In
+the nav under Inspection, for audit staff with `audit.job.oversee`. Key
+figures (pass rate, inspections not passed, open non-conformances, healthy
+sellers), stacked columns of pass / inconclusive / fail by month with a table
+view, rings for seller health bands (each opens the seller list filtered to
+that band, riskiest first) and findings by severity, a bar list of the most
+cited requirements, best and worst suppliers (each opens the seller), and an
+agency table (completed, reports on time, pass rate; each opens that agency's
+jobs). It reads `GET /audit/insights`.
 
 Changes elsewhere:
 

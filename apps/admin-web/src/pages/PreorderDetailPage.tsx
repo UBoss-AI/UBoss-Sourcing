@@ -54,6 +54,13 @@ interface Detail extends AnswerablePreorder {
   seller: { name: string };
   buyer: { name: string; organization: string | null } | null;
   quantity: { orderingUnit: string; unitQuantity: number; baseUnits: number };
+  /** Null on a request made before OEM and Original Brand had separate minimums. */
+  productOption: {
+    option: 'OEM' | 'ORIGINAL_BRAND';
+    moqQuantity: number;
+    moqUnit: string;
+    minimumBaseUnits: number;
+  } | null;
   requestedDeliveryDate: string;
   earliestDeliveryDate: string;
   destinationCountry: string;
@@ -115,6 +122,16 @@ export function PreorderDetailPage(): React.JSX.Element {
                   value: preorder.buyer?.organization ?? preorder.buyer?.name ?? '—',
                 },
                 { label: t('preorders.sku'), value: preorder.product.sku },
+                {
+                  label: t('preorders.productOption'),
+                  value:
+                    preorder.productOption === null
+                      ? t('preorders.productOptionNotRecorded')
+                      : t('preorders.productOptionWithMinimum', {
+                          option: t(`preorders.option.${preorder.productOption.option}` as TranslationKey),
+                          minimum: formatNumber(preorder.productOption.minimumBaseUnits),
+                        }),
+                },
                 {
                   label: t('preorders.column.pieces'),
                   value: formatNumber(preorder.quantity.baseUnits),

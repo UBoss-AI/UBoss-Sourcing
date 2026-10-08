@@ -496,7 +496,10 @@ beforeAll(async () => {
       offerId,
       isEnabled: true,
       moqUnit: 'PIECE',
-      moqQuantity: 1000,
+      originalBrandEnabled: true,
+      originalBrandMoqQuantity: 1000,
+      oemEnabled: false,
+      oemMoqQuantity: null,
       incrementQuantity: 100,
       capacityBaseUnits: 20_000,
       capacityPeriod: 'MONTH',
@@ -589,6 +592,9 @@ describe('the Preorder button', () => {
       offerId,
       isEnabled: true,
       moqUnit: 'PIECE',
+      originalBrandEnabled: true,
+      oemEnabled: false,
+      oemMoqQuantity: null,
       incrementQuantity: 100,
       capacityBaseUnits: 20_000,
       capacityPeriod: 'MONTH',
@@ -602,7 +608,7 @@ describe('the Preorder button', () => {
     };
     await savePolicy(
       seller,
-      policyInputSchema.parse({ ...base, moqQuantity: 250, expectedVersion: current.version }),
+      policyInputSchema.parse({ ...base, originalBrandMoqQuantity: 250, expectedVersion: current.version }),
     );
     try {
       const response = await app.inject({
@@ -618,7 +624,7 @@ describe('the Preorder button', () => {
         seller,
         policyInputSchema.parse({
           ...base,
-          moqQuantity: 1000,
+          originalBrandMoqQuantity: 1000,
           expectedVersion: current.version + 1,
         }),
       );
@@ -804,7 +810,7 @@ describe('a preorder is refused, with a specific reason, when', () => {
     expect(error.code).toBe('PREORDER_BELOW_MINIMUM');
     expect(error.details[0]?.meta?.['minimumBaseUnits']).toBe(1000);
     expect((JSON.parse(response.body) as { error: { message: string } }).error.message).toBe(
-      'Minimum preorder quantity is 1,000 pieces.',
+      'Minimum Original Brand preorder quantity is 1,000 pieces.',
     );
   });
 
@@ -920,6 +926,144 @@ describe('a preorder is refused, with a specific reason, when', () => {
 // The negotiation
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// OEM and Original Brand: separate minimums, chosen by the buyer, enforced here
+// ---------------------------------------------------------------------------
+
+describe('OEM and Original Brand preorder minimums', () => {
+  const termsFor = (options: Record<string, unknown>) => ({
+    scope: 'OFFER',
+    offerId,
+    isEnabled: true,
+    moqUnit: 'PIECE',
+    incrementQuantity: 100,
+    capacityBaseUnits: 20_000,
+    capacityPeriod: 'MONTH',
+    minLeadTimeDays: 10,
+    pricingMode: 'FIXED',
+    allowSplitDelivery: true,
+    tiers: [
+      { minBaseUnits: 1000, unitPriceMinor: '9000' },
+      { minBaseUnits: 10_000, unitPriceMinor: '8000' },
+    ],
+    originalBrandEnabled: true,
+    originalBrandMoqQuantity: 1000,
+    oemEnabled: false,
+    oemMoqQuantity: null,
+    ...options,
+  });
+
+  async function useTerms(options: Record<string, unknown>): Promise<void> {
+    const { savePolicy, policyInputSchema } =
+      await import('../../src/modules/preorders/policy.service.js');
+    await savePolicy(seller, policyInputSchema.parse(termsFor(options)));
+  }
+
+  afterAll(async () => {
+    await useTerms({});
+  });
+
+  it('refuses to switch an option on without its own minimum', async () => {
+    const { savePolicy, policyInputSchema } =
+      await import('../../src/modules/preorders/policy.service.js');
+    await expect(
+      savePolicy(seller, policyInputSchema.parse(termsFor({ oemEnabled: true }))),
+    ).rejects.toMatchObject({ code: 'PREORDER_POLICY_INVALID' });
+    await expect(
+      savePolicy(seller, policyInputSchema.parse(termsFor({ originalBrandEnabled: false }))),
+    ).rejects.toMatchObject({ code: 'PREORDER_POLICY_INVALID' });
+    // Zero, negative and fractional minimums never reach the rules.
+    for (const bad of [0, -5, 2.5]) {
+      expect(() => policyInputSchema.parse(termsFor({ oemEnabled: true, oemMoqQuantity: bad }))).toThrow();
+    }
+  });
+
+  it('shows both minimums, and says which option is not offered', async () => {
+    await useTerms({ oemEnabled: true, oemMoqQuantity: 5000 });
+    let response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/preorders/eligibility?productId=${productId}&offerId=${offerId}`,
+    });
+    type Body = {
+      eligibility: {
+        moq: { quantity: number };
+        productOptions: { option: string; status: string; quantity: number | null; minimumBaseUnits: number | null }[];
+      };
+    };
+    let body = JSON.parse(response.body) as Body;
+    expect(body.eligibility.productOptions).toEqual([
+      { option: 'OEM', status: 'OFFERED', unit: 'PIECE', quantity: 5000, minimumBaseUnits: 5000 },
+      { option: 'ORIGINAL_BRAND', status: 'OFFERED', unit: 'PIECE', quantity: 1000, minimumBaseUnits: 1000 },
+    ]);
+    // The bulk threshold is where SOME preorder becomes possible.
+    expect(body.eligibility.moq.quantity).toBe(1000);
+
+    await useTerms({ originalBrandEnabled: false, oemEnabled: true, oemMoqQuantity: 5000 });
+    response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/preorders/eligibility?productId=${productId}&offerId=${offerId}`,
+    });
+    body = JSON.parse(response.body) as Body;
+    expect(body.eligibility.productOptions[1]).toMatchObject({
+      option: 'ORIGINAL_BRAND',
+      status: 'NOT_OFFERED',
+      quantity: null,
+    });
+  });
+
+  it('judges the quantity against the chosen option, not the lower minimum', async () => {
+    await useTerms({ oemEnabled: true, oemMoqQuantity: 5000 });
+    // 2,000 pieces: valid for Original Brand (1,000), short for OEM (5,000).
+    const original = await post(
+      '/api/v1/preorders/preview',
+      request({ offerId, unitQuantity: 2000, productOption: 'ORIGINAL_BRAND' }),
+    );
+    expect(original.statusCode, original.body).toBe(200);
+    expect((JSON.parse(original.body) as { preview: { minimumBaseUnits: number } }).preview.minimumBaseUnits).toBe(1000);
+
+    const oem = await post(
+      '/api/v1/preorders/preview',
+      request({ offerId, unitQuantity: 2000, productOption: 'OEM' }),
+    );
+    expect(errorOf(oem.body).code).toBe('PREORDER_BELOW_MINIMUM');
+    expect(errorOf(oem.body).details[0]?.meta).toMatchObject({ minimumBaseUnits: 5000, productOption: 'OEM' });
+
+    // Exactly at, and above, the OEM minimum.
+    for (const unitQuantity of [5000, 5100]) {
+      const ok = await post('/api/v1/preorders/preview', request({ offerId, unitQuantity, productOption: 'OEM' }));
+      expect(ok.statusCode, ok.body).toBe(200);
+    }
+  });
+
+  it('requires a choice when both are offered, and refuses a client-supplied minimum', async () => {
+    await useTerms({ oemEnabled: true, oemMoqQuantity: 5000 });
+    const none = await post('/api/v1/preorders/preview', request({ offerId, unitQuantity: 6000 }));
+    expect(errorOf(none.body).code).toBe('PREORDER_PRODUCT_OPTION_REQUIRED');
+
+    // The body cannot carry a minimum of its own.
+    const forged = await post(
+      '/api/v1/preorders/preview',
+      request({ offerId, unitQuantity: 2000, productOption: 'OEM', minimumBaseUnits: 1 }),
+    );
+    expect(forged.statusCode).toBe(400);
+    expect(errorOf(forged.body).code).not.toBe('PREORDER_PRODUCT_OPTION_REQUIRED');
+  });
+
+  it('refuses an option the seller does not offer, on preview and on submission', async () => {
+    await useTerms({});
+    for (const url of ['/api/v1/preorders/preview', '/api/v1/preorders']) {
+      const response = await post(url, request({ offerId, productOption: 'OEM' }), newId());
+      expect(errorOf(response.body).code).toBe('PREORDER_PRODUCT_OPTION_NOT_OFFERED');
+    }
+    // With one option offered, a request that names none means that one.
+    const implicit = await post('/api/v1/preorders/preview', request({ offerId }));
+    expect(implicit.statusCode, implicit.body).toBe(200);
+    expect((JSON.parse(implicit.body) as { preview: { productOption: string } }).preview.productOption).toBe(
+      'ORIGINAL_BRAND',
+    );
+  });
+});
+
 describe('a preorder request', () => {
   let submitted: PreorderBody;
 
@@ -955,6 +1099,15 @@ describe('a preorder request', () => {
       await prisma.preorderRequest.count({ where: { customerProfileId: buyerProfileId } }),
     ).toBe(1);
     expect(submitted.status).toBe('SUBMITTED');
+
+    // The option and its minimum are frozen with the request.
+    const row = await prisma.preorderRequest.findUniqueOrThrow({ where: { id: submitted.id } });
+    expect(row).toMatchObject({
+      productOption: 'ORIGINAL_BRAND',
+      productOptionMoqQuantity: 1000,
+      productOptionMoqUnit: 'PIECE',
+      productOptionMinimumBaseUnits: 1000,
+    });
   });
 
   it('reserves no sellable stock and creates no order when it is submitted', async () => {

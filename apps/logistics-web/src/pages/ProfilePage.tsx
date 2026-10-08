@@ -22,6 +22,8 @@
  * saying so before the person has typed into something that will not save.
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AgreementHistory } from '@/components/agreement-kit/AgreementHistory';
+import { agreementsClient } from '@/lib/agreements';
 import { useBlocker, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -290,7 +292,15 @@ export function ProfilePage(): React.JSX.Element {
 
   // Keyed on the record's own timestamp, so a save that changed it rebuilds
   // the draft from the server's answer rather than from what was typed.
-  return <ProfileEditor key={query.data.identity.updatedAt} profile={query.data} />;
+  return (
+    <>
+      <ProfileEditor key={query.data.identity.updatedAt} profile={query.data} />
+      {/* The Logistics Partner Terms and Privacy Policy notices this person accepted. */}
+      <div className="mt-6">
+        <AgreementHistory client={agreementsClient} />
+      </div>
+    </>
+  );
 }
 
 function ProfileEditor({ profile }: { profile: LogisticsProfile }): React.JSX.Element {

@@ -109,9 +109,9 @@ export function kindTone(kind: DirectoryAccountKind): 'brand' | 'success' | 'neu
 export function sellerStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     DRAFT: 'Not submitted',
-    SUBMITTED: 'Waiting for review',
-    UNDER_REVIEW: 'Being reviewed',
-    ACTION_REQUIRED: 'Sent back',
+    SUBMITTED: 'Awaiting verification',
+    UNDER_REVIEW: 'Under Audit Team review',
+    ACTION_REQUIRED: 'Corrections requested',
     APPROVED: 'Approved',
     REJECTED: 'Rejected',
     SUSPENDED: 'Suspended',

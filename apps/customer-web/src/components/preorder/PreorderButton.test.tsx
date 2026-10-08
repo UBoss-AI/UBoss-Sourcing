@@ -31,6 +31,10 @@ const AVAILABLE = {
     incrementBaseUnits: 100,
     maximumBaseUnits: null,
   },
+  productOptions: [
+    { option: 'OEM', status: 'NOT_OFFERED', unit: 'PIECE', quantity: null, minimumBaseUnits: null },
+    { option: 'ORIGINAL_BRAND', status: 'OFFERED', unit: 'PIECE', quantity: 1000, minimumBaseUnits: 1000 },
+  ],
   pricingMode: 'FIXED',
   tiers: [{ minBaseUnits: 1000, unitPriceMinor: '9000' }],
   window: {
@@ -60,6 +64,10 @@ function withMoq(quantity: number, unit = 'PIECE', unitSize = 1) {
       minimumBaseUnits: quantity * unitSize,
       incrementBaseUnits: unitSize,
     },
+    productOptions: [
+      { option: 'OEM', status: 'NOT_OFFERED', unit, quantity: null, minimumBaseUnits: null },
+      { option: 'ORIGINAL_BRAND', status: 'OFFERED', unit, quantity, minimumBaseUnits: quantity * unitSize },
+    ],
   };
 }
 
@@ -379,6 +387,30 @@ describe('PreorderButton', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('lists each option’s minimum from the i, without starting a preorder', async () => {
+    stubApi(
+      {
+        ...AVAILABLE,
+        productOptions: [
+          { option: 'OEM', status: 'OFFERED', unit: 'PIECE', quantity: 500, minimumBaseUnits: 500 },
+          { option: 'ORIGINAL_BRAND', status: 'NOT_OFFERED', unit: 'PIECE', quantity: null, minimumBaseUnits: null },
+        ],
+      },
+      viewer(),
+    );
+    renderPage();
+    await preorderButton();
+    fireEvent.click(infoButton());
+
+    const dialog = await screen.findByRole('dialog', { name: 'Bulk preorder information' });
+    const section = within(dialog).getByRole('region', { name: 'Minimum preorder quantities' });
+    const rows = within(section).getAllByRole('term').map((term) => term.parentElement?.textContent);
+    expect(rows).toEqual(['OEMMinimum 500 pieces', 'Original BrandNot offered for this product.']);
+    // The agreement is still asked for, and the form has not opened.
+    expect(within(dialog).getByRole('checkbox')).not.toBeChecked();
+    expect(screen.queryByText('Request a bulk preorder')).toBeNull();
+  });
+
   it('opens the product’s own minimum from the i, and closes on Escape with focus back', async () => {
     stubApi(withMoq(10, 'UK_PALLET', 1200), viewer());
     renderPage();
@@ -389,7 +421,7 @@ describe('PreorderButton', () => {
     fireEvent.click(info);
 
     const dialog = await screen.findByRole('dialog', { name: 'Bulk preorder information' });
-    expect(within(dialog).getByText('10 UK pallets')).toBeInTheDocument();
+    expect(within(dialog).getByText(/Minimum 10 UK pallets/)).toBeInTheDocument();
     expect(within(dialog).getByText('(12,000 pieces)')).toBeInTheDocument();
     expect(within(dialog).getByText(/does not accept any terms/)).toBeInTheDocument();
     expect(info).toHaveAttribute('aria-expanded', 'true');
@@ -435,7 +467,7 @@ describe('PreorderButton', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Bulk preorder information' });
     expect(screen.queryByText('Request a bulk preorder')).toBeNull();
-    expect(within(dialog).getByText('1,000 pieces')).toBeInTheDocument();
+    expect(within(dialog).getByText('Minimum 1,000 pieces')).toBeInTheDocument();
 
     const agree = within(dialog).getByRole('button', { name: 'Agree and continue to preorder' });
     expect(agree).toBeDisabled();
@@ -558,7 +590,7 @@ describe('PreorderButton', () => {
     await pressTimes('plus one', 1); // 1,000: crossed
     const dialog = await screen.findByRole('dialog', { name: 'Ordering in bulk?' });
     expect(within(dialog).getByText('You have selected 1,000 pieces.')).toBeInTheDocument();
-    expect(within(dialog).getByText('1,000 pieces')).toBeInTheDocument();
+    expect(within(dialog).getByText('Minimum 1,000 pieces')).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Start preorder' })).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Continue with regular order' })).toBeInTheDocument();
 
@@ -596,7 +628,7 @@ describe('PreorderButton', () => {
     await preorderButton();
     await pressTimes('plus one', 1);
     const dialog = await screen.findByRole('dialog', { name: 'Ordering in bulk?' });
-    expect(within(dialog).getByText('250 pieces')).toBeInTheDocument();
+    expect(within(dialog).getByText('Minimum 250 pieces')).toBeInTheDocument();
   });
 
   it('says so, with no regular-order button, where a regular order is not allowed', async () => {
@@ -642,7 +674,7 @@ describe('PreorderButton', () => {
     renderPage();
     await preorderButton();
     fireEvent.click(infoButton());
-    expect(await within(await screen.findByRole('dialog')).findByText('1,000 pieces')).toBeInTheDocument();
+    expect(await within(await screen.findByRole('dialog')).findByText('Minimum 1,000 pieces')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
@@ -654,7 +686,7 @@ describe('PreorderButton', () => {
     });
     fireEvent.click(infoButton());
     const dialog = await screen.findByRole('dialog');
-    expect(await within(dialog).findByText('50 cartons')).toBeInTheDocument();
+    expect(await within(dialog).findByText(/Minimum 50 cartons/)).toBeInTheDocument();
     expect(within(dialog).getByText('(2,400 pieces)')).toBeInTheDocument();
   });
 
@@ -707,7 +739,7 @@ describe('PreorderButton', () => {
     renderPage({ route: '/product/gloves?size=m&preorder=1' });
 
     expect(await screen.findByText('Request a bulk preorder')).toBeInTheDocument();
-    expect(screen.getByText('In pieces: at least 1,000, then in steps of 100.')).toBeInTheDocument();
+    expect(screen.getByText('Original Brand minimum: 1,000 pieces, then in steps of 100.')).toBeInTheDocument();
     expect(screen.getAllByText('Nothing is charged when you send a request.').length).toBeGreaterThan(0);
   });
 });

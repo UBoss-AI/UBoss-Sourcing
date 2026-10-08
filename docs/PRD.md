@@ -57,6 +57,9 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.9 | 2026-09-28 | Terms and Conditions at sign-up: the Terms dialog that alone can tick the sign-up box, read-to-the-end, and server-checked acceptance of the exact version in force for storefront sign-up and both invitation activations (FR-IDN-017); versioned, immutable legal documents written and published in **Administration → Legal documents**, the public `/legal/terms` page and PDF (FR-IDN-018); `legal_document.read`, `.write`, `.publish`; error codes `TERMS_ACCEPTANCE_REQUIRED`, `TERMS_VERSION_OUTDATED`, `TERMS_DOCUMENT_UNAVAILABLE`, `LEGAL_DOCUMENT_IMMUTABLE`, `LEGAL_DOCUMENT_VERSION_EXISTS` |
 | 1.10 | 2026-10-02 | Admin governance (JOURNEY-060, 061, 062, 064, 065, 067, LIVE-011): the Command Center's risk and SLA groups, maker-checker for critical account actions (`critical_action_approval`), record history and staff messages, listing moderation flags, evidence requests, appeals and destination blocks (FR-SEL-007), label rules and rule history, the integration monitor and outage banners, content approval, preview, versions and conflict checks, and the exception queues with SLAs and owner roles (FR-SET-003, FR-SET-004, FR-SET-006 to FR-SET-009) |
 | 1.11 | 2026-10-04 | Staff terms at console sign-in: the new legal-document kind `STAFF_TERMS`, written by the operator; once published, the console's sign-in tick opens it in the read-to-the-end dialog, and with none published the plain tick stays (FR-IDN-005) |
+| 1.12 | 2026-10-08 | Seller turnover eligibility: the platform's own minimum-turnover rule for applying to sell (FR-SEL-022), BR-SEL-001, settings §10.13, error `SELLER_TURNOVER_NOT_ELIGIBLE`, the storefront **Seller eligibility** card and the console's **Annual turnover** card; open question Q16 on existing sellers |
+| 1.13 | 2026-10-08 | The agreement screen after sign-in (FR-IDN-022): every signed-in buyer, seller, carrier, member of staff and Audit Console user accepts the Terms for their kind of account and acknowledges the Privacy Policy - two separate records - before the application answers; re-acceptance only when a new version requires it; the sign-in ticks of FR-IDN-005 removed; new kind `AUDIT_CONSOLE_TERMS`; `requiresReacceptance` on legal documents; publishing refused while a `[[...]]` blank remains; flag `FEATURE_AGREEMENT_GATE`; error codes `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`. Gloviaa Mart policy drafts in `legal/drafts/` - drafts, not published, not legally approved |
+| 1.14 | 2026-10-08 | Seller verification moves to the Audit Team (FR-SEL-004, FR-AUD-034): reviewing, asking for corrections, approving and rejecting seller applications, deciding their documents and turnover, and recording screenings are done in the Audit Console with the new `audit.seller.verify` key (audit `SUPERVISOR` and `COMPLIANCE_REVIEWER`). The Admin Panel reads verification - with who decided and the history - and keeps only suspend and lift-suspension; every other write answers `SELLER_VERIFICATION_AUDIT_ONLY`. Decisions are conditional on the version read; a reviewer connected to the seller is refused (`SELLER_VERIFICATION_NOT_INDEPENDENT`). New applications, resubmissions and uploads notify audit reviewers. Earlier admin decisions keep their attribution |
 
 ### Keeping this document true
 
@@ -521,8 +524,9 @@ Two narrower roles for least privilege (SEC-002). The full matrix is in
   `inspection.read`, `logistics.read`, `invoice.read`. No refund, cancel,
   fulfil, dispute decision, privacy, export, audit, settings or staff permission.
 - **Compliance Officer:** `settings.read`, `category.read`, `product.read`,
-  `review.read`, `customer.read`, `customer.status.write` (seller, factory and
-  account verification decisions and suspension), `buyer_company.read`/
+  `review.read`, `customer.read`, `customer.status.write` (factory and
+  account verification decisions and suspension; seller onboarding verification
+  is the Audit Team's, FR-AUD-034), `buyer_company.read`/
   `review`/`suspend`, `dispute.view`, `order.read`, `inspection.read`,
   `legal_document.read`, `data_request.read`/`action`, `audit.read`,
   `report.read`, `risk.read`/`review`. No refund, payment, finance policy,
@@ -815,15 +819,14 @@ How each requirement is written:
 - **Rules.** Login is rate limited (`RATE_LIMIT_LOGIN_PER_15MIN`, default 10) and locks after `LOGIN_LOCKOUT_THRESHOLD` (default 8) failures for `LOGIN_LOCKOUT_MINUTES` (default 15). Failures are counted **in the database**, so they are correct across several API instances.
 - **Status.** Built.
 
-### FR-IDN-005 — Terms acceptance tick at sign-in
+### FR-IDN-005 — Terms acceptance tick at sign-in (removed)
 
-- **Statement.** Both the storefront and console sign-in screens require an
-  unticked-by-default **I accept the terms** box; the links beside it are the
-  operator's own policy links from **Settings → Policy links**.
-- **Acceptance criteria.** Never pre-ticked, never remembered; a deployment with no links still requires the tick. Customers accept *terms of business*; staff accept *terms of use*.
-- **Rules.** It is a client-side gate and a reminder of the standing agreement recorded at registration or activation; it is **not** a new stored consent per sign-in.
-- **Staff terms on the console.** The operator may publish staff terms (legal-document kind `STAFF_TERMS`, FR-IDN-018). When a version is in force, the console's box reads *I have read and agree to the Staff Terms* and behaves like the sign-up box in FR-IDN-017, criteria 1 to 4: ticking it opens the text in a dialog, **I agree** is enabled only at the end of the text, and only **I agree** ticks it. The tick is still not sent and nothing is recorded; staff agree again on every sign-in. With no staff terms published - or if they cannot be fetched - the plain *I accept the terms of use* box is shown instead, so a missing document never stops staff signing in.
-- **Status.** Built.
+- **Statement.** The storefront and console sign-in screens used to require an
+  **I accept the terms** tick on every sign-in. It was never sent and recorded
+  nothing.
+- **Status.** **Removed** on 8 Oct 2026. Replaced by the agreement screen after
+  sign-in (FR-IDN-022), which records the acceptance once and asks again only
+  when a new version requires it. No sign-in screen asks for a tick.
 
 ### FR-IDN-017 — Terms and Conditions accepted when an account is opened
 
@@ -857,8 +860,44 @@ How each requirement is written:
   4. A reader gets the version in force in their own language when published, otherwise English, otherwise any language of that version - and is told which language it is. An older version in their language is never offered instead.
   5. The PDF is built from the stored text and is the same file every time for the same document.
   6. The console shows how many people accepted each version, never who.
-- **Rules.** The software supplies no legal wording. The development seed installs a clearly marked placeholder on development machines only. Re-acceptance by existing accounts when a new version is published is **not built**: new accounts accept the new version, existing ones stay linked to the one they accepted.
+- **Rules.** The software supplies no legal wording. The development seed installs a clearly marked placeholder for every kind on development machines only. Each version says whether earlier acceptances keep counting (`requiresReacceptance`, the **Ask everyone to accept this version again** option, on by default); existing accounts are asked again on the agreement screen (FR-IDN-022) only when it is on. A document that still contains a `[[...]]` blank cannot be published (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). Kinds include `AUDIT_CONSOLE_TERMS` (added 8 Oct 2026).
 - **Status.** Built. Permissions `legal_document.read`, `legal_document.write`, `legal_document.publish` (Business Owner by default).
+
+### FR-IDN-022 — The agreement screen after sign-in
+
+- **Statement.** After signing in, and before anything else, a person who has
+  not accepted the Terms for their kind of account, or not acknowledged the
+  Privacy Policy, in a version that still counts, sees the agreement screen.
+  It has exactly two boxes: "I agree to the Terms & Conditions." and "I
+  acknowledge that I have read the Privacy Policy."
+- **Who is asked for what.**
+
+  | Kind of account | Where | Terms | Plus |
+  |---|---|---|---|
+  | Buyer, individual or company | storefront | `PLATFORM_TERMS` | `PRIVACY_POLICY` |
+  | Seller member | Seller Hub | `PLATFORM_TERMS` and `SELLER_TERMS` | `PRIVACY_POLICY` |
+  | Carrier staff | logistics portal | `LOGISTICS_PARTNER_TERMS` | `PRIVACY_POLICY` |
+  | Operator staff | admin console | `STAFF_TERMS` | `PRIVACY_POLICY` |
+  | Audit Console user | Audit Console | `AUDIT_CONSOLE_TERMS` | `PRIVACY_POLICY` |
+
+- **Acceptance criteria.**
+  1. Both boxes start empty unless the server confirms a record for a version that still counts.
+  2. Clicking a box, its sentence or the document's name opens that document. It never ticks the box.
+  3. The dialog shows title, version, effective date and language, the whole text in its own scrolling area, and a fixed footer reading "Scroll to the end to enable acknowledgment." **I agree** (Terms) or **I acknowledge** (Privacy Policy) is enabled only once the end has been in view, at once when the text fits; it resets for another version or language, and never enables for a document that failed to load.
+  4. Cancel, Close and Escape record nothing. Accepting the Terms never acknowledges the Privacy Policy, and the reverse.
+  5. A box is ticked only after the server saved the record. A failed save leaves it empty and says so. A double submit writes one record.
+  6. **Continue** is enabled only when both are saved and returns the person to the page they asked for. **Sign out** is always offered.
+  7. Before Continue a ticked box can be cleared: the record is kept, marked cleared, with an audit event. Clearing withdraws no other consent.
+  8. A version published while a dialog is open is refused (`TERMS_VERSION_OUTDATED`) and the new text is shown.
+  9. Every application API refuses with 403 `AGREEMENTS_REQUIRED` until both records exist, except sign-in and session routes, the agreement routes, the public documents, support, and privacy requests. Webhooks and background jobs are not affected.
+  10. Existing accounts with no record see the screen on their next request. No acceptance is back-dated.
+  11. A new version asks again only when it was published with **Ask everyone to accept this version again** on. A buyer who becomes a seller is asked for the Seller Addendum in the Seller Hub.
+  12. A kind with nothing published is not asked for.
+  13. The records are shown, read-only, on the account's profile page (the console: user menu → **Terms and privacy**). Privacy requests are reachable before agreeing (`/privacy-requests` on the storefront).
+- **Rules.** The database is the source of truth. A record holds the person, the document id, version, language and SHA-256 copied from the stored document, the scope, the action (terms accepted or privacy notice acknowledged) and the server's time. No IP address or browser string. The Privacy Policy box is an acknowledgment, not a consent, and enables no optional processing.
+- **Flag.** `FEATURE_AGREEMENT_GATE` (default `true`; production refuses `false`).
+- **Errors.** `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `TERMS_VERSION_OUTDATED`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` (publishing).
+- **Status.** Built (8 Oct 2026). **The documents are not.** Gloviaa Mart drafts adapted from third-party source material are in `legal/drafts/gloviaa-mart/` with a change table and about 45 open business and legal decisions. They are drafts, are not published, and have no legal approval.
 
 ### FR-IDN-006 — Sessions, tokens and CSRF
 
@@ -2136,8 +2175,9 @@ No API shape, permission, schema or provider decision changes.
      after, older versions still readable.
   2. Only the two terms kinds can be accepted at sign-up; the kind is always
      chosen by the server, so a policy can never stand in for the terms.
-     The staff terms (`STAFF_TERMS`, FR-IDN-005) are a third kind of
-     document: shown at console sign-in, never recorded, never listed here.
+     The staff terms (`STAFF_TERMS`) and the Audit Console terms
+     (`AUDIT_CONSOLE_TERMS`) are accepted on the agreement screen
+     (FR-IDN-022) and never listed here.
   3. `GET /api/v1/legal/in-force?locale=` returns titles and links (never
      bodies) for the buyer terms and the policies; the carrier terms are not
      listed.
@@ -2311,6 +2351,27 @@ No API shape, permission, schema or provider decision changes.
   `uboss:preorder` window event (`stock_prompt_dismissed`,
   `stock_prompt_change_quantity`, `stock_prompt_start_preorder`).
 - **Status.** Built.
+
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
 
 ### FR-PRC-007c — Safe quantity input
 
@@ -3884,8 +3945,8 @@ selling involves) is public.
 
 - **Statement.** A seller can upload a PDF or photograph of a CE certificate,
   Declaration of Conformity, ISO certificate, licence or registration document.
-  It shows *Being checked* until marketplace staff accept or refuse it on the
-  seller's screen in the console.
+  It shows *Being checked* until the Audit Team accepts or refuses it in the
+  Audit Console (FR-AUD-034). The Admin Panel can open it but not decide it.
 - **Acceptance criteria.**
   1. PDFs and images only, decided by magic bytes, up to 10 MB; stored privately; served only through a link that lives minutes (`LOGISTICS_DOCUMENT_URL_TTL_SECONDS`, default 300) and works once, as a download with `nosniff`.
   2. A refusal must carry a reason, which the seller reads word for word.
@@ -3896,11 +3957,41 @@ selling involves) is public.
 
 ### FR-SEL-004 — Application review (asynchronous)
 
-- **Statement.** Staff review applications at **Sellers → (a seller)**:
-  business, documents, people, decision. The seller and staff never need to be
-  online together.
-- **Rules.** Application statuses change only through the seller state machine (§7.7). Only an operator can approve. Rejection and "action required" need a reason. Only `APPROVED` sellers may submit listings and receive orders.
-- **Status.** Built.
+- **Statement.** The **Audit Team** reviews applications in the Audit Console
+  (**Seller verification**, FR-AUD-034): business, documents, ownership and
+  screenings, turnover, decision. The Admin Panel's **Sellers → (a seller)**
+  shows the same application read-only - with "Read-only — seller verification
+  is managed by the Audit Team.", who decided and the history - and keeps only
+  **Suspend** and **Lift suspension**. The seller and the reviewer never need to
+  be online together.
+- **Rules.** Application statuses change only through the seller state machine (§7.7). Only the Audit Team (`audit.seller.verify`) can take an application for review, ask for corrections, approve or reject it; no admin role, however senior, can - the routes answer `403 SELLER_VERIFICATION_AUDIT_ONLY`. Rejection and corrections need a reason the seller reads. Approval still needs every required step, document, screening and a verified turnover (the evidence gate), and never sets up payouts. Only `APPROVED` sellers may submit listings and receive orders. The seller sees "Awaiting verification", "Under Audit Team review" and "Corrections requested".
+- **Status.** Built. Needs `FEATURE_AUDIT_CONSOLE` and at least one active audit supervisor or compliance reviewer; without them applications wait and the Admin Panel says so (FR-AUD-034).
+
+### FR-SEL-022 — Seller turnover eligibility (platform policy)
+
+- **Statement.** Only a business whose annual turnover (total sales for a year)
+  for its **most recently completed financial year** is **strictly greater**
+  than a configured minimum may apply to sell. The default minimum is ₹30 crore
+  (INR 300,000,000, held as `30000000000` paise): exactly the minimum is not
+  eligible, one paisa more is. This is the marketplace's **own** rule, not a
+  government or legal requirement, and every value is a setting (§10.13).
+- **Who.** A signed-in buyer applying from `/sell`; seller Owners and Admins
+  (`seller.account.write`) on the Business identity step; admin staff with
+  `customer.read` to see it; the Audit Team (`audit.seller.verify`) to verify it.
+- **Acceptance criteria.**
+  1. **Money.** The figure is a BigInt of whole minor units end to end, sent as a string (`turnover.amountMinor`) and compared as integers; never a float, never the rounded crore figure on screen (BR-MON-001).
+  2. **Reporting period.** Twelve months starting on the first of a month, already ended, and the most recent such year for its year-end. A declaration whose year has been replaced by a later completed one is *out of date* and blocks submission until updated.
+  3. **Apply** (`POST /api/v1/sellers/apply`) requires a `turnover` object (`amountMinor`, `currency`, `financialYearStart`, `financialYearEnd`, `declarationAccepted: true`) while the policy is on. A missing or malformed field is `400 VALIDATION_FAILED` with per-field details; at or below the minimum is `409 SELLER_TURNOVER_NOT_ELIGIBLE` (`BELOW_MINIMUM`, minimum and currency in `meta`). Nothing is created when refused; an accepted declaration is stored in the same transaction that creates the seller.
+  4. **Submit and resubmit** (`POST /api/v1/seller/submit`) are refused with `409 SELLER_TURNOVER_NOT_ELIGIBLE` (`NOT_DECLARED`, `BELOW_MINIMUM` or `OUT_OF_DATE`) before the checklist check.
+  5. **Onboarding.** The Business identity step stays *In progress* with a "Still needed" line until an eligible declaration exists. Saving (`PUT /api/v1/seller/turnover`) keeps even an ineligible figure so nothing typed is lost; it is refused once the application is under review.
+  6. **Declared, verified, approved are three facts.** The seller's tick never makes a figure eligible; a declaration never approves anyone. Approval readiness and the approval gate list `TURNOVER_NOT_DECLARED`, `TURNOVER_NOT_ELIGIBLE` or `TURNOVER_NOT_VERIFIED`; approval needs a **verified**, eligible declaration.
+  7. **Verification** is an Audit Team decision (Verified / Not verified) with a reason the seller reads and an optional internal note the seller never sees, on the **Annual turnover** card of the Audit Console's seller verification page (read-only in the Admin Panel). A decision on a declaration the seller has since changed, or that another reviewer decided since it was loaded, is refused with `SELLER_STALE_VERSION`; repeating an identical decision changes nothing; the decision never approves the seller.
+  8. **Re-review.** Changing the amount, currency or year creates a new current declaration waiting for review (the old one is kept as history, `AMENDED`). Re-declaring the same figures keeps the verification. Uploading or withdrawing a supporting document (requirement key `annual_turnover_evidence`) reopens a decided declaration (`EVIDENCE_CHANGED`).
+  9. **Evidence** reuses the seller document upload (FR-SEL-003): scanned, private, single-use links, seller and staff only.
+  10. **Audit.** Operator trail `seller_turnover.decided`; seller trail `seller.turnover.declared`, `seller.turnover.reopened`, `seller.turnover.decided` — never the figure.
+  11. **Existing sellers.** A seller approved at least once before (`approvedAt` set) is not asked to declare, not marked incomplete, and an approval such as lifting a suspension is not held for turnover. Nobody is suspended.
+  12. The storefront card and the admin card are translated into all eight languages and work by keyboard, on a phone and in both themes.
+- **Status.** Built, on by default (`SELLER_TURNOVER_REQUIRED=true`). **Applying the rule retrospectively to sellers approved before it is not built** (Q16).
 
 ### FR-SEL-005 — Brands and brand-authorisation requests
 
@@ -5352,7 +5443,7 @@ at the sender's company, seller or carrier sees them.
 - **Rules.** Deactivation revokes sessions immediately. Addresses have one enforced default; cross-customer access returns 404.
 - **Acceptance criteria (JOURNEY-061).**
   1. **Reason.** Deactivating a customer needs a reason (400 without one); it is kept on the audit entry.
-  2. **Maker-checker.** With the database flag `critical_action_approval` on (the default), deactivating a customer, suspending or refusing a seller and suspending a buyer company are not done at once: the route answers 202 with a request, a *different* member of staff holding the same permission approves it (`PENDING_ACTION_SAME_APPROVER` for the asker), and only the approval runs the action through the same service. One open request per action per record (`PENDING_ACTION_ALREADY_OPEN`). Requested, approved, rejected and withdrawn are each audited. Requests wait on the record page and on **Exception queues**.
+  2. **Maker-checker.** With the database flag `critical_action_approval` on (the default), deactivating a customer, suspending a seller and suspending a buyer company are not done at once (refusing a seller application is the Audit Team's, FR-AUD-034, and an old open refusal request cannot be approved - `SELLER_VERIFICATION_AUDIT_ONLY`): the route answers 202 with a request, a *different* member of staff holding the same permission approves it (`PENDING_ACTION_SAME_APPROVER` for the asker), and only the approval runs the action through the same service. One open request per action per record (`PENDING_ACTION_ALREADY_OPEN`). Requested, approved, rejected and withdrawn are each audited. Requests wait on the record page and on **Exception queues**.
   3. **History.** Customer and seller pages show a History card: the audit trail filtered to that record (needs `audit.read`).
   4. **Communication.** Staff with `customer.write` can write to a customer (email from the editable `account.staff_message` template) or a seller (a Seller Hub notice, and the email to the person who opened the account). Each message is audited against the record.
 - **Status.** Built.
@@ -5596,11 +5687,12 @@ split-delivery shipment reserves its own stock at dispatch.
 
 ```mermaid
 flowchart TD
-    A[Buyer presses Become a seller] --> B[Chooses Seller Hub password]
+    A[Buyer presses Become a seller] --> A2[Declares turnover for last completed year<br/>must exceed the minimum]
+    A2 --> B[Chooses Seller Hub password]
     B --> C[Eight-step application<br/>auto-saved, resumable]
     C --> D[Delivery method: required step]
     D --> E[Owner accepts agreements → SUBMITTED]
-    E --> F[Staff review: documents Being checked → accepted/refused]
+    E --> F[Staff review: documents Being checked → accepted/refused<br/>turnover verified with a reason]
     F --> G{Decision}
     G -- action required --> C
     G -- rejected --> R[REJECTED<br/>reopenable if resubmission allowed]
@@ -6367,6 +6459,7 @@ Enforced in code. Changing one is a deliberate decision, not an edit.
 | BR-CINV-002 | **One live commission invoice per commission event** (UNIQUE on the settlement while live); the number is taken inside the issuing transaction and a failed render uses none. |
 | BR-CINV-003 | **An issued commission invoice is never edited**; corrections by credit note, which can never take it below zero. Voiding an issued one is off unless the setting allows it. |
 | BR-CINV-004 | **Tax on the fee is shown only if its fee-policy tax rule is verified**, and never when the issuing entity is not registered for tax. |
+| BR-SEL-001 | **Seller turnover must be strictly above the minimum, for the most recently completed financial year**, compared as whole minor units on the server at apply, submit and approval. Declared, verified and approved are separate facts: a declaration never approves, approval needs a staff-verified declaration, and changing the figure, year or evidence reopens review (FR-SEL-022). |
 | BR-ERP-001 | **A seller's TallyPrime is never dialled from this server.** |
 | BR-ERP-002 | **"Connected" is a conclusion, never a stored flag.** |
 | BR-ERP-003 | **An HTTP 200 from Tally is not a success.** |
@@ -6539,6 +6632,7 @@ Remove-Item Env:\DATABASE_URL
 | `FEATURE_SELLER_SETTLEMENT_STATEMENTS` | `false` | A daily job closes each finished period into seller settlement statements (FR-SEL-012). Needs `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS`; settings in §10.5 |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The logistics partner portal and every `/logistics/*` route |
 | `FEATURE_ADMIN_MFA` | `true` | Staff TOTP; must be `true` in production |
+| `FEATURE_AGREEMENT_GATE` | `true` | The agreement screen after sign-in (FR-IDN-022); must be `true` in production |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Staff sign-in location requirement (needs HTTPS and a DPIA) |
 | `ASSISTANT_ENABLED` | `true` | Master switch for AI Mode, image search and AI insights (still needs a key) |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | AI Mode answers visitors with no account |
@@ -6549,7 +6643,7 @@ Remove-Item Env:\DATABASE_URL
 | `FEATURE_MESSAGE_TRANSLATION` | `false` | **Translate a message** (FR-MSG-004): a "Translate" action under messages in order, RFQ and preorder-chat threads, using the DeepL key stored under Settings → Catalogue translation (no other provider). Reported as `features.messageTranslation` (true only while a key is stored). Off refuses the translate routes with `MESSAGE_TRANSLATION_UNAVAILABLE`; nothing translated is ever stored |
 | `FEATURE_RFQ` | `true` | **Requests for quotation** (§5.11b): the account's RFQ pages, "Request quotes" on category and product pages, and the Seller Hub inbox. Reported as `features.rfq`. Off refuses every RFQ route with `404 FEATURE_DISABLED` on both sides; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10 MB), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (§5.19a): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the portal. Reported as `features.supportTickets` in the public config. Off shows only the published contacts and refuses new tickets with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and the console inbox keeps working. Settings in §10.12 |
-| `critical_action_approval` (database flag, **Settings → Feature flags**) | on | Maker-checker for deactivating a customer, suspending or refusing a seller and suspending a buyer company (FR-SET-003). Off = one member of staff acts alone |
+| `critical_action_approval` (database flag, **Settings → Feature flags**) | on | Maker-checker for deactivating a customer, suspending a seller and suspending a buyer company (FR-SET-003). Off = one member of staff acts alone |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
 | `ENABLE_DEMO_CATALOG` | `true` outside production, `false` in production | Shows the demonstration catalogue |
 | `SELLER_ERP_ALLOW_DIRECT_MODE` | `false` | Direct Tally URL mode for private networks (needs `SELLER_ERP_DIRECT_HOST_SUFFIXES`) |
@@ -6719,6 +6813,21 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | `SUPPORT_ATTACHMENT_MAX_BYTES` | 26,214,400 (25 MB) | Largest file |
 | `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` | `false` | Accept files with no malware scanner configured. Development only; refused in production |
 
+## 10.13 Seller eligibility (turnover)
+
+The marketplace's own policy (FR-SEL-022), not a legal requirement. The public
+config reports it as `sellerEligibility` (`required`, `minimumMinor` as a
+string, `currency`, `currencyExponent`, `policyVersion`,
+`financialYearStartMonth`, `suggestedFinancialYear`).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `SELLER_TURNOVER_REQUIRED` | `true` | Whether a turnover declaration is needed to apply, submit and be approved. Off switches the whole check and the storefront card off |
+| `SELLER_TURNOVER_MIN_MINOR` | `30000000000` | The minimum in whole minor units, digits only; turnover must be strictly above it. Default = ₹30 crore in paise |
+| `SELLER_TURNOVER_CURRENCY` | `INR` | Currency the turnover is declared in |
+| `SELLER_TURNOVER_POLICY_VERSION` | `2026-10` | Stored with every declaration. Change it whenever the minimum or the wording changes |
+| `SELLER_TURNOVER_FY_START_MONTH` | `4` | 1–12. Only the form's default year-end (April); other year-ends stay selectable |
+
 ---
 
 # 11. Integrations
@@ -6848,6 +6957,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | Q13 | B2C Maximum Order Quantity, the operator's own products: as built, an admin **may** set a limit but does not have to, while a seller listing cannot be submitted without one. Should the operator's products require one too? | The same rule applied unevenly |
 | Q14 | B2C Maximum Order Quantity, switching context: a company's basket is separate from the person's own basket, so switching to a company does not move the lines over. Should the refusal dialog offer to carry them across? | A buyer who switches finds an empty company basket |
 | Q15 | Commission invoices — for a chartered accountant or tax professional: which SAC code (998599 is only an example); whether commission to foreign sellers qualifies as an export of service (IGST Act s.2(6), including payment in foreign exchange); LUT use; place of supply for unregistered sellers; Bill of Supply or invoice when no tax is charged; rounding; whether e-invoicing (IRP/IRN) applies at the operator's turnover (not integrated); credit note time limits (CGST s.34); the verified GST rate on the fee; reverse-charge wording for VAT | The documents are legal tax records; the settings screen says the rules need this review (FR-CINV-003) |
+| Q16 | Seller turnover eligibility, sellers approved before the rule: as built they are grandfathered — never asked to declare, never held or suspended for turnover. Should the operator apply the minimum to them too (for example at their next re-verification), and with what notice? | Applying a new entry rule to existing traders affects live listings and contracts (FR-SEL-022) |
 
 ---
 
@@ -7248,6 +7358,96 @@ and the marketplace's compliance staff. Off by default.
 - A ring's total is the sum of every status the server returns, so a status
   the chart does not break out shows as a shortfall rather than vanishing.
 - Agency members' dashboard is unchanged.
+
+### FR-AUD-031 — Seller health rating — built
+
+Modelled on Amazon's Account Health Rating.
+
+- Every active seller is rated 0–1,000. Bands: Healthy 200–1,000, At risk
+  100–199, Unhealthy 0–99.
+- The rating starts at 1,000; each open issue takes points off by severity
+  (critical 400, high 150, medium 50, low 10). Any critical issue caps it at
+  99, any high issue at 199, so the band names the worst open issue.
+- Critical: open critical non-conformance, suspended case, suspended document.
+  High: goods held after inspection, open major non-conformance, expired
+  document, expired qualification, lapsed business identity check, inspection
+  failure rate above 10% (last 365 days, from three signed reports). Medium:
+  qualification needing re-review, approved document expiring within 30 days,
+  rejected document. Low: open minor non-conformance, changes requested of the
+  seller.
+- The seller list shows the rating, filters by band and orders riskiest first.
+  A seller's page shows the rating on a bar, issues counted by severity, each
+  issue with what it means and a link to where it is fixed, and the inspection
+  pass rate against its target.
+- The weights and thresholds are fixed in code, not operator settings.
+
+### FR-AUD-032 — Verification report — built
+
+Modelled on Alibaba.com's Verified Supplier assessment report.
+
+- A seller's page shows six areas — legal status, sanctions screening,
+  production sites, certifications, category qualifications, quality record —
+  each Verified, Needs attention, In progress, Declared or Not assessed, and
+  lists the approved certificates with issuer and expiry.
+- "Verified seller" is shown only when legal status, screening and
+  certifications are verified and no area needs attention.
+- Production sites are only ever "Declared". **Not built:** on-site factory
+  audits by the marketplace.
+
+### FR-AUD-033 — Quality analytics — built
+
+Modelled on QIMA's quality-insights dashboard. Audit staff with
+`audit.job.oversee`; agencies have no access.
+
+- Last twelve months: inspection pass rate, inspections not passed, open
+  non-conformances, share of healthy sellers.
+- Pass / inconclusive / fail by month (with a table view), findings by
+  severity, the ten most cited requirements, the five best and five worst
+  suppliers by pass rate, and each agency's completed inspections, reports
+  signed by the deadline and pass rate.
+- The seller-health ring appears only for people who may read sellers.
+
+### FR-AUD-034 — Seller onboarding verification — built, behind `FEATURE_AUDIT_CONSOLE`
+
+The Audit Team owns seller verification; the Admin Panel reads it.
+
+- **Who.** `audit.seller.read` to see the queue and an application;
+  `audit.seller.verify` to decide. Both are held by the audit staff roles
+  `SUPERVISOR` and `COMPLIANCE_REVIEWER`; no inspection agency role holds
+  either, so an inspector never sees a seller application.
+- **Queue** (**Seller verification**, first in the sidebar under
+  Verification): New applications, In review, Corrections requested,
+  Resubmitted (sent back after corrections), Approved, Rejected, All - oldest
+  first, with counts.
+- **Decisions.** Start review, Request corrections (reason required), Approve
+  (the evidence gate still applies), Reject (reason required; "let the seller
+  apply again"). Documents: accept, or refuse with a reason. Turnover: verified
+  or not, with a reason. Screenings: manual, with the lists checked. The
+  reviewer never edits what the seller submitted.
+- **Safety.** Every decision carries the version (or state) on screen and the
+  write is conditional on it, so two reviewers cannot both win and a stale
+  screen cannot overwrite a colleague (`SELLER_STALE_VERSION`). A reviewer
+  whose email is one of the seller's members or its representative is refused
+  (`SELLER_VERIFICATION_NOT_INDEPENDENT`). Lifting a suspension is not here:
+  it stays an Admin Panel control and still runs the evidence gate.
+- **Record.** Decisions are written with actor type `AUDIT` and the
+  reviewer's user id; the seller sees "Audit Team", never a name. Decisions an
+  administrator made before this change keep their `ADMIN` attribution and
+  show as "Admin Panel" in both panels' history.
+- **Admin Panel.** Read-only: application list, search, status counts,
+  details, documents (open), findings, reasons, history, who decided, and
+  suspend / lift suspension. Every verification write - the decision route,
+  screening, turnover, document decisions, and approving an old open
+  `SELLER_REJECT` request - answers `403 SELLER_VERIFICATION_AUDIT_ONLY`
+  whatever the role.
+- **Notifications.** A submission and a resubmission notify every active
+  seller verifier in the Audit Console; so does a document upload. The Admin
+  Panel no longer gets an alert asking it to decide a document.
+- **Setup.** With `FEATURE_AUDIT_CONSOLE` off, or no active supervisor or
+  compliance reviewer, applications wait and the Admin Panel says why. There
+  is no fallback to admin approval and no default reviewer account; one is
+  invited from the Admin Panel's Audit Console people screen
+  (`audit_console.manage`).
 
 ### Not provided by the software
 

@@ -1,0 +1,34 @@
+{
+ "base": "http://localhost:5174",
+ "widths": [
+  375,
+  1024
+ ],
+ "dark": true,
+ "focusWidth": 1440,
+ "tabs": 16,
+ "pages": [
+  {
+   "name": "sell-public",
+   "path": "/sell",
+   "after": "(() => { const s = [...document.querySelectorAll('section h2')].find(h => /Seller eligibility/.test(h.textContent)); if (s) s.scrollIntoView({block:'start'}); return s ? 'notice' : 'no-notice'; })()"
+  },
+  {
+   "name": "sell-below",
+   "path": "/sell",
+   "signIn": true,
+   "after": "(async () => { const sleep = (ms) => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 12; i++) { const b = [...document.querySelectorAll('dialog[open] button')].find(x => x.textContent.trim() === 'Not now'); if (b) { b.click(); await sleep(500); break; } await sleep(250); } for (let i = 0; i < 40 && !document.querySelector('input[inputmode=decimal]'); i++) await sleep(250); const el = document.querySelector('input[inputmode=decimal]'); if (!el) return 'no-input:' + location.pathname + ':' + document.body.innerText.slice(0,120); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el, '30'); el.dispatchEvent(new Event('input',{bubbles:true})); await sleep(400); el.closest('section').scrollIntoView({block:'start'}); return document.querySelector('[aria-live=polite]').innerText; })()"
+  },
+  {
+   "name": "sell-eligible",
+   "path": "/sell",
+   "signIn": true,
+   "after": "(async () => { const sleep = (ms) => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 12; i++) { const b = [...document.querySelectorAll('dialog[open] button')].find(x => x.textContent.trim() === 'Not now'); if (b) { b.click(); await sleep(500); break; } await sleep(250); } for (let i = 0; i < 40 && !document.querySelector('input[inputmode=decimal]'); i++) await sleep(250); const el = document.querySelector('input[inputmode=decimal]'); if (!el) return 'no-input'; Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el, '30.000000001'); el.dispatchEvent(new Event('input',{bubbles:true})); await sleep(300); const box = el.closest('section').querySelector('input[type=checkbox]'); box.click(); await sleep(400); el.closest('section').scrollIntoView({block:'start'}); const btn = [...document.querySelectorAll('button[type=submit]')].pop(); const text = el.closest('section').innerText; const at = text.indexOf('Exactly'); return document.querySelector('[aria-live=polite]').innerText + ' | startDisabled=' + btn.disabled + ' | ' + text.slice(at, at + 30); })()"
+  }
+ ],
+ "login": {
+  "path": "/login",
+  "email": "turnover-check@uboss.local",
+  "password": "TurnoverCheck!2026"
+ }
+}

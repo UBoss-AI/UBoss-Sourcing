@@ -2,7 +2,7 @@
  * Seller applications list (checklist SCREEN-066).
  *
  *   - applications are listed with their stage and how far they got;
- *   - the count of applications waiting for a decision is in the heading;
+ *   - the count of applications with the Audit Team is in the heading;
  *   - the status filter and the search go to the server and into the address;
  *   - a row opens the application;
  *   - a failed load offers a retry.
@@ -37,6 +37,7 @@ function row(overrides: Partial<SellerApplicationRow> = {}): SellerApplicationRo
     completedSteps: 6,
     requiredSteps: 8,
     documentCount: 4,
+    resubmitted: false,
     ...overrides,
   };
 }
@@ -86,12 +87,12 @@ describe('SellersPage', () => {
     expect(await screen.findByText('Sikka Traders')).toBeTruthy();
     expect(screen.getByText('Sikka Traders Pvt Ltd')).toBeTruthy();
     expect(screen.getByText('6/8 steps')).toBeTruthy();
-    expect(screen.getByText('Waiting for review', { selector: 'span' })).toBeTruthy();
+    expect(screen.getByText('Awaiting verification', { selector: 'span' })).toBeTruthy();
   });
 
-  it('says how many applications are waiting for a decision', async () => {
+  it('says how many applications are with the Audit Team', async () => {
     renderPage();
-    expect(await screen.findByText('3 applications are waiting for a decision.')).toBeTruthy();
+    expect(await screen.findByText('3 applications are with the Audit Team for verification.')).toBeTruthy();
   });
 
   it('asks the server for one status at a time, and keeps it in the address', async () => {

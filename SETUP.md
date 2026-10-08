@@ -126,6 +126,8 @@ database too.
 | The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed`. For a full catalogue to browse, also `npm run seed:demo-catalog` |
 | The storefront has products but they are all medical consumables | The demonstration catalogue has not been planted, or is switched off | `cd backend`, then `npm run seed:demo-catalog`. If it was already planted, check `ENABLE_DEMO_CATALOG` in `backend\.env` |
 | No emails appear anywhere | The worker is not running | `.\scripts\dev-stack.ps1 -Restart` |
+| Every page after sign-in shows **Before you continue** | The agreement screen: the Terms for this kind of account and the Privacy Policy are published (`npm run db:seed` publishes development placeholders for every kind) and this account has not accepted them yet | Open each document, read to the end, choose **I agree** and **I acknowledge**, then **Continue**. Accepted once, not on every sign-in |
+| The API stops at start-up with `An Application Control policy has blocked this file` and `argon2.glibc.node` | Windows Smart App Control is blocking the native file of the password-hashing module. Seen on one development machine on 8 Oct 2026; nothing in the code caused it | No fix is chosen yet. Sign-in cannot work until the API starts. Do not switch Smart App Control off without the machine owner's decision |
 | The site is reaching a public ngrok address | The project is in tunnel mode | `.\scripts\dev-stack.ps1 -Restart -Local` |
 
 **Almost every failure has the same cause: the database was not started, so the
@@ -375,6 +377,16 @@ AUDIT_WEB_PUBLIC_URL=http://localhost:5176
 `AUDIT_WEB_ORIGIN` lets the console's browser calls through the API's origin
 check. `AUDIT_WEB_PUBLIC_URL` is where invitation and password-reset emails
 for console users point.
+
+**Seller applications are verified only here.** The Admin Panel can read a
+seller application but cannot approve, reject or ask for corrections - the
+Audit Team does that in this console. No reviewer account is seeded. To verify
+sellers on your machine, sign in to the Admin Panel as a Business Owner, open
+**Audit Console people**, invite yourself (a second email address) as a staff
+**Compliance reviewer**, open the invitation link from that email, set a
+password and the one-time code, then use **Seller verification** in the
+console. Without the console switched on, or without a reviewer, applications
+simply wait.
 
 ### 5a. Switch on the secret scan before every push
 

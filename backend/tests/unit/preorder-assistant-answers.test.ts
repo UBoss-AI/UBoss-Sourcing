@@ -20,7 +20,7 @@ import { readStoredAnswer } from '../../src/modules/preorder-chat/assistant/tran
 function facts(overrides: Partial<FaqFacts> = {}): FaqFacts {
   return {
     open: true,
-    moq: { minimumBaseUnits: 1_200, incrementBaseUnits: 48, maximumBaseUnits: null, moqUnit: 'CARTON', moqQuantity: 25 },
+    moq: { minimumBaseUnits: 1_200, incrementBaseUnits: 48, maximumBaseUnits: null, moqUnit: 'CARTON', moqQuantity: 25, options: [{ option: 'ORIGINAL_BRAND', minimumBaseUnits: 1_200 }] },
     pricing: {
       mode: 'FIXED',
       currency: 'EUR',
@@ -69,7 +69,7 @@ describe('the catalogue', () => {
     const every = [facts(), facts(CLOSED), facts({ stockBaseUnits: 0 }), facts({ requestedBaseUnits: null }),
       facts({ stockBaseUnits: 100 }), facts({ allowSplitDelivery: false }), facts({ cancellationTerms: 'Free within 48 hours.' }),
       facts({ pricing: { mode: 'QUOTE_REQUIRED', currency: 'EUR', bands: [] } }), facts({ stockBaseUnits: null }),
-      facts({ deliveryCountries: [] }), facts({ moq: { minimumBaseUnits: 10, incrementBaseUnits: 1, maximumBaseUnits: 900, moqUnit: 'PIECE', moqQuantity: 10 } }),
+      facts({ deliveryCountries: [] }), facts({ moq: { minimumBaseUnits: 10, incrementBaseUnits: 1, maximumBaseUnits: 900, moqUnit: 'PIECE', moqQuantity: 10, options: [{ option: 'ORIGINAL_BRAND', minimumBaseUnits: 10 }] } }),
       facts({ containers: { CONTAINER_20_FT: { pieces: 90, cartons: null, piecesPerCarton: null }, CONTAINER_40_FT: null } })];
     for (const entry of allFaqEntries()) {
       for (const input of every) {
@@ -188,5 +188,28 @@ describe('signed answers', () => {
     expect(readStoredAnswer({ answer, askedAt })?.faqId).toBe('moq');
     expect(readStoredAnswer({ answer: { ...answer, lines: [{ key: '<script>', values: {} }] }, askedAt })).toBeNull();
     expect(readStoredAnswer('nonsense')).toBeNull();
+  });
+});
+
+describe('the minimum when OEM and Original Brand are both offered', () => {
+  it('states each option its own minimum rather than the lower one alone', () => {
+    const answer = answerFaq(
+      'moq',
+      facts({
+        moq: {
+          minimumBaseUnits: 10,
+          incrementBaseUnits: 1,
+          maximumBaseUnits: null,
+          moqUnit: 'PIECE',
+          moqQuantity: 10,
+          options: [
+            { option: 'OEM', minimumBaseUnits: 500 },
+            { option: 'ORIGINAL_BRAND', minimumBaseUnits: 10 },
+          ],
+        },
+      }),
+    );
+    expect(keys(answer)).toEqual(['moqOem', 'moqOriginalBrand']);
+    expect(answer?.lines[0]?.values).toMatchObject({ minimum: { kind: 'number', value: 500 } });
   });
 });

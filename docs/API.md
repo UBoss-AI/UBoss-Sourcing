@@ -526,14 +526,70 @@ link is redeemed, so the person agrees to the current version and sends again.
 A link for another surface (a customer's link posted to the carrier portal) is
 refused as `TOKEN_INVALID` before it is spent, too.
 
-**Staff terms.** The console's sign-in asks
-`GET /api/v1/legal/current?kind=STAFF_TERMS&locale=…` the same way, before
-anybody is signed in, and shows the answer in the same read-to-the-end dialog.
-Nothing is sent back: `POST /api/v1/admin/auth/login` still takes only an email
-and a password, and no acceptance is stored. A 503
-`TERMS_DOCUMENT_UNAVAILABLE` here means only that the operator has not
-published staff terms; the console then shows a plain tick box and signing in
-goes on as before.
+### The agreement screen after sign-in
+
+Signing in is not enough to use the application. Until the person has accepted
+the Terms for their kind of account and acknowledged the Privacy Policy, in
+versions that still count, every application route answers:
+
+```json
+{
+  "error": {
+    "code": "AGREEMENTS_REQUIRED",
+    "message": "Accept the Terms and acknowledge the Privacy Policy to continue.",
+    "details": [{ "code": "AGREEMENT_MISSING", "meta": { "kind": "PRIVACY_POLICY", "scope": "BUYER" } }]
+  }
+}
+```
+
+with status 403. `details[].meta.kind` names each missing document. Only
+documents that are published and in force are asked for.
+
+| Surface | Prefix | Scope | Terms |
+|---|---|---|---|
+| Storefront | `/api/v1/auth` | `BUYER` | `PLATFORM_TERMS` |
+| Seller Hub | `/api/v1/auth` with `scope=SELLER` | `SELLER` | `PLATFORM_TERMS`, `SELLER_TERMS` |
+| Carrier portal | `/api/v1/logistics/auth` | `LOGISTICS` | `LOGISTICS_PARTNER_TERMS` |
+| Admin console | `/api/v1/admin/auth` | `STAFF` | `STAFF_TERMS` |
+| Audit Console | `/api/v1/audit/auth` | `AUDIT` | `AUDIT_CONSOLE_TERMS` |
+
+Every scope also needs `PRIVACY_POLICY`. The scope comes from the surface; on
+the storefront `scope=SELLER` is allowed only for a member of a seller
+(`SELLER_ACCOUNT_REQUIRED` otherwise).
+
+| Endpoint (under the prefix) | What it does |
+|---|---|
+| `GET /agreements?locale=&scope=` | Where the person stands: `{ scope, terms: [...], privacy, termsComplete, privacyComplete, complete }`. Each entry has `kind`, `current` (the document to read, as `GET /legal/current` returns it, or null), `record` (the record that counts, or null) and `unavailable` |
+| `POST /agreements/terms` | "I agree". Body `{ documentIds, scope?, locale }`. Records Terms acceptance only. Answers the new status |
+| `POST /agreements/privacy` | "I acknowledge". Same body. Records the Privacy Policy acknowledgment only |
+| `DELETE /agreements/terms?scope=`, `DELETE /agreements/privacy?scope=` | Clear that box before Continue. The record is kept, marked cleared, with an audit event. Answers the new status |
+| `GET /agreements/history` | `{ entries }`: every acceptance and acknowledgment, newest first, cleared ones included |
+
+Rules the server keeps:
+
+- Each id must be the document in force for a kind this box asks for. Another
+  kind is `AGREEMENT_DOCUMENT_NOT_APPLICABLE` (400). A version replaced since
+  the dialog opened is `TERMS_VERSION_OUTDATED` (409, with `meta.kind` and
+  `meta.currentVersion`). Nothing is written by a refusal.
+- Repeating a request writes nothing new: one active record per person per
+  document.
+- Version, language, hash and time come from the stored document and the
+  database, never from the request. No IP address or browser string is stored.
+- A new version asks again only when it was published with
+  `requiresReacceptance` true.
+
+**What stays reachable before the screen is done:** sign-in, refresh, sign-out,
+`/me`, two-step codes and the rest of each surface's `/auth` routes; the
+agreement routes above; the public `/api/v1/legal/*` routes; support
+(`/api/v1/support/*`, `/api/v1/seller/support/*`,
+`/api/v1/logistics/support/*`); and `/api/v1/account/data-requests`.
+Webhooks and background jobs never pass through a sign-in guard, so the gate
+never touches them. `FEATURE_AGREEMENT_GATE` switches the gate (production
+refuses `false`).
+
+**Staff terms at sign-in.** The console no longer asks for a terms tick when
+signing in. `POST /api/v1/admin/auth/login` takes an email and a password; the
+staff terms are accepted on the agreement screen afterwards.
 
 Public, and needing no session:
 
@@ -551,7 +607,11 @@ Permissions `legal_document.read`, `legal_document.write` and
 `409 LEGAL_DOCUMENT_IMMUTABLE` on any change; a repeated kind, version and
 language with `409 LEGAL_DOCUMENT_VERSION_EXISTS`. Publishing moves an effective
 date in the past to now, and refuses one earlier than the latest published
-version in the same language.
+version in the same language. A draft may carry `requiresReacceptance`
+(default `true`); `false` marks a correction that asks nobody again. Publishing
+a document whose title, text or summary still holds a `[[...]]` blank is
+refused with `422 LEGAL_DOCUMENT_HAS_PLACEHOLDERS`, each blank named in
+`details[].meta.placeholder`.
 
 A person who wants to buy for a company signs up exactly as above: one account,
 the same confirmation email, the same password rules. The company is applied
@@ -1299,8 +1359,12 @@ routes do **not** act. They record a request and answer **`202`**:
 
 - `PATCH /api/v1/admin/customers/:id/status` with `active: false` (a
   `reason` of at least 3 characters is required, or `400`)
-- `POST /api/v1/admin/sellers/:id/decision` with `status` `SUSPENDED` or
-  `REJECTED` (a `reason` is required)
+- `POST /api/v1/admin/sellers/:id/decision` with `status` `SUSPENDED` (a
+  `reason` is required). Rejecting a seller application is no longer an Admin
+  Panel action - it is the Audit Team's (see "Seller verification" under the
+  Audit Console below) - so an old `SELLER_REJECT` request still open cannot
+  be approved: `POST …/approve` answers `403 SELLER_VERIFICATION_AUDIT_ONLY`
+  and leaves it open to be declined.
 - `POST /api/v1/admin/buyer-companies/:id/suspend`
 
 ```json
@@ -1355,6 +1419,7 @@ than let through, so brute-force protection never silently switches off.
 | Raising a support ticket (storefront, Seller Hub, portal) | 5 per 10 minutes. Each account may also raise only `SUPPORT_TICKETS_PER_DAY` (default 10) a day: `429 SUPPORT_TICKET_LIMIT_REACHED` |
 | Writing again on a support ticket; uploading a file to one | 20 per 10 minutes each |
 | Asking for a support file's download link | 60 per minute |
+| Saving a seller turnover declaration (`PUT /api/v1/seller/turnover`) | 60 per 15 minutes |
 | Commission invoices (staff): generate, rebuild, issue; download link and download | 30 per minute each |
 | Commission invoices (staff): save settings, void, record payment, credit note | 20 per minute each |
 | Commission invoice draft preview (staff) | 60 per minute |
@@ -1581,6 +1646,7 @@ Both frontends turn each `code` into a message in eight languages. So:
 | `PAYMENT_ATTEMPT_IN_PROGRESS` | 409 | Another payment for this order is open or settling. Wait a moment and retry (the storefront retries 3 times, 1.5 s apart) |
 | `PAYMENT_AMOUNT_NOT_SUPPORTED` | 400 | The order total cannot be taken by card online in its currency (for example above Stripe's per-payment ceiling). Nothing is rounded |
 | `SELLER_LOCK_REQUIRED` | 403 | Open the Seller Hub password for this session |
+| `SELLER_TURNOVER_NOT_ELIGIBLE` | 409 | The seller turnover policy refused it. `details[0].code` says why: `BELOW_MINIMUM` (the declared turnover is not more than the minimum; `meta.minimumMinor` and `meta.currency` say what the minimum is), `NOT_DECLARED` or `OUT_OF_DATE` (on submit). Show the policy; nothing was created or submitted |
 | `SELLER_SESSION_EXPIRED` | 403 | The open Seller Hub was idle too long and has closed. Ask for the Seller Hub password again; the shop session is still signed in |
 | `LOGISTICS_MFA_CHALLENGE_REQUIRED` | 403 | Enter the authenticator code in the logistics portal |
 | `BUYER_COMPANIES_DISABLED` | 403 | This deployment does not offer company accounts (`FEATURE_BUYER_COMPANIES=false`). Hide the company screens |
@@ -2527,7 +2593,11 @@ A seller is a customer who has applied to sell. Sign in as a customer
 
 ```powershell
 # 1. Apply (once)
-$body = @{ legalName = 'Rao Medical Supplies GmbH'; displayName = 'Rao Medical'; registrationCountry = 'DE'; kind = 'WHOLESALER' } | ConvertTo-Json
+# While SELLER_TURNOVER_REQUIRED is on (the default), turnover is required.
+# amountMinor is whole minor units as a string (here 30 crore and one paisa).
+# Take the year from GET /config -> sellerEligibility.suggestedFinancialYear.
+$turnover = @{ amountMinor = '30000000001'; currency = 'INR'; financialYearStart = '2025-04-01'; financialYearEnd = '2026-03-31'; declarationAccepted = $true }
+$body = @{ legalName = 'Rao Medical Supplies GmbH'; displayName = 'Rao Medical'; registrationCountry = 'DE'; kind = 'WHOLESALER'; turnover = $turnover } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "$api/sellers/apply" -Headers $headers -ContentType 'application/json' -Body $body
 
 # 2. Set, then open, the Seller Hub password for this session
@@ -3015,6 +3085,27 @@ the quantity is over the seller's B2C Maximum Order Quantity and the buyer is
 not in an approved company context; confirming checks it again. This is a
 ceiling. The preorder minimum is a separate floor with its own errors.
 
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
+
 ### Containers and more than is available
 
 **Only the unit and the count.** For a container preorder the buyer sends the
@@ -3148,7 +3239,7 @@ or response fields change.
 | Area | Key endpoints |
 |---|---|
 | Entry | `GET /api/v1/sellers/me`, `POST /api/v1/sellers/apply`, `POST /api/v1/sellers/lock`, `/lock/open`, `/lock/close`, `GET /api/v1/sellers/session`, `POST /api/v1/sellers/session/renew` |
-| Onboarding | `GET /api/v1/seller/onboarding`, `PATCH /business-profile`, `POST /documents`, `POST /agreements`, `POST /submit` |
+| Onboarding | `GET /api/v1/seller/onboarding`, `PATCH /business-profile`, `POST /documents`, `POST /agreements`, `POST /submit`, `GET`/`PUT /turnover` |
 | Listings | `GET /api/v1/seller/listings`, `PATCH /listings/:id/status`, `PATCH /listings/:id/price`, `GET`/`PATCH /listings/:id/edit` |
 | Drafts | `GET`/`POST /api/v1/seller/listing-drafts`, `PATCH /:id`, `POST /:id/validate`, `POST /:id/submit`, `POST /:id/media` |
 | Packaging and prices | `GET`/`PUT /api/v1/seller/offers/:id/packaging/*`, `GET`/`PUT /offers/:id/quantity-tiers` |
@@ -3159,6 +3250,39 @@ or response fields change.
 | Money | `GET /api/v1/seller/settlements`, `/settlements/:id/lines`, `/payouts`, `/payout-account`, `/settlements/estimate`. Statements exist only when the operator turns on `FEATURE_SELLER_SETTLEMENT_STATEMENTS`: a daily job then writes one per seller, period and currency, `PENDING_PAYOUT`, numbered `STL-YYYY-MM-NNNN`. A line's `description` is the seller order number only; label it by its `kind`. A statement moves no money — paying one is refused with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED` |
 | Team and audit | `GET /api/v1/seller/members`, `PATCH`/`DELETE /members/:memberId`, `GET /audit` |
 | Own ERP (TallyPrime) | `/api/v1/seller/erp/*`, with `FEATURE_SELLER_ERP` |
+
+**Seller turnover eligibility.** The marketplace's own rule (not a legal one):
+a business may apply to sell only if its annual turnover for its most recently
+completed financial year is **strictly more** than `SELLER_TURNOVER_MIN_MINOR`
+(default `30000000000` paise, ₹30 crore). The policy is public in
+`GET /api/v1/config` → `sellerEligibility` (`required`, `minimumMinor` as a
+string, `currency`, `currencyExponent`, `policyVersion`,
+`financialYearStartMonth`, `suggestedFinancialYear { start, end }`).
+
+- `POST /api/v1/sellers/apply` takes `turnover: { amountMinor, currency,
+  financialYearStart, financialYearEnd, declarationAccepted: true }`, required
+  while `SELLER_TURNOVER_REQUIRED` is on. `amountMinor` is whole minor units as
+  a string, compared as an integer, never a float. A missing or malformed field
+  is `400 VALIDATION_FAILED` with per-field details: `amountMinor` `REQUIRED`,
+  `MALFORMED` or `TOO_LARGE`; `currency` `CURRENCY_MISMATCH`;
+  `financialYearStart` `REQUIRED`, `INVALID_DATE`, `NOT_TWELVE_MONTHS`,
+  `NOT_COMPLETED` or `NOT_MOST_RECENT`; `declarationAccepted` `REQUIRED`. At or
+  below the minimum is `409 SELLER_TURNOVER_NOT_ELIGIBLE` (`BELOW_MINIMUM`).
+  Nothing is created when it is refused.
+- `POST /api/v1/seller/submit` (every submission and resubmission) answers
+  `409 SELLER_TURNOVER_NOT_ELIGIBLE` with `NOT_DECLARED`, `BELOW_MINIMUM` or
+  `OUT_OF_DATE` before the checklist is checked.
+- `GET`/`PUT /api/v1/seller/turnover` read and save the declaration (Owner and
+  Admin, `seller.account.write`). `PUT` takes the same fields and saves even an
+  ineligible figure, so nothing typed is lost; it is refused once the
+  application is under review. Changing the amount, currency or year starts a
+  new declaration that waits for review; the same figures keep the verification.
+- Supporting evidence is an ordinary `POST /documents` upload with kind `OTHER`
+  and `requirementFieldKey: annual_turnover_evidence`. Uploading or withdrawing
+  one reopens a decided declaration.
+- Approval readiness and the approval gate list `TURNOVER_NOT_DECLARED`,
+  `TURNOVER_NOT_ELIGIBLE` or `TURNOVER_NOT_VERIFIED` (field `turnover`).
+  Sellers approved before the rule (`approvedAt` set) are not held.
 
 **The B2C Maximum Order Quantity on a listing.** A draft's offer and the terms
 of `PATCH /listings/:id/edit` accept `b2cMaxOrderQuantity`: a JSON whole number
@@ -3187,7 +3311,7 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Customers | `/admin/customers`, `/:id/limits`, `/:id/status`, `/:id/approve`, `/:id/invite` | `customer.*` |
 | Companies | `GET /admin/directory` | `customer.read` or `logistics.read` (either) |
 | Company verification | `/admin/buyer-companies`, `/:id/start-review`, `/approve`, `/reject`, `/suspend`, `/reverify`, `/admin/buyer-company-documents/:id/link` (see [Buyer companies](#buyer-companies-buyer-companiescustomerts-and-buyer-companiesadmints)) | `buyer_company.*` |
-| Sellers | `/admin/sellers`, `GET /admin/sellers/verified` (verified suppliers for the Sellers screen: `limit` 1–24, default 24; optional `sort=newest` and `q`; returns `{ suppliers, countries, total }`, each supplier with `sellerId`; `cache-control: no-store`; `customer.read`), `/sellers/:id/decision`, `/seller-listings/review-queue`, `/seller-listings/:id/decision`, `/brand-requests` | `customer.*`, `product.publish` |
+| Sellers | `/admin/sellers`, `GET /admin/sellers/verified` (verified suppliers for the Sellers screen: `limit` 1–24, default 24; optional `sort=newest` and `q`; returns `{ suppliers, countries, total }`, each supplier with `sellerId`; `cache-control: no-store`; `customer.read`), `GET /admin/sellers/:id` (adds `verification: { ownedBy: 'AUDIT', reviewersAvailable, currentDecision, history[] }` - who decided each step and from which console; read-only), `/sellers/:id/decision` (only `SUSPENDED`, or `APPROVED` to lift a suspension; anything else `403 SELLER_VERIFICATION_AUDIT_ONLY`), `GET /admin/sellers/:id/turnover` (policy, standing, current declaration, history, evidence, reviewer; `customer.read`), `POST /admin/sellers/:id/turnover/decision`, `POST /admin/sellers/:id/screening` and `POST /admin/seller-documents/:id/decision` (always `403 SELLER_VERIFICATION_AUDIT_ONLY`: the Audit Team decides these in the Audit Console), `/seller-listings/review-queue`, `/seller-listings/:id/decision`, `/brand-requests` | `customer.*`, `product.publish` |
 | Settings and staff | `/admin/settings/*`, `/admin/staff`, `/staff/:id/roles`, `GET /admin/master-data-readiness` (go-live check of reference data) | `settings.*`, `staff.*`, `role.assign` |
 | Staff access review | `GET /admin/staff/access-review`, `POST /admin/staff/:id/access-reviews` (`{ decision: KEEP \| REDUCE \| REVOKE, note? }`; a note is required to reduce or revoke) | `staff.read` (and `staff.write` to record), **and** the caller must hold the Business Owner role: anyone else gets 403 `PERMISSION_DENIED`. Reviewing your own account is 409 `CONFLICT`, detail `SELF_REVIEW` |
 | VAT and invoices | `/admin/vat-rates`, `/admin/customers/:id/vat-number/check`, `/admin/invoices/:id`, `/ubl`, `/en16931-check` | `settings.*`, `invoice.*` |
@@ -4076,6 +4200,51 @@ Off: every route answers `FEATURE_DISABLED`.
   calendar, corrective actions, reports (including the report PDF), team,
   notifications. The full list is in `docs/reference/API-ENDPOINTS.md` under
   "Audit Console".
+- **Seller health and quality analytics.** `GET /audit/sellers` returns a
+  `health` object on every row (`score` 0–1000, `band`
+  `HEALTHY | AT_RISK | UNHEALTHY`, `bySeverity`, `passRatePercent`) and takes
+  `?health=<band>` and `?sort=name|risk`; an unknown band is a 400.
+  `GET /audit/sellers/:id` adds `health` with the open `issues` (`kind`,
+  `severity`, `count`) and the inspection record. `GET /audit/insights`
+  (permission `audit.job.oversee`) returns twelve months of pass/fail by month,
+  defects by severity and status, top findings, best and worst suppliers,
+  agency performance, and the health bands (`null` without
+  `audit.seller.read`). All counts are plain integers; nothing here is money.
+- **Seller verification** (`/api/v1/audit/seller-verification*`). The Audit
+  Team owns seller onboarding verification; the Admin Panel only reads it.
+  Reads need `audit.seller.read`; every write needs `audit.seller.verify`,
+  which the `SUPERVISOR` and `COMPLIANCE_REVIEWER` staff roles carry and no
+  inspection agency role does.
+  - `GET /audit/seller-verification` — the queue: `status`, `search`,
+    `page`, `pageSize`, and `resubmitted=true` for applications sent back
+    after corrections. Rows carry `resubmitted`; `counts` has one entry per
+    status plus `RESUBMITTED`.
+  - `GET /audit/seller-verification/:id` — `{ application, readiness,
+    turnover }`. `application.verification.history` lists every decision
+    with `actorType` (`AUDIT`, `ADMIN`, `SELLER`, `SYSTEM`) and the
+    reviewer's email - earlier Admin Panel decisions keep `ADMIN`.
+  - `POST /audit/seller-verification/:id/decision` —
+    `{ status: UNDER_REVIEW | ACTION_REQUIRED | APPROVED | REJECTED, reason?,
+    internalNote?, resubmissionAllowed?, expectedVersion }`. `reason` (3+
+    characters, seller-visible) is required for `ACTION_REQUIRED` and
+    `REJECTED`. `expectedVersion` is required: a decision made meanwhile
+    gives `409 SELLER_STALE_VERSION`, and the write itself is conditional on
+    the version, so two reviewers deciding at once cannot both win. Approval
+    still runs the evidence gate (`409 SELLER_APPROVAL_EVIDENCE_MISSING`).
+    Lifting a suspension is refused here (`409
+    SELLER_APPLICATION_TRANSITION_NOT_ALLOWED`) - it stays an Admin Panel
+    control.
+  - `POST /audit/seller-verification/:id/screening` (Idempotency-Key
+    required), `POST /audit/seller-verification/:id/turnover/decision` (adds
+    `expectedVerificationState`: a declaration decided since is `409
+    SELLER_STALE_VERSION`), `POST
+    /audit/seller-verification/documents/:id/decision` (conditional on the
+    decision that was read), `GET
+    /audit/seller-verification/documents/:id/file` (audited read).
+  - A reviewer whose email is one of the seller's members or its
+    representative gets `403 SELLER_VERIFICATION_NOT_INDEPENDENT`.
+  - Decisions are recorded with actor type `AUDIT` and the reviewer's user
+    id; the seller sees "Audit Team", never a name.
 - **Admin**: `/api/v1/admin/audit-console/*` (permission
   `audit_console.manage`) invites people and manages access. Sub-lot approvals
   and release-evidence upload are on the admin inspection routes.

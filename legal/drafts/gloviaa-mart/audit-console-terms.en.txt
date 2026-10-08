@@ -1,0 +1,242 @@
+kind: AUDIT_CONSOLE_TERMS
+version: 2026-10-draft-1
+locale: en
+title: Gloviaa Mart Audit Console Terms
+---
+DRAFT - not legal advice and not approved for publication. This text was adapted from third-party source material and must be reviewed and approved by the operator's legal counsel. Every passage marked [[DECISION: ...]] needs a business or legal decision before this document can be published.
+
+These terms apply to everyone invited to the Gloviaa Mart Audit Console: inspectors, coordinators, quality reviewers and administrators of inspection agencies, and the marketplace's own compliance reviewers and supervisors. Part A applies to every user of Gloviaa Mart. Part C applies to Audit Console users. An inspection agency's commercial relationship with Gloviaa Mart - fees, liability, insurance and accreditation - is governed by the agreement between them. [[DECISION: audit agency contract reference, independence and conflict-of-interest rules]]
+
+## Part A - Common terms for everyone who uses Gloviaa Mart
+
+## A1. About these terms
+
+These terms are an agreement between you and [[DECISION: registered legal name of the operator]], a company registered under number [[DECISION: company registration number and register]] with its registered office at [[DECISION: registered office address of the operator]] ("Gloviaa Mart", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace.
+
+"Platform" means the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
+
+"User" means anybody who visits or uses the Platform: a visitor, a buyer, a seller, a member of a logistics partner's staff, a member of our own staff, or an inspector or auditor invited to the Audit Console.
+
+These terms are made up of this Part A, which applies to every user, and the part or addendum written for your role. When the role-specific part and Part A disagree, the role-specific part applies to that role. The following documents, when we have published them on the Platform, also form part of the agreement where they apply to you: the Privacy Policy, the Returns Policy, the Buyer Protection Policy, the Inspection Policy and the Prohibited Products Policy. Each of them is published with a version number and an effective date, and every earlier version stays available to read.
+
+This agreement is formed electronically. When you choose "I agree" after reading these terms, we record which version you agreed to, in which language it was shown to you, and when. You do not need to sign anything else.
+
+As long as you comply with these terms, we give you a personal, non-exclusive, non-transferable, revocable and limited permission to enter and use the parts of the Platform that are open to your role.
+
+## A2. Who may use the Platform
+
+You may use the Platform only if you can form a legally binding contract under the law that applies to you. You must not use the Platform if you are under [[DECISION: minimum age and whether individual consumers may buy, or business buyers only]] or if the law otherwise prevents you from contracting.
+
+If you use the Platform for a business, a company or any other organisation, you confirm that you are authorised to accept these terms for it and to bind it to them. The organisation is then also bound, and "you" includes it.
+
+We may refuse or end access to the Platform if we learn that a user does not meet these conditions.
+
+## A3. Your account and its security
+
+Some parts of the Platform need an account. When we ask for information to open or maintain an account, you agree to give information that is true, accurate, current and complete, and to keep it up to date.
+
+You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel if you believe someone else has used your account.
+
+Where we offer or require two-step sign-in, you agree to set it up and keep it working. Some roles must use it.
+
+If the information you give us is untrue, inaccurate, out of date or incomplete, or we have reasonable grounds to suspect so, we may suspend or close your account or limit what it can do. We will tell you why, unless the law or the safety of other users prevents it.
+
+## A4. Communications
+
+When you use the Platform, or send us emails or other messages, you are communicating with us electronically. You agree that we may send you notices, records and other communications about your account, your orders and these terms electronically - by email, through the notification centre on the Platform, and, where you or we have switched it on, by text message.
+
+Service messages (for example a payment receipt, a security alert or a change to these terms) are part of providing the Platform and are sent whatever your marketing choices. Marketing messages are sent only if you have chosen to receive them, and you can stop them at any time from your account or from the message itself.
+
+## A5. What the marketplace is, and what it is not
+
+The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Gloviaa Mart is the seller of those goods.
+
+For goods sold by other sellers:
+
+- The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order.
+- The contract of sale is between the seller and the buyer. Gloviaa Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
+- Gloviaa Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. Gloviaa Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
+- You should take reasonable care when you deal with other users. Use the Platform's own messages and payment flow; never pay outside it.
+
+Gloviaa Mart hosts content that users publish, such as product listings, photographs, reviews and messages. Gloviaa Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
+
+## A6. Acceptable use
+
+You must not host, display, upload, modify, publish, transmit, update or share any information, image, file or message on or through the Platform which:
+
+- a. belongs to another person and over which you have no right;
+- b. is harmful, harassing, defamatory, obscene, pornographic, invasive of another person's privacy, hateful, or discriminatory on grounds such as race, ethnicity, religion, sex, sexual orientation or disability, or relates to or encourages money laundering or unlawful gambling, or is otherwise unlawful;
+- c. is false, inaccurate or misleading;
+- d. is patently offensive, sexually explicit, or promotes hatred or physical harm against any group or individual;
+- e. harasses, or advocates harassment of, another person;
+- f. is junk mail, a chain letter, unsolicited mass mailing or spam, including unrelated feedback on reviews or surveys;
+- g. promotes illegal activity, or conduct that is abusive, threatening, obscene or defamatory;
+- h. infringes or violates any third party's rights, including intellectual property rights, rights of privacy (including the unauthorised disclosure of a person's name, email address, physical address or telephone number) and rights of publicity;
+- i. promotes an illegal or unauthorised copy of another person's protected work, such as pirated software or media, or information for circumventing copy-protection;
+- j. contains hidden or password-protected pages, hidden images, or links to pages not otherwise reachable on the Platform;
+- k. exploits people in a sexual, violent or otherwise inappropriate way, or solicits personal information from anyone;
+- l. gives instructions for illegal activities, such as making or buying illegal weapons, violating someone's privacy, or creating computer viruses;
+- m. contains unauthorised videos, photographs or images of another person, whether a minor or an adult;
+- n. tries to gain unauthorised access to, or exceeds authorised access to, the Platform, other users' accounts or information, or solicits passwords or personal information for commercial or unlawful purposes;
+- o. carries out commercial activities on the Platform that it was not made for - such as contests, sweepstakes, barter, pyramid schemes or advertising - without our prior written consent;
+- p. solicits or involves gambling that is or may be unlawful;
+- q. interferes with another user's use of the Platform;
+- r. links to any website or address containing material that is inappropriate for the Platform or that breaches these terms;
+- s. harms minors in any way;
+- t. infringes any patent, trade mark, copyright, trade secret or other proprietary right, is fraudulent, or involves counterfeit or stolen goods;
+- u. breaks any law in force;
+- v. deceives or misleads anyone about the origin of a message, or communicates information that is grossly offensive or menacing;
+- w. impersonates another person or organisation;
+- x. contains viruses, malware or any code, file or program designed to interrupt, destroy, limit or secretly intercept any system, data or personal information;
+- y. threatens public order or national security in any country where the Platform operates, or incites the commission of an offence or obstructs its investigation;
+- z. offers, or attempts to trade in, anything that is prohibited or restricted by law in the place of sale or delivery, or by our Prohibited Products Policy;
+- aa. would create liability for us, or cause us to lose the services of our hosting, payment or other providers.
+
+"Our prior written consent" means a written reply from us to a request you made, which specifically addresses the activity you asked about.
+
+## A7. Automated access, security and the integrity of the Platform
+
+You must not:
+
+- use any deep link, page-scraper, robot, spider or other automatic device, program or method, or any equivalent manual process, to access, copy or monitor any part of the Platform, or to bypass its navigation or presentation, except through an interface we have made available for that purpose and on its terms;
+- try to gain unauthorised access to any part of the Platform, to other systems or networks connected to it, or to any service offered through it, by hacking, password mining or any other illegitimate means;
+- probe, scan or test the vulnerability of the Platform or any connected network, or breach its security or authentication measures, unless we have given you written permission to do so as part of a security programme;
+- trace, or try to trace, information about any other user, or use the Platform to reveal information about anyone other than yourself;
+- take any action that places an unreasonable or disproportionately large load on our infrastructure, or take part, alone or with others, in a denial-of-service attack;
+- use any device, software or routine to interfere with the proper working of the Platform or any transaction on it;
+- forge headers or manipulate identifiers to disguise the origin of a message you send through the Platform.
+
+We may take any lawful action, including claiming damages, against a user who breaches this section.
+
+## A8. Content you provide
+
+You are responsible for the content you post or send on the Platform - listings, photographs, documents, reviews, messages and anything else - and for having every right needed to provide it. Content must be accurate and must not breach section A6.
+
+You keep ownership of your content. You give us a non-exclusive, worldwide, royalty-free licence to host, store, copy, reproduce, translate, adapt for display, and show your content on the Platform and in communications about the Platform, for as long as is needed to run the Platform and to keep the records the law requires. [[DECISION: scope of the licence over content users upload - the source asked for a perpetual, irrevocable, sub-licensable licence including generative-AI use and use in advertising]]
+
+Some content is translated automatically so that users can read it in their own language; a translation is offered for convenience and the original wording prevails.
+
+We may, but are not obliged to, monitor content. We may remove or restrict content that breaches or is alleged to breach the law or these terms. We may disclose information, including the identity of the person who provided it, where the law requires it, in answer to a valid request from a court or authority, or where we believe in good faith that disclosure is needed to investigate or prevent a crime, protect a person's safety, or enforce these terms. Whether we monitor or not, you remain responsible for your own content and your own communications with other users.
+
+## A9. Our intellectual property
+
+The Platform, its software, design, text, graphics, logos and the compilation of its content are protected by copyright, trade mark and other intellectual property rights belonging to us, to sellers or to our licensors. Except as these terms allow, you must not copy, reproduce, republish, upload, post, publicly display, encode, translate, transmit or distribute any part of the Platform or its content, including by mirroring it to another computer, server or website, without the written consent of the owner. You must not help anyone else to do so.
+
+You may view, download and print product information and your own records for your own business or personal use, provided you keep any proprietary notices, make no changes, and do not add representations or warranties about the content.
+
+The Gloviaa Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
+
+## A10. Complaints about infringing or unlawful content
+
+We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at [[DECISION: address for intellectual-property and illegal-content complaints]] or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
+
+## A11. Other services and links
+
+The Platform uses, and links to, services run by others - for example the payment provider's own payment page, carriers' tracking pages and the providers listed in the Privacy Policy. Their own terms and privacy notices apply to what you do on their services. We are not responsible for the content or practices of websites or services we do not control.
+
+If you deal with an advertiser or a third-party service provider through the Platform, that dealing is between you and them.
+
+## A12. Promotions and campaigns
+
+We, alone or with partners, may run promotional campaigns, coupons or offers on the Platform. Each campaign has its own published conditions, including who qualifies, and those conditions apply in addition to these terms. Nobody is entered into a paid campaign without choosing to take part.
+
+## A13. Suspension, restriction and termination
+
+Without limiting any other remedy, we may warn you, limit what your account can do, remove content, put your account on hold, suspend it for a period or indefinitely, close it, or refuse you access to the Platform, if:
+
+- you breach these terms, the Privacy Policy or another policy that applies to you;
+- we cannot verify or authenticate information you have given us;
+- we reasonably believe your actions may cause legal liability for you, for other users or for us; or
+- the law or an authority requires it.
+
+We will tell you what we have done and why, and how to ask us to review it, unless the law or the safety of others prevents it. We may reinstate a suspended account. A user whose account is suspended or closed must not register again, through themselves or any other person or entity, until we reinstate them.
+
+Where you owe us money, we may recover it, and where your conduct may be a crime we may refer it to the police or another authority.
+
+You may stop using the Platform at any time. Closing your account is described in the part of these terms for your role. Closing an account does not end obligations that arose before it was closed, and it does not delete the records the law requires us to keep; how personal data is handled after closure is set out in the Privacy Policy.
+
+## A14. Disclaimers
+
+We work to keep the Platform available, accurate and secure, but we do not promise that it will always be available, uninterrupted or error-free. Product descriptions and other content provided by sellers are their responsibility; we do not warrant that they are accurate, complete, reliable, current or error-free.
+
+Some features use automated systems, including artificial-intelligence models, to answer questions, recognise products in pictures, summarise figures or translate text. Their output may be incomplete or wrong. It is offered to help you, not as professional, medical, legal or financial advice, and you should check anything important before relying on it.
+
+Nothing in these terms excludes or limits any guarantee, warranty or right that the law gives you and that cannot be excluded or limited by contract.
+
+## A15. Limitation of liability
+
+To the extent the applicable law allows, we are not liable for any indirect, incidental, special or consequential loss, or for loss of profit, revenue, business, goodwill or data, arising out of or in connection with these terms or the Platform, even if we were told such loss was possible.
+
+[[DECISION: liability cap amount and carve-outs permitted by the governing law]]
+
+Nothing in these terms limits liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, or for anything else that the applicable law does not allow to be limited.
+
+## A16. Indemnity
+
+To the extent the applicable law allows, you will indemnify and hold harmless Gloviaa Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
+
+## A17. Changes to these terms
+
+We may change these terms, for example to reflect a change in the law, in our services or in how the Platform works. When we do, we publish a new version with a new version number, an effective date and, where useful, a summary of what changed. Earlier versions stay available to read.
+
+When a change materially affects you, we tell you in advance through the Platform or by email, at least [[DECISION: notice period before changed terms take effect]] before it takes effect, unless the change is needed sooner to comply with the law. Where a new version requires it, we ask you to read and agree to it before you continue to use your account; if you do not agree, you may close your account. We never record that you agreed to a version you were not shown.
+
+## A18. Governing law and disputes
+
+These terms are governed by [[DECISION: governing law]]. The courts of [[DECISION: courts with jurisdiction, and whether consumers keep their home-court rights]] have jurisdiction over disputes arising out of them. If you are a consumer, this does not take away the protection of the mandatory rules of the country where you live, or your right to bring proceedings there.
+
+Before going to court, we encourage you to contact us so we can try to resolve the matter. Disputes between a buyer and a seller about an order can be raised through the claims process described in Part B.
+
+## A19. Where the Platform operates
+
+The Platform serves buyers and sellers in several countries, languages and currencies. The markets in which goods can be sold and delivered are shown on the Platform and are [[DECISION: markets and countries where the marketplace sells and delivers]]. A product may be restricted in some markets; the product page and checkout say where it can be delivered.
+
+If you use the Platform from another country, you are responsible for complying with the law that applies to you there, including import, export, customs and sanctions rules.
+
+## A20. General
+
+These terms, together with the documents named in section A1, are the whole agreement between you and us about their subject and replace any earlier agreement or understanding about it.
+
+If any provision is found invalid or unenforceable, the rest remains in force. If we do not enforce a provision at once, we have not waived it.
+
+You may not transfer your rights or obligations under these terms without our written consent. We may transfer ours to a company that takes over the Platform or the relevant part of our business, provided your rights are not reduced; we will tell you if this happens.
+
+These terms are published in several languages. [[DECISION: which language version prevails if translations differ]]
+
+## A21. Contact and complaints
+
+For questions about these terms or the Platform, use the support page on the Platform or write to [[DECISION: contact email address for legal notices]].
+
+Complaints are handled by [[DECISION: grievance officer or complaints contact - name, address, email]]. We acknowledge a complaint and tell you how and when we will answer it.
+
+## Part C - Terms for Audit Console users
+
+## C1. Your access
+
+Access to the Audit Console is by invitation only. Your role decides what you can see and do: an inspector sees only the jobs assigned to them, and an agency's roster and invoices are shown only to the roles that need them. You must use the console only for the inspections, reviews and compliance work assigned to you or your agency, and only within your role. You must set up and use two-step sign-in, and you must not share your account.
+
+## C2. Independence and conflicts of interest
+
+You must carry out inspections and reviews independently and impartially. You must not accept a job, or must withdraw from it, if you or your agency have an interest in the seller, the buyer or the goods, or any other relationship that could affect, or appear to affect, your judgement, and you must tell the marketplace about it. You must not accept any gift, payment or favour from a buyer or a seller.
+
+## C3. No contact outside the console
+
+You must communicate with buyers and sellers about a job only through the means the console and the inspection process provide. You must not use contact details you see to approach a buyer or a seller for any other purpose, including to offer your own services.
+
+## C4. Evidence and reports
+
+Evidence you upload - photographs, measurements, documents - must be genuine, unaltered, captured at the inspection it belongs to, and recorded with its true capture time. The same file must not be used for more than one inspection unless it truly belongs to each. Reports must state what you actually found and checked, including any limitation of the inspection, and must not state that a document is authentic unless you verified it by a method the process allows; record the method you used. A submitted report is kept as a revision; corrections are made as a new revision, never by changing the record of what was submitted.
+
+When you review compliance documents or rules, record your decision and reasons truthfully, and follow the process - including the requirement that a rule be approved by a second person.
+
+## C5. Confidentiality and personal data
+
+Everything you see in the Audit Console - orders, products, sellers' documents, buyers' details, evidence and other agencies' work - is confidential and may be used only for the assigned work. You must handle personal data in line with the Privacy Policy and the data-protection law that applies; avoid capturing people's faces or other personal data in photographs unless the inspection requires it; not copy evidence or documents out of the console except as the work requires; and report any loss or misuse of data without delay. These duties continue after your access ends.
+
+## C6. Invoices
+
+Invoices your agency submits through the console must be accurate and relate only to work actually done. Payment of an agency's invoice is made outside the Platform under the agency's agreement.
+
+## C7. Ending access
+
+Your agency, or Gloviaa Mart, may remove your access at any time. Your obligations under sections C2 to C5 continue after your access ends.

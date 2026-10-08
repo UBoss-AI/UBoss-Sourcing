@@ -31,14 +31,19 @@ import {
   type PolicyChain,
   type PreorderPolicy,
   type PreorderUnit,
+  type ProductOption,
 } from '@/lib/preorders';
+import { MinimumQuantities } from '@/components/preorder/PreorderInfoDialog';
 
 type Scope = 'OFFER' | 'PRODUCT' | 'SELLER_DEFAULT';
 
 interface Draft {
   isEnabled: boolean;
   moqUnit: PreorderUnit;
-  moqQuantity: string;
+  originalBrandEnabled: boolean;
+  originalBrandMoqQuantity: string;
+  oemEnabled: boolean;
+  oemMoqQuantity: string;
   incrementQuantity: string;
   maxQuantity: string;
   capacityBaseUnits: string;
@@ -60,7 +65,11 @@ interface Draft {
 const EMPTY: Draft = {
   isEnabled: false,
   moqUnit: 'PIECE',
-  moqQuantity: '',
+  // Neither is offered until the seller says so.
+  originalBrandEnabled: false,
+  originalBrandMoqQuantity: '',
+  oemEnabled: false,
+  oemMoqQuantity: '',
   incrementQuantity: '1',
   maxQuantity: '',
   capacityBaseUnits: '',
@@ -85,7 +94,10 @@ function draftFrom(policy: PreorderPolicy | null, exponent: number): Draft {
   return {
     isEnabled: policy.isEnabled,
     moqUnit: policy.moqUnit,
-    moqQuantity: text(policy.moqQuantity),
+    originalBrandEnabled: policy.originalBrandEnabled,
+    originalBrandMoqQuantity: text(policy.originalBrandMoqQuantity),
+    oemEnabled: policy.oemEnabled,
+    oemMoqQuantity: text(policy.oemMoqQuantity),
     incrementQuantity: String(policy.incrementQuantity),
     maxQuantity: text(policy.maxQuantity),
     capacityBaseUnits: text(policy.capacityBaseUnits),
@@ -160,8 +172,12 @@ export function SellerPreorderTermsPanel({
 
   const sizes = chain.data?.unitSizes ?? {};
   const unitSize = draft.moqUnit === 'PIECE' ? 1 : (sizes[draft.moqUnit] ?? null);
-  const moq = intOrNull(draft.moqQuantity);
   const step = intOrNull(draft.incrementQuantity);
+  // At least one option on offer, and every offered option with its own minimum.
+  const optionsValid =
+    (draft.originalBrandEnabled || draft.oemEnabled) &&
+    (!draft.originalBrandEnabled || (intOrNull(draft.originalBrandMoqQuantity) ?? 0) > 0) &&
+    (!draft.oemEnabled || (intOrNull(draft.oemMoqQuantity) ?? 0) > 0);
 
   const tierRows = useMemo(
     () =>
@@ -180,7 +196,10 @@ export function SellerPreorderTermsPanel({
         offerId: scope === 'SELLER_DEFAULT' ? null : offerId,
         isEnabled: draft.isEnabled,
         moqUnit: draft.moqUnit,
-        moqQuantity: moq,
+        originalBrandEnabled: draft.originalBrandEnabled,
+        originalBrandMoqQuantity: intOrNull(draft.originalBrandMoqQuantity),
+        oemEnabled: draft.oemEnabled,
+        oemMoqQuantity: intOrNull(draft.oemMoqQuantity),
         incrementQuantity: step ?? 1,
         maxQuantity: intOrNull(draft.maxQuantity),
         capacityBaseUnits: intOrNull(draft.capacityBaseUnits),
@@ -248,12 +267,18 @@ export function SellerPreorderTermsPanel({
               })}
             </p>
             {effective?.rules !== null && effective?.rules !== undefined ? (
-              <p className="mt-1 text-ink-muted">
-                {t('sellerPreorderTerms.buyersSee', {
-                  minimum: formatNumber(effective.rules.minimumBaseUnits),
-                  increment: formatNumber(effective.rules.incrementBaseUnits),
-                })}
-              </p>
+              <>
+                <p className="mt-1 text-ink-muted">
+                  {t('sellerPreorderTerms.buyersSeeStep', {
+                    increment: formatNumber(effective.rules.incrementBaseUnits),
+                  })}
+                </p>
+                {(chain.data.productOptions ?? null) !== null && (
+                  <div className="mt-2">
+                    <MinimumQuantities options={chain.data.productOptions ?? []} />
+                  </div>
+                )}
+              </>
             ) : (
               <ul className="mt-1 list-disc pl-5 text-warning">
                 {(effective?.issues ?? []).map((issue) => (
@@ -264,6 +289,15 @@ export function SellerPreorderTermsPanel({
           </>
         )}
       </div>
+
+      {current?.productOptionsReviewRequired === true && (
+        <p
+          role="note"
+          className="mb-4 rounded-md border border-warning/40 bg-warning-soft px-3 py-2 text-sm text-ink"
+        >
+          {t('sellerPreorderTerms.options.reviewRequired')}
+        </p>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label={t('sellerPreorderTerms.editing')}>
@@ -318,24 +352,114 @@ export function SellerPreorderTermsPanel({
           )}
         </Field>
 
-        <Field
-          label={t('sellerPreorderTerms.moq')}
-          {...(moq !== null && unitSize !== null && draft.moqUnit !== 'PIECE'
-            ? { hint: t('sellerPreorderTerms.inPieces', { pieces: formatNumber(moq * unitSize) }) }
-            : {})}
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              inputMode="numeric"
-              value={draft.moqQuantity}
-              onChange={(event) => {
-                update({ moqQuantity: event.currentTarget.value.replace(/[^\d]/g, '') });
-              }}
-            />
-          )}
-        </Field>
+        {/*
+          B2B preorder minimums: OEM and Original Brand, each its own card with
+          its own switch and minimum. Separate from the B2C purchase limit, the
+          ordinary purchase minimum, stock and bulk price bands.
+        */}
+        <fieldset className="space-y-3 sm:col-span-2">
+          <legend className="flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
+            {t('sellerPreorderTerms.options.legend')}
+            <Badge tone="brand">B2B</Badge>
+          </legend>
+          <p className="text-xs text-ink-muted">{t('sellerPreorderTerms.options.help')}</p>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(['OEM', 'ORIGINAL_BRAND'] as const).map((option: ProductOption) => {
+              const enabledKey = option === 'OEM' ? 'oemEnabled' : 'originalBrandEnabled';
+              const moqKey = option === 'OEM' ? 'oemMoqQuantity' : 'originalBrandMoqQuantity';
+              const enabled = draft[enabledKey];
+              const minimum = intOrNull(draft[moqKey]);
+              const missing = enabled && draft.isEnabled && minimum === null;
+              const unitName = t(`preorder.unit.${draft.moqUnit}` as TranslationKey);
+              const switchId = `preorder-option-${option}`;
+              return (
+                <div
+                  key={option}
+                  className={
+                    enabled
+                      ? 'relative flex flex-col gap-3 rounded-xl border border-brand/40 bg-surface p-4 shadow-[0_1px_0_rgb(255_255_255/0.06)_inset,0_8px_24px_-12px_rgb(var(--brand)/0.45)] ring-1 ring-brand/20 transition'
+                      : 'relative flex flex-col gap-3 rounded-xl border border-dashed border-border bg-surface-sunken p-4 transition'
+                  }
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label htmlFor={switchId} className="text-base font-semibold text-ink">
+                          {t(`preorder.option.${option}` as TranslationKey)}
+                        </label>
+                        <Badge tone={enabled ? (missing ? 'warning' : 'success') : 'neutral'}>
+                          {enabled
+                            ? missing
+                              ? t('sellerPreorderTerms.options.needsMinimum')
+                              : t('sellerPreorderTerms.options.offered')
+                            : t('sellerPreorderTerms.options.notOffered')}
+                        </Badge>
+                      </div>
+                      <p className="mt-0.5 text-xs text-ink-muted">
+                        {t(`preorder.option.${option}.hint` as TranslationKey)}
+                      </p>
+                    </div>
+                    {/* A switch: a real checkbox, so keyboard and screen readers get it for free. */}
+                    <span className="relative inline-flex shrink-0 items-center">
+                      <input
+                        id={switchId}
+                        type="checkbox"
+                        role="switch"
+                        aria-label={t(`sellerPreorderTerms.options.offer.${option}` as TranslationKey)}
+                        className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                        checked={enabled}
+                        onChange={(event) => {
+                          update({ [enabledKey]: event.currentTarget.checked });
+                        }}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="h-6 w-11 rounded-full bg-border-strong transition peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"
+                      />
+                    </span>
+                  </div>
+
+                  <Field
+                    label={t('sellerPreorderTerms.options.minimum', {
+                      option: t(`preorder.option.${option}` as TranslationKey),
+                      unit: unitName,
+                    })}
+                    {...(missing
+                      ? { error: t('sellerPreorderTerms.options.minimumRequired') }
+                      : minimum !== null && unitSize !== null && draft.moqUnit !== 'PIECE'
+                        ? { hint: t('sellerPreorderTerms.inPieces', { pieces: formatNumber(minimum * unitSize) }) }
+                        : {})}
+                  >
+                    {({ inputId, describedBy }) => (
+                      <div className="relative">
+                        <Input
+                          id={inputId}
+                          aria-describedby={describedBy}
+                          inputMode="numeric"
+                          disabled={!enabled}
+                          className="pr-24 text-lg font-semibold tabular-nums"
+                          value={draft[moqKey]}
+                          onChange={(event) => {
+                            // Whole units only: the seller's unit has no fractions.
+                            update({ [moqKey]: event.currentTarget.value.replace(/[^\d]/g, '') });
+                          }}
+                        />
+                        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-ink-muted">
+                          {unitName}
+                        </span>
+                      </div>
+                    )}
+                  </Field>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-xs text-ink-muted">{t('sellerPreorderTerms.options.separateFromB2c')}</p>
+        </fieldset>
 
         <Field label={t('sellerPreorderTerms.increment')}>
           {({ inputId }) => (
@@ -613,7 +737,7 @@ export function SellerPreorderTermsPanel({
       <div className="mt-4 flex items-center justify-end gap-2">
         <Button
           variant="primary"
-          disabled={!tiersValid || (draft.isEnabled && moq === null)}
+          disabled={!tiersValid || (draft.isEnabled && !optionsValid)}
           isLoading={save.isPending}
           onClick={() => {
             save.mutate();

@@ -23,6 +23,17 @@ import { errorMessage } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { applyToSell, checkDisplayName, fetchSellerIdentity } from '@/lib/seller';
 import { useToast } from '@/components/toast-context';
+import { ApiError } from '@/lib/api';
+import {
+  TurnoverEligibilityCard,
+  TurnoverPolicyNotice,
+} from './TurnoverEligibilityCard';
+import {
+  emptyTurnoverDraft,
+  evaluateTurnover,
+  turnoverInputFor,
+  type TurnoverDraft,
+} from './turnover-draft';
 
 type BenefitKey = (typeof BENEFITS)[number]['key'];
 type StepKey = (typeof STEPS)[number]['key'];
@@ -199,6 +210,12 @@ export function SellPage(): React.JSX.Element {
         <p className="mt-6 rounded-lg border border-border bg-surface-sunken px-4 py-3 text-sm leading-relaxed text-ink-muted">
           {t('seller.sell.checkedNote')}
         </p>
+
+        {/*
+          The turnover policy, stated on the public page too: a business below
+          it should learn that before it opens an account, not after.
+        */}
+        {!(isSignedIn && seller === null) && <TurnoverPolicyNotice />}
       </section>
 
       {isSignedIn && seller === null && (
@@ -246,6 +263,21 @@ function ApplicationForm(): React.JSX.Element {
   const [kind, setKind] = useState('RESELLER');
   const [nameState, setNameState] = useState<'idle' | 'checking' | 'free' | 'taken'>('idle');
 
+  /*
+   * The turnover eligibility policy, asked first. A deployment with it off -
+   * or an older backend that does not publish it - asks nothing.
+   */
+  const { sellerEligibility } = useStorefront();
+  const policy = sellerEligibility?.required === true ? sellerEligibility : null;
+  const [turnover, setTurnover] = useState<TurnoverDraft | null>(() =>
+    policy === null ? null : emptyTurnoverDraft(policy),
+  );
+  const [triedSubmit, setTriedSubmit] = useState(false);
+  const turnoverInput = policy === null || turnover === null ? null : turnoverInputFor(turnover, policy);
+  const turnoverEligible =
+    policy === null || (turnover !== null && evaluateTurnover(turnover, policy).state === 'ELIGIBLE');
+  const turnoverReady = policy === null || (turnoverEligible && turnoverInput !== null);
+
   const mutation = useMutation({
     mutationFn: () =>
       applyToSell({
@@ -253,6 +285,7 @@ function ApplicationForm(): React.JSX.Element {
         displayName: displayName.trim(),
         registrationCountry: country,
         kind: kind as 'MANUFACTURER' | 'AUTHORISED_DISTRIBUTOR' | 'WHOLESALER' | 'RESELLER',
+        ...(turnoverInput === null ? {} : { turnover: turnoverInput }),
       }),
     onSuccess: async () => {
       /*
@@ -274,6 +307,11 @@ function ApplicationForm(): React.JSX.Element {
       void navigate('/seller/onboarding');
     },
     onError: (error: unknown) => {
+      // The server's answer on the turnover is the one that counts; show the
+      // card's own messages under every field it names.
+      if (error instanceof ApiError && (error.code === 'SELLER_TURNOVER_NOT_ELIGIBLE' || error.code === 'VALIDATION_FAILED')) {
+        setTriedSubmit(true);
+      }
       toast.error(errorMessage(t, error, t('seller.sell.applyFailed')));
     },
   });
@@ -304,9 +342,20 @@ function ApplicationForm(): React.JSX.Element {
     legalName.trim().length >= 2 &&
     displayName.trim().length >= 2 &&
     country.length === 2 &&
-    nameState !== 'taken';
+    nameState !== 'taken' &&
+    turnoverReady;
 
   return (
+    <div className="space-y-6">
+      {policy !== null && turnover !== null && (
+        <TurnoverEligibilityCard
+          policy={policy}
+          draft={turnover}
+          onChange={setTurnover}
+          showAllErrors={triedSubmit}
+          showShoppingLink
+        />
+      )}
     <Card
       title={t('seller.sell.formTitle')}
       description={t('seller.sell.formIntro')}
@@ -315,6 +364,7 @@ function ApplicationForm(): React.JSX.Element {
         className="space-y-5 px-6 py-5"
         onSubmit={(event) => {
           event.preventDefault();
+          setTriedSubmit(true);
           if (canSubmit) mutation.mutate();
         }}
       >
@@ -404,11 +454,12 @@ function ApplicationForm(): React.JSX.Element {
             {t('seller.sell.startButton')}
           </Button>
           <p className="text-xxs text-ink-subtle">
-            {t('seller.sell.nothingPublished')}
+            {turnoverReady ? t('seller.sell.nothingPublished') : t('seller.turnover.startBlocked')}
           </p>
         </div>
       </form>
     </Card>
+    </div>
   );
 }
 

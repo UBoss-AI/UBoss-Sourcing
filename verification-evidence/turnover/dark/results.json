@@ -1,0 +1,178 @@
+{
+ "ranAt": "2026-10-08T08:00:33.165Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": "notice",
+   "darkClass": "|dark",
+   "page": "sell-public",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-public-375.png"
+  },
+  {
+   "afterResult": "notice",
+   "darkClass": "|dark",
+   "page": "sell-public",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-public-1024.png"
+  },
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": "Your business does not currently meet our seller turnover requirement. Annual turnover must exceed ₹30 crore to apply.\n\nContinue shopping",
+   "darkClass": "|dark",
+   "page": "sell-below",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-below-375.png"
+  },
+  {
+   "afterResult": "Your business does not currently meet our seller turnover requirement. Annual turnover must exceed ₹30 crore to apply.\n\nContinue shopping",
+   "darkClass": "|dark",
+   "page": "sell-below",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-below-1024.png"
+  },
+  {
+   "afterResult": "Turnover requirement met.\n\nYour application is still subject to verification. We check these figures before any approval. | startDisabled=true | Exactly ₹30,00,00,000.01\n\nTurn",
+   "darkClass": "|dark",
+   "page": "sell-eligible",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-eligible-375.png"
+  },
+  {
+   "afterResult": "Turnover requirement met.\n\nYour application is still subject to verification. We check these figures before any approval. | startDisabled=true | Exactly ₹30,00,00,000.01\n\nTurn",
+   "darkClass": "|dark",
+   "page": "sell-eligible",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-eligible-1024.png"
+  }
+ ]
+}

@@ -19,9 +19,12 @@ import {
   PREORDER_UNITS,
   orderableUnits,
   preorderDeliveryWindow,
-  quantityRulesFor,
+  lowestOfferedRules,
+  optionMoq,
+  optionTermsFor,
   resolvePolicy,
   type DeliveryWindow,
+  type OptionTerms,
   type IneligibleReason,
   type PolicyIssue,
   type PolicyTerms,
@@ -82,7 +85,11 @@ export function toPolicyTerms(row: PolicyRow): PolicyTerms {
     version: row.version,
     isEnabled: row.isEnabled,
     moqUnit: row.moqUnit,
-    moqQuantity: row.moqQuantity,
+    originalBrandEnabled: row.originalBrandEnabled,
+    originalBrandMoqQuantity: row.originalBrandMoqQuantity,
+    oemEnabled: row.oemEnabled,
+    oemMoqQuantity: row.oemMoqQuantity,
+    productOptionsReviewRequired: row.productOptionsReviewRequired,
     incrementQuantity: row.incrementQuantity,
     maxQuantity: row.maxQuantity,
     capacityBaseUnits: row.capacityBaseUnits,
@@ -232,7 +239,14 @@ export type Eligibility =
       available: true;
       offer: EligibilityOffer;
       policy: PolicyTerms;
+      /**
+       * The lowest minimum among the options on offer: where SOME preorder
+       * becomes possible. A request is judged against its chosen option's own
+       * rules in `options`, never against this.
+       */
       rules: QuantityRules;
+      /** OEM and Original Brand, each offered or not, always both. */
+      options: OptionTerms[];
       units: PreorderUnit[];
       sizes: UnitSizes;
       /** 20-ft and 40-ft, each available or not with a reason. */
@@ -346,7 +360,13 @@ export function platformDefaultPolicy(input: {
     version: 0,
     isEnabled: true,
     moqUnit: 'PIECE',
-    moqQuantity: minimum,
+    // The product as listed - the only thing anybody can preorder when nobody
+    // has written terms. OEM is the seller's to offer, never the platform's.
+    originalBrandEnabled: true,
+    originalBrandMoqQuantity: minimum,
+    oemEnabled: false,
+    oemMoqQuantity: null,
+    productOptionsReviewRequired: false,
     incrementQuantity: increment,
     maxQuantity: null,
     capacityBaseUnits: null,
@@ -471,7 +491,8 @@ async function operatorEligibility(input: {
     currency: offer.currency,
   });
   const sizes: UnitSizes = perCarton > 1 ? { PIECE: 1, CARTON: perCarton } : { PIECE: 1 };
-  const quantity = quantityRulesFor(policy, sizes);
+  const options = optionTermsFor(policy, sizes);
+  const quantity = lowestOfferedRules(options);
   if (quantity.rules === null) return refuse('INCOMPLETE', offer, quantity.issues);
 
   const timezone = resolveTimezone(input.timezone ?? null);
@@ -489,6 +510,7 @@ async function operatorEligibility(input: {
     offer,
     policy,
     rules: quantity.rules,
+    options,
     units: orderableUnits(policy, sizes),
     sizes,
     // The operator's own product has no seller to load a container, so
@@ -588,7 +610,8 @@ export async function evaluateEligibility(input: {
   if (!policy.isEnabled) return refuse('DISABLED', offer);
 
   const sizes = await unitSizesForOffer(row.id);
-  const quantity = quantityRulesFor(policy, sizes);
+  const options = optionTermsFor(policy, sizes);
+  const quantity = lowestOfferedRules(options);
   if (quantity.rules === null) return refuse('INCOMPLETE', offer, quantity.issues);
 
   const units = orderableUnits(policy, sizes);
@@ -647,6 +670,7 @@ export async function evaluateEligibility(input: {
     offer,
     policy,
     rules: quantity.rules,
+    options,
     units,
     sizes,
     containerOptions,
@@ -655,6 +679,36 @@ export async function evaluateEligibility(input: {
     hasPublishedTransit: route.hasPublishedTransit,
     deliveryCountries,
   };
+}
+
+/** The seller's figure, in `moqUnit`, for the offered option with the lowest minimum. */
+export function lowestOfferedMoq(policy: PolicyTerms, options: readonly OptionTerms[]): number | null {
+  let lowest: { option: OptionTerms['option']; minimum: number } | null = null;
+  for (const entry of options) {
+    if (entry.status !== 'OFFERED') continue;
+    if (lowest === null || entry.rules.minimumBaseUnits < lowest.minimum) {
+      lowest = { option: entry.option, minimum: entry.rules.minimumBaseUnits };
+    }
+  }
+  return lowest === null ? null : optionMoq(policy, lowest.option);
+}
+
+/**
+ * OEM and Original Brand as the buyer reads them: each one's status and, when
+ * offered, its minimum in the seller's unit and in pieces. A minimum that does
+ * not convert is NOT_CONFIGURED with no figure - never a guessed one.
+ */
+export function serialiseOptions(
+  policy: PolicyTerms,
+  options: readonly OptionTerms[],
+): Record<string, unknown>[] {
+  return options.map((entry) => ({
+    option: entry.option,
+    status: entry.status,
+    unit: policy.moqUnit,
+    quantity: entry.status === 'OFFERED' ? optionMoq(policy, entry.option) : null,
+    minimumBaseUnits: entry.status === 'OFFERED' ? entry.rules.minimumBaseUnits : null,
+  }));
 }
 
 /** The eligibility answer as the storefront reads it. No internal ids beyond the offer. */
@@ -692,15 +746,18 @@ export function serialiseEligibility(result: Eligibility): Record<string, unknow
       piecesPerCarton: option.piecesPerCarton,
       reason: option.reason,
     })),
+    // Where some preorder becomes possible: the lowest offered minimum. What
+    // the bulk suggestion reads. The form judges the CHOSEN option below.
     moq: {
       unit: policy.moqUnit,
-      quantity: policy.moqQuantity,
+      quantity: lowestOfferedMoq(policy, result.options),
       incrementQuantity: policy.incrementQuantity,
       maxQuantity: policy.maxQuantity,
       minimumBaseUnits: result.rules.minimumBaseUnits,
       incrementBaseUnits: result.rules.incrementBaseUnits,
       maximumBaseUnits: result.rules.maximumBaseUnits,
     },
+    productOptions: serialiseOptions(policy, result.options),
     pricingMode: policy.pricingMode,
     tiers: policy.tiers
       .filter((tier) => tier.currency === result.offer.currency)
@@ -749,7 +806,11 @@ export const policyInputSchema = z
     offerId: z.string().length(26).nullable().default(null),
     isEnabled: z.boolean(),
     moqUnit: unitEnum,
-    moqQuantity: optionalPositive,
+    /** Each option's minimum is in `moqUnit`, and required only while that option is on. */
+    originalBrandEnabled: z.boolean(),
+    originalBrandMoqQuantity: optionalPositive,
+    oemEnabled: z.boolean(),
+    oemMoqQuantity: optionalPositive,
     incrementQuantity: positiveInt.default(1),
     maxQuantity: optionalPositive.default(null),
     capacityBaseUnits: optionalPositive.default(null),
@@ -837,16 +898,30 @@ export async function savePolicy(
     }
   }
 
-  if (input.isEnabled && input.moqQuantity === null) {
-    policyInvalid('moqQuantity', 'Set a minimum preorder quantity before switching preorders on.');
+  if (input.isEnabled && !input.originalBrandEnabled && !input.oemEnabled) {
+    policyInvalid(
+      'productOptions',
+      'Offer OEM, Original Brand or both before switching preorders on.',
+    );
+  }
+  if (input.isEnabled && input.originalBrandEnabled && input.originalBrandMoqQuantity === null) {
+    policyInvalid(
+      'originalBrandMoqQuantity',
+      'Set the minimum Original Brand preorder quantity, or stop offering Original Brand.',
+    );
+  }
+  if (input.isEnabled && input.oemEnabled && input.oemMoqQuantity === null) {
+    policyInvalid('oemMoqQuantity', 'Set the minimum OEM preorder quantity, or stop offering OEM.');
   }
 
-  if (
-    input.maxQuantity !== null &&
-    input.moqQuantity !== null &&
-    input.maxQuantity < input.moqQuantity
-  ) {
-    policyInvalid('maxQuantity', 'The maximum cannot be below the minimum.');
+  // The maximum is shared, so it has to clear every minimum that is on offer.
+  for (const [enabled, minimum] of [
+    [input.originalBrandEnabled, input.originalBrandMoqQuantity],
+    [input.oemEnabled, input.oemMoqQuantity],
+  ] as const) {
+    if (enabled && input.maxQuantity !== null && minimum !== null && input.maxQuantity < minimum) {
+      policyInvalid('maxQuantity', 'The maximum cannot be below the minimum.');
+    }
   }
 
   if (input.maxQuantity !== null && input.incrementQuantity > input.maxQuantity) {
@@ -922,7 +997,12 @@ export async function savePolicy(
   const data = {
     isEnabled: input.isEnabled,
     moqUnit: input.moqUnit,
-    moqQuantity: input.moqQuantity,
+    originalBrandEnabled: input.originalBrandEnabled,
+    originalBrandMoqQuantity: input.originalBrandMoqQuantity,
+    oemEnabled: input.oemEnabled,
+    oemMoqQuantity: input.oemMoqQuantity,
+    // Saving is the seller confirming which options they offer.
+    productOptionsReviewRequired: false,
     incrementQuantity: input.incrementQuantity,
     maxQuantity: input.maxQuantity,
     capacityBaseUnits: input.capacityBaseUnits,
@@ -1000,7 +1080,10 @@ export async function savePolicy(
         scope: input.scope,
         scopeKey,
         isEnabled: input.isEnabled,
-        moqQuantity: input.moqQuantity,
+        originalBrandEnabled: input.originalBrandEnabled,
+        originalBrandMoqQuantity: input.originalBrandMoqQuantity,
+        oemEnabled: input.oemEnabled,
+        oemMoqQuantity: input.oemMoqQuantity,
         moqUnit: input.moqUnit,
         pricingMode: input.pricingMode,
         tierCount: tiers.length,
@@ -1074,7 +1157,8 @@ export async function readPolicyChain(
   const sizes = await unitSizesForOffer(offer.id);
 
   const appliedTerms = applies === null ? null : toPolicyTerms(applies);
-  const quantity = appliedTerms === null ? null : quantityRulesFor(appliedTerms, sizes);
+  const options = appliedTerms === null ? null : optionTermsFor(appliedTerms, sizes);
+  const quantity = options === null ? null : lowestOfferedRules(options);
 
   return {
     currency: offer.currency,
@@ -1098,6 +1182,9 @@ export async function readPolicyChain(
         : quantity.rules === null
           ? { rules: null, issues: quantity.issues }
           : { rules: quantity.rules, issues: [] },
+    // Each option as a buyer would be held to it.
+    productOptions:
+      appliedTerms === null || options === null ? null : serialiseOptions(appliedTerms, options),
   };
 }
 

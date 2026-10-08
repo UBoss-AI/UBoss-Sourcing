@@ -81,6 +81,11 @@ export const router = createBrowserRouter([
         index: true,
         ...lazyRoute(() => import('@/pages/DashboardPage').then((m) => m.DashboardPage), []),
       },
+      // The person's own Terms and privacy record, from the user menu. Every member of staff.
+      {
+        path: 'my-agreements',
+        ...lazyRoute(() => import('@/pages/MyAgreementsPage').then((m) => m.MyAgreementsPage), []),
+      },
       {
         path: 'categories',
         ...lazyRoute(() => import('@/pages/CategoriesPage').then((m) => m.CategoriesPage), [

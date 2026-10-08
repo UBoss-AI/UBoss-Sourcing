@@ -358,6 +358,9 @@ export const AuditAction = {
   /// seller or one of its owners. Manual: the row says `automated = false`.
   /// On the operator's trail only - telling the seller would be tipping off.
   SELLER_SCREENING_RECORDED: 'seller_screening.recorded',
+  /// A member of staff verified or refused a seller's declared annual
+  /// turnover, with a reason. The declaration itself is on the seller's trail.
+  SELLER_TURNOVER_DECIDED: 'seller_turnover.decided',
   /// The worker sent an approved seller back to ACTION_REQUIRED because a
   /// required document expired.
   SELLER_APPLICATION_LAPSED: 'seller_application.lapsed',
@@ -498,6 +501,12 @@ export const AuditAction = {
   LEGAL_DOCUMENT_DRAFT_UPDATED: 'legal_document.draft_updated',
   LEGAL_DOCUMENT_DRAFT_DELETED: 'legal_document.draft_deleted',
   LEGAL_DOCUMENT_PUBLISHED: 'legal_document.published',
+  /// The agreement screen after sign-in: Terms accepted, the Privacy Policy
+  /// acknowledged, or either cleared again before Continue. Kind, version,
+  /// language, scope and hash - the consent record itself is the evidence.
+  LEGAL_TERMS_ACCEPTED: 'legal_agreement.terms_accepted',
+  LEGAL_PRIVACY_NOTICE_ACKNOWLEDGED: 'legal_agreement.privacy_notice_acknowledged',
+  LEGAL_AGREEMENT_CLEARED: 'legal_agreement.cleared',
   /// Preorder chat. What was decided about a conversation and who decided it -
   /// never what anybody wrote in it. A message body is not an audit value: the
   /// conversation itself is the record of what was said, and copying it here

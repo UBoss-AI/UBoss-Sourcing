@@ -45,6 +45,7 @@ import {
   resolveLogisticsMembership,
   type LogisticsMembership,
 } from '../../modules/logistics/partner.service.js';
+import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
 import { currentUser, requireAuthenticated } from './auth.js';
 
 declare module 'fastify' {
@@ -102,6 +103,25 @@ export function requireLogistics(...permissions: LogisticsPermissionKey[]) {
 }
 
 /**
+ * The same guard, without the agreement screen. For the portal's support
+ * routes only: carrier staff who have not yet accepted the Logistics Partner
+ * Terms must still be able to ask a person about them. Its own export so each
+ * route that skips the screen says so where it is registered.
+ */
+export function requireLogisticsBeforeAgreements(...permissions: LogisticsPermissionKey[]) {
+  return async function logisticsSupportGuard(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const membership = await authenticateWithSecondFactor(request, reply, { agreements: false });
+
+    for (const permission of permissions) {
+      assertLogisticsPermission(membership, permission);
+    }
+  };
+}
+
+/**
  * Guard for the few routes that answer two kinds of caller: at least ONE of
  * the listed permissions is required, where `requireLogistics` requires all.
  *
@@ -139,6 +159,7 @@ export function requireLogisticsAny(...permissions: LogisticsPermissionKey[]) {
 async function authenticateWithSecondFactor(
   request: FastifyRequest,
   reply: FastifyReply,
+  options: { agreements: boolean } = { agreements: true },
 ): Promise<LogisticsMembership> {
   await requireLogisticsSession(request, reply);
 
@@ -160,6 +181,10 @@ async function authenticateWithSecondFactor(
       'Enter the code from your authenticator to continue.',
     );
   }
+
+  // The Logistics Partner Terms and the Privacy Policy, after the second
+  // factor: the agreement screen comes once signing in has finished.
+  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'LOGISTICS');
 
   return membership;
 }

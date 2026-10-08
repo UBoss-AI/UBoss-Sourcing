@@ -30,6 +30,7 @@ import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { loadKybView, type KybOwnerView, type KybView } from './kyb.service.js';
 import { STEP_DEFINITIONS, markRequirementSteps, requirementsFor } from './onboarding.service.js';
+import { turnoverApprovalGaps } from './turnover-facts.service.js';
 
 /** The only screening provider this product has. */
 export const MANUAL_SCREENING_PROVIDER = 'manual';
@@ -136,6 +137,8 @@ export interface RecordScreeningInput {
   listsChecked: string;
   note?: string | null;
   adminUserId: string;
+  /** Which console recorded it. Verification screenings come from AUDIT. */
+  actorType?: 'ADMIN' | 'AUDIT';
   correlationId?: string | null;
 }
 
@@ -213,7 +216,7 @@ export async function recordScreening(input: RecordScreeningInput): Promise<Scre
     action: AuditAction.SELLER_SCREENING_RECORDED,
     resourceType: 'seller_screening_check',
     resourceId: row.id,
-    actorType: 'ADMIN',
+    actorType: input.actorType ?? 'ADMIN',
     actorUserId: input.adminUserId,
     actorEmail: null,
     after: {
@@ -297,6 +300,10 @@ export async function approvalReadiness(sellerAccountId: string): Promise<Approv
         : { code: 'DOCUMENT_NOT_APPROVED', field: requirement.fieldKey, message: `${requirement.label} has not been accepted.` },
     );
   }
+
+  // The seller turnover policy: declared above the minimum AND verified by a
+  // person. Nothing for a seller approved before the policy existed.
+  missing.push(...(await turnoverApprovalGaps(sellerAccountId)));
 
   if (env.SELLER_REQUIRE_SCREENING) {
     const entity = currentFor(screenings, 'ENTITY', null);

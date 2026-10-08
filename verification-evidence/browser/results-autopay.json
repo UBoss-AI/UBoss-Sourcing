@@ -1,0 +1,135 @@
+{
+ "ranAt": "2026-09-28T22:19:11.097Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "darkClass": "|",
+   "page": "autopay",
+   "path": "/account/autopay",
+   "w": 320,
+   "finalPath": "/account/autopay",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Autopay"
+   ],
+   "title": "Autopay · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "autopay-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "autopay",
+   "path": "/account/autopay",
+   "w": 375,
+   "finalPath": "/account/autopay",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Autopay"
+   ],
+   "title": "Autopay · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "autopay-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "autopay",
+   "path": "/account/autopay",
+   "w": 768,
+   "finalPath": "/account/autopay",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Autopay"
+   ],
+   "title": "Autopay · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "autopay-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "autopay",
+   "path": "/account/autopay",
+   "w": 1024,
+   "finalPath": "/account/autopay",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Autopay"
+   ],
+   "title": "Autopay · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "autopay-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "autopay",
+   "path": "/account/autopay",
+   "w": 1440,
+   "finalPath": "/account/autopay",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Autopay"
+   ],
+   "title": "Autopay · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard",
+    "My orders",
+    "Scheduled orders",
+    "Preorders",
+    "Messages"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "autopay-1440.png"
+  }
+ ]
+}

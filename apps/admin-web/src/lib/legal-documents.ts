@@ -18,11 +18,14 @@ export type LegalDocumentKind =
   | 'BUYER_PROTECTION_POLICY'
   | 'INSPECTION_POLICY'
   | 'PROHIBITED_PRODUCTS'
-  | 'STAFF_TERMS';
+  | 'STAFF_TERMS'
+  | 'AUDIT_CONSOLE_TERMS';
 /**
  * The two terms kinds are accepted at sign-up; the next six are published
  * policies, shown in the storefront's help and policies hub (Master row 9).
- * `STAFF_TERMS` is what this console's own sign-in shows its staff.
+ * `STAFF_TERMS` and `AUDIT_CONSOLE_TERMS` are what the console's staff and
+ * Audit Console users accept on the agreement screen after signing in. The
+ * Privacy Policy is acknowledged there by everybody.
  */
 export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
   'PLATFORM_TERMS',
@@ -34,6 +37,7 @@ export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
   'INSPECTION_POLICY',
   'PROHIBITED_PRODUCTS',
   'STAFF_TERMS',
+  'AUDIT_CONSOLE_TERMS',
 ];
 
 export type LegalDocumentStatus = 'DRAFT' | 'PUBLISHED';
@@ -57,6 +61,8 @@ export interface LegalDocument {
   acceptanceCount: number;
   /** The version in force for its kind right now. */
   isCurrentVersion: boolean;
+  /** Whether people who accepted an earlier version must accept this one. */
+  requiresReacceptance: boolean;
 }
 
 export interface LegalDocumentDraft {
@@ -68,6 +74,8 @@ export interface LegalDocumentDraft {
   changeSummary: string | null;
   /** ISO 8601. The server moves a past date to the moment of publishing. */
   effectiveAt: string;
+  /** Off only for a correction that changes nothing anybody agreed to. */
+  requiresReacceptance: boolean;
 }
 
 export const legalDocumentsApi = {

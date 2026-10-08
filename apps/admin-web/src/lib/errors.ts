@@ -53,6 +53,8 @@ const PREORDER_CODES = new Set([
   'PREORDER_ACKNOWLEDGEMENT_REQUIRED',
   'PREORDER_INFO_OUTDATED',
   'PREORDER_CONTAINER_NOT_CONFIGURED',
+  'PREORDER_PRODUCT_OPTION_REQUIRED',
+  'PREORDER_PRODUCT_OPTION_NOT_OFFERED',
   'PREORDER_PROPOSAL_INVALID',
   'PREORDER_STOCK_CHANGED',
 ]);
@@ -107,6 +109,9 @@ const LEGAL_CODES = new Set([
   'TERMS_ACCEPTANCE_REQUIRED',
   'TERMS_VERSION_OUTDATED',
   'TERMS_DOCUMENT_UNAVAILABLE',
+  'LEGAL_DOCUMENT_HAS_PLACEHOLDERS',
+  'AGREEMENTS_REQUIRED',
+  'AGREEMENT_DOCUMENT_NOT_APPLICABLE',
 ]);
 
 const PREORDER_CHAT_CODES = new Set([
@@ -185,6 +190,8 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING') {
       return t('errors.sellerApprovalEvidenceMissing', { total: String(error.details.length) });
     }
+    // The seller turnover eligibility policy. Staff meet it only if a seller screen relays it.
+    if (error.code === 'SELLER_TURNOVER_NOT_ELIGIBLE') return t('errors.sellerTurnoverNotEligible');
     if (LEGAL_CODES.has(error.code)) {
       return t(`errors.legal.${error.code}` as TranslationKey);
     }

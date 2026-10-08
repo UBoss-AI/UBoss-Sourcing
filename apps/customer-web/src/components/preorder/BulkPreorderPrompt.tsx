@@ -25,7 +25,7 @@ import { Modal } from '@/components/Modal';
 import { Button } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Eligibility } from '@/lib/preorders';
-import { MoqAmount } from './PreorderInfoDialog';
+import { MinimumQuantities, MoqAmount } from './PreorderInfoDialog';
 
 type Available = Extract<Eligibility, { available: true }>;
 
@@ -90,7 +90,16 @@ export function BulkPreorderPrompt({
               value={t('stockPrompt.pieces', { quantity: number(shortage) })}
               emphasis
             />
-            <Figure label={t('preorderInfo.moqLabel')} value={<MoqAmount terms={terms} />} />
+            {/* With OEM and Original Brand both offered, this is where preorders
+                START - the lower of the two - and is labelled so. */}
+            <Figure
+              label={
+                terms.productOptions.filter((entry) => entry.status === 'OFFERED').length > 1
+                  ? t('preorderInfo.moqFromLabel')
+                  : t('preorderInfo.moqLabel')
+              }
+              value={<MoqAmount terms={terms} />}
+            />
           </dl>
           <p className="text-ink-muted">{t('stockPrompt.explain')}</p>
         </div>
@@ -123,14 +132,7 @@ export function BulkPreorderPrompt({
             quantity: pieces.toLocaleString(intlLocale),
           })}
         </p>
-        <div className="rounded-md border border-brand/25 bg-brand-soft px-3 py-2.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
-            {t('preorderInfo.moqLabel')}
-          </p>
-          <p className="mt-0.5 text-base font-semibold tabular-nums text-ink">
-            <MoqAmount terms={terms} />
-          </p>
-        </div>
+        <MinimumQuantities options={terms.productOptions} />
         <p>{t('bulkPrompt.explain')}</p>
         {regularOrderAllowed === false && (
           <p className="rounded-md bg-surface-sunken px-3 py-2 text-ink-muted">

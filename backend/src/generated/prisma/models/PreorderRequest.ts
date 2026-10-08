@@ -31,6 +31,8 @@ export type PreorderRequestAvgAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  productOptionMoqQuantity: number | null
+  productOptionMinimumBaseUnits: number | null
   containerLoadingVersion: number | null
   availableToPromiseAtSubmission: number | null
   shortfallAtSubmission: number | null
@@ -50,6 +52,8 @@ export type PreorderRequestSumAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  productOptionMoqQuantity: number | null
+  productOptionMinimumBaseUnits: number | null
   containerLoadingVersion: number | null
   availableToPromiseAtSubmission: number | null
   shortfallAtSubmission: number | null
@@ -82,6 +86,10 @@ export type PreorderRequestMinAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  productOption: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity: number | null
+  productOptionMoqUnit: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits: number | null
   containerLoadingVersion: number | null
   availableToPromiseAtSubmission: number | null
   shortfallAtSubmission: number | null
@@ -152,6 +160,10 @@ export type PreorderRequestMaxAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  productOption: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity: number | null
+  productOptionMoqUnit: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits: number | null
   containerLoadingVersion: number | null
   availableToPromiseAtSubmission: number | null
   shortfallAtSubmission: number | null
@@ -223,6 +235,10 @@ export type PreorderRequestCountAggregateOutputType = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption: number
+  productOptionMoqQuantity: number
+  productOptionMoqUnit: number
+  productOptionMinimumBaseUnits: number
   containerLoadingSnapshotJson: number
   containerLoadingVersion: number
   availableToPromiseAtSubmission: number
@@ -285,6 +301,8 @@ export type PreorderRequestAvgAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  productOptionMoqQuantity?: true
+  productOptionMinimumBaseUnits?: true
   containerLoadingVersion?: true
   availableToPromiseAtSubmission?: true
   shortfallAtSubmission?: true
@@ -304,6 +322,8 @@ export type PreorderRequestSumAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  productOptionMoqQuantity?: true
+  productOptionMinimumBaseUnits?: true
   containerLoadingVersion?: true
   availableToPromiseAtSubmission?: true
   shortfallAtSubmission?: true
@@ -336,6 +356,10 @@ export type PreorderRequestMinAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  productOption?: true
+  productOptionMoqQuantity?: true
+  productOptionMoqUnit?: true
+  productOptionMinimumBaseUnits?: true
   containerLoadingVersion?: true
   availableToPromiseAtSubmission?: true
   shortfallAtSubmission?: true
@@ -406,6 +430,10 @@ export type PreorderRequestMaxAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  productOption?: true
+  productOptionMoqQuantity?: true
+  productOptionMoqUnit?: true
+  productOptionMinimumBaseUnits?: true
   containerLoadingVersion?: true
   availableToPromiseAtSubmission?: true
   shortfallAtSubmission?: true
@@ -477,6 +505,10 @@ export type PreorderRequestCountAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  productOption?: true
+  productOptionMoqQuantity?: true
+  productOptionMoqUnit?: true
+  productOptionMinimumBaseUnits?: true
   containerLoadingSnapshotJson?: true
   containerLoadingVersion?: true
   availableToPromiseAtSubmission?: true
@@ -638,6 +670,10 @@ export type PreorderRequestGroupByOutputType = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity: number | null
+  productOptionMoqUnit: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits: number | null
   containerLoadingSnapshotJson: runtime.JsonValue | null
   containerLoadingVersion: number | null
   availableToPromiseAtSubmission: number | null
@@ -735,6 +771,10 @@ export type PreorderRequestWhereInput = {
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  productOption?: Prisma.EnumPreorderProductOptionNullableFilter<"PreorderRequest"> | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  productOptionMoqUnit?: Prisma.EnumPreorderQuantityUnitNullableFilter<"PreorderRequest"> | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
   containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
@@ -819,6 +859,10 @@ export type PreorderRequestOrderByWithRelationInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOption?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMoqUnit?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
   containerLoadingSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -909,6 +953,10 @@ export type PreorderRequestWhereUniqueInput = Prisma.AtLeast<{
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  productOption?: Prisma.EnumPreorderProductOptionNullableFilter<"PreorderRequest"> | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  productOptionMoqUnit?: Prisma.EnumPreorderQuantityUnitNullableFilter<"PreorderRequest"> | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
   containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
@@ -991,6 +1039,10 @@ export type PreorderRequestOrderByWithAggregationInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOption?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMoqUnit?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
   containerLoadingSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1073,6 +1125,10 @@ export type PreorderRequestScalarWhereWithAggregatesInput = {
   unitQuantity?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
+  productOption?: Prisma.EnumPreorderProductOptionNullableWithAggregatesFilter<"PreorderRequest"> | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
+  productOptionMoqUnit?: Prisma.EnumPreorderQuantityUnitNullableWithAggregatesFilter<"PreorderRequest"> | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
   containerLoadingSnapshotJson?: Prisma.JsonNullableWithAggregatesFilter<"PreorderRequest">
   containerLoadingVersion?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
   availableToPromiseAtSubmission?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
@@ -1143,6 +1199,10 @@ export type PreorderRequestCreateInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -1226,6 +1286,10 @@ export type PreorderRequestUncheckedCreateInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -1301,6 +1365,10 @@ export type PreorderRequestUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1384,6 +1452,10 @@ export type PreorderRequestUncheckedUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1463,6 +1535,10 @@ export type PreorderRequestCreateManyInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -1533,6 +1609,10 @@ export type PreorderRequestUpdateManyMutationInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1606,6 +1686,10 @@ export type PreorderRequestUncheckedUpdateManyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1701,6 +1785,10 @@ export type PreorderRequestCountOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOption?: Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrder
+  productOptionMoqUnit?: Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrder
   containerLoadingSnapshotJson?: Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrder
@@ -1761,6 +1849,8 @@ export type PreorderRequestAvgOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrder
   shortfallAtSubmission?: Prisma.SortOrder
@@ -1793,6 +1883,10 @@ export type PreorderRequestMaxOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOption?: Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrder
+  productOptionMoqUnit?: Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrder
   shortfallAtSubmission?: Prisma.SortOrder
@@ -1863,6 +1957,10 @@ export type PreorderRequestMinOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOption?: Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrder
+  productOptionMoqUnit?: Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrder
   shortfallAtSubmission?: Prisma.SortOrder
@@ -1920,6 +2018,8 @@ export type PreorderRequestSumOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  productOptionMoqQuantity?: Prisma.SortOrder
+  productOptionMinimumBaseUnits?: Prisma.SortOrder
   containerLoadingVersion?: Prisma.SortOrder
   availableToPromiseAtSubmission?: Prisma.SortOrder
   shortfallAtSubmission?: Prisma.SortOrder
@@ -2101,6 +2201,10 @@ export type EnumPreorderStatusFieldUpdateOperationsInput = {
   set?: $Enums.PreorderStatus
 }
 
+export type NullableEnumPreorderProductOptionFieldUpdateOperationsInput = {
+  set?: $Enums.PreorderProductOption | null
+}
+
 export type NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput = {
   set?: $Enums.PreorderQuantityUnit | null
 }
@@ -2238,6 +2342,10 @@ export type PreorderRequestCreateWithoutCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -2319,6 +2427,10 @@ export type PreorderRequestUncheckedCreateWithoutCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -2427,6 +2539,10 @@ export type PreorderRequestScalarWhereInput = {
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  productOption?: Prisma.EnumPreorderProductOptionNullableFilter<"PreorderRequest"> | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  productOptionMoqUnit?: Prisma.EnumPreorderQuantityUnitNullableFilter<"PreorderRequest"> | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
   containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
   availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
@@ -2497,6 +2613,10 @@ export type PreorderRequestCreateWithoutConvertedOrderInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -2579,6 +2699,10 @@ export type PreorderRequestUncheckedCreateWithoutConvertedOrderInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -2669,6 +2793,10 @@ export type PreorderRequestUpdateWithoutConvertedOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2751,6 +2879,10 @@ export type PreorderRequestUncheckedUpdateWithoutConvertedOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2825,6 +2957,10 @@ export type PreorderRequestCreateWithoutSellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -2906,6 +3042,10 @@ export type PreorderRequestUncheckedCreateWithoutSellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3007,6 +3147,10 @@ export type PreorderRequestCreateWithoutOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3088,6 +3232,10 @@ export type PreorderRequestUncheckedCreateWithoutOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3189,6 +3337,10 @@ export type PreorderRequestCreateWithoutOffersInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3271,6 +3423,10 @@ export type PreorderRequestUncheckedCreateWithoutOffersInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3361,6 +3517,10 @@ export type PreorderRequestUpdateWithoutOffersInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3443,6 +3603,10 @@ export type PreorderRequestUncheckedUpdateWithoutOffersInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3517,6 +3681,10 @@ export type PreorderRequestCreateWithoutHistoryInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3599,6 +3767,10 @@ export type PreorderRequestUncheckedCreateWithoutHistoryInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3689,6 +3861,10 @@ export type PreorderRequestUpdateWithoutHistoryInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3771,6 +3947,10 @@ export type PreorderRequestUncheckedUpdateWithoutHistoryInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3845,6 +4025,10 @@ export type PreorderRequestCreateWithoutInstallmentsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -3927,6 +4111,10 @@ export type PreorderRequestUncheckedCreateWithoutInstallmentsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4017,6 +4205,10 @@ export type PreorderRequestUpdateWithoutInstallmentsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4099,6 +4291,10 @@ export type PreorderRequestUncheckedUpdateWithoutInstallmentsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4173,6 +4369,10 @@ export type PreorderRequestCreateWithoutStockHoldsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4255,6 +4455,10 @@ export type PreorderRequestUncheckedCreateWithoutStockHoldsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4345,6 +4549,10 @@ export type PreorderRequestUpdateWithoutStockHoldsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4427,6 +4635,10 @@ export type PreorderRequestUncheckedUpdateWithoutStockHoldsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4501,6 +4713,10 @@ export type PreorderRequestCreateWithoutChatsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4583,6 +4799,10 @@ export type PreorderRequestUncheckedCreateWithoutChatsInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4673,6 +4893,10 @@ export type PreorderRequestUpdateWithoutChatsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4755,6 +4979,10 @@ export type PreorderRequestUncheckedUpdateWithoutChatsInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4829,6 +5057,10 @@ export type PreorderRequestCreateWithoutBuyerCompanyInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -4910,6 +5142,10 @@ export type PreorderRequestUncheckedCreateWithoutBuyerCompanyInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -5014,6 +5250,10 @@ export type PreorderRequestCreateManyCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -5084,6 +5324,10 @@ export type PreorderRequestUpdateWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5165,6 +5409,10 @@ export type PreorderRequestUncheckedUpdateWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5243,6 +5491,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5316,6 +5568,10 @@ export type PreorderRequestCreateManySellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -5386,6 +5642,10 @@ export type PreorderRequestUpdateWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5467,6 +5727,10 @@ export type PreorderRequestUncheckedUpdateWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5545,6 +5809,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5618,6 +5886,10 @@ export type PreorderRequestCreateManyOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -5688,6 +5960,10 @@ export type PreorderRequestUpdateWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5769,6 +6045,10 @@ export type PreorderRequestUncheckedUpdateWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5847,6 +6127,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5920,6 +6204,10 @@ export type PreorderRequestCreateManyBuyerCompanyInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  productOption?: $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: number | null
+  productOptionMoqUnit?: $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: number | null
   availableToPromiseAtSubmission?: number | null
@@ -5990,6 +6278,10 @@ export type PreorderRequestUpdateWithoutBuyerCompanyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6071,6 +6363,10 @@ export type PreorderRequestUncheckedUpdateWithoutBuyerCompanyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6149,6 +6445,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutBuyerCompanyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  productOption?: Prisma.NullableEnumPreorderProductOptionFieldUpdateOperationsInput | $Enums.PreorderProductOption | null
+  productOptionMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionMoqUnit?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  productOptionMinimumBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6290,6 +6590,10 @@ export type PreorderRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   unitQuantity?: boolean
   unitsPerPackage?: boolean
   requestedBaseUnits?: boolean
+  productOption?: boolean
+  productOptionMoqQuantity?: boolean
+  productOptionMoqUnit?: boolean
+  productOptionMinimumBaseUnits?: boolean
   containerLoadingSnapshotJson?: boolean
   containerLoadingVersion?: boolean
   availableToPromiseAtSubmission?: boolean
@@ -6377,6 +6681,10 @@ export type PreorderRequestSelectScalar = {
   unitQuantity?: boolean
   unitsPerPackage?: boolean
   requestedBaseUnits?: boolean
+  productOption?: boolean
+  productOptionMoqQuantity?: boolean
+  productOptionMoqUnit?: boolean
+  productOptionMinimumBaseUnits?: boolean
   containerLoadingSnapshotJson?: boolean
   containerLoadingVersion?: boolean
   availableToPromiseAtSubmission?: boolean
@@ -6432,7 +6740,7 @@ export type PreorderRequestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PreorderRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestNumber" | "sellerAccountId" | "customerProfileId" | "requestedByUserId" | "buyerCompanyId" | "productId" | "variantId" | "variantKey" | "offerId" | "policyId" | "policyVersion" | "policySnapshotJson" | "status" | "orderingUnit" | "unitQuantity" | "unitsPerPackage" | "requestedBaseUnits" | "containerLoadingSnapshotJson" | "containerLoadingVersion" | "availableToPromiseAtSubmission" | "shortfallAtSubmission" | "requestedDeliveryDate" | "earliestDeliveryDate" | "timezone" | "shippingAddressId" | "shippingAddressJson" | "destinationCountry" | "destinationWarehouseLabel" | "packagingPreference" | "transportPreference" | "allowPartialDelivery" | "purchaseOrderReference" | "customerNotes" | "handlingInstructions" | "termsAcceptedAt" | "pricingMode" | "currency" | "indicativeUnitPriceMinor" | "indicativeTotalMinor" | "indicativeTierMinBaseUnits" | "displayCurrency" | "fxSnapshotId" | "fxRate" | "fxRateAsOf" | "currentOfferId" | "acceptedOfferId" | "confirmedTermsJson" | "confirmedTermsHash" | "confirmedBaseUnits" | "confirmedUnitPriceMinor" | "confirmedFreightMinor" | "confirmedGoodsTotalMinor" | "committedDeliveryDate" | "convertedOrderId" | "capacityBucketId" | "capacityReservedBaseUnits" | "expiresAt" | "closedReason" | "submittedAt" | "sellerRespondedAt" | "buyerConfirmedAt" | "confirmedAt" | "productionStartedAt" | "readyAt" | "convertedAt" | "closedAt" | "deliveryRiskNotifiedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderRequest"]>
+export type PreorderRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestNumber" | "sellerAccountId" | "customerProfileId" | "requestedByUserId" | "buyerCompanyId" | "productId" | "variantId" | "variantKey" | "offerId" | "policyId" | "policyVersion" | "policySnapshotJson" | "status" | "orderingUnit" | "unitQuantity" | "unitsPerPackage" | "requestedBaseUnits" | "productOption" | "productOptionMoqQuantity" | "productOptionMoqUnit" | "productOptionMinimumBaseUnits" | "containerLoadingSnapshotJson" | "containerLoadingVersion" | "availableToPromiseAtSubmission" | "shortfallAtSubmission" | "requestedDeliveryDate" | "earliestDeliveryDate" | "timezone" | "shippingAddressId" | "shippingAddressJson" | "destinationCountry" | "destinationWarehouseLabel" | "packagingPreference" | "transportPreference" | "allowPartialDelivery" | "purchaseOrderReference" | "customerNotes" | "handlingInstructions" | "termsAcceptedAt" | "pricingMode" | "currency" | "indicativeUnitPriceMinor" | "indicativeTotalMinor" | "indicativeTierMinBaseUnits" | "displayCurrency" | "fxSnapshotId" | "fxRate" | "fxRateAsOf" | "currentOfferId" | "acceptedOfferId" | "confirmedTermsJson" | "confirmedTermsHash" | "confirmedBaseUnits" | "confirmedUnitPriceMinor" | "confirmedFreightMinor" | "confirmedGoodsTotalMinor" | "committedDeliveryDate" | "convertedOrderId" | "capacityBucketId" | "capacityReservedBaseUnits" | "expiresAt" | "closedReason" | "submittedAt" | "sellerRespondedAt" | "buyerConfirmedAt" | "confirmedAt" | "productionStartedAt" | "readyAt" | "convertedAt" | "closedAt" | "deliveryRiskNotifiedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderRequest"]>
 export type PreorderRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.PreorderRequest$sellerAccountArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
@@ -6499,6 +6807,17 @@ export type $PreorderRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     unitQuantity: number
     unitsPerPackage: number
     requestedBaseUnits: number
+    /**
+     * OEM or Original Brand, and the minimum that applied to it, frozen at
+     * submission: the seller's figure in the seller's unit, and the same in
+     * pieces. All four null on a request made before the two were separate -
+     * those were made under one minimum and are left exactly as they were
+     * (chk_preorder_request_product_option).
+     */
+    productOption: $Enums.PreorderProductOption | null
+    productOptionMoqQuantity: number | null
+    productOptionMoqUnit: $Enums.PreorderQuantityUnit | null
+    productOptionMinimumBaseUnits: number | null
     /**
      * For a 20-ft or 40-ft container request: the seller's container loading as
      * it stood at submission - pieces per carton, cartons per container, carton
@@ -7007,6 +7326,10 @@ export interface PreorderRequestFieldRefs {
   readonly unitQuantity: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly unitsPerPackage: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly requestedBaseUnits: Prisma.FieldRef<"PreorderRequest", 'Int'>
+  readonly productOption: Prisma.FieldRef<"PreorderRequest", 'PreorderProductOption'>
+  readonly productOptionMoqQuantity: Prisma.FieldRef<"PreorderRequest", 'Int'>
+  readonly productOptionMoqUnit: Prisma.FieldRef<"PreorderRequest", 'PreorderQuantityUnit'>
+  readonly productOptionMinimumBaseUnits: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly containerLoadingSnapshotJson: Prisma.FieldRef<"PreorderRequest", 'Json'>
   readonly containerLoadingVersion: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly availableToPromiseAtSubmission: Prisma.FieldRef<"PreorderRequest", 'Int'>

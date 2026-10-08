@@ -1,0 +1,267 @@
+{
+ "ranAt": "2026-10-08T10:20:48.582Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "darkClass": "|dark",
+   "page": "shop-agreement-screen",
+   "path": "/account/orders",
+   "w": 320,
+   "finalPath": "/account/orders",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-agreement-screen-320.png"
+  },
+  {
+   "darkClass": "|dark",
+   "page": "shop-agreement-screen",
+   "path": "/account/orders",
+   "w": 375,
+   "finalPath": "/account/orders",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-agreement-screen-375.png"
+  },
+  {
+   "darkClass": "|dark",
+   "page": "shop-agreement-screen",
+   "path": "/account/orders",
+   "w": 768,
+   "finalPath": "/account/orders",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-agreement-screen-768.png"
+  },
+  {
+   "darkClass": "|dark",
+   "page": "shop-agreement-screen",
+   "path": "/account/orders",
+   "w": 1024,
+   "finalPath": "/account/orders",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-agreement-screen-1024.png"
+  },
+  {
+   "darkClass": "|dark",
+   "page": "shop-agreement-screen",
+   "path": "/account/orders",
+   "w": 1440,
+   "finalPath": "/account/orders",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "INPUT",
+    "Terms & Conditions",
+    "INPUT",
+    "Privacy Policy",
+    "Sign out",
+    "Contact support",
+    "Privacy requests",
+    "body",
+    "INPUT",
+    "Terms & Conditions"
+   ],
+   "jsErrors": [],
+   "shot": "shop-agreement-screen-1440.png"
+  },
+  {
+   "afterResult": {
+    "dialog": true,
+    "title": "Terms and Conditions (development placeholder)",
+    "agreeDisabled": true,
+    "hint": "Scroll to the end to enable acknowledgment.",
+    "boxChecked": false
+   },
+   "darkClass": "|dark",
+   "page": "shop-terms-dialog",
+   "path": "/account/orders",
+   "w": 320,
+   "finalPath": "/account/orders",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-terms-dialog-320.png"
+  },
+  {
+   "afterResult": {
+    "dialog": true,
+    "title": "Terms and Conditions (development placeholder)",
+    "agreeDisabled": true,
+    "hint": "Scroll to the end to enable acknowledgment.",
+    "boxChecked": false
+   },
+   "darkClass": "|dark",
+   "page": "shop-terms-dialog",
+   "path": "/account/orders",
+   "w": 375,
+   "finalPath": "/account/orders",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-terms-dialog-375.png"
+  },
+  {
+   "afterResult": {
+    "dialog": true,
+    "title": "Terms and Conditions (development placeholder)",
+    "agreeDisabled": true,
+    "hint": "Scroll to the end to enable acknowledgment.",
+    "boxChecked": false
+   },
+   "darkClass": "|dark",
+   "page": "shop-terms-dialog",
+   "path": "/account/orders",
+   "w": 768,
+   "finalPath": "/account/orders",
+   "cw": 768,
+   "sw": 753,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-terms-dialog-768.png"
+  },
+  {
+   "afterResult": {
+    "dialog": true,
+    "title": "Terms and Conditions (development placeholder)",
+    "agreeDisabled": true,
+    "hint": "Scroll to the end to enable acknowledgment.",
+    "boxChecked": false
+   },
+   "darkClass": "|dark",
+   "page": "shop-terms-dialog",
+   "path": "/account/orders",
+   "w": 1024,
+   "finalPath": "/account/orders",
+   "cw": 1024,
+   "sw": 1009,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "shop-terms-dialog-1024.png"
+  },
+  {
+   "afterResult": {
+    "dialog": true,
+    "title": "Terms and Conditions (development placeholder)",
+    "agreeDisabled": true,
+    "hint": "Scroll to the end to enable acknowledgment.",
+    "boxChecked": false
+   },
+   "darkClass": "|dark",
+   "page": "shop-terms-dialog",
+   "path": "/account/orders",
+   "w": 1440,
+   "finalPath": "/account/orders",
+   "cw": 1440,
+   "sw": 1425,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Before you continue"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Full text of Terms and Condi",
+    "Open in a new tab",
+    "Download PDF",
+    "Cancel",
+    "I agree",
+    "body",
+    "Close",
+    "Full text of Terms and Condi",
+    "Open in a new tab",
+    "Download PDF"
+   ],
+   "jsErrors": [],
+   "shot": "shop-terms-dialog-1440.png"
+  }
+ ]
+}

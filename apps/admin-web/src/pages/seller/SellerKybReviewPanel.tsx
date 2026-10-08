@@ -2,8 +2,9 @@
  * Ownership, registrations, exports and screening, on the seller review page
  * (checklist Master row 12).
  *
- * Read with customer.read, like the rest of the page. Recording a screening
- * needs customer.status.write - the same people who decide the application.
+ * Read with customer.read, like the rest of the page, and read-only: recording
+ * a screening is seller verification, which the Audit Team does in the Audit
+ * Console (it has its own copy of this panel, with the form).
  *
  * What it is careful about:
  *
@@ -16,23 +17,12 @@
  *   - **Owners are third parties.** Shown to reviewers only; nothing here is
  *     sent to the seller, including the screening results.
  */
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from '@/auth/session-context';
-import { useToast } from '@/components/toast-context';
-import { Badge, Button, Callout, Card, DescriptionList, Field, Select, Textarea } from '@/components/ui';
+import { Badge, Callout, Card, DescriptionList } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
-import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
-import { Permission } from '@/lib/permissions';
-import {
-  recordSellerScreening,
-  type ScreeningResult,
-  type SellerKybReview,
-  type SellerScreening,
-} from '@/lib/sellers';
+import { type SellerKybReview, type SellerScreening } from '@/lib/sellers';
 
 const RESULT_TONE: Record<SellerScreening['state'], BadgeTone> = {
   CLEAR: 'success',
@@ -48,17 +38,13 @@ function percent(points: number): string {
 }
 
 export function SellerKybReviewPanel({
-  sellerAccountId,
   legalName,
   kyb,
 }: {
-  sellerAccountId: string;
   legalName: string;
   kyb: SellerKybReview;
 }): React.JSX.Element {
   const { t } = useI18n();
-  const { can } = useSession();
-  const canScreen = can(Permission.CUSTOMER_STATUS_WRITE);
 
   const none = t('sellerReview.notGiven');
   const legalForm =
@@ -181,10 +167,7 @@ export function SellerKybReviewPanel({
           <ScreeningSubject
             label={t('sellerReview.screening.entity', { name: legalName })}
             current={kyb.screening.entity}
-            canScreen={canScreen}
-            sellerAccountId={sellerAccountId}
             subjectType="ENTITY"
-            beneficialOwnerId={null}
           />
 
           {kyb.beneficialOwners.length === 0 ? (
@@ -209,10 +192,7 @@ export function SellerKybReviewPanel({
                 .join(' · ')}
               isPoliticallyExposed={owner.isPoliticallyExposed}
               current={owner.screening}
-              canScreen={canScreen}
-              sellerAccountId={sellerAccountId}
               subjectType="BENEFICIAL_OWNER"
-              beneficialOwnerId={owner.id}
             />
           ))}
 
@@ -248,22 +228,15 @@ function ScreeningSubject({
   detail,
   isPoliticallyExposed = false,
   current,
-  canScreen,
-  sellerAccountId,
   subjectType,
-  beneficialOwnerId,
 }: {
   label: string;
   detail?: string;
   isPoliticallyExposed?: boolean;
   current: SellerScreening | null;
-  canScreen: boolean;
-  sellerAccountId: string;
   subjectType: 'ENTITY' | 'BENEFICIAL_OWNER';
-  beneficialOwnerId: string | null;
 }): React.JSX.Element {
   const { t } = useI18n();
-  const [isOpen, setOpen] = useState(false);
   const stale = current !== null && current.subjectName !== label && subjectType === 'BENEFICIAL_OWNER';
 
   return (
@@ -290,139 +263,7 @@ function ScreeningSubject({
           {current.listsChecked !== null && ` · ${current.listsChecked}`}
         </p>
       )}
-      {canScreen && !isOpen && (
-        <Button
-          size="sm"
-          variant="secondary"
-          className="mt-2"
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          {t('sellerReview.screening.record')}
-        </Button>
-      )}
-      {canScreen && isOpen && (
-        <ScreeningForm
-          sellerAccountId={sellerAccountId}
-          subjectType={subjectType}
-          beneficialOwnerId={beneficialOwnerId}
-          onDone={() => {
-            setOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
 
-function ScreeningForm({
-  sellerAccountId,
-  subjectType,
-  beneficialOwnerId,
-  onDone,
-}: {
-  sellerAccountId: string;
-  subjectType: 'ENTITY' | 'BENEFICIAL_OWNER';
-  beneficialOwnerId: string | null;
-  onDone: () => void;
-}): React.JSX.Element {
-  const { t } = useI18n();
-  const toast = useToast();
-  const client = useQueryClient();
-  const [result, setResult] = useState<ScreeningResult | ''>('');
-  const [lists, setLists] = useState('');
-  const [note, setNote] = useState('');
-  const [tried, setTried] = useState(false);
-
-  const mutation = useMutation({
-    mutationFn: () =>
-      recordSellerScreening(sellerAccountId, {
-        subjectType,
-        beneficialOwnerId,
-        result: result as ScreeningResult,
-        listsChecked: lists.trim(),
-        note: note.trim().length === 0 ? null : note.trim(),
-      }),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ['admin', 'seller', sellerAccountId] });
-      toast.success(t('sellerReview.screening.recorded'));
-      onDone();
-    },
-    onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, t('sellerReview.screening.failed')));
-    },
-  });
-
-  const resultError = tried && result === '' ? t('sellerReview.screening.resultRequired') : undefined;
-  const listsError = tried && lists.trim().length < 2 ? t('sellerReview.screening.listsRequired') : undefined;
-
-  return (
-    <form
-      className="mt-3 space-y-3"
-      noValidate
-      onSubmit={(event) => {
-        event.preventDefault();
-        setTried(true);
-        if (result === '' || lists.trim().length < 2) return;
-        mutation.mutate();
-      }}
-    >
-      <Field label={t('sellerReview.screening.result')} error={resultError} required>
-        {({ inputId, describedBy }) => (
-          <Select
-            id={inputId}
-            aria-describedby={describedBy}
-            invalid={resultError !== undefined}
-            value={result}
-            onChange={(event) => {
-              setResult(event.target.value as ScreeningResult | '');
-            }}
-          >
-            <option value="">{t('sellerReview.screening.chooseResult')}</option>
-            <option value="CLEAR">{t('sellerReview.result.CLEAR')}</option>
-            <option value="POTENTIAL_MATCH">{t('sellerReview.result.POTENTIAL_MATCH')}</option>
-            <option value="CONFIRMED_MATCH">{t('sellerReview.result.CONFIRMED_MATCH')}</option>
-          </Select>
-        )}
-      </Field>
-      <Field label={t('sellerReview.screening.lists')} hint={t('sellerReview.screening.listsHint')} error={listsError} required>
-        {({ inputId, describedBy }) => (
-          <Textarea
-            id={inputId}
-            aria-describedby={describedBy}
-            invalid={listsError !== undefined}
-            maxLength={512}
-            rows={2}
-            value={lists}
-            onChange={(event) => {
-              setLists(event.target.value);
-            }}
-          />
-        )}
-      </Field>
-      <Field label={t('sellerReview.screening.note')}>
-        {({ inputId, describedBy }) => (
-          <Textarea
-            id={inputId}
-            aria-describedby={describedBy}
-            maxLength={4000}
-            rows={2}
-            value={note}
-            onChange={(event) => {
-              setNote(event.target.value);
-            }}
-          />
-        )}
-      </Field>
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="primary" size="sm" isLoading={mutation.isPending}>
-          {t('sellerReview.screening.save')}
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
-          {t('common.cancel')}
-        </Button>
-      </div>
-    </form>
-  );
-}

@@ -11,8 +11,9 @@
  *     preorder" - no second tick asked for. A new version of the note
  *     (`PREORDER_INFO_VERSION`) puts the buyer back in the first state.
  *
- * The minimum it states is `eligibility.moq`, the same figure the form, the
- * bulk suggestion and the server's refusal use.
+ * The minimums it states are `eligibility.productOptions` - OEM and Original
+ * Brand, each with the seller's own figure, or "not offered", or an honest
+ * "not set up" - the same figures the form and the server's refusal use.
  *
  * On a desktop it is a popover beside the i; on a phone, a bottom sheet (see
  * `Modal`'s `anchored` placement). Both are a modal `<dialog>`, so focus stays
@@ -25,7 +26,7 @@ import { Modal } from '@/components/Modal';
 import { Button } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
-import type { Eligibility } from '@/lib/preorders';
+import type { Eligibility, PreorderUnit, ProductOptionTerms } from '@/lib/preorders';
 
 type Available = Extract<Eligibility, { available: true }>;
 
@@ -98,14 +99,7 @@ export function PreorderInfoDialog({
         <p>{t('preorderInfo.intro')}</p>
 
         {terms !== null ? (
-          <div className="rounded-md border border-brand/25 bg-brand-soft px-3 py-2.5">
-            <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
-              {t('preorderInfo.moqLabel')}
-            </p>
-            <p className="mt-0.5 text-base font-semibold tabular-nums text-ink">
-              <MoqAmount terms={terms} />
-            </p>
-          </div>
+          <MinimumQuantities options={terms.productOptions} />
         ) : (
           <p className="rounded-md bg-surface-sunken px-3 py-2.5 text-ink-muted">
             {unavailableReason ?? t('preorder.chooseOptionFirst')}
@@ -148,6 +142,97 @@ export function PreorderInfoDialog({
         )}
       </div>
     </Modal>
+  );
+}
+
+/**
+ * "Minimum preorder quantities": one row each for OEM and Original Brand.
+ *
+ * An offered option shows the seller's figure in the seller's unit, and the
+ * pieces it comes to only where the product has a real pack size for that
+ * unit (the server leaves it out otherwise). An option not offered says so; an
+ * option switched on without a usable minimum says it is not set up, rather
+ * than showing a figure nobody wrote.
+ */
+export function MinimumQuantities({
+  options,
+}: {
+  options: readonly ProductOptionTerms[];
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const headingId = useId();
+  return (
+    <section
+      aria-labelledby={headingId}
+      className="rounded-md border border-brand/25 bg-brand-soft px-3 py-2.5"
+    >
+      <h3
+        id={headingId}
+        className="text-xs font-medium uppercase tracking-wide text-ink-muted"
+      >
+        {t('preorderInfo.minimumsTitle')}
+      </h3>
+      <dl className="mt-1 divide-y divide-brand/15">
+        {options.map((entry) => (
+          <div
+            key={entry.option}
+            className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 py-1.5"
+          >
+            <dt className="font-medium text-ink">
+              {t(`preorder.option.${entry.option}` as TranslationKey)}
+            </dt>
+            <dd className="text-right tabular-nums">
+              {entry.status === 'OFFERED' && entry.quantity !== null && entry.minimumBaseUnits !== null ? (
+                <span className="font-semibold text-ink">
+                  <OptionMinimum
+                    unit={entry.unit}
+                    quantity={entry.quantity}
+                    minimumBaseUnits={entry.minimumBaseUnits}
+                  />
+                </span>
+              ) : entry.status === 'NOT_OFFERED' ? (
+                <span className="text-ink-muted">{t('preorderInfo.optionNotOffered')}</span>
+              ) : (
+                <span className="text-warning">{t('preorderInfo.optionNotConfigured')}</span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+/** "Minimum 500 pieces", or "Minimum 10 cartons (240 pieces)". */
+export function OptionMinimum({
+  unit,
+  quantity,
+  minimumBaseUnits,
+}: {
+  unit: PreorderUnit;
+  quantity: number;
+  minimumBaseUnits: number;
+}): React.JSX.Element {
+  const { t, intlLocale } = useI18n();
+  const amount = t(`preorderInfo.amount.${unit}` as TranslationKey, {
+    count: quantity,
+    quantity: quantity.toLocaleString(intlLocale),
+  });
+  return (
+    <>
+      {t('preorderInfo.minimumOf', { amount })}
+      {unit !== 'PIECE' && (
+        <>
+          {' '}
+          <span className="text-sm font-normal text-ink-muted">
+            {t('preorderInfo.inPieces', {
+              count: minimumBaseUnits,
+              quantity: minimumBaseUnits.toLocaleString(intlLocale),
+            })}
+          </span>
+        </>
+      )}
+    </>
   );
 }
 

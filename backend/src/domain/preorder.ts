@@ -83,8 +83,14 @@ export interface PolicyTerms {
   scope: PreorderScope;
   version: number;
   isEnabled: boolean;
+  /** The unit both minimums, the increment and the maximum are counted in. */
   moqUnit: PreorderUnit;
-  moqQuantity: number | null;
+  originalBrandEnabled: boolean;
+  originalBrandMoqQuantity: number | null;
+  oemEnabled: boolean;
+  oemMoqQuantity: number | null;
+  /** The migration could not tell whether the old minimum covered OEM too. */
+  productOptionsReviewRequired: boolean;
   incrementQuantity: number;
   maxQuantity: number | null;
   capacityBaseUnits: number | null;
@@ -191,8 +197,90 @@ export interface PolicyIssue {
   message: string;
 }
 
+// ---------------------------------------------------------------------------
+// OEM and Original Brand
+// ---------------------------------------------------------------------------
+
 /**
- * The quantity rules in pieces, or the reason there are none.
+ * What a preorder is for. ORIGINAL_BRAND is the product exactly as listed;
+ * OEM is the product made to the buyer's own design or brand. Each has its own
+ * minimum, and a policy may offer either or both.
+ */
+export type ProductOption = 'ORIGINAL_BRAND' | 'OEM';
+
+/** OEM first: the order the buyer's information panel lists them in. */
+export const PRODUCT_OPTIONS: readonly ProductOption[] = Object.freeze(['OEM', 'ORIGINAL_BRAND']);
+
+const OPTION_LABEL: Record<ProductOption, string> = { OEM: 'OEM', ORIGINAL_BRAND: 'Original Brand' };
+
+export function optionEnabled(policy: PolicyTerms, option: ProductOption): boolean {
+  return option === 'OEM' ? policy.oemEnabled : policy.originalBrandEnabled;
+}
+
+/** The seller's minimum for this option, in `moqUnit`. Null when not set. */
+export function optionMoq(policy: PolicyTerms, option: ProductOption): number | null {
+  return option === 'OEM' ? policy.oemMoqQuantity : policy.originalBrandMoqQuantity;
+}
+
+/**
+ * One option as a buyer sees it.
+ *
+ *   - OFFERED: switched on, and its minimum converts to pieces.
+ *   - NOT_OFFERED: the seller does not take preorders of this kind.
+ *   - NOT_CONFIGURED: switched on, and missing something - no minimum, or a
+ *     minimum in a unit this product has no active packaging for. Shown as
+ *     such, never given an invented minimum.
+ */
+export type OptionTerms =
+  | { option: ProductOption; status: 'OFFERED'; rules: QuantityRules }
+  | { option: ProductOption; status: 'NOT_OFFERED'; rules: null }
+  | { option: ProductOption; status: 'NOT_CONFIGURED'; rules: null; issues: PolicyIssue[] };
+
+export function optionTermsFor(policy: PolicyTerms, sizes: UnitSizes): OptionTerms[] {
+  return PRODUCT_OPTIONS.map((option): OptionTerms => {
+    if (!optionEnabled(policy, option)) return { option, status: 'NOT_OFFERED', rules: null };
+    const quantity = quantityRulesFor(policy, sizes, option);
+    return quantity.rules === null
+      ? { option, status: 'NOT_CONFIGURED', rules: null, issues: quantity.issues }
+      : { option, status: 'OFFERED', rules: quantity.rules };
+  });
+}
+
+/**
+ * The rules for the whole policy when no option has been chosen yet: the
+ * LOWEST minimum among the options on offer - the quantity at which some
+ * preorder becomes possible, which is what the bulk suggestion is about - or
+ * every issue, when nothing is on offer.
+ */
+export function lowestOfferedRules(
+  options: readonly OptionTerms[],
+): { rules: QuantityRules; issues: [] } | { rules: null; issues: PolicyIssue[] } {
+  let lowest: QuantityRules | null = null;
+  for (const entry of options) {
+    if (entry.status !== 'OFFERED') continue;
+    if (lowest === null || entry.rules.minimumBaseUnits < lowest.minimumBaseUnits) {
+      lowest = entry.rules;
+    }
+  }
+  if (lowest !== null) return { rules: lowest, issues: [] };
+
+  const issues = options.flatMap((entry) => (entry.status === 'NOT_CONFIGURED' ? entry.issues : []));
+  return {
+    rules: null,
+    issues:
+      issues.length > 0
+        ? issues
+        : [
+            {
+              field: 'productOptions',
+              message: 'Neither OEM nor Original Brand preorders are switched on.',
+            },
+          ],
+  };
+}
+
+/**
+ * The quantity rules in pieces for one option, or the reason there are none.
  *
  * MOQ, increment and maximum are all converted through the SAME unit - the
  * policy's `moqUnit` - so "minimum 10 pallets, in steps of 2" becomes
@@ -202,11 +290,29 @@ export interface PolicyIssue {
 export function quantityRulesFor(
   policy: PolicyTerms,
   sizes: UnitSizes,
+  option: ProductOption,
 ): { rules: QuantityRules; issues: [] } | { rules: null; issues: PolicyIssue[] } {
   const issues: PolicyIssue[] = [];
+  const moqField = option === 'OEM' ? 'oemMoqQuantity' : 'originalBrandMoqQuantity';
+  const moqQuantity = optionMoq(policy, option);
 
-  if (policy.moqQuantity === null || policy.moqQuantity <= 0) {
-    issues.push({ field: 'moqQuantity', message: 'No minimum preorder quantity has been set.' });
+  if (!optionEnabled(policy, option)) {
+    return {
+      rules: null,
+      issues: [
+        {
+          field: option === 'OEM' ? 'oemEnabled' : 'originalBrandEnabled',
+          message: `${OPTION_LABEL[option]} preorders are not offered.`,
+        },
+      ],
+    };
+  }
+
+  if (moqQuantity === null || moqQuantity <= 0) {
+    issues.push({
+      field: moqField,
+      message: `No minimum ${OPTION_LABEL[option]} preorder quantity has been set.`,
+    });
   }
 
   const unitSize = policy.moqUnit === 'PIECE' ? 1 : sizes[policy.moqUnit];
@@ -224,18 +330,18 @@ export function quantityRulesFor(
     });
   }
 
-  if (issues.length > 0 || unitSize === undefined || policy.moqQuantity === null) {
+  if (issues.length > 0 || unitSize === undefined || moqQuantity === null) {
     return { rules: null, issues };
   }
 
-  const minimum = policy.moqQuantity * unitSize;
+  const minimum = moqQuantity * unitSize;
   const increment = Math.max(1, policy.incrementQuantity) * unitSize;
   const maximum = policy.maxQuantity === null ? null : policy.maxQuantity * unitSize;
 
   if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(increment)) {
     return {
       rules: null,
-      issues: [{ field: 'moqQuantity', message: 'The minimum is too large to count.' }],
+      issues: [{ field: moqField, message: 'The minimum is too large to count.' }],
     };
   }
 

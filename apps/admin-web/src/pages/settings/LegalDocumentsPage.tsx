@@ -29,6 +29,7 @@ import {
   Button,
   Callout,
   Card,
+  CheckboxField,
   DescriptionList,
   ErrorState,
   Field,
@@ -231,6 +232,7 @@ function emptyDraft(kind: LegalDocumentKind): LegalDocumentDraft {
     body: '',
     changeSummary: null,
     effectiveAt: new Date().toISOString(),
+    requiresReacceptance: true,
   };
 }
 
@@ -243,6 +245,7 @@ function draftOf(document: LegalDocument): LegalDocumentDraft {
     body: document.body,
     changeSummary: document.changeSummary,
     effectiveAt: document.effectiveAt,
+    requiresReacceptance: document.requiresReacceptance,
   };
 }
 
@@ -496,6 +499,17 @@ function DraftEditor({ document }: { document: LegalDocument | null }): React.JS
                 />
               )}
             </Field>
+            {/* Whether the agreement screen asks again. On by default: turning it
+                off is a claim that nothing anybody agreed to has changed. */}
+            <CheckboxField
+              boxed
+              label={t('legalDocs.field.requiresReacceptance')}
+              description={t('legalDocs.field.requiresReacceptanceHint')}
+              checked={draft.requiresReacceptance}
+              onChange={(event) => {
+                set('requiresReacceptance', event.target.checked);
+              }}
+            />
             <Field
               label={t('legalDocs.field.body')}
               hint={t('legalDocs.field.bodyHint')}
@@ -598,6 +612,12 @@ function PublishedDocument({ document }: { document: LegalDocument }): React.JSX
             { label: t('legalDocs.field.effective'), value: formatDateTime(document.effectiveAt) },
             { label: t('legalDocs.column.published'), value: formatDateTime(document.publishedAt) },
             { label: t('legalDocs.column.acceptances'), value: formatNumber(document.acceptanceCount) },
+            {
+              label: t('legalDocs.requiresReacceptance'),
+              value: document.requiresReacceptance
+                ? t('legalDocs.requiresReacceptance.yes')
+                : t('legalDocs.requiresReacceptance.no'),
+            },
             {
               label: t('legalDocs.supersedes'),
               value:

@@ -128,3 +128,9 @@ export async function recordSellerAudit(input: RecordSellerAuditInput): Promise<
 
 /** The label a seller sees for an action this marketplace's staff took. */
 export const OPERATOR_LABEL = 'Marketplace moderation';
+
+/**
+ * The label a seller sees for a verification decision the Audit Team took.
+ * A team, never a named reviewer, for the same reason as OPERATOR_LABEL.
+ */
+export const AUDIT_TEAM_LABEL = 'Audit Team';

@@ -20,6 +20,7 @@ import {
   type UserKind,
 } from '../../modules/identity/auth.service.js';
 import { getSessionAuthState, verifyAccessToken } from '../../modules/identity/session.service.js';
+import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
 import {
   companyCapabilityBlock,
   type BuyerCompanyCapability,
@@ -298,67 +299,94 @@ export function isLocationPending(auth: { type: UserKind; sessionHasLocation: bo
  */
 export function requireAdmin(...permissions: PermissionKey[]) {
   return async function adminGuard(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
-    const auth = await authenticate(request, 'ADMIN');
-
-    /**
-     * An account still on its emailed temporary password can hold a session and
-     * nothing else. This is the control, not the screen the Admin Panel shows:
-     * that password travelled in plaintext and may have been read by anyone with
-     * access to the inbox, so it must not be able to touch an order, a price or
-     * another staff account even once.
-     *
-     * The three routes that stay reachable - `/me`, `/password/change` and
-     * `/logout` - use `requireAuthenticated` rather than this guard, which is
-     * exactly why they are not listed here as exceptions.
-     */
-    if (auth.mustChangePassword) {
-      throw forbidden(
-        ErrorCode.PASSWORD_CHANGE_REQUIRED,
-        'Set your own password before using the admin panel.',
-      );
-    }
-
-    /** Every administrator must enrol and challenge MFA for every session. */
-    if (env.FEATURE_ADMIN_MFA && (!auth.mfaEnabled || auth.sessionMfaVerifiedAt === null)) {
-      throw forbidden(
-        ErrorCode.MFA_REQUIRED,
-        auth.mfaEnabled
-          ? 'Confirm your two-step code to continue.'
-          : 'Set up two-step sign-in to continue.',
-      );
-    }
-
-    /**
-     * Signed in, but the browser has not yet said where from.
-     *
-     * Enforced here rather than only in the panel for the same reason as the
-     * line above: a screen can be skipped by anyone talking to the API
-     * directly, and a control that only exists in the frontend is a suggestion.
-     * The three routes that stay open - `/me`, `/logout` and
-     * `/session/location` itself - use `requireAuthenticated`, which is why
-     * they need no exception here.
-     */
-    if (isLocationPending(auth)) {
-      throw forbidden(
-        ErrorCode.LOCATION_REQUIRED,
-        'Allow location access to continue. The admin panel records where each sign-in happened.',
-      );
-    }
-
-    const held = new Set(auth.permissions);
-
-    // All listed permissions are required, not any.
-    const missing = permissions.filter((permission) => !held.has(permission));
-
-    if (missing.length > 0) {
-      throw forbidden(
-        ErrorCode.PERMISSION_DENIED,
-        'You do not have permission to perform this action.',
-      );
-    }
-
-    request.auth = auth;
+    await adminGuardBody(request, permissions, { agreements: true });
   };
+}
+
+/**
+ * Signed in to the console in full - temporary password replaced, two-step
+ * code given, location shared - but not yet through the agreement screen.
+ * For the agreement routes alone: they are how a member of staff gets through
+ * it. No permission is needed to accept the staff terms.
+ */
+export function requireAdminBeforeAgreements() {
+  return async function adminAgreementGuard(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
+    await adminGuardBody(request, [], { agreements: false });
+  };
+}
+
+async function adminGuardBody(
+  request: FastifyRequest,
+  permissions: PermissionKey[],
+  options: { agreements: boolean },
+): Promise<void> {
+  const auth = await authenticate(request, 'ADMIN');
+
+  /**
+   * An account still on its emailed temporary password can hold a session and
+   * nothing else. This is the control, not the screen the Admin Panel shows:
+   * that password travelled in plaintext and may have been read by anyone with
+   * access to the inbox, so it must not be able to touch an order, a price or
+   * another staff account even once.
+   *
+   * The three routes that stay reachable - `/me`, `/password/change` and
+   * `/logout` - use `requireAuthenticated` rather than this guard, which is
+   * exactly why they are not listed here as exceptions.
+   */
+  if (auth.mustChangePassword) {
+    throw forbidden(
+      ErrorCode.PASSWORD_CHANGE_REQUIRED,
+      'Set your own password before using the admin panel.',
+    );
+  }
+
+  /** Every administrator must enrol and challenge MFA for every session. */
+  if (env.FEATURE_ADMIN_MFA && (!auth.mfaEnabled || auth.sessionMfaVerifiedAt === null)) {
+    throw forbidden(
+      ErrorCode.MFA_REQUIRED,
+      auth.mfaEnabled
+        ? 'Confirm your two-step code to continue.'
+        : 'Set up two-step sign-in to continue.',
+    );
+  }
+
+  /**
+   * Signed in, but the browser has not yet said where from.
+   *
+   * Enforced here rather than only in the panel for the same reason as the
+   * line above: a screen can be skipped by anyone talking to the API
+   * directly, and a control that only exists in the frontend is a suggestion.
+   * The three routes that stay open - `/me`, `/logout` and
+   * `/session/location` itself - use `requireAuthenticated`, which is why
+   * they need no exception here.
+   */
+  if (isLocationPending(auth)) {
+    throw forbidden(
+      ErrorCode.LOCATION_REQUIRED,
+      'Allow location access to continue. The admin panel records where each sign-in happened.',
+    );
+  }
+
+  /**
+   * The staff terms and the Privacy Policy, accepted and acknowledged on the
+   * console's agreement screen. Same shape as the gates above: `/me`,
+   * `/logout` and the agreement routes use `requireAuthenticated`.
+   */
+  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'STAFF');
+
+  const held = new Set(auth.permissions);
+
+  // All listed permissions are required, not any.
+  const missing = permissions.filter((permission) => !held.has(permission));
+
+  if (missing.length > 0) {
+    throw forbidden(
+      ErrorCode.PERMISSION_DENIED,
+      'You do not have permission to perform this action.',
+    );
+  }
+
+  request.auth = auth;
 }
 
 /** Guard for customer routes. Authorization here is ownership, not permissions. */
@@ -366,6 +394,29 @@ export async function requireCustomer(
   request: FastifyRequest,
   _reply: FastifyReply,
 ): Promise<void> {
+  await authenticateCustomer(request, { agreements: true });
+}
+
+/**
+ * The same guard, without the agreement screen.
+ *
+ * For the few things a signed-in buyer must be able to do before accepting
+ * the Terms and acknowledging the Privacy Policy, and there are exactly two
+ * kinds: asking support for help, and exercising a privacy right. Somebody
+ * who will not accept the Terms must still be able to ask for a copy of their
+ * data, or for it to be erased, and to ask a person a question first.
+ *
+ * Its own export, like `requireSellerBeforeLock`, so every route that skips
+ * the screen says so in its own registration and can be found with one search.
+ */
+export async function requireCustomerBeforeAgreements(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  await authenticateCustomer(request, { agreements: false });
+}
+
+async function authenticateCustomer(request: FastifyRequest, options: { agreements: boolean }): Promise<void> {
   const auth = await authenticate(request, 'CUSTOMER');
 
   // An ACTIVE customer user without a profile cannot own anything, so no
@@ -375,6 +426,10 @@ export async function requireCustomer(
   }
 
   assertCustomerSecondFactor(auth);
+
+  // After the second factor: a session still owing its code is told that
+  // first, and the agreement screen comes after signing in has finished.
+  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'BUYER');
 
   request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
 }
@@ -564,8 +619,10 @@ export async function optionalCustomer(
   }
 
   // A credential means prove it, and a session still owing its two-step code
-  // has not finished proving it.
+  // has not finished proving it - nor one that has not been through the
+  // agreement screen.
   assertCustomerSecondFactor(auth);
+  await assertAgreementsSatisfied(auth.id, 'BUYER');
 
   request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
 }

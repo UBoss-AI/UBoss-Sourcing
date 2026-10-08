@@ -22,7 +22,7 @@
 import { z } from 'zod';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
-import { evaluateEligibility } from '../preorders/policy.service.js';
+import { evaluateEligibility, lowestOfferedMoq } from '../preorders/policy.service.js';
 import { marketplaceNameFrom } from '../settings/marketplace-name.js';
 
 /** The three units a customer can ask about in chat. */
@@ -200,7 +200,7 @@ export async function buildChatContext(input: ChatContextInput): Promise<BuiltCh
           available: true,
           minimumBaseUnits: eligibility.rules.minimumBaseUnits,
           moqUnit: eligibility.policy.moqUnit,
-          moqQuantity: eligibility.policy.moqQuantity,
+          moqQuantity: lowestOfferedMoq(eligibility.policy, eligibility.options),
           unitSizes,
         }
       : {

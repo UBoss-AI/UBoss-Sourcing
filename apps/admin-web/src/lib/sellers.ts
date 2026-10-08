@@ -29,6 +29,8 @@ export interface SellerApplicationRow {
   completedSteps: number;
   requiredSteps: number;
   documentCount: number;
+  /** Sent back after the Audit Team asked for corrections. */
+  resubmitted: boolean;
 }
 
 export interface SellerApplicationList {
@@ -159,6 +161,27 @@ export interface SellerApplicationDetail {
     role: string;
     customerProfile: { fullName: string; user: { email: string } };
   }[];
+
+  /** Seller verification, which the Audit Team owns. Read-only here. */
+  verification: {
+    ownedBy: 'AUDIT';
+    /** False while FEATURE_AUDIT_CONSOLE is off: nobody can verify sellers at all. */
+    consoleEnabled: boolean;
+    /** False when no active audit reviewer can verify sellers yet: applications wait. */
+    reviewersAvailable: boolean;
+    currentDecision: SellerVerificationHistoryEntry | null;
+    history: SellerVerificationHistoryEntry[];
+  };
+}
+
+/** One verification step, with the console it came from - kept as it was written. */
+export interface SellerVerificationHistoryEntry {
+  id: string;
+  action: string;
+  at: string;
+  summary: string | null;
+  actorType: 'ADMIN' | 'AUDIT' | 'SELLER' | 'SYSTEM';
+  actorLabel: string | null;
 }
 
 export function fetchSellerApplication(id: string): Promise<SellerApplicationDetail> {
@@ -232,26 +255,85 @@ export interface SellerKybReview {
   readiness: { ready: boolean; missing: SellerReadinessItem[] };
 }
 
-export interface ScreeningInput {
-  subjectType: 'ENTITY' | 'BENEFICIAL_OWNER';
-  beneficialOwnerId?: string | null;
-  result: ScreeningResult;
-  listsChecked: string;
-  note?: string | null;
+// Recording a screening is seller verification: the Audit Team does it in the
+// Audit Console. The Admin Panel reads screenings and cannot record one.
+
+// ---------------------------------------------------------------------------
+// The turnover eligibility policy
+// ---------------------------------------------------------------------------
+
+export type TurnoverVerificationState =
+  | 'NOT_STARTED'
+  | 'AWAITING_INPUT'
+  | 'IN_PROGRESS'
+  | 'VERIFIED'
+  | 'FAILED'
+  | 'PROVIDER_UNCONFIGURED'
+  | 'EXPIRED';
+
+export interface SellerTurnoverDeclaration {
+  id: string;
+  /** Whole minor units, as a string. */
+  amountMinor: string;
+  currency: string;
+  financialYearStart: string;
+  financialYearEnd: string;
+  minimumMinor: string;
+  policyVersion: string;
+  declaredAt: string;
+  verificationState: TurnoverVerificationState;
+  /** Seller-visible. */
+  decisionReason: string | null;
+  /** Operator-only. */
+  internalNote: string | null;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  supersededReason: string | null;
+  isCurrent: boolean;
+  exceedsMinimum: boolean;
 }
 
-/** Record a manual restricted-party / sanctions screening. */
-export function recordSellerScreening(id: string, input: ScreeningInput): Promise<SellerScreening> {
-  return api.post<SellerScreening>(`/admin/sellers/${id}/screening`, input);
+export interface SellerTurnoverReview {
+  policy: {
+    required: boolean;
+    minimumMinor: string;
+    currency: string;
+    currencyExponent: number;
+    policyVersion: string;
+    financialYearStartMonth: number;
+  };
+  applies: boolean;
+  grandfathered: boolean;
+  standing: 'NOT_DECLARED' | 'ELIGIBLE' | 'BELOW_MINIMUM' | 'OUT_OF_DATE';
+  current: SellerTurnoverDeclaration | null;
+  history: SellerTurnoverDeclaration[];
+  evidence: {
+    id: string;
+    originalFileName: string;
+    scanState: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    uploadedAt: string;
+    isCurrent: boolean;
+  }[];
 }
 
+export function fetchSellerTurnover(id: string): Promise<SellerTurnoverReview> {
+  return api.get<SellerTurnoverReview>(`/admin/sellers/${id}/turnover`);
+}
+
+// Verifying turnover is the Audit Team's, in the Audit Console. Read-only here.
+
+/**
+ * The Admin Panel's two operational controls: SUSPENDED stops a verified seller
+ * trading; APPROVED lifts a suspension. Every verification decision belongs to
+ * the Audit Team, and the server refuses it from here.
+ */
 export interface SellerDecision {
-  status: 'UNDER_REVIEW' | 'ACTION_REQUIRED' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
-  /** Seller-visible. The state machine demands it on every refusal and stop. */
+  status: 'APPROVED' | 'SUSPENDED';
+  /** Seller-visible. The state machine demands it on every stop. */
   reason?: string | null;
   /** Operator-only. Never serialised to a seller route. */
   internalNote?: string | null;
-  resubmissionAllowed?: boolean;
   /** The version last read. A stale decision is refused rather than applied. */
   expectedVersion?: number | null;
 }
@@ -511,11 +593,11 @@ export function applicationStatusLabel(status: SellerApplicationStatus): string 
     case 'DRAFT':
       return 'Not submitted';
     case 'SUBMITTED':
-      return 'Waiting for review';
+      return 'Awaiting verification';
     case 'UNDER_REVIEW':
-      return 'Being reviewed';
+      return 'Under Audit Team review';
     case 'ACTION_REQUIRED':
-      return 'Sent back';
+      return 'Corrections requested';
     case 'APPROVED':
       return 'Approved';
     case 'REJECTED':
@@ -647,18 +729,7 @@ export function createSellerDocumentLink(documentId: string): Promise<SellerDocu
   return api.post<SellerDocumentLink>(`/admin/seller-documents/${documentId}/link`);
 }
 
-export interface SellerDocumentDecision {
-  decision: 'APPROVED' | 'REJECTED';
-  /** Seller-visible, and the server requires it on a refusal. */
-  reason?: string | null;
-}
-
-export function decideSellerDocument(
-  documentId: string,
-  decision: SellerDocumentDecision,
-): Promise<never> {
-  return api.post<never>(`/admin/seller-documents/${documentId}/decision`, decision);
-}
+// Accepting or refusing a document is the Audit Team's, in the Audit Console.
 
 /** What approval puts on the product page, as the seller wrote it. */
 export interface ListingContent {

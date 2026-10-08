@@ -154,6 +154,7 @@ table(['Feature', 'What the customer can do', 'Important detail'], [
   ['Email verification', 'Confirm the mailbox used for a new account.', 'Stops a mistyped or unauthorised email becoming an active account.'],
   ['Forgot / reset password', 'Request a secure reset link and choose a new password.', 'The application avoids revealing whether an email address is registered.'],
   ['Terms and Conditions', 'Read the Terms and Conditions in full and agree to them before an account is opened.', 'Needed when signing up and when activating an invited account. See 2.2b.'],
+  ['Terms and Privacy Policy after sign-in', 'Agree to the Terms and confirm the Privacy Policy has been read, once, on their own page after signing in.', 'Asked again only when a new version needs agreeing to. See 2.2c.'],
 ], [2500, 4200, 3600]);
 h2('2.2b Agreeing to the Terms and Conditions');
 p('Nobody gets an account without agreeing to the Terms and Conditions that apply today. This is true when a person signs up on the shop, when a company’s representative creates their account, and when an invited customer activates theirs.');
@@ -172,6 +173,28 @@ bullets([
   'If the Terms have not been published in the customer’s language, they are shown in English, and the customer is told so.',
   'The privacy notice and the business’s other policies are linked separately. Agreeing to the Terms is not agreeing to marketing, and there is no marketing box on these forms.',
   'Until the business has published its Terms, nobody can sign up or activate an account. The screen says so plainly.',
+]);
+h2('2.2c Before you continue: the Terms and the Privacy Policy');
+p('After signing in, and before anything else, every person is asked two separate things: to agree to the Terms that apply to them, and to confirm they have read the Privacy Policy. This applies to buyers, sellers, delivery companies’ staff, the business’s own staff and Audit Console users. Each is asked for their own Terms: a buyer is never asked to accept a seller’s obligations. It is asked once, and again only when the business publishes a new version that needs agreeing to.');
+table(['The person does', 'The system does back'], [
+  ['Signs in.', 'Shows the Before you continue page if anything is owed. It has two boxes: “I agree to the Terms & Conditions.” and “I acknowledge that I have read the Privacy Policy.” Both start empty unless they were already done.'],
+  ['Clicks a box, its sentence or the document’s name.', 'Opens that document in a window. It never ticks the box.'],
+  ['Reads down the text.', 'Shows “Scroll to the end to enable acknowledgment.” The I agree (or I acknowledge) button switches on once the end of the text has been reached. If the whole text fits, it works straight away.'],
+  ['Presses I agree on the Terms.', 'Saves a record of exactly which version was agreed to, in which language and when, then ticks that box only. The Privacy Policy box is not touched.'],
+  ['Presses I acknowledge on the Privacy Policy.', 'Saves that record and ticks that box only. It is a confirmation of having read it, not consent to marketing or anything optional.'],
+  ['Presses Cancel, Close or Escape.', 'Closes the window. Nothing is saved, nothing is ticked.'],
+  ['Changes their mind before Continue and unticks a box.', 'Clears that one record. The history keeps it, marked as cleared.'],
+  ['Presses Continue (it only works when both are saved).', 'Takes them to the page they were going to.'],
+  ['Presses Sign out instead.', 'Signs them out. They can still contact support and make a privacy request without agreeing.'],
+], [4200, 6100]);
+bullets([
+  'A seller is asked for the Terms of Use and the Seller Addendum together. A buyer who becomes a seller is asked for the Seller Addendum the first time they open the Seller Hub.',
+  'If a new version is published while somebody is reading, the save is refused, the new version is shown, and they read it from the start.',
+  'If a document cannot be loaded, it cannot be accepted. A try-again button is shown.',
+  'Nothing else in the application works until both are done. This is checked on the server for every request, not only on the screen.',
+  'People who already had accounts see the page on their next visit. The system never pretends anybody agreed earlier than they did.',
+  'Each person can see everything they agreed to, with a link to that exact version, on their profile page (staff: user menu, Terms and privacy).',
+  'A document the business has not published yet is not asked for.',
 ]);
 h2('2.2a Signing in as yourself or for your company');
 p('A buyer can shop as themselves, or for a company they belong to. The sign-in page has two tabs, Individual and Company, so the person says which they mean before they start. Both tabs use the same email and password. There is one account per person, not one per company.');
@@ -625,6 +648,7 @@ table(['Step', 'What the customer does', 'What the system does back'], [
 bullets([
   'Every product can be preordered. Where the seller has not set their own preorder terms, standard terms apply: a minimum of 1,000 pieces (the business can change this figure, and a product that already needs more keeps its own), the product’s own price, and the seller still answers every request. Products the shop sells itself are preordered from the shop, and the shop’s staff answer.',
   'A small round “i” button sits inside the Preorder button, after the word Preorder and before the chat icon. Pressing it shows the same note at any time: the minimum for this product, in the unit the seller set it in, and how a preorder works. On a computer it opens next to the button; on a phone it slides up from the bottom of the screen.',
+  'A seller can take Original Brand preorders (the product exactly as listed), OEM preorders (made to the buyer’s own design or brand), or both, each with its own minimum. The “i” inside Preorder lists both minimums, or says an option is not offered. When both are offered the customer must pick one, the minimum beside the quantity follows that choice, and a quantity below it is refused. The choice and its minimum are kept with the request and shown to the seller and to staff. A seller whose old single minimum may also have been meant for OEM is asked to confirm their terms.',
   'When the customer raises the quantity on the product page to the preorder minimum, the page asks once, “Ordering in bulk?”, and offers Start preorder. Continue with regular order is offered too, but only where the product can be bought in the basket at that quantity. It does not keep asking as the number goes up, and it asks again only in a new visit or if the minimum changes. If another window is already open, such as the bulk offers, it waits until that one is closed.',
   'The customer confirms the note once. The system remembers it for their account, so they are not asked every time. If the business changes how preorders work, it can ask every customer to read the note again. Confirming the note only says the customer has read it: it does not accept any terms, does not place an order and does not charge anything. A request cannot be sent without it.',
   'A seller can switch preorders off for a listing; the button then stays visible and greyed out, and says why. The business can also limit preorders to listings whose seller has set terms.',
@@ -987,13 +1011,37 @@ h2('6a.1 Becoming a seller');
 table(['Step', 'What the person does', 'What the system does'], [
   ['1', 'Presses "Become a seller" in the top bar of the shop.', 'Opens a public page that explains what selling here involves, before any account is needed.'],
   ['2', 'Signs in, or creates an account.', 'Uses the ordinary customer sign-in. Selling does not need a second account or a second email address.'],
-  ['3', 'Gives the registered business name, the shop name buyers will see, the country of registration and the kind of seller.', 'Checks the shop name is free as it is typed, then creates the seller business and makes this person its owner.'],
-  ['4', 'Works through the application.', 'Saves each step on its own, and keeps every word typed even before that, so the person can stop and come back for as long as it takes to gather documents.'],
-  ['5', 'Sends the application for review.', 'Refuses to send it while a required step is unfinished, and names each one that is.'],
+  ['3', 'Picks the business’s last completed financial year, types its annual turnover for that year, and ticks a box confirming the figure is true and can be backed by business records.', 'Shows at once whether the figure is above the marketplace’s minimum. The application cannot be started until it is and the box is ticked. See 6a.1a.'],
+  ['4', 'Gives the registered business name, the shop name buyers will see, the country of registration and the kind of seller.', 'Checks the shop name is free as it is typed, checks the turnover again, then creates the seller business and makes this person its owner.'],
+  ['5', 'Works through the application.', 'Saves each step on its own, and keeps every word typed even before that, so the person can stop and come back for as long as it takes to gather documents.'],
+  ['6', 'Sends the application for review.', 'Refuses to send it while a required step is unfinished, or while the turnover is missing, too low or for a year that has since been replaced, and names each problem.'],
 ], [700, 4400, 5000]);
 
 note('The Seller Hub has its own password', 'Buying and selling share one account, and the selling side has a second password of its own, chosen the first time the Hub is opened. It has to be different from the shop password. Entering it is remembered for that browser only, so signing in on a new machine asks again, and changing it closes the Hub on every other machine while leaving the shop signed in. A button in the Hub closes it without signing out of the shop, for anybody handing their computer to somebody else.', C.blue);
 note('An open Seller Hub closes itself when nobody uses it', 'If nobody has done anything in the Seller Hub for an hour, it closes and asks for the Seller Hub password again. Doing something means clicking, typing, saving or opening a page. A tab left in the background, or the mouse moving over the screen, does not count. Five minutes before the end, the Hub asks "Are you still there?" and counts down. Stay signed in keeps it open for another hour. Sign out closes the Hub straight away. If the time runs out, the Hub shows a message that the session expired and asks for the password again; anything typed but not saved on that page is lost. Only the Hub closes: the person stays signed in to the shop, with their basket and orders. Several open tabs agree with each other, so one tab never warns about a Hub another tab is still using. The business running the marketplace can change the hour and the five minutes. The Hub also no longer closes by itself several times an hour while somebody is working in it, which it used to do.', C.blue);
+
+h2('6a.1a Who may apply: the turnover requirement');
+p('The marketplace only takes on businesses of a certain size. Out of the box, a business may apply to sell only if its annual turnover — its total sales in a year — was more than ₹30 crore (INR 300 million) in its most recently completed financial year. Exactly ₹30 crore is not enough; anything above it is. This is the marketplace’s own policy, not a law, and the business running the marketplace can change the figure, the currency, or switch the requirement off.');
+p('The requirement is explained on the public “Sell” page, so anybody can read it before opening an account. A signed-in buyer who wants to apply sees a small eligibility card above the application form.');
+table(['What the person does', 'What the system does back'], [
+  ['Reads the eligibility card', 'Shows the minimum in large type, says it is the marketplace’s own policy, and says that eligibility is based on the most recently completed financial year and will be checked.'],
+  ['Chooses the financial year', 'Offers the most recent completed year for businesses whose year ends in March, December, June or September. An information button explains which year counts.'],
+  ['Types the turnover, in crore or in rupees', 'Converts between the two exactly, shows the full figure in rupees as it is typed, and points out a figure that is negative, badly written or has too many decimal places.'],
+  ['Types a figure above the minimum', 'Says the requirement is met, and that the figure will still be checked.'],
+  ['Types a figure at or below the minimum', 'Says politely that the business does not currently meet the requirement, offers a way back to shopping, and keeps the application closed.'],
+  ['Ticks the declaration', 'Opens the application only if the figure is also above the minimum. Ticking the box never makes a business eligible on its own.'],
+], [4200, 5800]);
+p('Inside the application, the same card sits at the top of the Business identity step for the owner and administrators of the seller business. There they can correct the figure, see whether it has been checked, read what the reviewer said, and attach supporting evidence such as audited accounts. That step is not marked finished until an eligible figure is saved.');
+bullets([
+  'Saying, checking and approving are three different things. The business says what its turnover is. A member of the marketplace’s staff checks it against the evidence and records the outcome with a reason. A separate decision approves the business to sell. Declaring a figure never approves anybody, and a business is approved only once its turnover has been checked and accepted.',
+  'A low figure is still saved, so nothing typed is lost. What is refused is sending the application for review.',
+  'Changing the figure, the currency or the year sends it back to be checked again. So does adding or removing a piece of supporting evidence after a decision. Saving the same figure again changes nothing.',
+  'When a newer financial year ends, a declaration for the old year counts as out of date, and the application cannot be sent until the figure is updated.',
+  'The rule is checked by the marketplace’s own system each time, not only on the screen, so it cannot be skipped.',
+  'Evidence is handled like every other seller document: checked for viruses, stored privately, and opened only by the seller and staff through a link that works once.',
+  'The card works in all eight languages, on a phone, with the keyboard alone, and in light and dark colours.',
+]);
+note('Sellers already trading are not affected', 'A business that the marketplace approved before this requirement existed is not asked for its turnover, is not marked as unfinished, and is not suspended. Whether to apply the requirement to them later is a decision for the business running the marketplace; the system does not do it.', C.orange);
 
 h2('6a.2 What the application asks for');
 p('There are eight steps. What each one demands depends on the country the business is registered in and on whether it manufactures, distributes, wholesales or resells — so a German seller is asked for a VAT number, an Indian seller for a GSTIN, an Australian seller for an ABN, and a distributor for written authorisation from the manufacturer instead of a declaration it cannot sign.');
@@ -1001,7 +1049,7 @@ p('Tax numbers are asked for by the name they are known by in the seller’s own
 p('The second number is never insisted on unless the seller’s own country issues one, because a box that cannot be filled in is a business that can never finish applying. A number typed in the wrong shape is not thrown away either: the step stays unfinished and says which number it is waiting for, so the seller can go and find the right one and come back to everything else still there.');
 table(['Step', 'What it covers'], [
   ['Contact verification', 'The email address and mobile number the marketplace will reach the business on.'],
-  ['Business identity', 'Registered name, country, company registration number, tax registration, and the registered address in full.'],
+  ['Business identity', 'The annual turnover and its financial year (see 6a.1a), registered name, country, company registration number, tax registration, and the registered address in full.'],
   ['Identity and documents', 'Who is authorised to act for the business, the tax number that identifies it to its own revenue authority, and the documents that prove the business exists.'],
   ['Store details', 'The name buyers see, a description of the business, and how buyers reach its support desk.'],
   ['Pickup and returns', 'The addresses orders are sent from and returns come back to, with each one’s cut-off time and how long picking takes.'],
@@ -1043,33 +1091,41 @@ note('Checking files for viruses', 'No virus checker is installed with this soft
 note('About the signature', 'The application records a typed name, a tick, the version of each document, the time, the address and the browser. This is a record of consent. It is not an electronic signature tied to a verified identity, and the system never describes it as one.', C.orange);
 
 h2('6a.3 What the marketplace sees, and how a seller is approved');
-p('Everything the applicant supplies appears in the admin console so that staff can check it before allowing the business to sell. Nothing goes on sale on the strength of an application alone.');
-table(['What staff see', 'Why it is there'], [
+p('A seller is checked and approved by the marketplace’s Audit Team, in the Audit Console. The Audit Team is a separate group of people from the staff who run the shop day to day, so the people who decide whether a business is genuine are not the people who sell to it. Nothing goes on sale on the strength of an application alone.');
+p('The admin console shows the same application in full, so the business can follow every application. It cannot approve, reject, send back or decide any document there. A notice at the top of the seller’s page says: “Read-only — seller verification is managed by the Audit Team.” Underneath, it shows who made each decision and when.');
+table(['What the Audit Team sees', 'Why it is there'], [
   ['A queue of applications, oldest first', 'So the business that has waited longest is dealt with first rather than last.'],
   ['How far through the application each one is', 'Lets staff see at a glance which applications are ready to decide and which are still being filled in.'],
   ['The registered and trading names, country and seller type', 'The basic question of who this business claims to be.'],
   ['Company registration number, tax registration, and any country-specific identifiers', 'The numbers staff check against a public register.'],
   ['The authorised representative, their role and contact details', 'Who signs for the business, and who to contact about a problem.'],
   ['Every document uploaded, with its scan state and any expiry date', 'Evidence, and whether it has been checked for viruses. An unchecked file is shown as unchecked rather than as safe.'],
-  ['A button to open each document, and buttons to accept it or send it back', 'This is where a certificate is actually decided. Opening one gives a link that works for a few minutes and once only; sending one back needs a reason, which the seller reads word for word.'],
+  ['A button to open each document, and buttons to accept it or refuse it', 'This is where a certificate is actually decided, by the Audit Team. Refusing one needs a reason, which the seller reads word for word. In the admin console, staff can only open documents.'],
   ['Every address the seller would ship from or take returns at', 'A seller with no address that can dispatch cannot fulfil an order.'],
   ['Every agreement accepted, with its version, the time and the address it came from', 'What exactly the business has agreed to, and when.'],
   ['Step-by-step application progress', 'Which parts are finished, which need attention, and any note the system attached.'],
   ['Payout account state', 'Whether money can actually be sent, and what the provider is still waiting for.'],
+  ['The annual turnover the business declared', 'Whether it is above the minimum, the exact figure, the year it is for, the minimum and policy in force when it was given, any supporting evidence to open, and every earlier figure. The Audit Team marks it checked or not checked, with a reason the seller reads and, if they like, a private note. The business cannot be approved until it is checked and above the minimum.'],
   ['Private staff notes', 'Staff assessments that the seller must never see, kept in their own panel and clearly marked.'],
 ], [4200, 5800]);
 
 h2('6a.4 The decision');
-table(['Decision', 'What happens'], [
-  ['Take it on', 'Marks the application as being reviewed, so two members of staff do not work on it at once.'],
-  ['Approve', 'The business may start creating listings immediately. Nothing it lists goes on sale until that listing has separately passed quality review.'],
-  ['Send back', 'Returns the application to the seller with a written reason they can act on. They fix it and send it again.'],
-  ['Reject', 'Refuses the application with a reason. Staff choose whether the business may apply again.'],
-  ['Suspend', 'Stops an already approved seller. New listings and new orders stop at once; orders they have already accepted still have to be fulfilled and money already owed is still owed.'],
-], [2200, 7800]);
+p('The Audit Team works through a list of applications in the Audit Console called Seller verification. It is split into new applications, applications in review, applications waiting for the seller to make corrections, applications sent back after corrections, approved and rejected. The oldest is always first. Each reviewer is told in the console as soon as a business applies, sends corrections back, or uploads a document.');
+table(['Decision', 'Who', 'What happens'], [
+  ['Start review', 'Audit Team', 'Marks the application as in review, so the seller and the team know somebody is working on it.'],
+  ['Approve', 'Audit Team', 'The business may start creating listings immediately. It is refused while any required step, document, screening or turnover check is still missing. Nothing it lists goes on sale until that listing has separately passed quality review, and approval does not set up payouts: the payment provider still checks the business itself.'],
+  ['Request corrections', 'Audit Team', 'Returns the application to the seller with a written reason they can act on. They fix it and send it again, and it comes back to the Audit Team marked as resubmitted.'],
+  ['Reject', 'Audit Team', 'Refuses the application with a reason. The reviewer chooses whether the business may apply again.'],
+  ['Suspend', 'Admin console', 'Stops an already approved seller. New listings and new orders stop at once; orders they have already accepted still have to be fulfilled and money already owed is still owed.'],
+  ['Lift suspension', 'Admin console', 'Lets a suspended seller trade again. It is refused if any of the seller’s evidence has lapsed in the meantime.'],
+], [2000, 1800, 6200]);
+p('The seller sees “Awaiting verification”, “Under Audit Team review” or “Corrections requested”, and the decisions are signed “Audit Team”, never with a person’s name. The Audit Team records decisions; it never changes what the seller wrote. To change something, it asks the seller.');
+note('Only the Audit Team decides, and the system enforces it', 'The admin console does not just hide the buttons: the system itself refuses any approval, rejection, correction request or document decision that comes from it, whatever the person’s role. A reviewer who is connected to the seller - for example, whose email address belongs to one of the seller’s people - is refused too, so a colleague has to decide. Inspection agencies never see seller applications.', C.purple);
+note('Decisions made before the Audit Team took over', 'Applications that staff approved or rejected in the admin console before this change keep that history, shown as made in the admin console. Nothing is rewritten. Applications still waiting simply appear in the Audit Team’s list.', C.blue);
+note('When there is no Audit Team yet', 'If the Audit Console is switched off, or nobody has been invited as an audit reviewer, applications wait. The admin console says which of the two is missing. Nothing falls back to approval by other staff, and no reviewer account is ever created automatically. Setting it up is one of the steps before going live.', C.orange);
 p('Stopping one listing is different from stopping the whole seller. On the seller’s page, staff can see every listing the seller has. A member of staff who is allowed to publish can press Block on a listing that is not archived. They must write a reason, and the seller reads it exactly as written. The listing leaves search and baskets at once. The seller is told, and the block is recorded. The seller cannot put it back on sale, edit it or archive it. Orders already placed still have to be shipped. Later, staff can press Lift block. A listing that was on sale then comes back paused, so the seller’s own checks run before it sells again.');
 note('Reasons are written for the seller', 'Every refusal needs a reason, and that reason appears on the seller’s own screen. A separate box holds private staff notes, which are never sent to the seller. The two are kept apart on purpose.', C.blue);
-note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If somebody else decided it in the meantime, the second decision is refused rather than quietly overwriting the first.', C.purple);
+note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If another reviewer decided it in the meantime, the second decision is refused rather than quietly overwriting the first. The same is true for a document or a turnover figure two reviewers open at once.', C.purple);
 p('Under the list of applications, the Sellers screen also shows two lists of suppliers who have been approved and have something on sale right now. “Verified suppliers” shows up to 24 of them, those approved longest ago first, with their name, what kind of business they are, the country they are registered in, the day they were verified and how many products they have on sale; when there are more, it says how many are shown out of how many. “Newly verified suppliers” shows those approved in the last 90 days, newest first. Pressing a supplier opens their record. Each list says so plainly when it is empty, and offers to try again if it could not load. These lists used to be on the shop\'s home page; they are for the marketplace team now.');
 
 h2('6a.5 Listing a product');
@@ -1661,12 +1717,34 @@ page();
 h1('6b. Inspection Agency Features');
 h2('The Audit Console: where agencies now work');
 p('Agencies no longer work inside the shop. When the business switches the Audit Console on, it gives each agency member an invitation by email. They set a password and add a code from an authenticator app on their phone, and they enter that code every time they sign in. Their old pages in the shop now only say that the work has moved.');
-p('Agency people have one of four roles: agency administrator, coordinator, inspector or quality reviewer. The marketplace’s own staff use the same console as supervisors or compliance reviewers. Each person sees only their own agency’s work.');
+p('Agency people have one of four roles: agency administrator, coordinator, inspector or quality reviewer. The marketplace’s own staff use the same console as supervisors or compliance reviewers, and they are the ones who check and approve new sellers (see 6a.4). Each agency person sees only their own agency’s work and never sees a seller’s application.');
 h2('Agency dashboard');
 p('An agency member sees their assignments, the acceptance and report deadlines, and overdue work. Each assignment links to its report. Coordinators can review member identity verification and qualification expiry. Members with invoice permission see invoices, who pays them, their status and amount. Inspectors see only work assigned to them. A failed read can be retried.');
 h2('Audit team dashboard');
 p('The marketplace’s own supervisors and compliance reviewers see their dashboard as charts. Across the top are the headline numbers: cases still open, documents waiting to be checked, approved documents that stop being valid within 30 days, rules in force, the share of categories that already have approved rules, and inspections that are late.');
 p('Below them, three rings show cases, seller documents and rules by where they stand, and two bar charts show the inspection work and the categories that sell products but have no approved rule yet, busiest first. Clicking any number, slice or bar opens the list behind it, already filtered. Each ring can also be shown as a plain table. The page brings itself up to date every minute.');
+h2('Seller health');
+p('Compliance staff can see at a glance how well each seller is keeping to the rules, the way Amazon shows a seller their account health. Every seller gets a score from 0 to 1,000 and one of three labels: Healthy, At risk or Unhealthy. The score starts at 1,000 and each open problem takes points off; the more serious the problem, the more it takes.');
+bullets([
+  'Serious problems, such as a critical fault found at inspection or a suspended certificate, make the seller Unhealthy straight away.',
+  'Problems such as goods held after a failed inspection, an expired certificate, a lapsed identity check, or more than one in ten inspections not passing make the seller At risk.',
+  'Smaller things, such as a certificate that runs out within 30 days or a minor fault, lower the score but leave the seller Healthy.',
+]);
+p('The seller list shows each seller’s label and score, can show only one label, and can put the riskiest sellers first. Opening a seller shows the score on a red, amber and green bar, how many problems are open at each level, and every problem with a short explanation and a button that goes straight to where it is fixed. It also shows how many of the seller’s inspections passed against the target.');
+h2('Verification report');
+p('Each seller’s page also has a verification report, laid out like the supplier checks Alibaba.com shows buyers. It goes through six areas: the company’s legal identity, sanctions screening, its production sites, its certificates, the categories it is approved to sell in, and its inspection record. Each area says Verified, Needs attention, In progress, Declared or Not assessed, with the numbers behind it, and the approved certificates are listed with who issued them and when they run out.');
+p('A seller is shown as a Verified seller only when its identity, screening and certificates have all been checked and nothing needs attention. Production sites are only ever shown as declared by the seller, because nobody from the marketplace has visited them.');
+h2('Quality analytics');
+p('The audit team has a Quality analytics page, like the quality dashboards inspection companies such as QIMA give their clients. It covers the last twelve months and shows:');
+bullets([
+  'how many inspections passed, how many did not, and how many faults are still waiting for the seller to put right;',
+  'a month-by-month chart of passed, unclear and failed inspections, which can also be read as a table;',
+  'faults found by how serious they were, and the requirements inspectors cite most often;',
+  'the five best and five weakest suppliers by how often their goods pass;',
+  'for each inspection agency, how many inspections it finished, how many reports it signed on time and how many lots passed;',
+  'how many sellers are Healthy, At risk or Unhealthy.',
+]);
+p('Clicking a figure, a supplier, an agency or a part of a chart opens the list behind it. Agencies cannot see this page.');
 h2('Packaging and label checks');
 p('The assigned inspector opens a separate packaging and label screen. It shows the booked checks for inner and outer packaging, carton quantities, pallets, shipping marks, barcodes, destination labels and safety symbols. The inspector records a result, the observed value and notes, and attaches evidence to the relevant check. A failed check needs an explanation. Other agency members can read the findings; editing stops when the inspection ends.');
 h2('Corrective action and re-inspection');
@@ -1700,7 +1778,7 @@ bullets([
   'Leaving or reloading that page issues a new square code and the one already scanned stops working, so the page asks the person to finish in one go.',
   'The application can require a location reading before opening staff routes. The location is a security record, not a rule that decides whether a person is allowed.',
   'The sign-in location appears in the session/top bar and can create an admin notification, helping the business notice unexpected staff logins.',
-  'Before signing in, staff tick a box to agree to the terms. If the business has written staff terms, clicking the box opens them in a window instead of ticking it. The I agree button only works once the person has scrolled to the end, and only that button ticks the box. If the business has not written staff terms yet, a simple tick box is shown instead, so nobody is ever locked out. Staff agree again every time they sign in, and nothing is stored.',
+  'There is no terms box on the sign-in page. After signing in, staff are asked once to agree to the staff terms and to confirm they have read the Privacy Policy, on the Before you continue page (see 2.2c). They are asked again only when the business publishes a new version that needs agreeing to. Their record is under Terms and privacy in the user menu.',
   'New staff can receive a temporary password. They must choose their own password before they can use normal admin routes.',
   'Staff can use password recovery without exposing whether an email address exists.',
 ]);
@@ -2290,7 +2368,7 @@ table(['Settings group', 'Examples of what it controls'], [
   ['Shipping and delivery policy', 'Delivery-related configuration and customer-facing policy information.'],
   ['Notifications', 'Email/notification settings and delivery behaviour.'],
   ['Appearance and policy links', 'Brand-facing configuration and links such as terms or privacy documents.'],
-  ['Legal documents', 'Write the Terms and Conditions buyers agree to, the separate terms for delivery companies, and the terms your own staff agree to when they sign in. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. The list shows which version applies today and how many people agreed to each, never who.'],
+  ['Legal documents', 'Write the Terms and Conditions buyers agree to, the Seller Addendum, the separate terms for delivery companies, for your own staff and for Audit Console users, the Privacy Policy and the other policies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. When publishing, choose whether everyone must agree again or whether it is only a correction. A draft that still has a blank to fill in, marked [[...]], cannot be published. Drafts of the Terms, the Seller Addendum and the Privacy Policy prepared for Gloviaa Mart can be loaded into this list; they stay drafts until a lawyer approves them and every blank is filled in. The list shows which version applies today and how many people agreed to each, never who.'],
   ['Feature configuration', 'Which optional customer/admin capabilities appear in a specific deployment.'],
 ], [3000, 7000]);
 h2('12.2a Is everything ready to go live?');
@@ -2740,7 +2818,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Text-message notifications', 'Appear only when the business connects its own text-message service and switches text messages on for a notification. Each customer can still switch them off for most kinds of notification.'],
   ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
   ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
-  ['Audit Console', 'Off by default and turned on by a setting, together with the address the console is reached at. On, inspectors, agencies and compliance staff are invited to their own console, and sellers get a Compliance page. The phone code at sign-in is on by default and cannot be switched off on a live system.'],
+  ['Audit Console', 'Off by default and turned on by a setting, together with the address the console is reached at. On, inspectors, agencies and compliance staff are invited to their own console, and sellers get a Compliance page. New sellers are checked and approved only here, so a marketplace that takes sellers needs it switched on and at least one audit reviewer invited; until then applications wait. The phone code at sign-in is on by default and cannot be switched off on a live system.'],
   ['Compliance gate on new listings', 'Off by default. It can be set to warn sellers what is missing, or to require a qualification before a new product goes on sale in a category with an approved rule. Products already on sale are never switched off; they go to a review list.'],
   ['Requests for quotation', 'On by default and can be switched off by a setting. The product page also offers a private label / OEM request template for branding, packaging, drawing or custom specification and target volume. Off, the Request quotes and private label / OEM links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],
   ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
@@ -2763,6 +2841,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing. Once the finance team publishes a platform fee (see 10.7), that fee is used instead for the sellers, countries or categories it covers — except that a seller with an agreed rate keeps it unless a fee is set for that seller specifically.'],
+  ['Seller turnover requirement', 'On out of the box. Only a business whose turnover in its last completed financial year was above a minimum — ₹30 crore unless the business changes it — may apply to sell, and staff must check the figure before approval. The business running the marketplace sets the minimum and its currency, and can switch the requirement off, in which case the eligibility card disappears and nothing is checked. Changing the minimum or its wording should go with a new policy version, so each declaration records what it was judged against.'],
   ['Certificates a seller must supply', 'Nothing is demanded out of the box. The business running the marketplace decides, per country and per kind of seller, which certificates and documents are required — and a step only has to be answered once something on it has been marked required.'],
   ['Opening a document nobody has checked for viruses', 'Uploaded documents are scanned with ClamAV before storage. A clean result is required before staff or sellers can open one; an infected or failed scan is refused. Production will not start without the scanner, and the live host still needs an operational scan test.'],
   ['Sign-in details printed on the sign-in page', 'For a demonstration only. Where the business has listed demonstration accounts for a site, that site’s sign-in page shows them, so anybody given the address can look around without being sent a password first. Nothing is listed unless the business lists it, and nothing is listed by default, so an ordinary installation shows an ordinary sign-in page. A site set up this way is open to everybody who has the address, so it must hold made-up information and its passwords must be changed to ones used nowhere else.'],
@@ -2825,8 +2904,16 @@ h2('Example A4 — The business publishes new Terms');
 table(['Step', 'Who', 'What happens'], [
   ['1', 'Business owner', 'Opens Legal documents, under Administration, and starts a new version of the Terms and Conditions with the text their lawyer approved, the date it should apply from and a short note on what changed.'],
   ['2', 'Business owner', 'Checks the preview, then publishes it and confirms that it can never be changed afterwards.'],
-  ['3', 'System', 'Freezes the text. From the date it applies, every new sign-up must agree to this version. People who agreed to an earlier version stay linked to the one they agreed to.'],
+  ['3', 'System', 'Freezes the text. From the date it applies, every new sign-up must agree to this version. If the owner asked everyone to agree again, existing customers see the Before you continue page on their next visit; if it was only a correction, nobody is asked again. Earlier agreements stay on record.'],
   ['4', 'Buyer', 'Somebody half-way through signing up with the old version presses Create account. They are told the Terms have changed and asked to read and agree to the new ones. Nothing they typed is lost.'],
+], [800, 1600, 7700]);
+h2('Example A5 — A buyer agrees after the business publishes a Privacy Policy');
+table(['Step', 'Who', 'What happens'], [
+  ['1', 'Business owner', 'Publishes the Privacy Policy in Legal documents, with its blanks filled in and approved by their lawyer.'],
+  ['2', 'Buyer', 'Signs in as usual and opens their orders.'],
+  ['3', 'System', 'Shows Before you continue instead. The Terms box is already ticked, because they agreed when they signed up. The Privacy Policy box is empty.'],
+  ['4', 'Buyer', 'Clicks Privacy Policy, reads to the end and presses I acknowledge. The box is ticked.'],
+  ['5', 'Buyer', 'Presses Continue and lands on their orders.'],
 ], [800, 1600, 7700]);
 h2('Example B — Inventory manager handles stock');
 table(['Step', 'Staff action', 'System response'], [
@@ -2881,13 +2968,38 @@ h2('Example F — A seller sends in a CE certificate and is approved to sell a b
 table(['Step', 'Who acts', 'What happens'], [
   ['1', 'The seller', 'Opens the compliance step of their application, chooses "CE certificate", attaches the PDF and gives the date it runs out.'],
   ['2', 'The system', 'Checks the file really is a PDF, stores it where nobody can reach it by guessing an address, marks it "being checked", and shows the step as waiting rather than finished.'],
-  ['3', 'The system', 'Tells the marketplace at once — the bell rings, and the Sellers entry in the list of screens shows one more thing waiting.'],
+  ['3', 'The system', 'Tells the Audit Team at once — the bell rings in the Audit Console for every reviewer who checks sellers.'],
   ['4', 'The seller', 'Carries on. Waiting on the marketplace does not stop them sending the application in, because the marketplace looks at the documents while reviewing it.'],
-  ['5', 'A member of staff', 'Opens the seller’s screen, opens the document, and accepts it. A link that works for a few minutes and once only is used to read it, and who opened it is written down.'],
-  ['6', 'The system', 'Tells the seller, marks the step finished, and takes the waiting count back down.'],
+  ['5', 'An Audit Team reviewer', 'Opens the application in Seller verification, opens the document, and accepts it. Who opened it is written down.'],
+  ['6', 'The system', 'Tells the seller and marks the step finished. The admin console shows the document as accepted, and by whom, but cannot change it.'],
   ['7', 'The seller', 'Starts a listing and looks for their brand. They have not been approved for any yet, so the list is empty and the screen says so.'],
   ['8', 'The seller', 'Asks for the brand on their product and says why they are entitled to sell it. If the name is already in the catalogue, the request attaches to the existing entry.'],
   ['9', 'A member of staff', 'Reads the reason and approves it. From then on that brand appears in this seller’s list — and only in theirs — and the listing can go on sale once it has passed quality review.'],
+], [700, 2300, 7000]);
+
+h2('Example F2 — A business checks whether it may sell, and its turnover is checked');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer', 'Opens the Sell page and reads that businesses with turnover above ₹30 crore may apply.'],
+  ['2', 'The buyer', 'Chooses the financial year that ended last March and types 30 crore. The card says the business does not currently meet the requirement, and the application stays closed.'],
+  ['3', 'The buyer', 'Checks the accounts, sees the real figure was 42 crore, types that and ticks the declaration. The card says the requirement is met, subject to checking, and the application opens.'],
+  ['4', 'The system', 'Checks the figure again, creates the seller business, and keeps the declared figure with its year, the minimum in force and the time.'],
+  ['5', 'The seller', 'Attaches the audited accounts under Supporting evidence on the Business identity step, finishes the other steps and sends the application.'],
+  ['6', 'An Audit Team reviewer', 'Opens the application in the Audit Console, reads the Annual turnover card, opens the accounts and marks the turnover checked, with a short reason.'],
+  ['7', 'The system', 'Records who checked it and when, shows the outcome and the reason on the seller’s Business identity step, and stops listing turnover among the things holding up approval. The business is still not approved until the Audit Team approves the application itself.'],
+  ['8', 'The seller', 'Later corrects the figure. It goes back to be checked again, and approval waits until it is.'],
+], [700, 2300, 7000]);
+
+h2('Example F3 — The Audit Team asks for a correction, then approves a seller');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'The seller', 'Finishes the application and sends it. It now says “Awaiting verification”.'],
+  ['2', 'The system', 'Puts it in the Audit Team’s list of new applications and tells every reviewer who checks sellers.'],
+  ['3', 'An Audit Team reviewer', 'Starts the review, reads the business details and opens the trade licence. The company name on it does not match.'],
+  ['4', 'The reviewer', 'Presses Request corrections and writes what is wrong. The seller is told, in those words.'],
+  ['5', 'The seller', 'Uploads the right licence and sends the application back.'],
+  ['6', 'The system', 'Puts it in the Resubmitted list and tells the reviewers.'],
+  ['7', 'The reviewer', 'Accepts the new licence, checks the turnover and records the sanctions screening, then presses Approve. The system checks nothing required is missing before it agrees.'],
+  ['8', 'The seller', 'Is told they can start listing. Their history says the Audit Team approved them.'],
+  ['9', 'A member of staff in the admin console', 'Opens the seller, sees “Read-only — seller verification is managed by the Audit Team.”, the reviewer who approved and every step before it, but has no button to change any of it.'],
 ], [700, 2300, 7000]);
 
 h2('Example G — A seller puts a listing on sale and a buyer finds it');

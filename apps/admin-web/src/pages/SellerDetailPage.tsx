@@ -38,7 +38,6 @@ import {
   Button,
   Callout,
   Card,
-  CheckboxField,
   Field,
   Input,
   PageHeader,
@@ -46,55 +45,44 @@ import {
 } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
-import { ATTENTION_QUERY_KEY } from '@/lib/attention';
 import { errorMessage } from '@/lib/errors';
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
 import { SellerKybReviewPanel } from './seller/SellerKybReviewPanel';
+import { SellerTurnoverPanel } from './seller/SellerTurnoverPanel';
 import {
   ONBOARDING_STEPS,
   applicationStatusLabel,
   applicationStatusTone,
   createSellerDocumentLink,
   decideSellerApplication,
-  decideSellerDocument,
   documentKindLabel,
   fetchSellerApplication,
   setSellerCommission,
   type SellerApplicationDetail,
   type SellerDecision,
   type SellerDocument,
+  type SellerVerificationHistoryEntry,
 } from '@/lib/sellers';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 type DecisionKind = SellerDecision['status'];
 
+/**
+ * The two operational controls the Admin Panel keeps over a verified seller.
+ * Verifying a seller - review, corrections, approval, rejection - is the Audit
+ * Team's, in the Audit Console; the server refuses it from here whatever role
+ * is signed in, so it is not offered.
+ */
 const DECISION_COPY: Record<
   DecisionKind,
   { title: string; verb: string; needsReason: boolean; tone: 'primary' | 'danger' | 'secondary' }
 > = {
-  UNDER_REVIEW: {
-    title: 'Start reviewing this application',
-    verb: 'Take it on',
-    needsReason: false,
-    tone: 'secondary',
-  },
   APPROVED: {
-    title: 'Approve this seller',
-    verb: 'Approve',
+    title: 'Lift this suspension',
+    verb: 'Lift suspension',
     needsReason: false,
     tone: 'primary',
-  },
-  ACTION_REQUIRED: {
-    title: 'Send this application back',
-    verb: 'Send back',
-    needsReason: true,
-    tone: 'secondary',
-  },
-  REJECTED: {
-    title: 'Reject this application',
-    verb: 'Reject',
-    needsReason: true,
-    tone: 'danger',
   },
   SUSPENDED: {
     title: 'Suspend this seller',
@@ -108,8 +96,8 @@ export function SellerDetailPage(): React.JSX.Element {
   const { id = '' } = useParams();
   const { can } = useSession();
   const [deciding, setDeciding] = useState<DecisionKind | null>(null);
-  // The server refuses a decision without this; the buttons are not offered to
-  // staff who could only ever be told no.
+  // Suspend / lift only. The server refuses these without the permission, and
+  // refuses every verification decision from this panel outright.
   const canDecide = can(Permission.CUSTOMER_STATUS_WRITE);
 
   const query = useQuery({
@@ -168,11 +156,10 @@ export function SellerDetailPage(): React.JSX.Element {
 }
 
 /**
- * What a reviewer may do from here.
- *
- * Only the transitions the state machine actually allows from this status. A
- * button that fails on press teaches a reviewer to distrust the screen; the
- * server refuses these anyway, and this is so they are never offered.
+ * What the Admin Panel may do from here: suspend a verified seller, or lift a
+ * suspension. Lifting still runs the server's evidence gate, so it cannot turn
+ * on a seller whose evidence has lapsed. Every other status belongs to the
+ * Audit Team.
  */
 function DecisionButtons({
   status,
@@ -181,28 +168,8 @@ function DecisionButtons({
   status: SellerApplicationDetail['status'];
   onChoose: (decision: DecisionKind) => void;
 }): React.JSX.Element | null {
-  const available: DecisionKind[] =
-    status === 'SUBMITTED'
-      ? ['UNDER_REVIEW', 'APPROVED', 'ACTION_REQUIRED', 'REJECTED']
-      : status === 'UNDER_REVIEW'
-        ? ['APPROVED', 'ACTION_REQUIRED', 'REJECTED']
-        : status === 'ACTION_REQUIRED'
-          ? ['REJECTED']
-          : status === 'APPROVED'
-            ? ['SUSPENDED', 'ACTION_REQUIRED']
-            : status === 'SUSPENDED'
-              ? ['APPROVED', 'ACTION_REQUIRED', 'REJECTED']
-              : status === 'REJECTED'
-                ? ['ACTION_REQUIRED']
-                : [];
-
-  if (available.length === 0) {
-    return (
-      <span className="text-xs text-ink-subtle">
-        This seller has not sent their application in yet.
-      </span>
-    );
-  }
+  const available: DecisionKind[] = status === 'APPROVED' ? ['SUSPENDED'] : status === 'SUSPENDED' ? ['APPROVED'] : [];
+  if (available.length === 0) return null;
 
   return (
     <>
@@ -279,6 +246,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
       <div className="space-y-5">
+        <VerificationReadOnlyCard seller={seller} />
+
         {/* Why it is in the state it is in, if somebody said. */}
         {seller.statusReason !== null && seller.statusReason.length > 0 && (
           <Callout
@@ -354,7 +323,9 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
             )}
         </Card>
 
-        <SellerKybReviewPanel sellerAccountId={seller.id} legalName={seller.legalName} kyb={seller.kyb} />
+        <SellerKybReviewPanel legalName={seller.legalName} kyb={seller.kyb} />
+
+        <SellerTurnoverPanel sellerAccountId={seller.id} />
 
         <Card
           title="Who represents it"
@@ -403,7 +374,7 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
 
         <RecordHistoryCard resourceType="seller_account" resourceId={seller.id} />
 
-        <DocumentsCard sellerId={seller.id} documents={seller.documents} />
+        <DocumentsCard documents={seller.documents} />
 
         <SellerFactoriesPanel sellerId={seller.id} />
 
@@ -718,45 +689,9 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
  *     so above the box, because a reviewer who thinks they are writing a
  *     private note writes a different sentence.
  */
-function DocumentsCard({
-  sellerId,
-  documents,
-}: {
-  sellerId: string;
-  documents: SellerDocument[];
-}): React.JSX.Element {
+function DocumentsCard({ documents }: { documents: SellerDocument[] }): React.JSX.Element {
+  const { t } = useI18n();
   const toast = useToast();
-  const queryClient = useQueryClient();
-
-  /** The document being refused, and the reason so far. Null when none is. */
-  const [refusing, setRefusing] = useState<SellerDocument | null>(null);
-  const [reason, setReason] = useState('');
-
-  const refresh = async (): Promise<void> => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['admin', 'seller', sellerId] }),
-      // The rail's badge counts undecided documents, so it has to come down in
-      // the same breath as the decision - otherwise the console keeps saying
-      // one is waiting after the reviewer has just dealt with it.
-      queryClient.invalidateQueries({ queryKey: ATTENTION_QUERY_KEY }),
-    ]);
-  };
-
-  const decide = useMutation({
-    mutationFn: ({ id, decision, why }: { id: string; decision: 'APPROVED' | 'REJECTED'; why: string | null }) =>
-      decideSellerDocument(id, { decision, reason: why }),
-    onSuccess: async (_result, variables) => {
-      setRefusing(null);
-      setReason('');
-      await refresh();
-      toast.success(variables.decision === 'APPROVED' ? 'Accepted.' : 'Sent back to the seller.');
-    },
-    onError: (error: unknown) => {
-      toast.error(
-        error instanceof ApiError ? error.message : 'That decision could not be recorded.',
-      );
-    },
-  });
 
   const open = useMutation({
     mutationFn: createSellerDocumentLink,
@@ -771,171 +706,133 @@ function DocumentsCard({
   });
 
   return (
-    <>
-      <Card
-        title="Documents"
-        description="What they uploaded as evidence. Open each one and decide it before approving the seller."
-      >
-        {documents.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-ink-muted">
-            Nothing has been uploaded yet. The seller attaches certificates and licences from the
-            Compliance and Identity steps of their own application.
-          </p>
-        ) : (
-          <ul className="divide-y divide-border-subtle">
-            {documents.map((document) => (
-              <li key={document.id} className="px-5 py-3.5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">
-                      {documentKindLabel(document.kind)}
-                    </p>
-                    <p className="truncate text-xxs text-ink-subtle">
-                      {document.originalFileName} ·{' '}
-                      {Math.max(1, Math.round(document.byteSize / 1024))} KB
-                      {document.issuedOn !== null && ` · issued ${document.issuedOn}`}
-                      {document.expiresOn !== null && ` · expires ${document.expiresOn}`}
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                    <Badge
-                      tone={
-                        document.scanState === 'CLEAN'
-                          ? 'success'
-                          : document.scanState === 'INFECTED'
-                            ? 'danger'
-                            : 'warning'
-                      }
-                    >
-                      {document.scanState.replace(/_/g, ' ').toLowerCase()}
-                    </Badge>
-
-                    <Badge
-                      tone={
-                        document.status === 'APPROVED'
-                          ? 'success'
-                          : document.status === 'REJECTED'
-                            ? 'danger'
-                            : 'brand'
-                      }
-                    >
-                      {document.status === 'APPROVED'
-                        ? 'accepted'
-                        : document.status === 'REJECTED'
-                          ? 'not accepted'
-                          : 'undecided'}
-                    </Badge>
-                  </div>
+    <Card title="Documents" description={t('sellerVerification.documentsReadOnly')}>
+      {documents.length === 0 ? (
+        <p className="px-5 py-6 text-sm text-ink-muted">
+          Nothing has been uploaded yet. The seller attaches certificates and licences from the
+          Compliance and Identity steps of their own application.
+        </p>
+      ) : (
+        <ul className="divide-y divide-border-subtle">
+          {documents.map((document) => (
+            <li key={document.id} className="px-5 py-3.5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-ink">{documentKindLabel(document.kind)}</p>
+                  <p className="truncate text-xxs text-ink-subtle">
+                    {document.originalFileName} · {Math.max(1, Math.round(document.byteSize / 1024))} KB
+                    {document.issuedOn !== null && ` · issued ${document.issuedOn}`}
+                    {document.expiresOn !== null && ` · expires ${document.expiresOn}`}
+                  </p>
                 </div>
 
-                {document.rejectedReason !== null && (
-                  <p className="mt-2 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-xs leading-relaxed text-ink">
-                    {document.rejectedReason}
+                <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                  <Badge
+                    tone={document.scanState === 'CLEAN' ? 'success' : document.scanState === 'INFECTED' ? 'danger' : 'warning'}
+                  >
+                    {document.scanState.replace(/_/g, ' ').toLowerCase()}
+                  </Badge>
+                  <Badge tone={document.status === 'APPROVED' ? 'success' : document.status === 'REJECTED' ? 'danger' : 'brand'}>
+                    {document.status === 'APPROVED' ? 'accepted' : document.status === 'REJECTED' ? 'not accepted' : 'undecided'}
+                  </Badge>
+                </div>
+              </div>
+
+              {document.rejectedReason !== null && (
+                <p className="mt-2 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-xs leading-relaxed text-ink">
+                  {document.rejectedReason}
+                </p>
+              )}
+
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                {document.isDownloadable ? (
+                  <Button
+                    isLoading={open.isPending && open.variables === document.id}
+                    onClick={() => {
+                      open.mutate(document.id);
+                    }}
+                  >
+                    Open
+                  </Button>
+                ) : (
+                  <p className="text-xxs text-ink-muted">
+                    This installation does not serve files that have not been scanned for malware.
                   </p>
                 )}
-
-                <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                  {document.isDownloadable ? (
-                    <Button
-                      isLoading={open.isPending && open.variables === document.id}
-                      onClick={() => {
-                        open.mutate(document.id);
-                      }}
-                    >
-                      Open
-                    </Button>
-                  ) : (
-                    <p className="text-xxs text-ink-muted">
-                      This installation does not serve files that have not been scanned for
-                      malware.
-                    </p>
-                  )}
-
-                  {document.status !== 'APPROVED' && (
-                    <Button
-                      variant="primary"
-                      isLoading={
-                        decide.isPending &&
-                        decide.variables.id === document.id &&
-                        decide.variables.decision === 'APPROVED'
-                      }
-                      onClick={() => {
-                        decide.mutate({ id: document.id, decision: 'APPROVED', why: null });
-                      }}
-                    >
-                      Accept
-                    </Button>
-                  )}
-
-                  {document.status !== 'REJECTED' && (
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        setReason('');
-                        setRefusing(document);
-                      }}
-                    >
-                      Send back
-                    </Button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-
-      <Modal
-        isOpen={refusing !== null}
-        onClose={() => {
-          setRefusing(null);
-        }}
-        title="Send this document back"
-      >
-        <div className="space-y-4">
-          <Callout tone="warning">
-            The seller reads this word for word. Say what is wrong with the document and what would
-            be accepted instead — a refusal with no reason produces the same file again.
-          </Callout>
-
-          <Field label="Why it was not accepted" required>
-            {({ inputId }) => (
-              <Textarea
-                id={inputId}
-                rows={4}
-                value={reason}
-                onChange={(event) => {
-                  setReason(event.currentTarget.value);
-                }}
-              />
-            )}
-          </Field>
-
-          <div className="flex justify-end gap-2">
-            <Button
-              onClick={() => {
-                setRefusing(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              isLoading={decide.isPending}
-              disabled={reason.trim().length === 0}
-              onClick={() => {
-                if (refusing === null) return;
-                decide.mutate({ id: refusing.id, decision: 'REJECTED', why: reason.trim() });
-              }}
-            >
-              Send it back
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
+}
+
+/**
+ * Seller verification, read-only.
+ *
+ * The Audit Team owns it: this panel shows the state, who made the decision
+ * the application now stands on, and every step of the history - with the
+ * console each one came from, so an approval an administrator made before the
+ * change still says so. No control here changes any of it.
+ */
+function VerificationReadOnlyCard({ seller }: { seller: SellerApplicationDetail }): React.JSX.Element {
+  const { t } = useI18n();
+  const verification = seller.verification;
+  const decided = verification.currentDecision;
+  const actor = (entry: SellerVerificationHistoryEntry): string => {
+    const who = t(`sellerVerification.actor.${entry.actorType}` as TranslationKey);
+    return entry.actorLabel === null || entry.actorLabel === '' ? who : `${who} · ${entry.actorLabel}`;
+  };
+
+  return (
+    <Card title={t('sellerVerification.title')} description={t('sellerVerification.readOnly')}>
+      <div className="space-y-4 px-5 py-4">
+        <Callout tone="info" title={t('sellerVerification.readOnly')}>
+          <p className="text-sm">{t('sellerVerification.readOnlyBody')}</p>
+        </Callout>
+        {!verification.consoleEnabled ? (
+          <Callout tone="warning" title={t('sellerVerification.consoleOffTitle')}>
+            <p className="text-sm">{t('sellerVerification.consoleOffBody')}</p>
+          </Callout>
+        ) : (
+          !verification.reviewersAvailable && (
+            <Callout tone="warning" title={t('sellerVerification.noReviewersTitle')}>
+              <p className="text-sm">{t('sellerVerification.noReviewersBody')}</p>
+            </Callout>
+          )
+        )}
+        <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+          <Detail label={t('sellerVerification.statusLabel')} value={applicationStatusLabel(seller.status)} />
+          <Detail
+            label={t('sellerVerification.decidedBy')}
+            value={decided === null ? t('sellerVerification.notDecided') : `${actor(decided)} · ${formatWhen(decided.at)}`}
+          />
+        </dl>
+        <div>
+          <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{t('sellerVerification.historyCard')}</h3>
+          {verification.history.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-muted">{t('sellerVerification.noHistory')}</p>
+          ) : (
+            <ol className="mt-2 space-y-2">
+              {verification.history.map((entry) => (
+                <li key={entry.id} className="min-w-0 text-sm">
+                  <span className="block break-words text-ink">{entry.summary ?? entry.action}</span>
+                  <span className="block text-xxs text-ink-subtle">
+                    {formatWhen(entry.at)} · {actor(entry)}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function formatWhen(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 /**
@@ -1261,7 +1158,6 @@ function DecisionDialog({
 
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
-  const [allowResubmission, setAllowResubmission] = useState(true);
 
   const copy = DECISION_COPY[decision];
 
@@ -1271,13 +1167,12 @@ function DecisionDialog({
         status: decision,
         reason: reason.trim().length === 0 ? null : reason.trim(),
         internalNote: note.trim().length === 0 ? null : note.trim(),
-        ...(decision === 'REJECTED' ? { resubmissionAllowed: allowResubmission } : {}),
         // The version this decision was made against. If somebody else decided
         // meanwhile, the server refuses rather than overwriting them.
         expectedVersion: seller.version,
       }),
     onSuccess: async (result) => {
-      // Maker-checker: a suspension or refusal waits for a second member of staff.
+      // Maker-checker: a suspension waits for a second member of staff.
       if (isPendingResponse(result)) {
         pendingNotice(result.pending);
         onClose();
@@ -1309,11 +1204,10 @@ function DecisionDialog({
     <Modal isOpen title={copy.title} onClose={onClose}>
       <div className="space-y-4">
         {decision === 'APPROVED' && (
-          <Callout tone="success" title="What approving does">
+          <Callout tone="success" title="What lifting the suspension does">
             <p className="text-sm">
-              {seller.displayName} will be able to create listings immediately. Nothing they list
-              goes on sale until it has been through quality review, and their first listing will
-              appear in that queue.
+              {seller.displayName} can trade again, as the Audit Team verified them. It is refused if
+              any of their evidence has lapsed since; the Audit Team then asks them to renew it.
             </p>
           </Callout>
         )}
@@ -1338,11 +1232,6 @@ function DecisionDialog({
               aria-describedby={describedBy}
               rows={4}
               value={reason}
-              placeholder={
-                decision === 'ACTION_REQUIRED'
-                  ? 'The registration document is for a different company name. Please upload the one matching Acme Supplies Ltd.'
-                  : ''
-              }
               onChange={(event) => {
                 setReason(event.currentTarget.value);
               }}
@@ -1366,17 +1255,6 @@ function DecisionDialog({
             />
           )}
         </Field>
-
-        {decision === 'REJECTED' && (
-          <CheckboxField
-            label="They may apply again"
-            description="Leave this on unless you want the door closed. A closed application can only be reopened by staff."
-            checked={allowResubmission}
-            onChange={(event) => {
-              setAllowResubmission(event.currentTarget.checked);
-            }}
-          />
-        )}
 
         <div className="flex justify-end gap-2 pt-1">
           <Button onClick={onClose}>Cancel</Button>

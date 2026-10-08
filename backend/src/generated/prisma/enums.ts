@@ -2604,6 +2604,14 @@ export const PreorderStockHoldStatus = {
 export type PreorderStockHoldStatus = (typeof PreorderStockHoldStatus)[keyof typeof PreorderStockHoldStatus]
 
 
+export const PreorderProductOption = {
+  ORIGINAL_BRAND: 'ORIGINAL_BRAND',
+  OEM: 'OEM'
+} as const
+
+export type PreorderProductOption = (typeof PreorderProductOption)[keyof typeof PreorderProductOption]
+
+
 export const ContainerCapacitySource = {
   SELLER_VERIFIED: 'SELLER_VERIFIED',
   CALCULATED_ESTIMATE: 'CALCULATED_ESTIMATE'
@@ -2902,10 +2910,32 @@ export const ConsentPurpose = {
   PRIVACY_NOTICE: 'PRIVACY_NOTICE',
   AUTHORITY_TO_ACT: 'AUTHORITY_TO_ACT',
   PLATFORM_TERMS: 'PLATFORM_TERMS',
-  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS'
+  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS',
+  SELLER_TERMS: 'SELLER_TERMS',
+  STAFF_TERMS: 'STAFF_TERMS',
+  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS'
 } as const
 
 export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]
+
+
+export const ConsentAction = {
+  TERMS_ACCEPTED: 'TERMS_ACCEPTED',
+  PRIVACY_NOTICE_ACKNOWLEDGED: 'PRIVACY_NOTICE_ACKNOWLEDGED'
+} as const
+
+export type ConsentAction = (typeof ConsentAction)[keyof typeof ConsentAction]
+
+
+export const AgreementScope = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER',
+  LOGISTICS: 'LOGISTICS',
+  STAFF: 'STAFF',
+  AUDIT: 'AUDIT'
+} as const
+
+export type AgreementScope = (typeof AgreementScope)[keyof typeof AgreementScope]
 
 
 export const StaffAccessDecision = {
@@ -2944,7 +2974,8 @@ export const LegalDocumentKind = {
   BUYER_PROTECTION_POLICY: 'BUYER_PROTECTION_POLICY',
   PROHIBITED_PRODUCTS: 'PROHIBITED_PRODUCTS',
   RETURNS_POLICY: 'RETURNS_POLICY',
-  STAFF_TERMS: 'STAFF_TERMS'
+  STAFF_TERMS: 'STAFF_TERMS',
+  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS'
 } as const
 
 export type LegalDocumentKind = (typeof LegalDocumentKind)[keyof typeof LegalDocumentKind]

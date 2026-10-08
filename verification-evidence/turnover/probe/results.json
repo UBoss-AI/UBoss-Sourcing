@@ -1,0 +1,35 @@
+{
+ "ranAt": "2026-10-08T07:58:47.860Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": "BUTTON:rounded-full bg-brand px-4 py-3 text-sm font-semibold text-white shadow-card foc:Quick actions:rgb(255, 255, 255)/rgb(138, 180, 255)",
+   "darkClass": "|dark",
+   "page": "probe",
+   "path": "/sell",
+   "w": 1440,
+   "finalPath": "/sell",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [
+    {
+     "id": "color-contrast",
+     "impact": "serious",
+     "n": 1,
+     "sample": ".bg-brand"
+    }
+   ],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "probe-1440.png"
+  }
+ ]
+}

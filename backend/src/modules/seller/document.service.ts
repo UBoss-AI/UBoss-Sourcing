@@ -56,16 +56,14 @@ import {
 import { prisma } from '../../infra/prisma.js';
 import { sniffDocumentType, storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
-import {
-  AdminNotificationKind,
-  ResolutionKey,
-  createAdminNotification,
-  resolveAdminNotifications,
-} from '../notifications/admin-notification.service.js';
-import { Permission } from '../../domain/permissions.js';
-import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+// Resolving only: alerts raised before uploads went to the Audit Team still
+// close when their document is decided.
+import { ResolutionKey, resolveAdminNotifications } from '../notifications/admin-notification.service.js';
+import { AUDIT_TEAM_LABEL, OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+import { notifyVerifiersOfDocument } from './verification.service.js';
 import { notifySeller } from './notification.service.js';
 import { markRequirementSteps, type RequirementStepSubject } from './onboarding.service.js';
+import { turnoverEvidenceChanged } from './turnover.service.js';
 import {
   assertSellerOwnership,
   assertSellerPermission,
@@ -253,6 +251,9 @@ const DOCUMENT_SELECT = {
  * never disagree.
  */
 export async function refreshDocumentSteps(owner: RequirementStepSubject): Promise<void> {
+  // Turnover evidence first: a verified turnover whose evidence changed goes
+  // back to the reviewer before the checklist is judged.
+  await turnoverEvidenceChanged(owner.sellerAccountId);
   await markRequirementSteps(owner);
 }
 
@@ -430,29 +431,19 @@ export async function uploadSellerDocument(
   });
 
   /*
-   * And tell the marketplace, because nobody is watching this table.
+   * And tell the Audit Team, because nobody is watching this table.
    *
    * Without this, a certificate uploaded on a Friday sits unreviewed until
-   * somebody happens to open that seller's screen. The badge on the console's
-   * navigation counts the same rows this notification announces, so the two
-   * always agree. `customer.read` rather than no permission at all: the row
-   * names a business and what it is trying to prove about itself.
+   * somebody happens to open that seller's screen. The reviewers who verify
+   * sellers are the ones told - the Admin Panel only reads verification, so
+   * an alert there would ask somebody to decide what they cannot decide.
    */
-  await createAdminNotification({
-    kind: AdminNotificationKind.SELLER_DOCUMENT_UPLOADED,
-    variables: {
-      sellerName: membership.displayName,
-      documentKind: humaniseKind(input.kind),
-      fileName: input.fileName.slice(0, 120),
-    },
-    linkPath: `/sellers/${membership.sellerAccountId}`,
-    requiredPermission: Permission.CUSTOMER_READ,
-    relatedType: 'seller_document',
-    relatedId: id,
-    dedupeKey: `seller-document:${id}`,
-    // Keyed on the document, so accepting one certificate does not clear the
-    // alert about the licence uploaded beside it.
-    resolutionKey: ResolutionKey.sellerDocument(id),
+  await notifyVerifiersOfDocument({
+    sellerAccountId: membership.sellerAccountId,
+    displayName: membership.displayName,
+    documentId: id,
+    documentKind: humaniseKind(input.kind),
+    fileName: input.fileName,
   });
 
   const row = await prisma.sellerDocument.findUniqueOrThrow({
@@ -800,6 +791,8 @@ export interface DocumentDecisionInput {
   /** Seller-visible, and required on a refusal. */
   reason?: string | null;
   adminUserId: string;
+  /** Which console decided. Verification decisions come from AUDIT. */
+  actorType?: 'ADMIN' | 'AUDIT';
   correlationId?: string | null;
 }
 
@@ -859,8 +852,16 @@ export async function decideSellerDocument(input: DocumentDecisionInput): Promis
    * to look at this", and somebody has.
    */
   await prisma.$transaction(async (tx) => {
-    await tx.sellerDocument.update({
-      where: { id: document.id },
+    // Conditional on the decision that was read: a second reviewer deciding
+    // the same document at the same moment finds it changed and reloads,
+    // rather than overwriting the first decision.
+    const written = await tx.sellerDocument.updateMany({
+      where: {
+        id: document.id,
+        supersededAt: null,
+        approvedAt: document.approvedAt,
+        rejectedReason: document.rejectedReason,
+      },
       data: {
         approvedAt: isApproval ? new Date() : null,
         approvedByUserId: isApproval ? input.adminUserId : null,
@@ -869,6 +870,12 @@ export async function decideSellerDocument(input: DocumentDecisionInput): Promis
         rejectedReason: isApproval ? null : reason,
       },
     });
+    if (written.count !== 1) {
+      throw conflict(
+        ErrorCode.SELLER_STALE_VERSION,
+        'Somebody else decided this document while you had it open. Reload to see their decision.',
+      );
+    }
 
     await resolveAdminNotifications(
       {
@@ -885,7 +892,7 @@ export async function decideSellerDocument(input: DocumentDecisionInput): Promis
     action: isApproval ? AuditAction.SELLER_DOCUMENT_APPROVED : AuditAction.SELLER_DOCUMENT_REJECTED,
     resourceType: 'seller_document',
     resourceId: document.id,
-    actorType: 'ADMIN',
+    actorType: input.actorType ?? 'ADMIN',
     actorUserId: input.adminUserId,
     actorEmail: null,
     before: { approvedAt: document.approvedAt, rejectedReason: document.rejectedReason },
@@ -898,7 +905,11 @@ export async function decideSellerDocument(input: DocumentDecisionInput): Promis
     action: isApproval ? 'seller.document.approved' : 'seller.document.rejected',
     // A role, never a named member of staff: a seller has no business learning
     // which individual reviewed them.
-    actor: { type: 'ADMIN', label: OPERATOR_LABEL },
+    actor: {
+      type: input.actorType ?? 'ADMIN',
+      userId: input.adminUserId,
+      label: input.actorType === 'AUDIT' ? AUDIT_TEAM_LABEL : OPERATOR_LABEL,
+    },
     resourceType: 'seller_document',
     resourceId: document.id,
     summary: isApproval

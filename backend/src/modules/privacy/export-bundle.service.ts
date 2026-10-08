@@ -435,7 +435,9 @@ export async function buildCustomerBundle(
   }));
 
   /*
-   * The Terms they agreed to, with a link to the exact document. Loaded before
+   * The Terms they agreed to and the privacy notices they acknowledged -
+   * including ones they cleared on the agreement screen - with a link to the
+   * exact document. Loaded before
    * the profile branch below because a carrier's staff have no customer
    * profile and agreed to terms too. The company-application declarations
    * are disclosed with the company, under `companyMemberships`.
@@ -451,11 +453,17 @@ export async function buildCustomerBundle(
         locale: true,
         acceptanceSource: true,
         acceptedAt: true,
+        action: true,
+        scope: true,
+        clearedAt: true,
+        withdrawnAt: true,
         legalDocument: { select: { id: true, title: true, effectiveAt: true } },
       },
     })
   ).map((row) => ({
     document: row.purpose,
+    action: row.action,
+    asAccount: row.scope,
     title: row.legalDocument?.title ?? null,
     documentId: row.legalDocument?.id ?? null,
     version: row.textVersion,
@@ -464,6 +472,8 @@ export async function buildCustomerBundle(
     effectiveAt: iso(row.legalDocument?.effectiveAt ?? null),
     acceptedWhere: row.acceptanceSource,
     acceptedAt: iso(row.acceptedAt),
+    clearedAt: iso(row.clearedAt),
+    withdrawnAt: iso(row.withdrawnAt),
   }));
 
   // The notification families they switched off, and on which channel.

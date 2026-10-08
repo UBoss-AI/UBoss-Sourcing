@@ -147,7 +147,6 @@ describe('signing in', () => {
 
     await user.type(screen.getByLabelText(/email address/i), 'asha@example.test');
     await user.type(screen.getByLabelText(/password/i), 'CorrectHorseBattery1');
-    await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: /sign in/i }));
   }
 

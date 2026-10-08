@@ -16,7 +16,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { AuditPermission, InspectionAgencyPermission } from '../../domain/audit-console-permissions.js';
-import { ErrorCode, forbidden, notFound } from '../../domain/errors.js';
+import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
 import { listConsolePeople, memberLabel, type AuditMember } from '../../modules/audit-console/membership.service.js';
 import {
@@ -79,9 +79,20 @@ import { readEvidenceBytes } from '../../modules/inspection/evidence.service.js'
 import { createPlan, listPlans, planInputSchema } from '../../modules/inspection/policy.service.js';
 import { loadReportFor, renderReportPdf } from '../../modules/inspection/report-document.service.js';
 import { cancelSubLotRelease, notifySubLotWaiting, requestSubLotRelease } from '../../modules/inspection/sublot.service.js';
+import { qualityInsights } from '../../modules/audit-console/health.service.js';
 import { getUserLanguage } from '../../modules/identity/language.service.js';
 import { currentUser } from '../plugins/auth.js';
 import { currentAudit, requireAudit, requireAuditAny, requireAuditSession } from '../plugins/audit.js';
+import { approvalReadiness, recordScreening } from '../../modules/seller/application-review.service.js';
+import { decideSellerDocument } from '../../modules/seller/document.service.js';
+import { decideApplication, listApplications, readApplication } from '../../modules/seller/moderation.service.js';
+import { decideTurnover, readTurnoverReview } from '../../modules/seller/turnover.service.js';
+import {
+  assertIndependentReviewer,
+  readSellerDocumentForAudit,
+  sellerOfCurrentDocument,
+} from '../../modules/seller/verification.service.js';
+import { assertStaffDataRegion } from '../plugins/data-region.js';
 import { sendAttachment } from './preorder-chats.js';
 
 const id = z.string().length(26);
@@ -159,6 +170,10 @@ export function registerAuditConsoleRoutes(app: FastifyInstance): Promise<void> 
   /** The dashboard: an agency's own work, or the audit team's queues. */
   app.get('/dashboard', { preHandler: requireAudit(AuditPermission.DASHBOARD_READ) }, async (request, reply) =>
     noStore(reply).send(await consoleDashboard(currentAudit(request))));
+
+  /** Quality insights: pass/fail by month, defects, top findings, best and worst suppliers, agency performance. */
+  app.get('/insights', { preHandler: requireAudit(AuditPermission.JOB_OVERSEE) }, async (request, reply) =>
+    noStore(reply).send(await qualityInsights({ includeHealth: currentAudit(request).permissions.has(AuditPermission.SELLER_READ) })));
 
   // --- Inspections ----------------------------------------------------------
 
@@ -287,10 +302,20 @@ export function registerAuditConsoleRoutes(app: FastifyInstance): Promise<void> 
 
   // --- Module A: sellers, cases, documents, rules ---------------------------
 
-  /** Sellers, with their qualification and document counts. */
+  /** Sellers, with their qualification and document counts and their health rating; filter by band, sort by risk. */
   app.get('/sellers', { preHandler: requireAudit(AuditPermission.SELLER_READ) }, async (request, reply) => {
-    const q = z.object({ search: z.string().trim().max(120).optional(), status: z.string().max(40).optional() }).parse(request.query);
-    return noStore(reply).send({ sellers: await consoleSellers({ search: q.search ?? null, status: q.status ?? null }), backfill: await backfillList(100) });
+    const q = z
+      .object({
+        search: z.string().trim().max(120).optional(),
+        status: z.string().max(40).optional(),
+        health: z.enum(['HEALTHY', 'AT_RISK', 'UNHEALTHY']).optional(),
+        sort: z.enum(['name', 'risk']).default('name'),
+      })
+      .parse(request.query);
+    return noStore(reply).send({
+      sellers: await consoleSellers({ search: q.search ?? null, status: q.status ?? null, health: q.health ?? null, sort: q.sort }),
+      backfill: await backfillList(100),
+    });
   });
 
   /** One seller: business identity (read-only), category qualifications, product cases and documents - kept apart. */
@@ -468,6 +493,174 @@ export function registerAuditConsoleRoutes(app: FastifyInstance): Promise<void> 
     const { id: ruleId } = idParam.parse(request.params);
     await retireRequirement(actorOf(request), ruleId, z.object({ reason: text(2000) }).parse(request.body).reason);
     return reply.send({ ok: true });
+  });
+
+  // --- Seller verification ---------------------------------------------------
+  //
+  // The Audit Team owns seller onboarding verification. Reads need
+  // audit.seller.read; every decision needs audit.seller.verify, which only
+  // audit staff roles carry - never an inspection agency. The decisions run
+  // through the same services the Admin Panel used to call, so the state
+  // machine, the evidence gate and the audit trail are unchanged; each one is
+  // recorded with actor type AUDIT and the reviewer's own user id. The Admin
+  // Panel reads the same records and is refused every write.
+
+  const applicationStatus = z.enum(['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'ACTION_REQUIRED', 'APPROVED', 'REJECTED', 'SUSPENDED']);
+
+  // Seller applications a page at a time, oldest submission first, with a count per status. resubmitted=true is the queue of applications sent back after corrections.
+  app.get('/seller-verification', { preHandler: requireAudit(AuditPermission.SELLER_READ) }, async (request, reply) => {
+    const q = z
+      .object({
+        status: applicationStatus.nullish(),
+        resubmitted: z.enum(['true', 'false']).optional(),
+        search: z.string().trim().max(200).nullish(),
+        page: z.coerce.number().int().min(1).default(1),
+        pageSize: z.coerce.number().int().min(1).max(100).default(25),
+      })
+      .parse(request.query);
+    return noStore(reply).send(
+      await listApplications({ status: q.status ?? null, search: q.search ?? null, resubmitted: q.resubmitted === 'true', page: q.page, pageSize: q.pageSize }),
+    );
+  });
+
+  // One application in full: business details, documents, ownership and screenings, turnover, what approval is still waiting for, and the verification history with who decided each step.
+  app.get('/seller-verification/:id', { preHandler: requireAudit(AuditPermission.SELLER_READ) }, async (request, reply) => {
+    const { id: sellerAccountId } = idParam.parse(request.params);
+    const [application, readiness, turnover] = await Promise.all([
+      readApplication(sellerAccountId),
+      approvalReadiness(sellerAccountId),
+      readTurnoverReview(sellerAccountId),
+    ]);
+    return noStore(reply).send({ application, readiness, turnover });
+  });
+
+  // Decide an application: take it for review, ask for corrections, approve or reject. A reason the seller sees is required to ask for corrections or reject; the version read is required so a decision made meanwhile is never overwritten. Approval still runs the evidence gate.
+  app.post('/seller-verification/:id/decision', { preHandler: requireAudit(AuditPermission.SELLER_VERIFY) }, async (request, reply) => {
+    const { id: sellerAccountId } = idParam.parse(request.params);
+    const member = currentAudit(request);
+    const body = z
+      .object({
+        status: z.enum(['UNDER_REVIEW', 'ACTION_REQUIRED', 'APPROVED', 'REJECTED']),
+        /** Seller-visible. */
+        reason: z.string().trim().max(4000).nullable().optional(),
+        /** Never serialised to a seller route. */
+        internalNote: z.string().trim().max(4000).nullable().optional(),
+        resubmissionAllowed: z.boolean().optional(),
+        expectedVersion: z.number().int().min(0),
+      })
+      .parse(request.body);
+
+    if ((body.status === 'ACTION_REQUIRED' || body.status === 'REJECTED') && (body.reason ?? '').trim().length < 3) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the reason the seller will see.', [{ field: 'reason', code: 'REQUIRED' }]);
+    }
+    const current = await prisma.sellerAccount.findUnique({ where: { id: sellerAccountId }, select: { status: true } });
+    if (current === null) throw notFound('Seller application');
+    // Lifting a suspension is an operational control that stays in the Admin Panel.
+    if (current.status === 'SUSPENDED' && body.status === 'APPROVED') {
+      throw conflict(ErrorCode.SELLER_APPLICATION_TRANSITION_NOT_ALLOWED, 'A suspension is lifted in the Admin Panel, not here.');
+    }
+    await assertIndependentReviewer(sellerAccountId, member.email);
+
+    await decideApplication({
+      sellerAccountId,
+      to: body.status,
+      reason: body.reason ?? null,
+      internalNote: body.internalNote ?? null,
+      adminUserId: member.userId,
+      actorType: 'AUDIT',
+      ...(body.resubmissionAllowed === undefined ? {} : { resubmissionAllowed: body.resubmissionAllowed }),
+      correlationId: request.correlationId,
+      expectedVersion: body.expectedVersion,
+    });
+    return reply.status(204).send();
+  });
+
+  // Record a manual sanctions / restricted-party screening of the business or one owner: which lists were checked, the result and a note. Always recorded as a person's check, never an automated one.
+  app.post('/seller-verification/:id/screening', { preHandler: requireAudit(AuditPermission.SELLER_VERIFY) }, async (request, reply) => {
+    const { id: sellerAccountId } = idParam.parse(request.params);
+    const member = currentAudit(request);
+    const body = z
+      .object({
+        subjectType: z.enum(['ENTITY', 'BENEFICIAL_OWNER']),
+        beneficialOwnerId: id.nullable().optional(),
+        result: z.enum(['CLEAR', 'POTENTIAL_MATCH', 'CONFIRMED_MATCH']),
+        listsChecked: z.string().trim().min(2).max(512),
+        note: z.string().trim().max(4000).nullable().optional(),
+      })
+      .parse(request.body);
+    await assertIndependentReviewer(sellerAccountId, member.email);
+    const screening = await recordScreening({
+      sellerAccountId,
+      subjectType: body.subjectType,
+      beneficialOwnerId: body.beneficialOwnerId ?? null,
+      result: body.result,
+      listsChecked: body.listsChecked,
+      note: body.note ?? null,
+      adminUserId: member.userId,
+      actorType: 'AUDIT',
+      correlationId: request.correlationId,
+    });
+    return noStore(reply).status(201).send(screening);
+  });
+
+  // Verify or refuse the seller's current turnover declaration, with a reason the seller sees. Refused when the seller changed it, or another reviewer decided it, since it was loaded. Never approves the seller.
+  app.post('/seller-verification/:id/turnover/decision', { preHandler: requireAudit(AuditPermission.SELLER_VERIFY) }, async (request, reply) => {
+    const { id: sellerAccountId } = idParam.parse(request.params);
+    const member = currentAudit(request);
+    const body = z
+      .object({
+        declarationId: id,
+        decision: z.enum(['VERIFIED', 'FAILED']),
+        reason: z.string().trim().min(3).max(4000),
+        internalNote: z.string().trim().max(4000).nullable().optional(),
+        /** The state on the reviewer's screen. A declaration decided since is refused. */
+        expectedVerificationState: z.string().trim().min(1).max(40),
+      })
+      .parse(request.body);
+    await assertIndependentReviewer(sellerAccountId, member.email);
+    const review = await decideTurnover({
+      sellerAccountId,
+      declarationId: body.declarationId,
+      decision: body.decision,
+      reason: body.reason,
+      internalNote: body.internalNote ?? null,
+      adminUserId: member.userId,
+      adminEmail: member.email,
+      actorType: 'AUDIT',
+      expectedVerificationState: body.expectedVerificationState,
+      correlationId: request.correlationId,
+    });
+    return noStore(reply).send(review);
+  });
+
+  // One onboarding document's file, as an attachment. Scanned files only; every read is audited.
+  app.get('/seller-verification/documents/:id/file', { preHandler: requireAudit(AuditPermission.SELLER_READ) }, async (request, reply) => {
+    const { id: documentId } = idParam.parse(request.params);
+    assertStaffDataRegion(request);
+    const file = await readSellerDocumentForAudit(documentId, { userId: currentAudit(request).userId, correlationId: request.correlationId });
+    return sendAttachment(noStore(reply), file);
+  });
+
+  // Accept or refuse one onboarding document. A refusal needs a reason the seller sees; a document decided by somebody else meanwhile is refused with SELLER_STALE_VERSION.
+  app.post('/seller-verification/documents/:id/decision', { preHandler: requireAudit(AuditPermission.SELLER_VERIFY) }, async (request, reply) => {
+    const { id: documentId } = idParam.parse(request.params);
+    const member = currentAudit(request);
+    const body = z
+      .object({
+        decision: z.enum(['APPROVED', 'REJECTED']),
+        reason: z.string().trim().max(2000).nullable().optional(),
+      })
+      .parse(request.body);
+    await assertIndependentReviewer(await sellerOfCurrentDocument(documentId), member.email);
+    await decideSellerDocument({
+      documentId,
+      decision: body.decision,
+      reason: body.reason ?? null,
+      adminUserId: member.userId,
+      actorType: 'AUDIT',
+      correlationId: request.correlationId,
+    });
+    return reply.status(204).send();
   });
 
   return Promise.resolve();

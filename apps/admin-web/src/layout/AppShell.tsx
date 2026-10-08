@@ -359,6 +359,17 @@ function UserMenu(): React.JSX.Element {
             <p className="mt-0.5 text-xs text-ink-muted">{user.roles.map(roleLabel).join(', ')}</p>
           </div>
 
+          <Link
+            to="/my-agreements"
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+            }}
+            className="mt-1 flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-sm text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+          >
+            {t('agreements.history.title')}
+          </Link>
+
           <button
             type="button"
             role="menuitem"

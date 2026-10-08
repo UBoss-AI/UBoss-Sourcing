@@ -60,6 +60,8 @@ export interface FaqFacts {
     /** How the seller states the minimum, when it is not in pieces. */
     moqUnit: string;
     moqQuantity: number | null;
+    /** OEM and Original Brand, where offered, each with its own minimum. */
+    options: { option: 'OEM' | 'ORIGINAL_BRAND'; minimumBaseUnits: number }[];
   } | null;
   pricing: {
     mode: 'FIXED' | 'QUOTE_REQUIRED';
@@ -129,6 +131,18 @@ export function answerFaq(id: string, facts: FaqFacts): FaqAnswer | null {
     case 'moq': {
       if (!facts.open || facts.moq === null) return needsTeam(entry, [line('notOpen')]);
       const { moq } = facts;
+      // Both offered: each option's own minimum, because they differ and the
+      // lower one alone would mislead an OEM buyer.
+      if (moq.options.length > 1) {
+        const lines = moq.options.map((offered) =>
+          line(offered.option === 'OEM' ? 'moqOem' : 'moqOriginalBrand', {
+            minimum: num(offered.minimumBaseUnits),
+          }),
+        );
+        if (moq.incrementBaseUnits > 1) lines.push(line('moqStep', { step: num(moq.incrementBaseUnits) }));
+        if (moq.maximumBaseUnits !== null) lines.push(line('moqMaximum', { maximum: num(moq.maximumBaseUnits) }));
+        return answered(entry, lines);
+      }
       const lines = [line('moq', { minimum: num(moq.minimumBaseUnits) })];
       if (moq.moqUnit !== 'PIECE' && moq.moqQuantity !== null) {
         lines.push(line('moqInUnit', { quantity: num(moq.moqQuantity), unit: { kind: 'unit', value: moq.moqUnit } }));

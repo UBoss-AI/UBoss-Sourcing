@@ -19,6 +19,7 @@ import { Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { approvalReadiness, recordScreening } from '../../src/modules/seller/application-review.service.js';
 import { signInAdmin, type AdminSession } from '../support/admin-session.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
@@ -300,8 +301,8 @@ describe('the ownership section', () => {
   });
 });
 
-describe('manual screening and the evidence gate, from the console', () => {
-  it('records a manual screening, and refuses approval while evidence is missing', async () => {
+describe('manual screening and the evidence gate, read from the Admin Panel', () => {
+  it('refuses the Admin Panel a screening or an approval, and shows what approval is waiting for', async () => {
     await setStatus('UNDER_REVIEW');
 
     const noRight = await call(cataloguer, 'POST', `/api/v1/admin/sellers/${sellerAccountId}/screening`, {
@@ -311,22 +312,35 @@ describe('manual screening and the evidence gate, from the console', () => {
     });
     expect(noRight.statusCode).toBe(403);
 
-    const recorded = await call(staff, 'POST', `/api/v1/admin/sellers/${sellerAccountId}/screening`, {
+    // Seller verification is the Audit Team's (seller-verification-ownership.test.ts drives it end to end).
+    const adminScreening = await call(staff, 'POST', `/api/v1/admin/sellers/${sellerAccountId}/screening`, {
+      subjectType: 'ENTITY',
+      result: 'CLEAR',
+      listsChecked: 'UN consolidated list; OFAC SDN',
+    });
+    expect(adminScreening.statusCode).toBe(403);
+    expect(codeOf(adminScreening)).toBe('SELLER_VERIFICATION_AUDIT_ONLY');
+    const adminApproval = await call(staff, 'POST', `/api/v1/admin/sellers/${sellerAccountId}/decision`, { status: 'APPROVED' });
+    expect(adminApproval.statusCode).toBe(403);
+    expect(codeOf(adminApproval)).toBe('SELLER_VERIFICATION_AUDIT_ONLY');
+
+    // An auditor's screening, recorded through the same service the Audit Console calls.
+    const auditor = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: EMAIL.staff }, select: { id: true } });
+    const recorded = await recordScreening({
+      sellerAccountId,
       subjectType: 'ENTITY',
       result: 'CLEAR',
       listsChecked: 'UN consolidated list; OFAC SDN',
       note: 'No match.',
+      adminUserId: auditor.id,
+      actorType: 'AUDIT',
     });
-    expect(recorded.statusCode, recorded.body).toBe(201);
-    expect(recorded.json<{ provider: string; automated: boolean }>()).toMatchObject({ provider: 'manual', automated: false });
+    expect(recorded).toMatchObject({ provider: 'manual', automated: false });
 
-    const refused = await call(staff, 'POST', `/api/v1/admin/sellers/${sellerAccountId}/decision`, { status: 'APPROVED' });
-    expect(refused.statusCode).toBe(409);
-    expect(codeOf(refused)).toBe('SELLER_APPROVAL_EVIDENCE_MISSING');
-    const details = refused.json<{ error: { details: { code: string; field?: string }[] } }>().error.details;
+    const gaps = await approvalReadiness(sellerAccountId);
     // Both partners are still unscreened; the business itself is clear.
-    expect(details.filter((detail) => detail.code === 'SCREENING_REQUIRED')).toHaveLength(2);
-    expect(details.some((detail) => detail.field === 'entity')).toBe(false);
+    expect(gaps.missing.filter((detail) => detail.code === 'SCREENING_REQUIRED')).toHaveLength(2);
+    expect(gaps.missing.some((detail) => detail.field === 'entity')).toBe(false);
 
     const readiness = await call(staff, 'GET', `/api/v1/admin/sellers/${sellerAccountId}/approval-readiness`);
     expect(readiness.statusCode).toBe(200);

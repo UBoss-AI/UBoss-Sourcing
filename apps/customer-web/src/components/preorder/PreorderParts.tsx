@@ -206,6 +206,16 @@ export function RequestSummary({ preorder }: { preorder: Preorder }): React.JSX.
           {t('preorder.piecesCount', { pieces: formatNumber(preorder.availability.atSubmission.availableNow) })}
         </Row>
       )}
+      {/* OEM or Original Brand, and the minimum it was held to, as it stood
+          when the request was sent - not the seller's minimum today. */}
+      <Row label={t('preorder.option.requestedFor')}>
+        {preorder.productOption === null
+          ? t('preorder.option.notRecorded')
+          : t('preorder.option.withMinimum', {
+              option: t(`preorder.option.${preorder.productOption.option}` as TranslationKey),
+              minimum: formatNumber(preorder.productOption.minimumBaseUnits),
+            })}
+      </Row>
       <Row label={t('preorder.requested')}>
         {preorder.quantity.orderingUnit === 'PIECE'
           ? t('preorder.piecesCount', { pieces: formatNumber(preorder.quantity.baseUnits) })

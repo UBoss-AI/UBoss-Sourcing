@@ -195,7 +195,7 @@ const productBodySchema = z.object({
   gtin: z
     .string()
     .trim()
-    .regex(/^d{8}$|^d{12,14}$/, 'A GTIN is 8, 12, 13 or 14 digits.')
+    .regex(/^\d{8}$|^\d{12,14}$/, 'A GTIN is 8, 12, 13 or 14 digits.')
     .nullable()
     .optional(),
   modelIdentifier: z.string().trim().max(64).nullable().optional(),

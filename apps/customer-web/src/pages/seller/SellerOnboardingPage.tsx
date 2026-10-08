@@ -72,6 +72,7 @@ import {
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
 import { SellerOwnershipPanel } from './SellerOwnershipPanel';
+import { TurnoverStepPanel } from './TurnoverStepPanel';
 
 const STATE_TONE: Record<OnboardingStepState, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> =
   {
@@ -416,13 +417,23 @@ function StepPanel({
   const canUpload = seller.status !== 'REJECTED' && seller.status !== 'SUSPENDED';
 
   switch (step.key) {
+    /*
+     * The turnover eligibility card first: it is the one thing on this step
+     * that decides whether the application can go in at all. Owners and
+     * administrators only, as the server enforces.
+     */
     case 'business_identity':
       return (
-        <RequirementForm
-          step={step}
-          isEditable={isEditable}
-          sellerAccountId={seller.sellerAccountId}
-        />
+        <div className="space-y-5">
+          {(seller.role === 'OWNER' || seller.role === 'ADMIN') && (
+            <TurnoverStepPanel isEditable={isEditable} canUpload={canUpload} />
+          )}
+          <RequirementForm
+            step={step}
+            isEditable={isEditable}
+            sellerAccountId={seller.sellerAccountId}
+          />
+        </div>
       );
     /*
      * Identity and documents asks for both, so it draws both: the typed fields

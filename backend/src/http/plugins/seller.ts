@@ -59,7 +59,8 @@ function isDeliberate(request: FastifyRequest): boolean {
   if (request.method !== 'GET' && request.method !== 'HEAD') return true;
   return request.headers[SELLER_ACTIVITY_HEADER] === '1';
 }
-import { currentUser, requireCustomer } from './auth.js';
+import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
+import { currentUser, requireCustomer, requireCustomerBeforeAgreements } from './auth.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -83,71 +84,105 @@ export function requireSeller(...permissions: SellerPermissionKey[]) {
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {
-    await requireCustomer(request, reply);
-
-    const auth = currentUser(request);
-
-    if (auth.customerProfileId === null) {
-      throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
-    }
-
-    const membership = await resolveSellerMembership(auth.customerProfileId);
-
-    /*
-     * The second lock, before any permission is considered.
-     *
-     * Ordered that way deliberately: a locked session must be told to enter the
-     * Hub password, not told that its role does not carry an action. The
-     * remedies are different and a role refusal on a locked session sends
-     * somebody to the wrong screen entirely.
-     */
-    assertSellerUnlocked(membership, {
-      sellerUnlockedAt: auth.sessionSellerUnlockedAt,
-      sellerUnlockedForId: auth.sessionSellerUnlockedForId,
-    });
-
-    /*
-     * The idle limit, on the server.
-     *
-     * An open Hub with no deliberate activity for SELLER_HUB_IDLE_TIMEOUT_SECONDS
-     * is re-locked here, on the session row, and this request refused with
-     * SELLER_SESSION_EXPIRED - whatever any tab's timer thinks. Otherwise a
-     * deliberate request moves the clock on, and every answer says when the
-     * Hub will re-lock, so the page's warning is timed by the server.
-     */
-    const idle = {
-      sellerUnlockedAt: auth.sessionSellerUnlockedAt,
-      sellerUnlockedForId: auth.sessionSellerUnlockedForId,
-      sellerLastActivityAt: auth.sessionSellerLastActivityAt,
-    };
-    const audit = { userId: auth.id, memberId: membership.memberId, correlationId: request.correlationId };
-    await expireIdleSellerSession(auth.sessionId, idle, audit);
-
-    const since = isDeliberate(request)
-      ? await touchSellerActivity(auth.sessionId, idle)
-      : (idle.sellerLastActivityAt ?? idle.sellerUnlockedAt);
-    if (since !== null) {
-      void reply.header(
-        SELLER_EXPIRES_HEADER,
-        new Date(since.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000).toISOString(),
-      );
-    }
-
-    /*
-     * Two-step sign-in, for the roles that must have it: the owner and anybody
-     * holding payout or finance permissions. After the Hub's own lock and
-     * before any permission, so every Hub route - the payout and settlement
-     * screens included - is shut to them until it is set up, and the refusal
-     * (MFA_SETUP_REQUIRED) is what the Hub turns into the setup screen.
-     */
-    assertSellerMfaSatisfied(membership, auth);
-
-    for (const permission of permissions) {
-      assertSellerPermission(membership, permission);
-    }
-
-    request.seller = membership;
+    await sellerGuardBody(request, reply, permissions, { agreements: true });
   };
+}
+
+/**
+ * The same guard, without the agreement screens - the storefront's and the
+ * Seller Hub's own. For the Hub's support routes only: a seller who has not yet
+ * accepted the Seller Addendum must still be able to ask a person about it.
+ * Its own export so each route that skips the screen says so where it is
+ * registered. The lock, two-step sign-in and permissions all still apply.
+ */
+export function requireSellerBeforeAgreements(...permissions: SellerPermissionKey[]) {
+  return async function sellerSupportGuard(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
+    await sellerGuardBody(request, reply, permissions, { agreements: false });
+  };
+}
+
+async function sellerGuardBody(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  permissions: SellerPermissionKey[],
+  options: { agreements: boolean },
+): Promise<void> {
+  if (options.agreements) await requireCustomer(request, reply);
+  else await requireCustomerBeforeAgreements(request, reply);
+
+  const auth = currentUser(request);
+
+  if (auth.customerProfileId === null) {
+    throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
+  }
+
+  const membership = await resolveSellerMembership(auth.customerProfileId);
+
+  /*
+   * The second lock, before any permission is considered.
+   *
+   * Ordered that way deliberately: a locked session must be told to enter the
+   * Hub password, not told that its role does not carry an action. The
+   * remedies are different and a role refusal on a locked session sends
+   * somebody to the wrong screen entirely.
+   */
+  assertSellerUnlocked(membership, {
+    sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+    sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+  });
+
+  /*
+   * The idle limit, on the server.
+   *
+   * An open Hub with no deliberate activity for SELLER_HUB_IDLE_TIMEOUT_SECONDS
+   * is re-locked here, on the session row, and this request refused with
+   * SELLER_SESSION_EXPIRED - whatever any tab's timer thinks. Otherwise a
+   * deliberate request moves the clock on, and every answer says when the
+   * Hub will re-lock, so the page's warning is timed by the server.
+   */
+  const idle = {
+    sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+    sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+    sellerLastActivityAt: auth.sessionSellerLastActivityAt,
+  };
+  const audit = { userId: auth.id, memberId: membership.memberId, correlationId: request.correlationId };
+  await expireIdleSellerSession(auth.sessionId, idle, audit);
+
+  const since = isDeliberate(request)
+    ? await touchSellerActivity(auth.sessionId, idle)
+    : (idle.sellerLastActivityAt ?? idle.sellerUnlockedAt);
+  if (since !== null) {
+    void reply.header(
+      SELLER_EXPIRES_HEADER,
+      new Date(since.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000).toISOString(),
+    );
+  }
+
+  /*
+   * Two-step sign-in, for the roles that must have it: the owner and anybody
+   * holding payout or finance permissions. After the Hub's own lock and
+   * before any permission, so every Hub route - the payout and settlement
+   * screens included - is shut to them until it is set up, and the refusal
+   * (MFA_SETUP_REQUIRED) is what the Hub turns into the setup screen.
+   */
+  assertSellerMfaSatisfied(membership, auth);
+
+  /*
+   * The Seller Addendum. After the lock and the second factor, so a locked
+   * Hub is told to unlock first, and before any permission, so every Hub
+   * route is shut until it is accepted. `requireCustomer` above has already
+   * asked for the Terms of Use and the Privacy Policy.
+   */
+  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'SELLER');
+
+  for (const permission of permissions) {
+    assertSellerPermission(membership, permission);
+  }
+
+  request.seller = membership;
 }
 
 /**

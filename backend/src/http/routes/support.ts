@@ -68,10 +68,10 @@ import {
   currentUser,
   orderScopeWhere,
   requireAdmin,
-  requireCustomer,
+  requireCustomerBeforeAgreements,
 } from '../plugins/auth.js';
-import { currentLogistics, requireLogistics } from '../plugins/logistics.js';
-import { currentSeller, requireSeller } from '../plugins/seller.js';
+import { currentLogistics, requireLogisticsBeforeAgreements } from '../plugins/logistics.js';
+import { currentSeller, requireSellerBeforeAgreements } from '../plugins/seller.js';
 
 // ---------------------------------------------------------------------------
 // Shapes
@@ -289,7 +289,7 @@ async function download(requester: SupportRequester, request: FastifyRequest, re
 
 export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<void> {
   // What the Support page needs: whether it takes requests, the contacts and the prefill.
-  app.get('/context', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/context', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) => {
     const context = await contextFor(await storefrontRequester(request));
     return reply.header('Cache-Control', 'no-store').status(200).send(context);
   });
@@ -297,7 +297,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   // Send a support request. Needs an Idempotency-Key.
   app.post(
     '/tickets',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerBeforeAgreements, config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await sendRequest(await storefrontRequester(request), request);
       return reply.status(result.httpStatus).send(result.value);
@@ -305,14 +305,14 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   );
 
   // Your own support requests sent from the storefront, most recently active first.
-  app.get('/tickets', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/tickets', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) => {
     const query = ownListQuery.parse(request.query);
     const result = await listOwnSupportTickets(await storefrontRequester(request), query);
     return reply.header('Cache-Control', 'no-store').status(200).send(result);
   });
 
   // One of your support requests and its thread. Somebody else's answers "not found".
-  app.get('/tickets/:reference', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/tickets/:reference', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) => {
     const { reference } = referenceParams.parse(request.params);
     const ticket = await readOwnSupportTicket(await storefrontRequester(request), reference);
     return reply.header('Cache-Control', 'no-store').status(200).send({ ticket });
@@ -321,7 +321,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   // Write again on one of your requests. Needs an Idempotency-Key.
   app.post(
     '/tickets/:reference/messages',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerBeforeAgreements, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await writeAgain(await storefrontRequester(request), request);
       return reply.status(result.httpStatus).send(result.value);
@@ -331,7 +331,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   // Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately.
   app.post(
     '/tickets/:reference/attachments',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerBeforeAgreements, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await attachFile(await storefrontRequester(request), request);
       return reply.status(201).send(result);
@@ -341,7 +341,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   // A download link for one file on your ticket: five minutes, single use, this session only.
   app.post(
     '/tickets/:reference/attachments/:attachmentId/link',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    { preHandler: requireCustomerBeforeAgreements, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const link = await linkFor(await storefrontRequester(request), request, '/api/v1/support');
       return reply.header('Cache-Control', 'no-store').status(200).send(link);
@@ -351,7 +351,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
   // Redeem a download link. Served as a download, never inline.
   app.get(
     '/tickets/:reference/attachments/:attachmentId/download',
-    { preHandler: requireCustomer },
+    { preHandler: requireCustomerBeforeAgreements },
     async (request, reply) => download(await storefrontRequester(request), request, reply),
   );
 
@@ -360,7 +360,7 @@ export function registerCustomerSupportRoutes(app: FastifyInstance): Promise<voi
 
 export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void> {
   // What the Seller Hub Support page needs: whether it takes requests, the contacts and the prefill.
-  app.get('/support/context', { preHandler: requireSeller() }, async (request, reply) => {
+  app.get('/support/context', { preHandler: requireSellerBeforeAgreements() }, async (request, reply) => {
     const context = await contextFor(await sellerRequester(request));
     return reply.header('Cache-Control', 'no-store').status(200).send(context);
   });
@@ -368,7 +368,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // Send a support request from Seller Hub. Needs an Idempotency-Key.
   app.post(
     '/support/tickets',
-    { preHandler: requireSeller(), config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
+    { preHandler: requireSellerBeforeAgreements(), config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await sendRequest(await sellerRequester(request), request);
       return reply.status(result.httpStatus).send(result.value);
@@ -376,7 +376,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   );
 
   // Your own support requests sent from this seller's Hub.
-  app.get('/support/tickets', { preHandler: requireSeller() }, async (request, reply) => {
+  app.get('/support/tickets', { preHandler: requireSellerBeforeAgreements() }, async (request, reply) => {
     const query = ownListQuery.parse(request.query);
     const result = await listOwnSupportTickets(await sellerRequester(request), query);
     return reply.header('Cache-Control', 'no-store').status(200).send(result);
@@ -385,7 +385,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // One of your Seller Hub support requests and its thread.
   app.get(
     '/support/tickets/:reference',
-    { preHandler: requireSeller() },
+    { preHandler: requireSellerBeforeAgreements() },
     async (request, reply) => {
       const { reference } = referenceParams.parse(request.params);
       const ticket = await readOwnSupportTicket(await sellerRequester(request), reference);
@@ -396,7 +396,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // Write again on one of your Seller Hub requests. Needs an Idempotency-Key.
   app.post(
     '/support/tickets/:reference/messages',
-    { preHandler: requireSeller(), config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    { preHandler: requireSellerBeforeAgreements(), config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await writeAgain(await sellerRequester(request), request);
       return reply.status(result.httpStatus).send(result.value);
@@ -406,7 +406,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately.
   app.post(
     '/support/tickets/:reference/attachments',
-    { preHandler: requireSeller(), config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    { preHandler: requireSellerBeforeAgreements(), config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await attachFile(await sellerRequester(request), request);
       return reply.status(201).send(result);
@@ -416,7 +416,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // A download link for one file on your ticket: five minutes, single use, this session only.
   app.post(
     '/support/tickets/:reference/attachments/:attachmentId/link',
-    { preHandler: requireSeller(), config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    { preHandler: requireSellerBeforeAgreements(), config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const link = await linkFor(await sellerRequester(request), request, '/api/v1/seller/support');
       return reply.header('Cache-Control', 'no-store').status(200).send(link);
@@ -426,7 +426,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
   // Redeem a download link. Served as a download, never inline.
   app.get(
     '/support/tickets/:reference/attachments/:attachmentId/download',
-    { preHandler: requireSeller() },
+    { preHandler: requireSellerBeforeAgreements() },
     async (request, reply) => download(await sellerRequester(request), request, reply),
   );
 
@@ -435,7 +435,7 @@ export function registerSellerSupportRoutes(app: FastifyInstance): Promise<void>
 
 export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<void> {
   // What the portal's Support page needs: whether it takes requests, the contacts and the prefill.
-  app.get('/support/context', { preHandler: requireLogistics() }, async (request, reply) => {
+  app.get('/support/context', { preHandler: requireLogisticsBeforeAgreements() }, async (request, reply) => {
     const context = await contextFor(await logisticsRequester(request));
     return reply.header('Cache-Control', 'no-store').status(200).send(context);
   });
@@ -443,7 +443,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   // Send a support request from the logistics portal. Needs an Idempotency-Key.
   app.post(
     '/support/tickets',
-    { preHandler: requireLogistics(), config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
+    { preHandler: requireLogisticsBeforeAgreements(), config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const result = await sendRequest(await logisticsRequester(request), request);
       return reply.status(result.httpStatus).send(result.value);
@@ -451,7 +451,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   );
 
   // Your own support requests sent from the portal for this company.
-  app.get('/support/tickets', { preHandler: requireLogistics() }, async (request, reply) => {
+  app.get('/support/tickets', { preHandler: requireLogisticsBeforeAgreements() }, async (request, reply) => {
     const query = ownListQuery.parse(request.query);
     const result = await listOwnSupportTickets(await logisticsRequester(request), query);
     return reply.header('Cache-Control', 'no-store').status(200).send(result);
@@ -460,7 +460,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   // One of your portal support requests and its thread.
   app.get(
     '/support/tickets/:reference',
-    { preHandler: requireLogistics() },
+    { preHandler: requireLogisticsBeforeAgreements() },
     async (request, reply) => {
       const { reference } = referenceParams.parse(request.params);
       const ticket = await readOwnSupportTicket(await logisticsRequester(request), reference);
@@ -472,7 +472,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   app.post(
     '/support/tickets/:reference/messages',
     {
-      preHandler: requireLogistics(),
+      preHandler: requireLogisticsBeforeAgreements(),
       config: { rateLimit: { max: 20, timeWindow: '10 minutes' } },
     },
     async (request, reply) => {
@@ -485,7 +485,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   app.post(
     '/support/tickets/:reference/attachments',
     {
-      preHandler: requireLogistics(),
+      preHandler: requireLogisticsBeforeAgreements(),
       config: { rateLimit: { max: 20, timeWindow: '10 minutes' } },
     },
     async (request, reply) => {
@@ -497,7 +497,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   // A download link for one file on your ticket: five minutes, single use, this session only.
   app.post(
     '/support/tickets/:reference/attachments/:attachmentId/link',
-    { preHandler: requireLogistics(), config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    { preHandler: requireLogisticsBeforeAgreements(), config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const link = await linkFor(
         await logisticsRequester(request),
@@ -511,7 +511,7 @@ export function registerLogisticsSupportRoutes(app: FastifyInstance): Promise<vo
   // Redeem a download link. Served as a download, never inline.
   app.get(
     '/support/tickets/:reference/attachments/:attachmentId/download',
-    { preHandler: requireLogistics() },
+    { preHandler: requireLogisticsBeforeAgreements() },
     async (request, reply) => download(await logisticsRequester(request), request, reply),
   );
 

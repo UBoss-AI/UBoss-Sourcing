@@ -15,6 +15,7 @@ export const Permission = {
   DASHBOARD_READ: 'audit.dashboard.read',
   SELLER_READ: 'audit.seller.read',
   CASE_REVIEW: 'audit.case.review',
+  SELLER_VERIFY: 'audit.seller.verify',
   DOCUMENT_READ: 'audit.document.read',
   RULE_READ: 'audit.rule.read',
   RULE_DRAFT: 'audit.rule.draft',

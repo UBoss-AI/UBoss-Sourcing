@@ -128,6 +128,27 @@ function announceSessionEnded(): void {
   for (const listener of sessionEndedListeners) listener();
 }
 
+/**
+ * Listeners told when the server refuses a request with AGREEMENTS_REQUIRED:
+ * the Terms for this account, or the Privacy Policy, are owed in a version
+ * still in force - a new one was published, or a box was cleared elsewhere.
+ * The agreement screen subscribes and asks the server where things stand.
+ */
+type AgreementsRequiredListener = () => void;
+const agreementsRequiredListeners = new Set<AgreementsRequiredListener>();
+
+export function onAgreementsRequired(listener: AgreementsRequiredListener): () => void {
+  agreementsRequiredListeners.add(listener);
+  return () => agreementsRequiredListeners.delete(listener);
+}
+
+function noteAgreementsRequired(error: ApiError): ApiError {
+  if (error.code === 'AGREEMENTS_REQUIRED') {
+    for (const listener of agreementsRequiredListeners) listener();
+  }
+  return error;
+}
+
 /** The in-flight refresh, shared by every request that hit 401 together. */
 let refreshInFlight: Promise<boolean> | null = null;
 
@@ -283,7 +304,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     announceSessionEnded();
   }
 
-  throw toApiError(response.status, payload);
+  throw noteAgreementsRequired(toApiError(response.status, payload));
 }
 
 export const api = {
@@ -332,7 +353,7 @@ export async function downloadFile(path: string, fallbackName: string): Promise<
   const response = await fetch(buildUrl(path, undefined), { credentials: 'include' });
 
   if (!response.ok) {
-    throw toApiError(response.status, await parseBody(response));
+    throw noteAgreementsRequired(toApiError(response.status, await parseBody(response)));
   }
 
   const disposition = response.headers.get('content-disposition') ?? '';
@@ -366,7 +387,7 @@ export async function fetchBlob(path: string): Promise<{ blob: Blob; fileName: s
   const response = await fetch(buildUrl(path, undefined), { credentials: 'include' });
 
   if (!response.ok) {
-    throw toApiError(response.status, await parseBody(response));
+    throw noteAgreementsRequired(toApiError(response.status, await parseBody(response)));
   }
 
   const disposition = response.headers.get('content-disposition') ?? '';

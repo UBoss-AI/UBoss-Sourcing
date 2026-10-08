@@ -27,6 +27,7 @@ import {
 import { readKyb, saveKyb, type KybInput } from '../../src/modules/seller/kyb.service.js';
 import { decideApplication, readApplication } from '../../src/modules/seller/moderation.service.js';
 import { saveBusinessProfile, submitApplication } from '../../src/modules/seller/onboarding.service.js';
+import { seedTurnover } from '../support/seller-turnover.js';
 
 const PREFIX = 'r12-';
 const ADMIN_EMAIL = 'r12-reviewer@test.local';
@@ -389,6 +390,8 @@ describe('the GSTIN check character', () => {
 describe('the submit gate', () => {
   it('refuses an unfinished application, one entry per unfinished step', async () => {
     const seller = await makeSeller('unfinished', 'DRAFT', 'QZ');
+    // Past the turnover policy, which refuses first and is tested on its own.
+    await seedTurnover(seller.sellerAccountId, 'AWAITING_INPUT');
     const error = await errorOf(submitApplication(seller));
     expect(error.code).toBe('SELLER_ONBOARDING_INCOMPLETE');
     expect(error.details.map((detail) => detail.field)).toContain('kyb_kyc');
@@ -500,6 +503,7 @@ describe('the approval gate', () => {
     expect(missing).toContain('STEP_INCOMPLETE:account_verification');
     expect(missing).toContain('DOCUMENT_NOT_APPROVED:qz_licence');
     expect(missing).toContain('SCREENING_REQUIRED:entity');
+    expect(missing).toContain('TURNOVER_NOT_DECLARED:turnover');
     // An optional document is never demanded.
     expect(missing.some((entry) => entry.endsWith(':qz_optional'))).toBe(false);
     expect((await prisma.sellerAccount.findUniqueOrThrow({ where: { id: seller.sellerAccountId } })).status).toBe('UNDER_REVIEW');
@@ -511,6 +515,12 @@ describe('the approval gate', () => {
     });
     const owners = await saveKyb({ ...seller, status: 'DRAFT', isApplicationEditable: true }, baseKyb());
     const licence = await approvedDocument(seller.sellerAccountId, 'qz_licence', new Date(Date.now() - DAY));
+    // Declared but not verified is still missing; verified is not.
+    await seedTurnover(seller.sellerAccountId, 'IN_PROGRESS');
+    expect((await approvalReadiness(seller.sellerAccountId)).missing).toContainEqual(
+      expect.objectContaining({ code: 'TURNOVER_NOT_VERIFIED', field: 'turnover' }),
+    );
+    await seedTurnover(seller.sellerAccountId);
 
     // An expired licence is named as expired, not as missing.
     const expired = await approvalReadiness(seller.sellerAccountId);

@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**377 tables · 362 enums · 860 extra indexes and unique keys**, in 57 groups. The groups follow the section banners in the schema file.
+**378 tables · 365 enums · 863 extra indexes and unique keys**, in 57 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -68,14 +68,14 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ what kind of transport a consignment actually needs.](#group-what-kind-of-transport-a-consignment-actually-needs) | 1 | 2 |
 | [/ which accounting system. one member today; the abstraction is the point. / / the connector interface, the job pipeline, the mapping table and the bridge / are all provider-agnostic; only the payload builder and the response parser / are tally-specific. a second provider is a new module, not a new schema.](#group-which-accounting-system-one-member-today-the-abstraction-is-the-point-the-connector-interface-the-job-pipeline-the-mapping-table-and-the-bridge-are-all-provider-agnostic-only-the-payload-builder-and-the-response-parser-are-tally-specific-a-second-provider-is-a-new-module-not-a-new-schema) | 11 | 10 |
 | [Seller logistics policy - who controls each of the four delivery levels, what each level costs, and what the seller is owed afterwards](#group-seller-logistics-policy-who-controls-each-of-the-four-delivery-levels-what-each-level-costs-and-what-the-seller-is-owed-afterwards) | 11 | 13 |
-| [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
+| [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 15 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 17 | 20 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 17 | 22 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
-| [/ where one check has got to.](#group-where-one-check-has-got-to) | 24 | 13 |
+| [/ where one check has got to.](#group-where-one-check-has-got-to) | 25 | 13 |
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 15 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
@@ -8067,6 +8067,7 @@ A seller business, as a tenant.
 - `complianceCases` ← [ComplianceCase](#model-compliancecase) - has many
 - `trustChecks` ← [SellerTrustCheck](#model-sellertrustcheck) - has many
 - `screeningChecks` ← [SellerScreeningCheck](#model-sellerscreeningcheck) - has many
+- `turnoverDeclarations` ← [SellerTurnoverDeclaration](#model-sellerturnoverdeclaration) - has many
 - `profileChangeRequests` ← [SellerProfileChangeRequest](#model-sellerprofilechangerequest) - has many
 - `listingTrust` ← [SellerListingTrust](#model-sellerlistingtrust) - has many
 - `productReviews` ← [ProductReview](#model-productreview) - has many
@@ -14745,8 +14746,13 @@ One seller's preorder terms, at one level of the fallback chain.
 | `offerId` | String · Char(26) | yes |  |  | Set under OFFER and PRODUCT respectively. Deliberately not foreign keys: ownership is checked on write, which is the check that matters, and an archived offer must not take its terms with it. |
 | `productId` | String · Char(26) | yes |  |  |  |
 | `isEnabled` | Boolean |  |  | false |  |
-| `moqUnit` | [enum PreorderQuantityUnit](#enum-preorderquantityunit) |  |  | PIECE |  |
-| `moqQuantity` | Int | yes |  |  | Null means the seller has not set one. Never defaulted: a preorder with no minimum would be an ordinary order with extra steps. |
+| `moqUnit` | [enum PreorderQuantityUnit](#enum-preorderquantityunit) |  |  | PIECE | The unit BOTH minimums below are counted in, and the increment and maximum too, so "500 cartons OEM, 10 cartons Original Brand" can never become one figure in cartons and the other in pieces. |
+| `moqQuantity` | Int | yes |  |  | The single minimum from before OEM and Original Brand were separate. Kept only so the migration that split it can be audited; nothing reads or writes it. See `20261107100000_preorder_product_options`. |
+| `originalBrandEnabled` | Boolean |  |  | false | Whether a buyer may preorder the product exactly as listed, under its own brand, and the least they may ask for. Null means not set. Never defaulted: a preorder with no minimum would be an ordinary order with extra steps. |
+| `originalBrandMoqQuantity` | Int | yes |  |  |  |
+| `oemEnabled` | Boolean |  |  | false | Whether a buyer may preorder it made to their own design or brand (OEM), and the least they may ask for. Independent of Original Brand: both may be offered at once, with different minimums. |
+| `oemMoqQuantity` | Int | yes |  |  |  |
+| `productOptionsReviewRequired` | Boolean |  |  | false | Set by the migration where the old single minimum could have been meant for OEM too (the seller advertises OEM on that product). Preorders keep working as Original Brand; the Seller Hub asks the seller to confirm. Cleared on the seller's next save. |
 | `incrementQuantity` | Int |  |  | 1 |  |
 | `maxQuantity` | Int | yes |  |  |  |
 | `capacityBaseUnits` | Int | yes |  |  | Pieces the seller can make per `capacityPeriod`. Null means capacity is not tracked, and nothing is reserved. |
@@ -14861,6 +14867,10 @@ One buyer's preorder request, and where the negotiation over it stands.
 | `unitQuantity` | Int |  |  |  |  |
 | `unitsPerPackage` | Int |  |  |  |  |
 | `requestedBaseUnits` | Int |  |  |  |  |
+| `productOption` | [enum PreorderProductOption](#enum-preorderproductoption) | yes |  |  | OEM or Original Brand, and the minimum that applied to it, frozen at submission: the seller's figure in the seller's unit, and the same in pieces. All four null on a request made before the two were separate - those were made under one minimum and are left exactly as they were (chk_preorder_request_product_option). |
+| `productOptionMoqQuantity` | Int | yes |  |  |  |
+| `productOptionMoqUnit` | [enum PreorderQuantityUnit](#enum-preorderquantityunit) | yes |  |  |  |
+| `productOptionMinimumBaseUnits` | Int | yes |  |  |  |
 | `containerLoadingSnapshotJson` | Json | yes |  |  | For a 20-ft or 40-ft container request: the seller's container loading as it stood at submission - pieces per carton, cartons per container, carton weight, where the figure came from and when it was verified. Required for those units (chk_preorder_request_container_snapshot) and never rewritten: a seller… |
 | `containerLoadingVersion` | Int | yes |  |  | The `SellerContainerLoading.version` it was taken from. |
 | `availableToPromiseAtSubmission` | Int | yes |  |  | Available-to-promise stock at submission, and how far short of the request it fell (0 = enough). INFORMATIONAL: nothing is reserved at submission, and the seller's proposal is checked against live stock. |
@@ -15247,6 +15257,17 @@ Where one installment of a delivery schedule comes from.
 | `HELD` | The units are reserved in the seller's stock for this preorder. |
 | `RELEASED` | Given back to available stock: the preorder closed without an order. |
 | `TRANSFERRED` | Handed to the order's own reservation when the seller accepted it. |
+
+<a id="enum-preorderproductoption"></a>
+
+#### enum PreorderProductOption
+
+What a preorder is for: the product as listed, or made to the buyer's design. Each has its own minimum on `PreorderPolicy`.
+
+| Value | Meaning |
+|---|---|
+| `ORIGINAL_BRAND` | The product exactly as listed, under its own brand. |
+| `OEM` | Made to the buyer's own design or brand - the same meaning as `SellerListingTrust.oemAvailable`. |
 
 <a id="enum-containercapacitysource"></a>
 
@@ -16728,7 +16749,11 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 | `withdrawnAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `legalDocumentId` | String · Char(26) | yes | FK → [LegalDocument](#model-legaldocument) |  | For PLATFORM_TERMS and LOGISTICS_PARTNER_TERMS: the published document the person read and agreed to. `textVersion` and `textHash` are copied from it by the server, never taken from the request. Null for the company-application declarations, whose wording lives in code. (on delete: Restrict) |
 | `locale` | String · VarChar(10) | yes |  |  | The language of that document, e.g. "pl". Copied from the document. |
-| `acceptanceSource` | String · VarChar(48) | yes |  |  | Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or LOGISTICS_INVITATION. Null for the company-application declarations. |
+| `acceptanceSource` | String · VarChar(48) | yes |  |  | Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION, LOGISTICS_INVITATION or AGREEMENT_SCREEN. Null for the company-application declarations. |
+| `action` | [enum ConsentAction](#enum-consentaction) | yes |  |  | Terms accepted, or privacy notice acknowledged. Null for the company-application declarations, whose wording lives in code. |
+| `scope` | [enum AgreementScope](#enum-agreementscope) | yes |  |  | The kind of account the person was acting as. Null where nobody knows - the declarations, and nothing else. |
+| `activeDocumentId` | String · Char(26) | yes |  |  | `legalDocumentId` while this record is in force, null once cleared. Exists for the unique index: one active record per person per document, any number of cleared ones. The CHECK constraint keeps it honest. |
+| `clearedAt` | DateTime · DateTime(3) | yes |  |  | When the person unticked this on the agreement screen, before pressing Continue. Not a withdrawal: `withdrawnAt` is for that, and clearing one box withdraws no consent to anything else. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -16742,7 +16767,8 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 
 - `@@index([userId, purpose], map: "ix_consent_record_user")`
 - `@@index([companyId], map: "ix_consent_record_company")`
-- `@@unique([userId, legalDocumentId], map: "uq_consent_record_user_document")`
+- `@@unique([userId, activeDocumentId], map: "uq_consent_record_user_active_document")`
+- `@@index([userId, legalDocumentId], map: "ix_consent_record_user_document")`
 - `@@index([legalDocumentId], map: "ix_consent_record_legal_document")`
 
 ### Enums in  / which buyer the session is acting as. null on a session row means individual.
@@ -16963,6 +16989,34 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `AUTHORITY_TO_ACT` | "I am authorised to act for this company." |
 | `PLATFORM_TERMS` | The marketplace's Terms and Conditions, accepted when a buyer account is created. The row points at the exact `LegalDocument` that was shown. |
 | `LOGISTICS_PARTNER_TERMS` | The terms a carrier's staff accept when they activate a logistics portal account. The row points at the exact `LegalDocument` that was shown. |
+| `SELLER_TERMS` | The Seller Addendum, accepted on the Seller Hub's agreement screen. |
+| `STAFF_TERMS` | The operator's staff terms, accepted on the console's agreement screen. |
+| `AUDIT_CONSOLE_TERMS` | The Audit Console's terms, accepted on that console's agreement screen. |
+
+<a id="enum-consentaction"></a>
+
+#### enum ConsentAction
+
+What a person did on the agreement screen. Kept apart from the purpose so a privacy notice can never be recorded as "accepted": it is acknowledged.
+
+| Value | Meaning |
+|---|---|
+| `TERMS_ACCEPTED` |  |
+| `PRIVACY_NOTICE_ACKNOWLEDGED` |  |
+
+<a id="enum-agreementscope"></a>
+
+#### enum AgreementScope
+
+Which kind of account the agreement screen was asking for. One person can be a buyer and a seller; the scope says which screen they were on.
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `SELLER` |  |
+| `LOGISTICS` |  |
+| `STAFF` |  |
+| `AUDIT` |  |
 
 <a id="enum-staffaccessdecision"></a>
 
@@ -17036,6 +17090,7 @@ One version of one agreement in one language.
 | `body` | String · MediumText |  |  |  |  |
 | `changeSummary` | String · Text | yes |  |  | What changed since the previous version, in a sentence or two. Shown to the reader when present. Optional, and never a substitute for the text. |
 | `effectiveAt` | DateTime · DateTime(3) |  |  |  | When this version starts to apply. A version published with a future date is not in force, and cannot be accepted, until then. |
+| `requiresReacceptance` | Boolean |  |  | true | Whether people who accepted an earlier version must accept this one before they can carry on. False for a correction that changes nothing anybody agreed to; the first version of a kind always asks. |
 | `contentSha256` | String · Char(64) | yes |  |  | SHA-256 of the canonical text (kind, version, locale, title and body), set when the document is published. Copied onto every acceptance. |
 | `publishedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `publishedById` | String · Char(26) | yes |  |  |  |
@@ -17102,7 +17157,8 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 | `BUYER_PROTECTION_POLICY` |  |
 | `PROHIBITED_PRODUCTS` |  |
 | `RETURNS_POLICY` | How returns work: the window, what can be returned, refunds or replacements. |
-| `STAFF_TERMS` | Terms for the operator's own staff, shown on the admin console's sign-in and agreed to on every sign-in. No acceptance is recorded for this kind: the tick gates the sign-in form and is never sent to the server. |
+| `STAFF_TERMS` | Terms for the operator's own staff, accepted on the admin console's agreement screen after sign-in and recorded like every other kind. |
+| `AUDIT_CONSOLE_TERMS` | Terms for Audit Console users - inspection agencies and auditors - accepted on that console's agreement screen. |
 
 <a id="enum-legaldocumentstatus"></a>
 
@@ -18656,7 +18712,7 @@ When the buyer may read the report.
 
 ##  / where one check has got to.
 
-[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketRuleVersion](#model-marketruleversion) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [ContentBlock](#model-contentblock) · [ContentBlockVersion](#model-contentblockversion) · [AdminPendingAction](#model-adminpendingaction) · [ExceptionQueueSetting](#model-exceptionqueuesetting) · [ListingProhibitedTerm](#model-listingprohibitedterm) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
+[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerTurnoverDeclaration](#model-sellerturnoverdeclaration) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketRuleVersion](#model-marketruleversion) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [ContentBlock](#model-contentblock) · [ContentBlockVersion](#model-contentblockversion) · [AdminPendingAction](#model-adminpendingaction) · [ExceptionQueueSetting](#model-exceptionqueuesetting) · [ListingProhibitedTerm](#model-listingprohibitedterm) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
 
 ```mermaid
 erDiagram
@@ -18669,6 +18725,7 @@ erDiagram
     SellerFactory |o--o{ SellerCertification : "factory"
     SellerAccount ||--o{ SellerTrustCheck : "sellerAccount"
     SellerAccount ||--o{ SellerScreeningCheck : "sellerAccount"
+    SellerAccount ||--o{ SellerTurnoverDeclaration : "sellerAccount"
     SellerAccount ||--o{ SellerProfileChangeRequest : "sellerAccount"
     SellerAccount ||--o{ SellerListingTrust : "sellerAccount"
     Product ||--o{ SellerListingTrust : "product"
@@ -18717,6 +18774,12 @@ erDiagram
     SellerScreeningCheck {
         String id PK
         String sellerAccountId FK
+    }
+    SellerTurnoverDeclaration {
+        String id PK
+        String sellerAccountId FK
+        BigInt amountMinor
+        BigInt minimumMinor
     }
     SellerProfileChangeRequest {
         String id PK
@@ -19104,6 +19167,45 @@ One screening of one subject. `automated` is false for the manual-review driver,
 
 - `@@index([sellerAccountId, isCurrent], map: "ix_seller_screening_current")`
 - `@@index([state], map: "ix_seller_screening_state")`
+
+<a id="model-sellerturnoverdeclaration"></a>
+
+### SellerTurnoverDeclaration
+
+Table `seller_turnover_declarations`
+
+A seller's declared annual turnover, and what a reviewer decided about it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `amountMinor` | BigInt |  |  |  | Whole minor units (paise for INR). Compared as an integer, never a float. |
+| `currency` | String · Char(3) |  |  |  |  |
+| `financialYearStart` | DateTime · Date |  |  |  | The reporting period: twelve months, first day to last day. |
+| `financialYearEnd` | DateTime · Date |  |  |  |  |
+| `minimumMinor` | BigInt |  |  |  | The minimum in force when this was declared, and the policy version. |
+| `policyVersion` | String · VarChar(32) |  |  |  |  |
+| `declaredAt` | DateTime · DateTime(3) |  |  |  | When the seller ticked the accuracy declaration, and who did. |
+| `declaredByProfileId` | String · Char(26) | yes |  |  |  |
+| `verificationState` | [enum SellerVerificationState](#enum-sellerverificationstate) |  |  | AWAITING_INPUT | AWAITING_INPUT - no supporting document yet. IN_PROGRESS - waiting for a reviewer. VERIFIED / FAILED - a reviewer decided, with a reason. |
+| `decisionReason` | String · Text | yes |  |  | Seller-visible: why it was verified or refused. |
+| `internalNote` | String · Text | yes |  |  | Operator-only. Never serialised to a seller route. |
+| `reviewedByUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `supersededReason` | String · VarChar(32) | yes |  |  | Why this row stopped being current: AMENDED or EVIDENCE_CHANGED. |
+| `isCurrent` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, isCurrent], map: "ix_seller_turnover_current")`
+- `@@index([verificationState], map: "ix_seller_turnover_state")`
 
 <a id="model-sellerprofilechangerequest"></a>
 

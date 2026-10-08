@@ -1,0 +1,136 @@
+{
+ "ranAt": "2026-10-08T08:02:16.941Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": "notice",
+   "darkClass": "|light",
+   "page": "sell-public-light",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-public-light-375.png"
+  },
+  {
+   "afterResult": "notice",
+   "darkClass": "|light",
+   "page": "sell-public-light",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-public-light-1024.png"
+  },
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": "Your business does not currently meet our seller turnover requirement. Annual turnover must exceed ₹30 crore to apply.\n\nContinue shopping",
+   "darkClass": "|light",
+   "page": "sell-below-light",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-below-light-375.png"
+  },
+  {
+   "afterResult": "Your business does not currently meet our seller turnover requirement. Annual turnover must exceed ₹30 crore to apply.\n\nContinue shopping",
+   "darkClass": "|light",
+   "page": "sell-below-light",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-below-light-1024.png"
+  },
+  {
+   "afterResult": "Turnover requirement met.\n\nYour application is still subject to verification. We check these figures before any approval. | startDisabled=true | Exactly ₹30,00,00,000.01\n\nTurn",
+   "darkClass": "|light",
+   "page": "sell-eligible-light",
+   "path": "/sell",
+   "w": 375,
+   "finalPath": "/sell",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-eligible-light-375.png"
+  },
+  {
+   "afterResult": "Turnover requirement met.\n\nYour application is still subject to verification. We check these figures before any approval. | startDisabled=true | Exactly ₹30,00,00,000.01\n\nTurn",
+   "darkClass": "|light",
+   "page": "sell-eligible-light",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/sell",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Sell to businesses that buy in bulk"
+   ],
+   "title": "Sell on Gloviaa Mart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "sell-eligible-light-1024.png"
+  }
+ ]
+}

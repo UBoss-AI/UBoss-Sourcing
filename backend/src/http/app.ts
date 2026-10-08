@@ -39,6 +39,12 @@ import { localStorageRoot } from '../infra/storage/index.js';
 import { sessionSecrets } from '../infra/signing-secrets.js';
 import { authRoutes } from './routes/auth.js';
 import {
+  registerAuditAgreementRoutes,
+  registerCustomerAgreementRoutes,
+  registerLogisticsAgreementRoutes,
+  registerStaffAgreementRoutes,
+} from './routes/agreements.js';
+import {
   registerCustomerAccountRoutes,
   registerDataBundleDownloadRoute,
 } from './routes/account.customer.js';
@@ -660,6 +666,14 @@ export async function buildApp() {
   // The fourth audience: the Audit Console. Its own cookie jar and `users.type`,
   // so no customer, seller, carrier or admin credential is ever an auditor's.
   await app.register(authRoutes('AUDIT'), { prefix: `${API_PREFIX}/audit/auth` });
+
+  // The agreement screen after sign-in, under each surface's own `/auth`, so
+  // each reads its own cookie jar. Reachable before the screen is done - they
+  // are the way through it - and nothing else is (see the guards).
+  await app.register(registerStaffAgreementRoutes, { prefix: `${API_PREFIX}/admin/auth` });
+  await app.register(registerCustomerAgreementRoutes, { prefix: `${API_PREFIX}/auth` });
+  await app.register(registerLogisticsAgreementRoutes, { prefix: `${API_PREFIX}/logistics/auth` });
+  await app.register(registerAuditAgreementRoutes, { prefix: `${API_PREFIX}/audit/auth` });
 
   // Public catalog: no auth. Every read is filtered by publicProductWhere().
   // Unauthenticated: the storefront needs branding and capability flags

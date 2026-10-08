@@ -48,6 +48,13 @@ import {
 } from '../../modules/seller/onboarding.service.js';
 import { readKyb, saveKyb } from '../../modules/seller/kyb.service.js';
 import {
+  assertAboveMinimum,
+  declareTurnover,
+  parseTurnoverInput,
+  readSellerTurnover,
+} from '../../modules/seller/turnover.service.js';
+import { turnoverPolicy } from '../../modules/seller/turnover-facts.service.js';
+import {
   MAX_BENEFICIAL_OWNERS,
   MAX_EXPORT_MARKETS,
   MAX_INTENDED_CATEGORIES,
@@ -124,6 +131,15 @@ const minorUnits = z.string().regex(/^\d+$/, 'Expected whole minor units, e.g. "
 /** `HH:MM`, wall-clock at the warehouse - which is why the location owns the timezone. */
 const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Expected HH:MM.');
 
+/** A turnover declaration. Shape only - `parseTurnoverInput` judges every field. */
+const turnoverSchema = z.object({
+  amountMinor: z.unknown(),
+  currency: z.unknown(),
+  financialYearStart: z.unknown(),
+  financialYearEnd: z.unknown(),
+  declarationAccepted: z.unknown(),
+});
+
 const applySchema = z.object({
   legalName: z.string().trim().min(2).max(255),
   displayName: z.string().trim().min(2).max(160),
@@ -131,6 +147,13 @@ const applySchema = z.object({
   kind: z
     .enum(['MANUFACTURER', 'AUTHORISED_DISTRIBUTOR', 'WHOLESALER', 'RESELLER'])
     .optional(),
+  /**
+   * The seller turnover eligibility declaration. Required while
+   * SELLER_TURNOVER_REQUIRED is on; its shape and the minimum are checked by
+   * the turnover service, so the same rules apply here and on the onboarding
+   * form.
+   */
+  turnover: turnoverSchema.optional(),
 });
 
 const businessProfileSchema = z.object({
@@ -509,6 +532,17 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
       const auth = currentUser(request);
       const body = applySchema.parse(request.body);
 
+      /*
+       * The turnover eligibility policy, before anything is created. Refused
+       * with VALIDATION_FAILED for a malformed or missing field and
+       * SELLER_TURNOVER_NOT_ELIGIBLE for a figure that does not EXCEED the
+       * minimum - so an application cannot be opened round the form.
+       */
+      const policy = turnoverPolicy();
+      const turnover =
+        body.turnover === undefined && !policy.required ? null : parseTurnoverInput(body.turnover ?? {});
+      if (turnover !== null) assertAboveMinimum(turnover);
+
       const membership = await startSellerApplication({
         customerProfileId: auth.customerProfileId ?? '',
         legalName: body.legalName,
@@ -517,6 +551,7 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
         ...(body.kind === undefined ? {} : { kind: body.kind }),
         correlationId: request.correlationId,
         userId: auth.id,
+        turnover,
       });
 
       return reply.status(201).send({
@@ -907,6 +942,41 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
     return reply.status(200).send({ agreements: rows });
   });
+
+  /**
+   * The seller turnover eligibility policy and this seller's current
+   * declaration: amount, financial year, policy version, whether it exceeds
+   * the minimum and whether the marketplace has verified it. Owners and
+   * administrators only - it is business financial data.
+   */
+  app.get(
+    '/turnover',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      const view = await readSellerTurnover(currentSeller(request));
+      return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
+
+  /**
+   * Declare or correct the annual turnover. Saved even at or below the
+   * minimum, so nothing typed is lost, but the business details step stays
+   * unfinished and submission is refused. Changing the amount or the year
+   * sends it back for verification. Refused once the application is under
+   * review. Writes an audit entry without the figure.
+   */
+  app.put(
+    '/turnover',
+    {
+      preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const body = turnoverSchema.parse(request.body);
+      const view = await declareTurnover(currentSeller(request), body, request.correlationId);
+      return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
 
   /** Hand the application to the marketplace. */
   app.post(

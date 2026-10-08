@@ -1,0 +1,239 @@
+kind: PRIVACY_POLICY
+version: 2026-10-draft-1
+locale: en
+title: Gloviaa Mart Privacy Policy
+---
+DRAFT - not legal advice and not approved for publication. This text was adapted from third-party source material and must be reviewed and approved by the operator's legal counsel. Every passage marked [[DECISION: ...]] needs a business or legal decision before this document can be published.
+
+We value the trust you place in us and take the security of transactions and the privacy of personal data seriously. This Privacy Policy explains how Gloviaa Mart collects, uses, shares and otherwise processes personal data when you visit or use the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page and interface (together, the "Platform").
+
+This is a notice, not a request for consent. You will be asked to confirm that you have read it; that confirmation is an acknowledgment that you have been informed. It is not your consent to any processing. Where we rely on your consent for a particular purpose, we ask for it separately, at the moment it matters, and you can withdraw it at any time.
+
+## 1. Who is responsible for your data
+
+The controller of your personal data is [[DECISION: registered legal name of the operator]], registered under number [[DECISION: company registration number and register]], with its registered office at [[DECISION: registered office address of the operator]] ("Gloviaa Mart", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace.
+
+You can contact us about privacy at [[DECISION: data protection officer or privacy contact, and EU representative if required]].
+
+Sellers on the Platform are separate businesses. When a seller receives your data to fulfil an order, the seller is responsible for its own use of that data, as explained in section 7. [[DECISION: controller/processor roles between the operator and sellers for buyer personal data]]
+
+## 2. Who this policy is about
+
+This policy applies to everyone whose personal data the Platform processes:
+
+- visitors who browse the storefront without an account;
+- buyers - individuals, and people who act for a company that buys on the Platform;
+- sellers - the people who apply for, own or work in a seller's account;
+- members of a logistics partner's staff, including drivers;
+- members of our own staff who use the administration console;
+- inspectors, auditors and compliance staff invited to the Audit Console;
+- other people whose data is given to us, such as the contact person at a delivery address or the authorised contacts of a company.
+
+Sections 3 and 4 say what we collect for each of these groups.
+
+## 3. What we collect from everyone
+
+Information you give us:
+
+- your name, email address, telephone number and password (we store only a one-way protected form of the password, never the password itself);
+- your language and other preferences;
+- what you write to us - support requests, messages, claims, reviews, questions to the assistant - and any files you attach;
+- your answers to optional surveys, if we run any.
+
+Information we collect when you use the Platform:
+
+- sign-in and security information: when you signed in, the session, whether two-step sign-in was used, failed sign-in attempts, and - to warn you about unusual sign-ins - a description of the device and its approximate location derived from the network address;
+- the network (IP) address of requests, used to protect the Platform against attack and abuse, to diagnose problems and, where the law requires it, kept with records of certain declarations;
+- records of what was done in your account and when (the audit trail), kept as evidence and for security;
+- the version and language of the Terms of Use and of this Privacy Policy you were shown, and when you agreed to the terms or acknowledged this policy.
+
+You can browse the storefront without an account and without telling us who you are. We tell you which information is required and which is optional; if you choose not to give required information, you may not be able to use the feature that needs it.
+
+## 4. What we collect for each role
+
+Buyers:
+
+- delivery and billing addresses, the people to contact at them, and delivery instructions;
+- baskets, saved items, saved searches, orders, quotes, preorders, scheduled plans, returns, claims and reviews;
+- payment information: the payment provider's reference for each payment and, if you choose to save a card, the provider's token for it with the card brand, the last four digits, expiry date and country - never the full card number or security code;
+- Autopay settings, if you set up Autopay: your limits, the card enrolled and when you gave the authority;
+- marketing choices (all off until you turn them on);
+- if you complete an identity check: your legal name, date of birth, nationality, country of residence, identity document type and expiry, a masked document number, and the documents you upload, such as an identity document or proof of address;
+- importer details you record: EORI or tax number, import licence, customs broker and preferred delivery terms;
+- for company buyers: the company's legal and registration details, tax and registration numbers, addresses, business email address, documents proving the company exists and your authority to act for it, your role in the company, and your declarations when the company applied;
+- if your company connects its own purchasing system: the connection's settings and the orders it sends.
+
+Sellers:
+
+- the business's legal and trading names, addresses, tax and company identifiers, and annual turnover declaration with its evidence;
+- the identity of the owners, controllers and people who act for the business, and the documents that verify them;
+- the store details, pickup and returns addresses, and team members with their roles;
+- licences, certificates and compliance documents;
+- the identifier of the payout account you connect through our payment provider and its onboarding status (we do not store your bank account details);
+- listings, prices, stock, orders, invoices, settlement statements, claims and messages;
+- carrier account credentials you enter so that your shipments can be booked, stored encrypted;
+- agreements you accepted, with their version and time and, for the seller application, the network address and browser description recorded as evidence of the acceptance.
+
+Logistics partner staff and drivers:
+
+- your name, contact details, role and company;
+- shipments, collections and delivery rounds assigned to you, status updates, exceptions and their reasons;
+- proof of delivery you capture: the recipient's name and role, and any signature image or photograph the delivery policy requires;
+- [[DECISION: whether driver location tracking is switched on; the Platform can record a driver's position while on duty but this is off and must not be switched on without an assessment and a driver notice]]
+
+Our staff:
+
+- your name, work email address, role and permissions;
+- what you do in the console, recorded in the audit trail;
+- where the operator has switched it on, the location of your device when you sign in, so that sign-ins to the console are visible to the people responsible for it. [[DECISION: whether sign-in location recording is enabled for staff and the data-protection impact assessment reference]]
+
+Audit Console users:
+
+- your name, contact details, agency, role, credentials and their expiry, and identity-verification dates;
+- inspection assignments, reports, evidence you upload (photographs, documents) and its capture time, and invoices your agency submits.
+
+## 5. Why we use your data, and on what legal basis
+
+Where the EU or UK General Data Protection Regulation applies, we must have a legal basis for each use. Where other data-protection laws apply, we follow their equivalent requirements.
+
+To provide the Platform and perform our contract with you (contract):
+
+- to open and run your account and keep you signed in;
+- to show prices, take orders and payments, arrange delivery, handle returns, refunds and claims, and issue invoices and other documents;
+- to run scheduled orders and Autopay as you set them up;
+- to pass the information a seller or carrier needs to fulfil your order;
+- to review seller applications, listings and company applications, and to run inspections;
+- to answer your questions and support requests;
+- to send you service messages about your account, orders and payments.
+
+To meet our legal obligations (legal obligation):
+
+- to keep accounting, tax and invoice records;
+- to verify identity and business details where the law requires;
+- to answer lawful requests from courts and authorities;
+- to handle your data-protection requests.
+
+For our legitimate interests, balanced against your rights (legitimate interests):
+
+- to keep the Platform and its users secure - detecting and preventing fraud, abuse, account takeover and other crime, including through risk signals (section 6);
+- to keep an audit trail of who did what, as evidence;
+- to improve the Platform using anonymous counts of how it is used;
+- to enforce our terms and to establish, exercise or defend legal claims;
+- to tell a member of staff's colleagues where console sign-ins came from, where that feature is switched on and assessed.
+
+With your consent (consent), which you may withdraw at any time:
+
+- to send you marketing by email, text message or product news, if you turn these on;
+- to save a card for future checkouts, or to charge a card under Autopay;
+- any other purpose for which we ask you specifically.
+
+Withdrawing consent does not affect processing that happened before you withdrew it.
+
+## 6. Automated processing and artificial intelligence
+
+Some features use automated systems, including artificial-intelligence models run by outside providers. We describe exactly what is sent:
+
+- The shopping assistant (AI Mode) receives the catalogue, information we publish and your question. It does not receive your account or order data. Your conversation is kept in your account so you can return to it, and is deleted automatically after a set period (section 10). Our staff may read assistant conversations to improve answers and handle complaints.
+- Image search sends the picture you choose to the AI provider so that it can identify the product. The picture is checked for malware first. We do not store the picture.
+- The insights panel on dashboards sends the provider named figures, never information that identifies a person.
+- Product information, and, if switched on, messages you ask to translate, are sent to a translation provider. Translated messages are not stored.
+
+The AI provider is [[DECISION: whether the AI provider is Google Gemini or Anthropic Claude in production, and the provider's data-use terms]]. These features are switched off when no provider is configured.
+
+We do not make decisions that have legal or similarly significant effects on you based solely on automated processing. Automated checks - for example of a company application, a seller's documents or risk signals that may indicate fraud - inform a member of staff, who makes the decision. A risk signal never suspends, cancels or holds anything on its own.
+
+## 7. Who we share your data with
+
+We share personal data only as needed for the purposes above:
+
+- Sellers receive the details needed to fulfil your order and provide after-sales service: your name, delivery address, the contact person and telephone number for delivery, the order, and your messages to them. Buyers see a seller's business identity and contact details. Sellers must use buyer data only for the order and may not market to you with it.
+- Logistics partners and carriers receive the details needed to collect and deliver a shipment. Their staff see contact details only as far as their role needs, and drivers see them masked.
+- Inspection agencies receive the order and product information needed for an inspection. Buyers and sellers see an inspection's result, not the inspector's notes.
+- Payment providers process payments, saved cards, refunds, chargebacks and seller payouts. The providers we can use are [[DECISION: payment providers used in production (for example Stripe and Razorpay) and their roles]]. They receive the amount, the order reference and the information you enter on their own pages.
+- Service providers who run parts of the Platform for us under contract: hosting and file storage, email delivery, text-message delivery where switched on, bot protection on sign-in forms where switched on, map tiles and address lookup where switched on, translation, and the AI providers in section 6. They may use the data only on our instructions.
+- Authorities, courts and others where the law requires it, or where we believe in good faith that disclosure is necessary to respond to legal process, to enforce our terms, to respond to a claim that content infringes someone's rights, or to protect the rights, property or safety of our users or the public. This may include rights owners in a complaint about counterfeit goods, as explained in the Seller Addendum.
+- A buyer or successor of our business, or of part of it, if it is sold, merged or reorganised. The new owner must protect your data as this policy describes, and we will tell you if this happens.
+
+We do not sell your personal data, and we do not give it to others for their own marketing.
+
+## 8. Where your data is processed
+
+Some providers process data outside the country or region where you live. [[DECISION: international data transfer mechanism (e.g. adequacy, standard contractual clauses) and the named providers and their locations]] Where data is transferred out of the European Economic Area or the United Kingdom, we use a transfer mechanism the law recognises.
+
+Where the operator has set it, members of staff may open identity documents, business documents, seller documents and privacy requests only from the countries the operator allows, and every such access is recorded.
+
+## 9. Cookies and similar technologies
+
+The Platform uses only cookies that are strictly necessary for it to work:
+
+- sign-in cookies that keep you signed in to the part of the Platform you are using (the storefront, the console, the logistics portal and the Audit Console each have their own), and that end when you sign out or the session expires;
+- a security cookie that protects your account against forged requests.
+
+The Platform also stores some choices in your own browser (not in a cookie): your language and market, offers you dismissed, whether you hid recent activity, and unsent drafts of a seller application, which expire.
+
+We do not use advertising cookies, tracking pixels or third-party analytics. We count how the Platform is used with anonymous daily totals that use no cookie, no identifier and no network address, and we count nothing when your browser asks not to be tracked.
+
+Where the operator switches on bot protection for sign-in forms, the provider of that service may set its own cookies as part of the check. [[DECISION: whether bot protection (Cloudflare Turnstile or hCaptcha) is used in production, and the provider's cookie disclosure]]
+
+If we ever add cookies that are not strictly necessary, we will ask for your consent first and update this policy.
+
+## 10. How long we keep your data
+
+We keep personal data only for as long as it is needed for the purpose it was collected for, or as long as the law requires. By default:
+
+- unfinished baskets are deleted after 90 days;
+- assistant conversations are deleted after 180 days;
+- sign-in locations and failed sign-in records are deleted after 90 days;
+- sent notifications are deleted after 365 days;
+- the audit trail is deleted after 730 days;
+- driver location records, where that feature is switched on, are deleted after 30 days;
+- expired sessions are deleted after 30 days.
+
+Orders, invoices, payments and refunds are kept for as long as tax and accounting law requires. Identity and business verification documents, and closed accounts, are kept as set out here: [[DECISION: retention periods for orders, invoices, KYC/KYB documents and closed accounts under tax and anti-money-laundering law]]
+
+We may keep data longer where it is needed to prevent fraud or repeated abuse, to establish, exercise or defend legal claims, or where the law requires it. We may keep information in a form that no longer identifies you, for analysis.
+
+## 11. How we protect your data
+
+We use physical, technical and organisational safeguards to protect personal data, including encrypted connections, encryption of stored credentials, access limited by role, two-step sign-in, malware scanning of uploaded files, short-lived single-use links for private documents, and an audit trail of access to sensitive records. No system connected to the internet can be guaranteed to be completely secure, so some risk always remains. You are responsible for keeping your own sign-in details safe.
+
+If you receive an email, a call or a message from someone claiming to be from Gloviaa Mart and asking for your password, card details or other sensitive information, do not give it. We will never ask for your password. Report it to us, and if you have already given the information, to the police.
+
+## 12. Your rights
+
+Depending on the law that applies to you, you have the right to:
+
+- access your personal data and receive a copy of it;
+- have inaccurate data corrected;
+- have your data erased;
+- restrict how we use your data;
+- object to our use of your data based on legitimate interests;
+- receive the data you gave us in a portable format, and have it sent to another organisation where technically possible;
+- withdraw any consent you have given;
+- complain to a data-protection supervisory authority, in particular in the country where you live or work, or where you think the law was broken. [[DECISION: supervisory authority named for complaints]]
+
+You can exercise most of these rights in your account: under "Your data" you can download a copy of your data, ask for a correction or ask for erasure, and you can change your marketing choices in your profile. You can also contact us at the address in section 1. We answer within one month, and tell you if we need longer and why. Before we act, we make sure the request comes from you; a request made from your signed-in account is enough.
+
+Erasure may be refused or delayed where we must keep data by law - for example, invoiced orders are kept for tax purposes and are pseudonymised instead of deleted - or while you have unpaid orders or open returns. We tell you the reason and that you may complain to a supervisory authority.
+
+Members of staff of a seller, a logistics partner or an inspection agency can also contact their own organisation, which manages their account on the Platform.
+
+## 13. Data about other people
+
+If you give us personal data about someone else - for example a delivery contact or a member of your team - you must have the right to do so, and you should tell them about this policy.
+
+## 14. Children
+
+The Platform is for businesses and adults. It is not directed at children and we do not knowingly collect data about children. [[DECISION: minimum age and whether individual consumers may buy, or business buyers only]]
+
+## 15. Links to other websites
+
+The Platform links to websites and services we do not control, such as payment pages and carriers' tracking pages. Their own privacy notices apply to them, and we are not responsible for their practices.
+
+## 16. Changes to this policy
+
+We may update this policy to reflect changes in our practices or in the law. Each version has a version number and an effective date, and earlier versions stay available to read. We tell you about significant changes by a notice on the Platform or by email, and ask you to acknowledge a new version when it requires it.
+
+## 17. Complaints and questions
+
+If you have a question, concern or complaint about how we handle personal data, contact [[DECISION: data protection officer or privacy contact, and EU representative if required]]. Where the law of your country requires a named grievance officer or complaints contact, it is [[DECISION: grievance officer or complaints contact - name, address, email]].

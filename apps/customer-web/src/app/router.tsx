@@ -18,6 +18,7 @@ import { Suspense } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { RequireCustomer } from '@/auth/RequireCustomer';
 import { StoreLayout } from '@/layout/StoreLayout';
+import { StoreAgreementGate } from '@/layout/StoreAgreementGate';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { HomeRedirect } from './HomeRedirect';
 import { CatalogRedirect } from './CatalogRedirect';
@@ -102,7 +103,13 @@ function accountPage(load: () => Promise<PageComponent>): LazyRoute {
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <StoreLayout />,
+    // The agreement screen covers the whole frame for a signed-in buyer who
+    // still owes it; see StoreAgreementGate.
+    element: (
+      <StoreAgreementGate>
+        <StoreLayout />
+      </StoreAgreementGate>
+    ),
     // Fills the screen: this one only renders when the store's own frame is
     // what failed, so there is no header left to sit under.
     errorElement: <RouteErrorPage fullScreen />,
@@ -624,6 +631,12 @@ export const router = createBrowserRouter([
        * request form inside it appears once somebody is signed in.
        */
       { path: 'support', ...publicRoute(() => import('@/pages/SupportPage').then((m) => m.SupportPage)) },
+      // Privacy requests on their own, reachable from the agreement screen
+      // before the Terms are accepted - see StoreAgreementGate.
+      {
+        path: 'privacy-requests',
+        ...customerRoute(() => import('@/pages/PrivacyRequestsPage').then((m) => m.PrivacyRequestsPage)),
+      },
 
       /*
        * About - what this marketplace is and who takes part in it. The one
@@ -713,12 +726,15 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorPage fullScreen />,
     lazy: async () => {
       const { SellerLayout } = await import('@/pages/seller/SellerLayout');
+      const { SellerAgreementGate } = await import('@/layout/SellerAgreementGate');
       return {
         element: (
           <RequireCustomer>
-            <Suspense fallback={<RouteFallback />}>
-              <SellerLayout />
-            </Suspense>
+            <SellerAgreementGate>
+              <Suspense fallback={<RouteFallback />}>
+                <SellerLayout />
+              </Suspense>
+            </SellerAgreementGate>
           </RequireCustomer>
         ),
       };

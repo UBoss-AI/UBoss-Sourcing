@@ -49,9 +49,12 @@ import {
   checkDeliverySplits,
   checkPreorderQuantity,
   indicativePrice,
+  optionMoq,
   termsHash,
   type PolicyTerms,
   type PreorderTerms,
+  type ProductOption,
+  type QuantityRules,
 } from '../../domain/preorder.js';
 import {
   AWAITING_BUYER,
@@ -229,6 +232,12 @@ export const preorderInputSchema = z
     offerId: z.string().length(26).nullable().default(null),
     orderingUnit: unitEnum,
     unitQuantity: z.number().int().positive().max(100_000_000),
+    /**
+     * OEM or Original Brand. Required when the seller offers both; may be
+     * left out when only one is offered, and then means that one. Never a
+     * minimum: the minimum is always read from the seller's terms.
+     */
+    productOption: z.enum(['ORIGINAL_BRAND', 'OEM']).nullable().default(null),
     requestedDeliveryDate: calendarDay,
     shippingAddressId: z.string().length(26),
     destinationWarehouseLabel: z.string().trim().max(160).nullable().default(null),
@@ -257,6 +266,8 @@ export type PreorderInput = z.infer<typeof preorderInputSchema>;
 
 interface Assessment {
   eligibility: Extract<Eligibility, { available: true }>;
+  /** The option this request is for, and the rules it is held to. */
+  option: { option: ProductOption; moqQuantity: number; rules: QuantityRules };
   address: {
     id: string;
     snapshot: Record<string, string | null>;
@@ -323,6 +334,56 @@ async function loadEligibleBuyer(customerProfileId: string) {
   return { ...profile, organization };
 }
 
+const OPTION_NAME: Record<ProductOption, string> = { OEM: 'OEM', ORIGINAL_BRAND: 'Original Brand' };
+
+/**
+ * Which option this request is for, from the seller's CURRENT terms.
+ *
+ * Both offered: the buyer must say which. One offered: a request that names
+ * nothing means that one, so a client that predates the choice still works.
+ * Naming an option the seller does not offer is refused - it is never quietly
+ * swapped for the other, because the two have different minimums.
+ */
+function chooseProductOption(
+  eligibility: Extract<Eligibility, { available: true }>,
+  requested: ProductOption | null,
+): Assessment['option'] {
+  const offered = eligibility.options.flatMap((entry) =>
+    entry.status === 'OFFERED' ? [entry] : [],
+  );
+  const offeredNames = offered.map((entry) => entry.option);
+
+  const chosen =
+    requested === null
+      ? offered.length === 1
+        ? offered[0]
+        : undefined
+      : offered.find((entry) => entry.option === requested);
+
+  if (chosen === undefined && requested === null) {
+    fail(
+      ErrorCode.PREORDER_PRODUCT_OPTION_REQUIRED,
+      'Choose OEM or Original Brand - this seller offers both, with different minimums.',
+      { field: 'productOption', code: 'REQUIRED', meta: { offered: offeredNames.join(',') } },
+    );
+  }
+  if (chosen === undefined) {
+    fail(
+      ErrorCode.PREORDER_PRODUCT_OPTION_NOT_OFFERED,
+      `${OPTION_NAME[requested ?? 'ORIGINAL_BRAND']} preorders are not offered for this product.`,
+      {
+        field: 'productOption',
+        code: 'NOT_OFFERED',
+        meta: { productOption: requested, offered: offeredNames.join(',') },
+      },
+    );
+  }
+
+  // OFFERED means the minimum is set and converted, so this is never null.
+  const moqQuantity = optionMoq(eligibility.policy, chosen.option) ?? 0;
+  return { option: chosen.option, moqQuantity, rules: chosen.rules };
+}
+
 async function assess(
   customerProfileId: string,
   input: PreorderInput,
@@ -352,7 +413,9 @@ async function assess(
     });
   }
 
-  const { rules, units, sizes, window, deliveryCountries } = eligibility;
+  const { units, sizes, window, deliveryCountries } = eligibility;
+  const option = chooseProductOption(eligibility, input.productOption);
+  const { rules } = option;
 
   if (deliveryCountries.length > 0 && !deliveryCountries.includes(address.country)) {
     fail(
@@ -417,11 +480,11 @@ async function assess(
   if (violation?.code === 'BELOW_MINIMUM') {
     fail(
       ErrorCode.PREORDER_BELOW_MINIMUM,
-      `Minimum preorder quantity is ${formatCount(violation.minimumBaseUnits)} pieces.`,
+      `Minimum ${OPTION_NAME[option.option]} preorder quantity is ${formatCount(violation.minimumBaseUnits)} pieces.`,
       {
         field: 'unitQuantity',
         code: 'BELOW_MINIMUM',
-        meta: { minimumBaseUnits: violation.minimumBaseUnits },
+        meta: { minimumBaseUnits: violation.minimumBaseUnits, productOption: option.option },
       },
     );
   }
@@ -549,6 +612,7 @@ async function assess(
 
   return {
     eligibility,
+    option,
     address: {
       id: address.id,
       country: address.country,
@@ -588,6 +652,7 @@ function serialiseAssessment(assessment: Assessment): Record<string, unknown> {
   return {
     offerId: eligibility.offer.id,
     sellerName: eligibility.offer.sellerDisplayName,
+    productOption: assessment.option.option,
     baseUnits: assessment.baseUnits,
     unitsPerPackage: assessment.unitsPerPackage,
     /** The container breakdown, from the seller's verified loading. */
@@ -615,9 +680,9 @@ function serialiseAssessment(assessment: Assessment): Record<string, unknown> {
     },
     /** Delivery is quoted by the seller in their answer, never estimated here. */
     logistics: { status: 'TO_BE_CONFIRMED' },
-    minimumBaseUnits: eligibility.rules.minimumBaseUnits,
-    incrementBaseUnits: eligibility.rules.incrementBaseUnits,
-    maximumBaseUnits: eligibility.rules.maximumBaseUnits,
+    minimumBaseUnits: assessment.option.rules.minimumBaseUnits,
+    incrementBaseUnits: assessment.option.rules.incrementBaseUnits,
+    maximumBaseUnits: assessment.option.rules.maximumBaseUnits,
     pricingMode: eligibility.policy.pricingMode,
     currency,
     unitPrice: money(price?.unitPriceMinor ?? null, currency),
@@ -1081,6 +1146,10 @@ export async function submitPreorder(
         unitQuantity: input.unitQuantity,
         unitsPerPackage: assessment.unitsPerPackage,
         requestedBaseUnits: assessment.baseUnits,
+        productOption: assessment.option.option,
+        productOptionMoqQuantity: assessment.option.moqQuantity,
+        productOptionMoqUnit: policy.moqUnit,
+        productOptionMinimumBaseUnits: assessment.option.rules.minimumBaseUnits,
         containerLoadingSnapshotJson: (assessment.container?.snapshot ?? undefined) as never,
         containerLoadingVersion: assessment.container?.version ?? null,
         availableToPromiseAtSubmission: assessment.availability.availableToPromise,
@@ -1394,6 +1463,19 @@ async function serialiseRequest(
       baseUnits: row.requestedBaseUnits,
     },
     /**
+     * OEM or Original Brand, and the minimum it was held to, as frozen at
+     * submission. Null on a request made before the two were separate.
+     */
+    productOption:
+      row.productOption === null
+        ? null
+        : {
+            option: row.productOption,
+            moqQuantity: row.productOptionMoqQuantity,
+            moqUnit: row.productOptionMoqUnit,
+            minimumBaseUnits: row.productOptionMinimumBaseUnits,
+          },
+    /**
      * The container loading this request was made under - its own snapshot,
      * never the listing's live figure.
      */
@@ -1644,6 +1726,7 @@ function listItem(
     orderingUnit: string;
     unitQuantity: number;
     shortfallAtSubmission: number;
+    productOption: string | null;
   },
   extra: Record<string, unknown>,
 ) {
@@ -1654,6 +1737,8 @@ function listItem(
     baseUnits: row.requestedBaseUnits,
     orderingUnit: row.orderingUnit,
     unitQuantity: row.unitQuantity,
+    /** OEM or Original Brand; null on a request made before the two were separate. */
+    productOption: row.productOption,
     /** Pieces short of available-to-promise when it was asked for. 0 = enough. */
     shortfallAtSubmission: row.shortfallAtSubmission,
     requestedDeliveryDate: fromDateColumn(row.requestedDeliveryDate),

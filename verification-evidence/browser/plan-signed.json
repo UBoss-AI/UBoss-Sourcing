@@ -1,0 +1,8 @@
+{ "base": "http://localhost:5174", "widths": [320, 375, 768, 1024, 1440], "focusWidth": 1440, "tabs": 14,
+  "pages": [
+    { "name": "home-signed", "path": "/", "signIn": true },
+    { "name": "wishlist", "path": "/account/wishlist", "signIn": true },
+    { "name": "region", "path": "/account/region", "signIn": true },
+    { "name": "orders", "path": "/account/orders", "signIn": true },
+    { "name": "cart", "path": "/cart", "signIn": true }
+  ] }

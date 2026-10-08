@@ -95,6 +95,7 @@ const REQUIRED_CENTRAL: Record<string, string> = {
   [`POST ${P}/audit/agency/jobs/:id/lab-samples/:sampleId/custody`]: 'Appends a hand-over to a chain of custody; replay must not record the same hand-over twice.',
   [`POST ${P}/audit/jobs/:id/sublot-releases`]: 'Asks for a sub-lot release; replay returns the first request instead of asking twice.',
   [`POST ${P}/audit/checklists`]: 'Creates an inspection plan version; replay must not create a second plan.',
+  [`POST ${P}/audit/seller-verification/:id/screening`]: 'Records a manual screening; replay must not add the same check to the history twice.',
   [`POST ${P}/admin/inspection/jobs`]: 'Books a job; replay returns the original booking.',
   [`POST ${P}/admin/inspection/agencies`]: 'Registers an agency; replay must not create a second agency.',
   [`POST ${P}/admin/inspection/rules`]: 'Creates an inspection rule; replay must not apply the rule twice.',
@@ -303,6 +304,10 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   {
     reason: 'Upserts the one override row of the seller order to cover the holds open now; repeating it with the same reason leaves the same override.',
     routes: ['admin/seller-orders/:id/compliance-override'],
+  },
+  {
+    reason: 'Decides the turnover declaration named in the body; a repeat of the same decision changes nothing, and a declaration changed or decided since is refused. The Admin Panel route only refuses: the Audit Team verifies sellers.',
+    routes: ['admin/sellers/:id/turnover/decision', 'audit/seller-verification/:id/turnover/decision'],
   },
   {
     reason: 'The unique agency/invoice-number constraint refuses a duplicate invoice.',

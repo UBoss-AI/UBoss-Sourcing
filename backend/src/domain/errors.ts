@@ -748,10 +748,26 @@ export const ErrorCode = {
   /// `SCREENING_REQUIRED` / `SCREENING_NOT_CLEAR` (field = `entity` or the
   /// owner id).
   SELLER_APPROVAL_EVIDENCE_MISSING: 'SELLER_APPROVAL_EVIDENCE_MISSING',
+  /// The seller turnover eligibility policy (SELLER_TURNOVER_*) refused an
+  /// application or its submission: no turnover is declared, it does not
+  /// EXCEED the minimum, or its financial year is no longer the most recently
+  /// completed one. `details` carries one entry with `code` NOT_DECLARED,
+  /// BELOW_MINIMUM or OUT_OF_DATE and `meta` naming the minimum and currency.
+  /// The marketplace's own policy, never presented as a legal requirement.
+  SELLER_TURNOVER_NOT_ELIGIBLE: 'SELLER_TURNOVER_NOT_ELIGIBLE',
   /// Somebody else saved this application, listing or offer since it was
   /// loaded. The client reloads and shows what changed rather than
   /// overwriting it.
   SELLER_STALE_VERSION: 'SELLER_STALE_VERSION',
+  /// Seller onboarding verification is decided in the Audit Console. The
+  /// Admin Panel reads applications but cannot take one for review, ask for
+  /// corrections, approve, reject, decide a document or turnover, or record a
+  /// screening - by any route, bulk action or pending-action approval. 403.
+  SELLER_VERIFICATION_AUDIT_ONLY: 'SELLER_VERIFICATION_AUDIT_ONLY',
+  /// The Audit Console reviewer is connected to this seller (their email is
+  /// one of its members or its representative), so somebody independent has
+  /// to decide it. 403.
+  SELLER_VERIFICATION_NOT_INDEPENDENT: 'SELLER_VERIFICATION_NOT_INDEPENDENT',
 
   /// The last owner cannot be removed or demoted. An organisation with no
   /// owner has nobody who can invite one.
@@ -1431,6 +1447,14 @@ export const ErrorCode = {
   /// Pieces are still available. meta.unit.
   PREORDER_CONTAINER_NOT_CONFIGURED: 'PREORDER_CONTAINER_NOT_CONFIGURED',
 
+  /// The seller offers both OEM and Original Brand preorders, with different
+  /// minimums, and the request did not say which it is for. meta.offered.
+  PREORDER_PRODUCT_OPTION_REQUIRED: 'PREORDER_PRODUCT_OPTION_REQUIRED',
+
+  /// The request named OEM or Original Brand and the seller does not offer
+  /// preorders of that kind for this product. meta.productOption, meta.offered.
+  PREORDER_PRODUCT_OPTION_NOT_OFFERED: 'PREORDER_PRODUCT_OPTION_NOT_OFFERED',
+
   /// A revised-date or split-delivery proposal does not hold together - the
   /// shipments do not add up, a date is not later than the one before, the
   /// first shipment is more than is available now. `details` lists each
@@ -1646,6 +1670,22 @@ export const ErrorCode = {
 
   /// A document with this kind, version and language already exists.
   LEGAL_DOCUMENT_VERSION_EXISTS: 'LEGAL_DOCUMENT_VERSION_EXISTS',
+
+  /// The document still contains a blank left for a decision, written
+  /// `[[...]]`, and cannot be published until it is filled in.
+  /// details[].meta.placeholder names each one. 422.
+  LEGAL_DOCUMENT_HAS_PLACEHOLDERS: 'LEGAL_DOCUMENT_HAS_PLACEHOLDERS',
+
+  /// Signed in, but the Terms for this kind of account have not been accepted
+  /// or the Privacy Policy has not been acknowledged, in a version still in
+  /// force. Everything but signing out, the agreement screen, reading the
+  /// documents, support and privacy requests is refused until both are done.
+  /// details[].meta.kind names each missing document. 403.
+  AGREEMENTS_REQUIRED: 'AGREEMENTS_REQUIRED',
+
+  /// The document named is not one this account is asked to accept or
+  /// acknowledge on this screen. 400.
+  AGREEMENT_DOCUMENT_NOT_APPLICABLE: 'AGREEMENT_DOCUMENT_NOT_APPLICABLE',
 
   // --- Quantity price bands -------------------------------------------------
 

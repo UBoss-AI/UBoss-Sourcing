@@ -1,0 +1,279 @@
+kind: SELLER_TERMS
+version: 2026-10-draft-1
+locale: en
+title: Gloviaa Mart Seller Addendum
+---
+DRAFT - not legal advice and not approved for publication. This text was adapted from third-party source material and must be reviewed and approved by the operator's legal counsel. Every passage marked [[DECISION: ...]] needs a business or legal decision before this document can be published.
+
+This Seller Addendum supplements the Gloviaa Mart Terms of Use. It applies to every business that sells on Gloviaa Mart (a "Seller") and to every person who acts for a Seller in the Seller Hub. Part A of the Terms of Use (the common terms) applies to Sellers as well; where this addendum and Part A disagree, this addendum applies to selling. Words defined in the Terms of Use have the same meaning here. "Buyer" means a buyer on the Platform, whether an individual or a company.
+
+By agreeing to this addendum you confirm that you are authorised to bind the Seller, and that the declarations in section S22 and, where they apply, Schedule 1 are true.
+
+## S1. Eligibility to sell
+
+Only a business may sell on Gloviaa Mart. To apply, the business must meet the eligibility criteria shown in the Seller Hub at the time, which may include a minimum annual turnover for its most recently completed financial year. A declaration of turnover does not by itself make a business eligible; we verify it, and only an approved Seller may list goods or receive orders. These criteria are our own marketplace policy, not a legal requirement, and we may change them for future applications.
+
+The person who applies must be able to form a binding contract, must be authorised to act for the business, and must accept this addendum for it.
+
+## S2. Registration information
+
+To register as a Seller, and while you sell, you agree to give us, and keep current, the information the Seller Hub asks for. Depending on your country and type of business, this includes:
+
+- the business's full legal name and any trading or display name;
+- the registered address, the principal address and the address of each branch;
+- contact details for the business, including a telephone number and an email address;
+- the details of a person who handles consumer complaints for the business, where consumer law requires one;
+- the tax and company identifiers that apply in your country (for example a VAT, GST or other tax registration number, a company number, or a taxpayer reference);
+- the identity of the people who own or control the business and of the people who act for it, and the documents that verify them;
+- pickup and returns addresses;
+- the details of the payout account to which your proceeds are paid, which you connect through our payment provider (we do not store your bank account details ourselves);
+- the licences, registrations and certificates required for the goods you sell (section S8);
+- for each product, the details required by law in the markets where you sell it, including the total price and any separate charges, the manufacturer, packer and importer with their full addresses, the country of origin, and any guarantee or warranty.
+
+You confirm that you hold every licence and permit needed to sell your goods on the Platform in every market where you offer them.
+
+You remain responsible for keeping this information, your display name and your sign-in details confidential and up to date. If any information is untrue, inaccurate, out of date or incomplete, or we have reasonable grounds to suspect so, we may suspend or close your Seller account or block you from the Platform. Some changes to verified company details are reviewed by us before they take effect.
+
+## S3. What you authorise us to do
+
+You authorise us to receive and handle Buyers' complaints and claims about goods you sold on the Platform, and to take the steps needed to resolve them as described in this addendum and in the Buyer Protection Policy.
+
+You agree that we may show your business name, address and contact details on your product pages, your shop front and your order documents, where the law of the market requires a seller to be identified, and otherwise as the Seller Hub explains. [[DECISION: whether a seller's contact details and address are shown on product pages, as consumer law in each market may require]]
+
+## S4. Your team in the Seller Hub
+
+The Seller's owner may invite other people and give each a role. Each role decides what that person may do. You are responsible for everything done in the Seller Hub by your team, for removing people who should no longer have access, and for making sure that anyone who must use two-step sign-in has set it up. The Seller Hub has its own password, separate from the storefront, and closes itself after a period without activity.
+
+## S5. Closing a Seller account
+
+You may ask us to close your Seller account. [[DECISION: account closure hold period for sellers (the source used 90 days)]] During the hold, open orders, claims, returns and payouts are completed, and you can download your settlement statements, invoices and tax reports. The account is then closed, provided nothing is owed by or to you.
+
+When a Seller account is closed, we keep the information the law requires us to keep, and information needed to establish, exercise or defend legal claims and to prevent fraud - for example the registered email address and telephone number, tax identifiers and transaction records - for the periods stated in the Privacy Policy. A closed Seller account may be restored on request instead of opening a new one.
+
+## S6. Listing and selling
+
+You may list for sale only goods that you are legally able to sell, in every market where you offer them, and for which you hold every licence and permit required.
+
+- Listings must not infringe any intellectual property, trade secret, privacy or publicity right of anyone else. Where we ask for a brand authorisation, trade mark registration or other proof that you may sell a brand, you must provide it.
+- Listings may contain only text, pictures, videos and documents that describe the goods for sale, must be placed in the correct category, and must not be misleading. They must describe the actual condition of the goods. If the goods delivered do not match the listing, you will refund the Buyer.
+- You must keep listed goods in stock, or show their real availability, so that orders can be fulfilled.
+- You must not list the same product several times across categories to gain visibility. We may remove duplicate listings.
+- Listings are reviewed before they go on sale, and changes to a live listing may be reviewed again. We may refuse a listing, ask for changes, or pause or remove it.
+- Where several Sellers sell the same product, we may combine the product information into one product page and choose the best available information for it.
+- We may restrict the sale of goods originating from, or to be delivered to, particular countries, including where sanctions or product-safety rules require it.
+
+You must state, accurately and before purchase, the selling unit, the pack size, any quantity price bands, the minimum order, the lead time and any preorder terms. A preorder, quote or delivery schedule you offer binds you once the Buyer accepts it on the Platform.
+
+## S7. Pricing and ethical trading
+
+You set your own prices. You must not form or join any cartel or similar arrangement to influence prices or sales on the Platform, and you must follow the trading policies we publish. You must not post reviews of your own goods, or offer anything in exchange for a review, or post reviews pretending to be a Buyer.
+
+You must not advertise to or solicit other Sellers on the Platform to buy or sell goods or services, and you must not use information obtained from the Platform to contact, advertise or sell to anyone other than Buyers who have chosen to buy from you, and then only for that purchase.
+
+## S8. Regulated goods and product compliance
+
+You are solely responsible for making sure that every product you list is allowed to be sold in each market where you offer it, and is not prohibited, restricted, banned or unapproved under the law of that market or under our Prohibited Products Policy.
+
+Some categories of goods are regulated, including, among others: cosmetics; medicines, medical devices and allied products; food, food supplements and infant food; electrical and electronic equipment and radio equipment; products containing plastics, batteries or packaging subject to producer-responsibility rules; jewellery and precious metals; products made from animals or plants protected by wildlife law; tobacco and nicotine products; national emblems and flags; and antiquities and works of art. If you sell regulated goods you must:
+
+- hold every licence, registration, notification, certificate and authorisation required to manufacture, import, store, advertise, distribute and sell them in each market, keep them in force, and upload them to the Seller Hub when asked;
+- comply with the product-safety, labelling, packaging, conformity-marking and product-information rules that apply, including showing on the product page the information the law requires before purchase;
+- name the manufacturer, the importer and, where required, the responsible person in the market;
+- tell us at once in writing if a licence or certificate lapses, is suspended or is withdrawn, or if an authority takes action about it, and stop selling the affected goods;
+- follow any product recall announced by an authority or the manufacturer;
+- comply with Schedule 1 where it applies to your goods.
+
+[[DECISION: list of regulated product categories and the laws named for each market]]
+
+For food, any article delivered to a Buyer must have the remaining shelf life required by law in the market, and in any case at least [[DECISION: shelf-life rule for food products (the source used 30 percent or 45 days)]]. For medicines and medical devices, you must not list anything that the law allows to be sold only on prescription, by a pharmacy, or under a licence you do not hold. You must tell us within 7 days of any change in the pharmacist or other qualified person named on your licence, and give us that person's documents.
+
+Uploaded certificates are reviewed by our staff, who record how each one was checked. The review is not a guarantee that a document is authentic, and it does not move your legal responsibility to us.
+
+## S9. Product safety and accuracy of claims
+
+You warrant that the goods you sell are safe, genuine, not counterfeit, not stolen, and as described. You must not make environmental, health or other claims about goods unless they are accurate, verifiable and supported by evidence, and you must not sell goods that falsely claim environmental benefits.
+
+Descriptions, images and other content about your goods must correspond to the real appearance, nature, quality, purpose and other general features of the goods.
+
+## S10. Your duties to Buyers under consumer and e-commerce law
+
+Where consumer or e-commerce law applies to a sale, you must comply with it, including by:
+
+- not misleading Buyers, including through false reviews;
+- offering the refunds, returns, replacements, exchanges, warranties and guarantees that the law and your published terms require, and honouring a Buyer's right to withdraw from a distance contract where the law gives one;
+- refunding Buyers for goods that are defective, deficient, adulterated, not as described or delivered late, where the law or the Returns Policy requires it;
+- having a way to handle consumer complaints and answering complaints we refer to you within the time we give you;
+- displaying your business identity, address and customer-service contact details, and the total price including all charges and taxes;
+- displaying dates of manufacture, packing and expiry where the law requires;
+- giving the country of origin and, for imported goods, the importer's name and address;
+- appointing a complaints or grievance contact where the law requires one;
+- keeping Buyers updated about the dispatch and delivery of goods you ship yourself.
+
+## S11. Delivery and logistics
+
+You must dispatch each order within the time shown on the order, using a delivery method allowed for that order, and you must give us accurate dispatch details, tracking information and proof of dispatch and delivery. Dispatch details must be true and must not be misleading. If you do not dispatch in time or give non-compliant dispatch details, the order may be cancelled and your account may be restricted.
+
+You may deliver using a carrier account of your own, a carrier we make available on the Platform, or your own delivery operation, as the Seller Hub allows for each order. Where you use your own carrier account, you are responsible for its credentials and for the contract with that carrier. You must keep proof of dispatch and proof of delivery for at least [[DECISION: period for keeping proof of dispatch and delivery (the source used three years)]] and give it to us on request.
+
+You must pack goods according to the packaging rules we publish and the law. If a shipment arrives at a carrier's or warehouse's premises so badly damaged that it is a safety or contamination risk to other goods, it may be disposed of under that carrier's or warehouse's rules rather than returned to you.
+
+Unless the order says otherwise, you are responsible for insuring goods in transit. [[DECISION: carrier liability, insurance and loss/damage claims terms]] Where a Buyer returns goods, we may recover from you the delivery and return costs that the Returns Policy and the fee schedule assign to you.
+
+## S12. Tax
+
+You are responsible for charging, collecting, declaring and paying all taxes due on your sales, including value added tax, goods and services tax, sales tax and customs duties, and for registering for tax where the law requires. We are not responsible for any deficiency or omission on your part.
+
+You must give us the tax identifiers and product tax classifications we ask for, such as a VAT or GST number and a commodity or tariff code for each product. A product without a required classification may be delisted, and an account without a required tax identifier may be prevented from receiving orders.
+
+Where the law requires us, as the operator of the marketplace, to collect or withhold tax on your sales, to report your sales to a tax authority, or to verify your tax status, we will do so and will deduct any tax withheld from your proceeds. [[DECISION: tax-withholding and tax-collection duties of the operator in each market (the source applied Indian TDS/TCS)]] You must give us any certificate of exemption or reduced rate you hold, and tell us at once if it is changed or withdrawn; any liability arising from a failure to do so is yours. When the law changes a tax rate, you must update your prices and pass on any reduction where the law requires.
+
+You must charge any tax due on the fees we charge you (section S15).
+
+## S13. Invoices and documents
+
+Issuing a correct and complete invoice to the Buyer for each sale is your responsibility. The Seller Hub can generate invoices and packing lists in your name for each consignment, from the information you give; you are responsible for that information and for any discrepancy in an invoice. Corrections are made by credit note; an issued invoice is never edited. Invoices and other documents generated on the Platform carry a code that lets anyone check that they are genuine. [[DECISION: whether the operator generates invoices on a seller's behalf and on what legal basis, including any signature image]]
+
+## S14. Payments to you
+
+The sale is a contract between you and the Buyer. The Platform's payment facility is used to collect the price from the Buyer and pass your proceeds to you. It is not a banking or financial service, and we do not act as a trustee or fiduciary of the price.
+
+[[DECISION: who is the seller of record for operator's own goods vs marketplace sellers; merchant-of-record / payment facilitator wording approved by the payment provider]]
+
+You authorise us and our payment provider to collect payments from Buyers for your sales and to hold your share until it is released to you. Your share of each order is the price of your goods and your own delivery charges, less our fees and any tax on those fees. It is released to your connected payout account when:
+
+- the order has been delivered;
+- the release period has passed [[DECISION: the seller funds release period, reserve and payout schedule]];
+- no claim, dispute or chargeback about it is open; and
+- any required inspection has passed.
+
+We may keep a reserve of a stated share of your proceeds for a stated period. We may delay telling you to dispatch an order, or hold its price, where a transaction appears suspicious, where a Buyer places unusually large orders, or where an authority asks us to; where the law requires it we may pay held amounts to an authority instead of to you. We are not liable for delay in processing a payment for reasons beyond our control.
+
+Settlement statements show, for each period and currency, every sale, deduction, refund and adjustment. You must reconcile your statements and raise any claim about money promptly. [[DECISION: time limit for monetary claims by sellers (the source used 180 days)]]
+
+Once we have paid an amount into the payout account you connected, our obligation for that amount is discharged.
+
+## S15. Fees
+
+Registration on the Platform is free. Before you list goods, read the fee schedule published in the Seller Hub, which forms part of this addendum. Our fees are deducted from your proceeds; they are never added to what a Buyer pays. We may change our fees or introduce fees for new services by publishing the change in the Seller Hub [[DECISION: platform fee schedule location and notice period for fee changes]]. We issue you an invoice for our fees.
+
+You authorise us to collect, on your behalf, other charges that apply to Buyers, and to keep any charge for a service we provided on your behalf. We may set off any amount you owe us against any amount we owe you.
+
+## S16. Refunds, chargebacks and claims
+
+Refunds to Buyers are made by us through the payment provider; you cannot refund a Buyer outside the Platform for a Platform order. A refund, or a chargeback decided against you, is charged to the seller order it relates to and reduces your proceeds; where your proceeds are not enough, you will pay the difference on demand.
+
+You must answer claims about your orders within the time shown, using the Seller Hub, and may offer a full refund, a partial refund or a replacement. If you and the Buyer do not agree, our staff decide the claim after considering both sides, the evidence and any inspection result, and you may appeal a decision once within the appeal period shown. You must co-operate fully in resolving chargebacks and give the documents needed.
+
+If we pay you more than you are owed by mistake, we may set the excess off against later payments.
+
+## S17. Personal data you receive
+
+To fulfil orders you receive personal data about Buyers and their contacts, such as names, delivery addresses, telephone numbers and email addresses. [[DECISION: controller/processor roles between the operator and sellers for buyer personal data]] In relation to that data you must:
+
+- comply with the data-protection law that applies, including any rules on storing personal data or transferring it to another country;
+- keep it confidential, and continue to protect it after you stop selling on the Platform;
+- use it only to fulfil the order, to meet your legal obligations, and to provide after-sales service for it, and never sell, rent, trade or lease it, or use it to advertise or market to Buyers on your own account;
+- protect it with appropriate technical and organisational measures against unauthorised or accidental access, destruction, loss, alteration or disclosure;
+- report any security incident affecting it to the authorities as the law requires, and to us without undue delay at [[DECISION: incident-reporting contact address and deadline for sellers]];
+- keep it only as long as needed for those purposes and the law, and then delete it securely, and confirm deletion on request;
+- help us, at your own cost, to answer requests from individuals exercising their data-protection rights and to meet our own legal obligations.
+
+Where you give us personal data of your own staff or of other people, you confirm that you collected it lawfully and may give it to us. We use it as described in the Privacy Policy.
+
+## S18. Information security for integrations
+
+If you connect a system of your own to the Platform - for example an accounting system, a warehouse system or a carrier account - you must keep its credentials secret, restrict them to the people who need them, and maintain reasonable information-security practices. [[DECISION: information-security requirements for sellers with technical integrations (the source referred to annexures II and III that were not supplied)]]
+
+## S19. Responsible supply chain and sanctions
+
+You warrant that you, and everyone in your supply chain who makes, supplies or handles your goods, including manufacturers, subcontractors and suppliers:
+
+- comply with all laws, regulations and good industry standards for producing, manufacturing and sourcing goods;
+- do not use any form of forced, prison, involuntary or child labour;
+- provide safe and healthy working conditions;
+- comply with the law on social and ethical requirements, including modern slavery, human rights and environmental, health and safety rules;
+- protect the supply chain, including warehouses and transport, against smuggling, fraud, theft and other improper purposes; and
+- maintain effective controls and monitoring of the supply chain, including periodic independent audits where appropriate.
+
+You must comply with all laws on anti-money laundering (including know-your-customer and customer due diligence) and on economic and trade sanctions that apply to you or to the transaction. You must not list or sell goods that are grown, produced, manufactured, extracted, processed in, sourced from or transported through a country or region subject to comprehensive sanctions, or sell to a person or place that sanctions prohibit. [[DECISION: sanctioned countries and regions list and sanctions regimes that apply]] Neither of us will carry out a transaction under this addendum that would cause the other to break those laws.
+
+Where the law requires the seller of particular goods (for example high-value jewellery) to identify the buyer, you are responsible for doing so.
+
+## S20. Anti-corruption
+
+You must comply with all anti-bribery and anti-corruption laws that apply to you or to your dealings with us. Neither you nor anyone acting for you may offer, promise, give or authorise the giving of anything of value, or any bribe, facilitation payment, kickback or other improper payment, to any government official, political party, candidate for public office or any other person, in order to obtain or keep business, gain an unfair advantage or improperly influence any decision.
+
+You must not deal with any government authority or official on our behalf without our prior written authorisation.
+
+You agree:
+
+- to keep accurate books and records of your transactions under this addendum;
+- to tell us in writing within thirty days if the ownership, management or control of your business materially changes, so that we may repeat our checks;
+- to tell us if any of your owners, directors or key people is, or becomes, a government official, or has a close family relationship with one;
+- to co-operate with any investigation into a suspected breach of this section;
+- to certify your compliance, and to have your people take part in training, when we reasonably ask; and
+- that all payments between us are made only to an account in the business's own name, by bank transfer, never in cash or bearer instruments and never to an individual.
+
+[[DECISION: anti-corruption policy reference and whether certification, training and audit rights are required]]
+
+If we reasonably suspect a breach of this section, we may suspend payments while it is investigated. If we find a breach, we may terminate this addendum.
+
+## S21. Audits and inspections
+
+We, or an inspection agency or testing laboratory we appoint, may inspect your goods, records and premises connected with your sales on the Platform, on reasonable notice. Inspections required by a Buyer's order or by the Inspection Policy are carried out through the Audit Console, and their results may affect the release of your proceeds. [[DECISION: audit cost allocation and notice period]]
+
+## S22. Seller declarations
+
+You represent, warrant and undertake, for as long as you sell on the Platform, that:
+
+- you hold, and will keep in force, every licence, registration, permission, authorisation, certificate and permit needed to manufacture, import, store, display, advertise, distribute, market, supply and sell your goods on the Platform in each market where you offer them, under the law in force now or in future;
+- you comply with the law on weights and measures, packaged goods and mandatory product labelling in each market, and show the mandatory product information on the product page;
+- you comply with consumer-protection and e-commerce law, including the duty that descriptions, images and other content correspond to the real goods;
+- you comply with the law on foreign exchange, customs, anti-money laundering and tax that applies to your use of the payment facility;
+- you will tell us in writing at once if any licence or certificate lapses, or if you receive any order, demand or regulatory action concerning it, and will give us a copy of a certificate within 7 days when an authority asks us for it;
+- we have relied on these declarations, and you will make good any loss, penalty or fine we suffer because a declaration was untrue, to the extent the applicable law allows; and
+- we may provide these declarations to an authority that asks for them.
+
+## S23. Responsibility for notices and penalties
+
+If an authority sends us a notice, demand or penalty about goods you listed or sold, you are responsible for answering it and for any penalty, and you will defend us and hold us harmless, to the extent the applicable law allows. You are responsible for returns arising from manufacturing defects and will deal with the manufacturer to resolve them.
+
+## S24. Seller action framework
+
+We may act against a Seller that does not comply with the law, this addendum or our policies, in proportion to the breach. Action may include a warning, requiring a correction, removing or pausing listings, holding proceeds as this addendum allows, suspending trading, suspending or closing the Seller account, and recovering amounts owed. Before we act, and unless the law or the safety of others prevents it, we tell you what we found, what we intend to do and how you can respond. We tell you the reasons for a decision and how to ask for it to be reviewed.
+
+In particular we may limit or suspend your account if you do not produce, when asked, a document the law requires for the goods you sell - such as a licence, a conformity certificate, a brand authorisation or proof of trade mark registration.
+
+We may share information about a Seller, its listings and its goods with brand owners, authorities and other authorised persons where the law requires it, where needed to investigate non-compliance with the law or this addendum, or to protect Buyers from counterfeit or unsafe goods.
+
+## S25. Notices
+
+Notices from us to you are sent to the email address registered in the Seller Hub and through the Seller Hub's notifications. An email notice is treated as received one business day after it is sent. You must keep your registered information up to date.
+
+## Schedule 1 - Regulated product declarations
+
+This schedule applies to a Seller that lists medicines, medical devices, cosmetics, food, infant food or other goods regulated by health authorities. It applies in addition to sections S8 and S22.
+
+You declare that you are the supplier, authorised reseller, manufacturer or brand owner of the goods, as stated in your application, and you represent, warrant and undertake that:
+
+- 1. you hold, and will keep in force, every licence, registration and authorisation required by the medicines, medical-device, cosmetics, food and poisons law of each market where you sell, and you list goods only within the scope of those licences;
+- 2. you will tell us in writing at once if any such licence lapses or is suspended, or if you receive any order, demand or regulatory action concerning it;
+- 3. you comply with the product-safety, conformity-marking and energy-labelling rules that apply to devices and equipment you sell;
+- 4. you comply with the rules on plastics, packaging and waste, and dispose of damaged or expired goods as clinical or hazardous waste where the law requires;
+- 5. you do not sell tobacco, nicotine or electronic-cigarette products, or any part of them, on the Platform;
+- 6. you comply with the law on weights and measures and packaged goods;
+- 7. you comply with foreign-exchange, customs, anti-money-laundering and tax law in your use of the payment facility;
+- 8. for food, you show your food-business registration or licence number on the Platform, show a clear picture of the label's principal display panel, make all mandatory food information available before purchase without extra charge, make no misleading claims, follow hygiene and food-safety management rules, keep the temperature and other conditions the food needs, take part in food-safety audits where the law requires, print the registration number on invoices for food, and sell only food categories covered by your registration;
+- 9. you will not promote goods that are adulterated, misbranded, counterfeit or spurious;
+- 10. you will follow any product recall announced by an authority or the manufacturer;
+- 11. descriptions, images, instructions and other information about the goods are accurate, complete and not misleading;
+- 12. you will not list or sell medicines that the law allows to be supplied only on prescription, by a pharmacy or under a licence you do not hold, nor narcotic or psychotropic substances;
+- 13. you will not advertise prescription-only medicines, or advertise any medicinal product in a way the law prohibits;
+- 14. the goods are genuine, obtained only from authorised manufacturers, distributors or resellers, and meet the quality standards the law prescribes;
+- 15. you will not supply goods that are expired, or that will not have the remaining shelf life the law requires at delivery, and you are fully responsible for expiry and shelf-life management;
+- 16. for cosmetics, you comply with the conditions that apply to manufacturers and importers, the composition and labelling rules, and any ban on animal testing in the market, and you will tell us within 15 days of any change in a product's labelling, composition, testing or specification;
+- 17. for infant food and feeding products, you comply with the law restricting their promotion;
+- 18. you will not misrepresent anything about the goods, your licence or the invoices issued for them;
+- 19. these declarations remain true for as long as you sell the goods, and you will produce a copy of any certificate within 7 days when an authority asks us for it.
+
+You acknowledge that we have relied on these declarations, and you will make good any loss, penalty, fine or cost we suffer because of a breach of them, of the law, or of a misuse of a licence, to the extent the applicable law allows. We may provide these declarations to an authority that asks for them.

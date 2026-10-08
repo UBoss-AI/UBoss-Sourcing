@@ -695,6 +695,79 @@ export interface TeamResponse {
 // Sellers and cases
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Seller health (Amazon's Account Health model) and quality insights
+// ---------------------------------------------------------------------------
+
+export type HealthBand = 'HEALTHY' | 'AT_RISK' | 'UNHEALTHY';
+export type IssueSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type IssueKind =
+  | 'CRITICAL_NCR_OPEN'
+  | 'CASE_SUSPENDED'
+  | 'DOCUMENT_SUSPENDED'
+  | 'LOT_HELD'
+  | 'MAJOR_NCR_OPEN'
+  | 'INSPECTION_FAILURE_RATE'
+  | 'DOCUMENT_EXPIRED'
+  | 'CASE_EXPIRED'
+  | 'IDENTITY_CHECK_LAPSED'
+  | 'CASE_REREVIEW'
+  | 'DOCUMENT_EXPIRING'
+  | 'DOCUMENT_REJECTED'
+  | 'MINOR_NCR_OPEN'
+  | 'CHANGES_REQUESTED';
+
+export interface SellerHealthSummary {
+  score: number;
+  band: HealthBand;
+  bySeverity: Record<IssueSeverity, number>;
+  passRatePercent: number | null;
+}
+
+export interface SellerHealth {
+  score: number;
+  band: HealthBand;
+  bySeverity: Record<IssueSeverity, number>;
+  issues: { kind: IssueKind; severity: IssueSeverity; count: number }[];
+  inspection: { reports: number; passed: number; notPassed: number; passRatePercent: number | null; meetsTarget: boolean | null };
+}
+
+export interface InsightsResponse {
+  from: string;
+  reports: { pass: number; fail: number; inconclusive: number; total: number; passRatePercent: number | null };
+  months: { month: string; pass: number; fail: number; inconclusive: number }[];
+  defects: {
+    bySeverity: { CRITICAL: number; MAJOR: number; MINOR: number };
+    byStatus: { OPEN: number; CAPA_SUBMITTED: number; VERIFIED_CLOSED: number };
+    total: number;
+  };
+  topFindings: { requirementRef: string; count: number }[];
+  suppliers: {
+    best: InsightSupplier[];
+    worst: InsightSupplier[];
+    ranked: number;
+  };
+  agencies: {
+    agencyId: string;
+    name: string;
+    kind: string;
+    completed: number;
+    onTime: number;
+    onTimePercent: number | null;
+    reports: number;
+    passRatePercent: number | null;
+  }[];
+  health: { bands: Record<HealthBand, number>; sellers: number } | null;
+}
+
+export interface InsightSupplier {
+  sellerAccountId: string;
+  name: string;
+  pass: number;
+  reports: number;
+  passRatePercent: number;
+}
+
 export interface SellerRow {
   id: string;
   name: string;
@@ -704,6 +777,7 @@ export interface SellerRow {
   qualifications: number;
   casesOpen: number;
   documentsWaiting: number;
+  health: SellerHealthSummary;
 }
 
 export interface BackfillRow {
@@ -739,6 +813,7 @@ export interface SellerDocumentRow {
   documentType: string;
   reviewStatus: string;
   expiresOn: string | null;
+  issuer: string;
   requirementCodes: string[];
   categoryScopeIds: string[];
   revision: number;
@@ -767,6 +842,7 @@ export interface SellerDetail {
     screening: { state: string; at: string | null }[];
   };
   factories: { id: string; name: string; city: string | null; countryCode: string | null }[];
+  health: SellerHealth;
   cases: SellerCaseRow[];
   documents: SellerDocumentRow[];
 }

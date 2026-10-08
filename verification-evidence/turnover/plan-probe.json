@@ -1,0 +1,4 @@
+{ "base": "http://localhost:5174", "widths": [1440],
+  "pages": [
+    { "name": "probe", "path": "/sell", "after": "(() => [...document.querySelectorAll('.bg-brand')].map(e => e.tagName + ':' + String(e.className).slice(0,80) + ':' + e.textContent.trim().slice(0,40) + ':' + getComputedStyle(e).color + '/' + getComputedStyle(e).backgroundColor).join(' || '))()" }
+  ] }

@@ -64,6 +64,33 @@ export type PreorderStatus =
   | 'CANCELLED'
   | 'EXPIRED';
 
+/**
+ * What a preorder is for: the product exactly as listed (Original Brand), or
+ * made to the buyer's own design or brand (OEM). Each has its own minimum.
+ */
+export type ProductOption = 'OEM' | 'ORIGINAL_BRAND';
+
+/**
+ * One option as the seller configured it. OFFERED carries its minimum in the
+ * seller's unit and in pieces; NOT_OFFERED and NOT_CONFIGURED carry none, and
+ * nothing in the storefront invents one.
+ */
+export interface ProductOptionTerms {
+  option: ProductOption;
+  status: 'OFFERED' | 'NOT_OFFERED' | 'NOT_CONFIGURED';
+  unit: PreorderUnit;
+  quantity: number | null;
+  minimumBaseUnits: number | null;
+}
+
+/** The option a request is for, frozen with it. Null on requests made before the choice existed. */
+export interface PreorderProductOptionSnapshot {
+  option: ProductOption;
+  moqQuantity: number;
+  moqUnit: PreorderUnit;
+  minimumBaseUnits: number;
+}
+
 export type IneligibleReason =
   | 'NOT_MARKETPLACE'
   | 'NOT_CONFIGURED'
@@ -84,6 +111,10 @@ export type Eligibility =
       units: { unit: PreorderUnit; baseUnits: number }[];
       /** Always both sizes; absent from responses older than container ordering. */
       containerOptions?: ContainerOption[];
+      /**
+       * Where SOME preorder becomes possible: the lowest offered minimum. The
+       * form judges a request against its chosen option in `productOptions`.
+       */
       moq: {
         unit: PreorderUnit;
         quantity: number;
@@ -93,6 +124,8 @@ export type Eligibility =
         incrementBaseUnits: number;
         maximumBaseUnits: number | null;
       };
+      /** OEM then Original Brand, always both. */
+      productOptions: ProductOptionTerms[];
       pricingMode: 'FIXED' | 'QUOTE_REQUIRED';
       tiers: { minBaseUnits: number; unitPriceMinor: string }[];
       window: {
@@ -159,6 +192,8 @@ export interface PreorderFormInput {
   offerId: string | null;
   orderingUnit: PreorderUnit;
   unitQuantity: number;
+  /** Required when both are offered. Never a minimum: the server reads that from the seller's terms. */
+  productOption: ProductOption | null;
   requestedDeliveryDate: string;
   shippingAddressId: string;
   destinationWarehouseLabel: string | null;
@@ -175,6 +210,7 @@ export interface PreorderFormInput {
 export interface PreorderPreview {
   offerId: string;
   sellerName: string;
+  productOption: ProductOption;
   baseUnits: number;
   unitsPerPackage: number;
   minimumBaseUnits: number;
@@ -295,6 +331,7 @@ export interface Preorder {
     unitsPerPackage: number;
     baseUnits: number;
   };
+  productOption: PreorderProductOptionSnapshot | null;
   policy: Record<string, unknown> & { version: number; minimumBaseUnits?: number };
   requestedDeliveryDate: string;
   earliestDeliveryDate: string;
@@ -413,6 +450,7 @@ export interface PreorderListItem {
   baseUnits: number;
   orderingUnit?: PreorderUnit;
   unitQuantity?: number;
+  productOption?: ProductOption | null;
   shortfallAtSubmission?: number;
   requestedDeliveryDate: string;
   committedDeliveryDate: string | null;
@@ -644,7 +682,12 @@ export interface PreorderPolicy {
   version: number;
   isEnabled: boolean;
   moqUnit: PreorderUnit;
-  moqQuantity: number | null;
+  originalBrandEnabled: boolean;
+  originalBrandMoqQuantity: number | null;
+  oemEnabled: boolean;
+  oemMoqQuantity: number | null;
+  /** Set when the old single minimum might have been meant for OEM too. Cleared on save. */
+  productOptionsReviewRequired: boolean;
   incrementQuantity: number;
   maxQuantity: number | null;
   capacityBaseUnits: number | null;
@@ -685,11 +728,12 @@ export interface PolicyChain {
     } | null;
     issues: { field: string; message: string }[];
   } | null;
+  productOptions?: ProductOptionTerms[] | null;
 }
 
 export type PreorderPolicyInput = Omit<
   PreorderPolicy,
-  'id' | 'version' | 'updatedAt' | 'updatedByLabel' | 'tiers'
+  'id' | 'version' | 'updatedAt' | 'updatedByLabel' | 'tiers' | 'productOptionsReviewRequired'
 > & {
   offerId: string | null;
   tiers: { minBaseUnits: number; unitPriceMinor: string }[];

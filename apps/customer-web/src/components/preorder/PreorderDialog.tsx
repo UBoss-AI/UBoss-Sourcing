@@ -22,7 +22,7 @@
  *
  * Submitting charges nothing, and the form says so beside the button.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
@@ -41,6 +41,7 @@ import { useLocale } from '@/app/locale-context';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { api, newIdempotencyKey } from '@/lib/api';
+import { choiceCardClass } from '@/lib/cards';
 import { formatIsoDate } from '@/lib/calendar-date';
 import { errorMessage } from '@/lib/errors';
 import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
@@ -56,7 +57,9 @@ import {
   type Preorder,
   type PreorderFormInput,
   type PreorderUnit,
+  type ProductOption,
 } from '@/lib/preorders';
+import { OptionMinimum } from './PreorderInfoDialog';
 import type { Address } from '@/lib/types';
 
 type Available = Extract<Eligibility, { available: true }>;
@@ -142,6 +145,8 @@ export function PreorderDialog({
   const [accepted, setAccepted] = useState(false);
   const [idempotencyKey] = useState(() => newIdempotencyKey());
   const [submitted, setSubmitted] = useState<Preorder | null>(null);
+  const [productOption, setProductOption] = useState<ProductOption | null>(null);
+  const optionGroupName = useId();
 
   const addresses = useQuery({
     queryKey: ['addresses'],
@@ -190,6 +195,20 @@ export function PreorderDialog({
         reason: 'NOT_CONFIGURED',
       },
   );
+  /*
+   * OEM or Original Brand, from THESE terms. With one on offer it is simply
+   * the one; with both, the buyer chooses, and nothing is pre-selected - the
+   * two have different minimums and a default would decide for them. A choice
+   * the terms stop offering is dropped, never swapped for the other, and the
+   * quantity is never changed to suit an option.
+   */
+  const offeredOptions = terms.productOptions.filter((entry) => entry.status === 'OFFERED');
+  const onlyOption = offeredOptions.length === 1 ? (offeredOptions[0] ?? null) : null;
+  const chosenOption =
+    onlyOption ?? offeredOptions.find((entry) => entry.option === productOption) ?? null;
+  const optionLabel = (value: ProductOption): string =>
+    t(`preorder.option.${value}` as TranslationKey);
+
   const packageUnits = terms.units.filter(
     (entry) => entry.unit !== 'PIECE' && !isContainerSize(entry.unit),
   );
@@ -237,7 +256,14 @@ export function PreorderDialog({
   const containersUnavailable = containerOptions.filter((option) => !option.available);
   const unitLabel = (value: PreorderUnit): string => t(`preorder.unit.${value}` as TranslationKey);
 
+  // Judged again on every change of option, unit, variant or quantity. The
+  // server judges it too; this only says so before the buyer has to ask.
+  const optionMinimum = chosenOption?.minimumBaseUnits ?? null;
+  const belowOptionMinimum =
+    chosenOption !== null && optionMinimum !== null && baseUnits !== null && baseUnits < optionMinimum;
+
   const input: PreorderFormInput | null =
+    chosenOption === null ||
     unitQuantity === null ||
     unitQuantity <= 0 ||
     addressId === '' ||
@@ -250,6 +276,7 @@ export function PreorderDialog({
           offerId: terms.offerId,
           orderingUnit: unit,
           unitQuantity,
+          productOption: chosenOption.option,
           requestedDeliveryDate: date,
           shippingAddressId: addressId,
           destinationWarehouseLabel: warehouse.trim() === '' ? null : warehouse.trim(),
@@ -386,6 +413,82 @@ export function PreorderDialog({
           </div>
         </div>
 
+        {/* OEM or Original Brand */}
+        <fieldset className="space-y-2">
+          <legend className="mb-1 text-sm font-medium text-ink">{t('preorder.option.legend')}</legend>
+          {onlyOption !== null ? (
+            <p className="rounded-md border border-border-subtle bg-surface-sunken px-3 py-2 text-sm text-ink">
+              <span className="font-semibold">{optionLabel(onlyOption.option)}</span>
+              {onlyOption.quantity !== null && onlyOption.minimumBaseUnits !== null && (
+                <>
+                  {' · '}
+                  <span className="tabular-nums">
+                    <OptionMinimum
+                      unit={onlyOption.unit}
+                      quantity={onlyOption.quantity}
+                      minimumBaseUnits={onlyOption.minimumBaseUnits}
+                    />
+                  </span>
+                </>
+              )}
+              <span className="block text-xs text-ink-muted">{t('preorder.option.onlyOne')}</span>
+            </p>
+          ) : (
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {terms.productOptions.map((entry) => {
+                const offered = entry.status === 'OFFERED';
+                const selected = chosenOption?.option === entry.option;
+                return (
+                  <li key={entry.option}>
+                    <label
+                      className={
+                        offered
+                          ? choiceCardClass(selected, 'sm')
+                          : 'flex cursor-default gap-3 rounded-lg border border-dashed border-border bg-surface-sunken p-3'
+                      }
+                    >
+                      <input
+                        type="radio"
+                        name={optionGroupName}
+                        className="mt-1 h-4 w-4 shrink-0 border-border-strong text-brand"
+                        checked={selected}
+                        disabled={!offered}
+                        onChange={() => {
+                          setProductOption(entry.option);
+                        }}
+                      />
+                      <span className="min-w-0 text-sm">
+                        <span className="block font-semibold text-ink">
+                          {optionLabel(entry.option)}
+                        </span>
+                        <span className="block text-xs text-ink-muted">
+                          {t(`preorder.option.${entry.option}.hint` as TranslationKey)}
+                        </span>
+                        <span className="mt-1 block text-xs font-medium tabular-nums text-ink">
+                          {offered && entry.quantity !== null && entry.minimumBaseUnits !== null ? (
+                            <OptionMinimum
+                              unit={entry.unit}
+                              quantity={entry.quantity}
+                              minimumBaseUnits={entry.minimumBaseUnits}
+                            />
+                          ) : entry.status === 'NOT_OFFERED' ? (
+                            t('preorderInfo.optionNotOffered')
+                          ) : (
+                            t('preorderInfo.optionNotConfigured')
+                          )}
+                        </span>
+                      </span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {chosenOption === null && (
+            <p className="text-xs text-ink-muted">{t('preorder.option.choose')}</p>
+          )}
+        </fieldset>
+
         {/* Quantity */}
         <fieldset className="grid gap-3 sm:grid-cols-2">
           <legend className="sr-only">{t('preorder.quantityLegend')}</legend>
@@ -496,14 +599,26 @@ export function PreorderDialog({
             </div>
           )}
 
+          {/* The minimum that applies: the chosen option's, never the lower one. */}
           <p className="text-xs text-ink-muted sm:col-span-2">
-            {t('preorder.minimumRule', {
-              minimum: formatNumber(terms.moq.minimumBaseUnits),
-              increment: formatNumber(terms.moq.incrementBaseUnits),
-            })}
+            {chosenOption === null || optionMinimum === null
+              ? t('preorder.option.minimumAfterChoice')
+              : t('preorder.option.minimumRule', {
+                  option: optionLabel(chosenOption.option),
+                  minimum: formatNumber(optionMinimum),
+                  increment: formatNumber(terms.moq.incrementBaseUnits),
+                })}
             {terms.moq.maximumBaseUnits !== null &&
               ` ${t('preorder.maximumRule', { maximum: formatNumber(terms.moq.maximumBaseUnits) })}`}
           </p>
+          {belowOptionMinimum && (
+            <p role="alert" className="text-xs font-medium text-danger sm:col-span-2">
+              {t('preorder.option.belowMinimum', {
+                option: optionLabel(chosenOption.option),
+                minimum: formatNumber(optionMinimum),
+              })}
+            </p>
+          )}
         </fieldset>
 
         {/* Where and when */}

@@ -119,7 +119,7 @@ const CATALOGUE: readonly FaqEntry[] = [
     id: 'moq',
     category: 'ORDERING',
     questionTranslationKey: q('moq'),
-    answerTemplateTranslationKeys: a('moq', 'moqStep', 'moqMaximum', 'moqInUnit', 'notOpen'),
+    answerTemplateTranslationKeys: a('moq', 'moqOem', 'moqOriginalBrand', 'moqStep', 'moqMaximum', 'moqInUnit', 'notOpen'),
     requiredDataFields: ['preorderTerms', 'moq'],
     displayOrder: 10,
     active: true,

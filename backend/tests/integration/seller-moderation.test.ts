@@ -25,6 +25,7 @@ import { readDraft } from '../../src/modules/seller/listing-draft.service.js';
 import { permissionsForSellerRole } from '../../src/domain/seller-permissions.js';
 import type { SellerMembership } from '../../src/modules/seller/account.service.js';
 import { recordScreening } from '../../src/modules/seller/application-review.service.js';
+import { seedTurnover } from '../support/seller-turnover.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -406,6 +407,8 @@ describe('decideApplication', () => {
       listsChecked: 'UN list',
       adminUserId,
     });
+
+    await seedTurnover(applicantId);
 
     await decideApplication({ sellerAccountId: applicantId, to: 'APPROVED', adminUserId });
 

@@ -1832,10 +1832,10 @@ per-line result instead of stopping at the first refusal. `/sitemap.xml` lists
 `Organization` JSON-LD. The account dropdown has a Security entry that opens
 `/account/profile#security`.
 
-**Help, policies and legal.** The legal-document service now manages nine
+**Help, policies and legal.** The legal-document service now manages ten
 kinds (`domain/legal-document.ts`): the two `TERMS_KINDS` that are accepted at
-sign-up, six `POLICY_KINDS` that are only read, and `STAFF_TERMS` (the panel's
-sign-in, below). They share one pipeline —
+sign-up, six `POLICY_KINDS` that are only read, `STAFF_TERMS` and
+`AUDIT_CONSOLE_TERMS` (accepted on the agreement screen, below). They share one pipeline —
 draft, publish, hash, never edit — because a returns policy a buyer later
 argues about needs the same "these exact words, in force on that date" proof as
 the terms. `assertAcceptableTerms` takes `TermsKindName` only, and the kind is
@@ -4934,6 +4934,14 @@ What it does **not** do, said plainly:
 whether to bring their catalogue here should be able to read what is involved
 before opening an account.
 
+Above the short application form, `/sell` shows the **Seller eligibility** card:
+the turnover minimum, a financial-year picker, the turnover in crore or in
+rupees, and a declaration to tick. **Start application** stays disabled until
+the figure is eligible and the box is ticked. A visitor who is not signed in
+sees the policy only. A figure at or below the minimum gets a polite "does not
+currently meet our seller turnover requirement" message and a link back to
+shopping. The rule is explained under "The turnover requirement" below.
+
 ## The application
 
 Eight steps, each saving on its own, resumable for as long as it takes:
@@ -5146,6 +5154,104 @@ seller pause, archive, unrelated needs-changes reason or marketplace block
 is preserved. Certificate dates are valid through their stated UTC day.
 No API shape, permission, schema or provider decision changes.
 
+### The turnover requirement: who may apply to sell
+
+**This is the marketplace's own rule, not a law.** By default only a business
+whose annual turnover (its total sales for a year) for its **most recently
+completed financial year** is **more than** ₹30 crore may apply to sell. That is
+INR 300,000,000, held as `30000000000` paise. Exactly ₹30 crore is **not**
+enough; one paisa more is. Every part of it is a setting (see section 14,
+"Who may apply to sell"), so another operator can change the figure, the
+currency or switch it off.
+
+**The figure is money, so it is a whole number of minor units end to end.** The
+form sends it as a string of paise (`turnover.amountMinor`), the server reads it
+as a `BigInt` and compares integers. It never becomes a float, and the rounded
+crore figure on screen is never what is compared. The rule itself is
+`backend/src/domain/seller-turnover.ts`.
+
+**The year has to be the right year.** A reporting period is twelve months that
+start on the first of a month and have already ended, and it must be the most
+recent such year for that year-end (the next one must not have ended yet). A
+declaration for a year that a later year has since replaced is **out of date**:
+it blocks submission until the seller updates it. The form offers the latest
+completed year for April, January, July and October year-ends, April first.
+
+**Three facts, kept apart: declared, verified, approved.** The seller *declares*
+a figure and ticks that it is true and can be supported by business records.
+Staff *verify* it, with a reason. A separate decision *approves* the seller. A
+declaration never approves anybody, and the tick alone never makes a figure
+eligible.
+
+Where the same rule is enforced, always on the server:
+
+1. **Applying** (`POST /api/v1/sellers/apply`, from `/sell`). The request now
+   carries `turnover` — `amountMinor`, `currency`, `financialYearStart`,
+   `financialYearEnd`, `declarationAccepted: true`. A missing or malformed field
+   is `400 VALIDATION_FAILED` naming the field; a figure at or below the minimum
+   is `409 SELLER_TURNOVER_NOT_ELIGIBLE` (`BELOW_MINIMUM`, with the minimum and
+   currency in `meta`). Nothing is created when it is refused. An accepted
+   declaration is stored in the same transaction that creates the seller.
+2. **Business identity step.** It stays *In progress*, with a "Still needed" line
+   about turnover, until an eligible declaration exists. The turnover panel sits
+   at the top of that step for owners and administrators.
+3. **Submitting and resubmitting** (`POST /api/v1/seller/submit`) is refused with
+   `409 SELLER_TURNOVER_NOT_ELIGIBLE` — `NOT_DECLARED`, `BELOW_MINIMUM` or
+   `OUT_OF_DATE` — before the checklist is even checked, so a hand-made request
+   cannot skip the form.
+4. **Approval.** The approval readiness list and the approval gate now also name
+   `TURNOVER_NOT_DECLARED`, `TURNOVER_NOT_ELIGIBLE` or `TURNOVER_NOT_VERIFIED`.
+   A seller is approved only with a **verified**, eligible declaration.
+
+**Saving is not submitting.** `PUT /api/v1/seller/turnover` saves even a figure
+at or below the minimum, so nothing typed is lost; submission is what is
+blocked. It is refused once the application is under review.
+
+**A change sends it back for review.** Changing the amount, currency or year
+makes a new current declaration that waits for review; the old one is marked
+`AMENDED` and keeps its decision as history. Saving the same figures again keeps
+the row and its verification (only the time and policy version are refreshed).
+Uploading or withdrawing a supporting document reopens a verified or failed
+declaration as a new row (`EVIDENCE_CHANGED`).
+
+**Supporting evidence uses the existing document upload** (kind `OTHER`,
+requirement key `annual_turnover_evidence`): scanned, kept in private storage,
+opened through short-lived single-use links, and seen only by the seller and
+staff.
+
+**Staff verify it on the seller's page.** The **Annual turnover** card on
+`/sellers/:id` (admin panel) shows whether the figure exceeds the minimum, its
+verification state, the exact amount and the crore figure, the year, the
+minimum and policy version in force when it was declared, the reviewer, the
+evidence with Open, and earlier declarations. The **Audit Team** (Audit Console,
+`audit.seller.verify`) records **Verified** or **Not verified** with a reason
+the seller reads, and an optional internal note the seller never sees; the
+Admin Panel shows the same card read-only. If the seller changed the
+declaration after the page loaded, or another reviewer decided it meanwhile,
+the decision is refused with `SELLER_STALE_VERSION`. Repeating the same decision changes nothing. The
+decision never approves the seller. It is written to the operator's audit trail
+(`seller_turnover.decided`); the seller's trail gets
+`seller.turnover.declared`, `seller.turnover.reopened` and
+`seller.turnover.decided`, never the figure.
+
+**Sellers approved before the rule are left alone.** Any seller that has been
+approved at least once (`approvedAt` set) is not asked to declare, is not marked
+incomplete, and an approval such as lifting a suspension is not held for
+turnover. Nobody is suspended. **Applying the rule to them is not built** — that
+is an open decision for the operator.
+
+The stored rows are `seller_turnover_declarations`. They accumulate like
+screening checks, and `isCurrent` marks the live one. Services:
+`modules/seller/turnover-facts.service.ts` (policy, standing, gaps, storing a
+declaration, the submit gate) and `modules/seller/turnover.service.ts` (the
+seller's read and save, evidence changes, the reviewer's read and decision).
+Routes: `GET`/`PUT /api/v1/seller/turnover` (owners and administrators,
+`seller.account.write`; 60 saves per 15 minutes), `GET /api/v1/admin/sellers/:id/turnover`
+(`customer.read`, read-only) and `POST /api/v1/audit/seller-verification/:id/turnover/decision`
+(`audit.seller.verify`; the old admin route now always answers
+`403 SELLER_VERIFICATION_AUDIT_ONLY`). The public `GET /api/v1/config` carries
+`sellerEligibility` so the storefront can show the policy before anyone signs in.
+
 ### Certificates: uploading them, and what happens next
 
 Both document steps — **Identity and documents** and **Compliance** — carry the
@@ -5195,17 +5301,97 @@ What is accepted, and what is done with it:
   seller finds out from their own checklist rather than from a refusal weeks
   later.
 
-On the operator's side this is the Documents card on the seller's own screen:
-Open, Accept, and Send back. A refusal must carry a reason, the seller reads it
+On the marketplace's side this is the Documents card on the Audit Team's
+seller verification screen: Open, Accept, and Refuse. (The Admin Panel's
+seller screen shows the same card with Open only.) A refusal must carry a reason, the seller reads it
 word for word, and every one of the three goes to both audit trails — the
 operator's, where an auditor asks who accepted a certificate and when, and the
 seller's, where the marketplace appears as a role rather than as a named member
 of staff. Opening one is recorded too, because some of these are a director's
 passport.
 
-Each upload also rings the console's bell and adds to the count on its Sellers
-row, so evidence attached on a Friday is not waiting until somebody happens to
-open that seller.
+Each upload also rings the Audit Console bell of every seller verifier, so
+evidence attached on a Friday is not waiting until somebody happens to open
+that seller.
+
+### Who verifies a seller: the Audit Team
+
+Seller onboarding verification belongs to the **Audit Team**, in the Audit
+Console. The Admin Panel can see everything about an application and change
+none of the verification. This is a deliberate separation of duties: the
+people who run the marketplace day to day are not the people who decide
+whether a business is who it says it is.
+
+**What the Audit Team does** (`/seller-verification` in the Audit Console,
+permission `audit.seller.verify`, held by the audit staff roles `SUPERVISOR`
+and `COMPLIANCE_REVIEWER`):
+
+- works a queue: New applications, In review, Corrections requested,
+  Resubmitted (came back after corrections), Approved, Rejected - oldest first;
+- reads the business details exactly as submitted, the documents, ownership
+  and screenings, the turnover, and what approval is still waiting for;
+- starts a review, asks for corrections (with a reason the seller reads),
+  approves (the evidence gate still applies), or rejects (with a reason, and a
+  choice whether the seller may apply again);
+- accepts or refuses each document, verifies the turnover, and records manual
+  screenings.
+
+The reviewer **records decisions; they never edit what the seller submitted**.
+If something is wrong, they ask for a correction and the seller fixes it.
+
+**What the Admin Panel keeps.** The Sellers list with search, filters and
+counts; each application in full, documents (Open), findings, reasons, and the
+**verification history** with who decided each step. A card at the top says
+"Read-only — seller verification is managed by the Audit Team." The only
+buttons left are the two operational controls: **Suspend** a verified seller
+and **Lift suspension** (which still runs the evidence gate, so it cannot turn
+on a seller whose evidence has lapsed).
+
+**Enforced on the server, not by hiding buttons.** Every admin route that used
+to decide verification - the decision route for any status other than
+suspend / lift, the screening, turnover and document decision routes - answers
+`403 SELLER_VERIFICATION_AUDIT_ONLY` whatever the admin's role. An old
+maker-checker request to reject a seller (`SELLER_REJECT`) can no longer be
+approved into a rejection; it can only be declined. Agency people in the Audit
+Console (inspectors, coordinators, QA reviewers, agency admins) hold neither
+seller key and are refused.
+
+**Safety rules.**
+
+- Each decision carries the version on screen, and the database write is
+  conditional on it: of two reviewers deciding at once, exactly one wins and
+  the other is told to reload (`SELLER_STALE_VERSION`). Documents and
+  turnover work the same way.
+- A reviewer whose email is one of the seller's members or its named
+  representative is refused (`SELLER_VERIFICATION_NOT_INDEPENDENT`).
+- Approval never sets up payouts: the payment provider's own onboarding is a
+  separate, independent requirement.
+
+**History stays true.** Decisions are written with actor type `AUDIT` and the
+reviewer's id; the seller sees only "Audit Team". Decisions an administrator
+made before this change keep their `ADMIN` attribution - nothing is rewritten
+- and both panels show them as "Admin Panel". Pending applications and their
+documents were not touched: they appear in the Audit Team's queue as they are.
+
+**Who is told.** A submission and a resubmission notify every active seller
+verifier in the Audit Console, inside the same transaction as the submission;
+so does a document upload. The seller sees "Awaiting verification", "Under
+Audit Team review" and "Corrections requested".
+
+**Setting it up.** It needs `FEATURE_AUDIT_CONSOLE=true` and at least one
+active audit supervisor or compliance reviewer. Without either, applications
+wait and the Admin Panel says which is missing - nothing falls back to admin
+approval, and no reviewer account is created automatically. To add one: an
+administrator with `audit_console.manage` opens **Audit Console people** in
+the Admin Panel, invites the person as a staff `COMPLIANCE_REVIEWER` (or
+`SUPERVISOR`), and the person activates the invitation and sets up their
+one-time code.
+
+The code: `modules/seller/verification.service.ts` (reviewer pool,
+independence, history, notifications, document reads), the routes in
+`http/routes/audit.console.ts` under `/seller-verification`, the refusals in
+`http/routes/sellers.admin.ts`, and the screens in
+`apps/audit-web/src/pages/seller-verification/`.
 
 ### The signature, and what it is not
 
@@ -6558,14 +6744,14 @@ meantime.
 | `/support` | Support → Tickets | The inbox of support tickets from the storefront, Seller Hub and the logistics portal, opening on **Needs work** (section 9.13). Needs `support_ticket.view` |
 | `/support/:id` | One ticket | Who raised it and for whom, the timeline with staff-only notes, the customer's documents (previewed or downloaded on the page), and the controls: status, priority, assignment, reply, internal note |
 | `/sellers` | Sellers | Businesses applying to sell on the marketplace; under the table, **Verified suppliers** and **Newly verified suppliers** (`GET /admin/sellers/verified`) |
-| `/sellers/:id` | Seller detail | One application: the business, its documents, its people, the decision |
+| `/sellers/:id` | Seller detail | One application: the business, its documents, its people, its **Annual turnover** card (declared figure, verification decision, evidence, history), the decision |
 | `/audit` | Audit log | Who changed what, in which role, why, when and from where, and **Download CSV** of the current filter (needs `export.create` as well) |
 | `/operations/dead-jobs` | Dead background jobs | Background jobs that ran out of attempts, and **Try again** for one more. The screen the dashboard's "dead background jobs" queue names; no menu entry |
 | `/operations/failed-notifications` | Undeliverable emails | Emails that could not be delivered, with masked recipients, and **Try again** for one more attempt. The screen the dashboard's "failed notifications" queue names; no menu entry |
 | `/integrations` | Integrations | Payment gateway credentials, connectors |
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
-| `/settings/legal-documents` | Legal documents | Write, preview and publish the Terms and Conditions (buyer and logistics partner) - a published version never changes; which version is in force; how many accepted each. `legal_document.*` |
+| `/settings/legal-documents` | Legal documents | Write, preview and publish the Terms (buyer, seller, logistics partner, staff, Audit Console) and the policies - a published version never changes; choose whether a new version asks everyone again; a document with a `[[...]]` blank cannot be published; which version is in force; how many accepted each. `legal_document.*` |
 | `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
 
 ## The dashboard: the morning's work, above the month's figures
@@ -7532,7 +7718,7 @@ There are 79 staff permission keys, like `product.write` or `order.approve`.
 | **Order Manager** | Orders, fulfilment, cancellation, returns |
 | **Finance / Approver** | Payment review, payment links, refunds, high-value approvals |
 | **Support Agent** | Reads orders; answers support tickets and preorder chats. Never refunds, cancels or decides |
-| **Compliance Officer** | Seller, factory and business-buyer verification, suspension, privacy requests, audit log, risk review. No money, no catalogue |
+| **Compliance Officer** | Factory and business-buyer verification, seller suspension, privacy requests, audit log, risk review; reads seller verification (the Audit Team decides it, in the Audit Console). No money, no catalogue |
 
 Who may reach which record, and the tests that prove it, are in
 `docs/AUTHORIZATION-MATRIX.md`.
@@ -8823,7 +9009,7 @@ Each folder under `src/modules/` owns one area:
 |---|---|
 | `identity` | Login, sessions, tokens, staff accounts, sign-in location, language |
 | `customers` | Customer accounts, self-registration, purchasing limits |
-| `legal` | The Terms and Conditions: drafts, publishing, the version in force, checking and recording an acceptance, the PDF |
+| `legal` | The Terms and Conditions: drafts, publishing, the version in force, checking and recording an acceptance, the PDF; the agreement screen's records and gate (`agreement.service.ts`); `legal:import-drafts` |
 | `catalog` | Categories, products, variants, prices, translations, imports, product-safety data |
 | `inventory` | Stock balances, movements, reservations |
 | `cart` | The cart |
@@ -8955,8 +9141,11 @@ applied to buy for, its checks, and the person's decision. See 9.1a.
 
 **Legal documents.** `legal_documents` - every version of the Terms and
 Conditions in every language, draft or published; a published one never
-changes. `consent_records` also holds each person's acceptance of one of them
-(`legalDocumentId`), one per person per document.
+changes, and `requiresReacceptance` says whether earlier acceptances stop
+counting. `consent_records` also holds each person's Terms acceptance and
+Privacy Policy acknowledgment (`legalDocumentId`, `action`, `scope`), one
+active row per person per document (`activeDocumentId`); a row cleared on the
+agreement screen keeps `clearedAt` and is never deleted.
 
 A few rules live in the tables themselves. One address per kind per company,
 with a fingerprint used to spot duplicates. One identifier per scheme per
@@ -10236,87 +10425,108 @@ Three deliberate choices here:
   purpose. Telling somebody who does not know the password that it has expired
   would confirm both that the account exists and that it has never been used.
 
-### Accepting the terms at sign-in
+### The agreement screen after sign-in
 
-Both sign-in screens — the storefront’s `/login` and the panel’s `/login` —
-carry a required **I accept the terms** tick above the button. An unticked box
-stops the submit and shows "You need to accept the terms to sign in."; nothing
-is sent until it is ticked.
+There is no terms tick on any sign-in form any more. The storefront's `/login`
+and the panel's `/login` used to ask for an **I accept the terms** tick on every
+sign-in. It was never sent to the server and recorded nothing, so the same
+question was asked again each time. Both ticks are gone.
 
-Four things about it are deliberate:
+In their place, every signed-in person sees **the agreement screen** before the
+application itself, while they still owe it:
 
-- **It is a client-side gate, not a recorded consent.** `POST /auth/login`
-  takes an email, a password and the optional sign-in tab (`buyerType`,
-  see 9.1a) and nothing else, and sending it a field it does not declare
-  would be rejected by its schema. The acceptance that is
-  *stored* is the one given at registration or at invitation activation: a
-  `consent_records` row naming the exact Terms document, with its version
-  copied into `customer_profiles.consent_version` — and the backend refuses
-  either without it (see the next section). A staff invitation carries no
-  consent row at all. So the tick at sign-in is a reminder of a
-  standing agreement, not a new record of one. **If a deployment ever needs
-  each sign-in evidenced, that is a backend change** — a column, a version to
-  compare against, and a decision about what to do when the policy has moved
-  on — not a checkbox.
-- **It is never pre-ticked, and never remembered.** No cookie, no
-  `localStorage`, no "this browser already agreed". A tick that carries itself
-  forward is a tick nobody gave this time, and the panel in particular is
-  shared by several staff accounts behind nothing but a password — one
-  person’s acceptance must not appear as the next person’s.
-- **The links beside it are the operator’s own.** They come from
-  `business.policyLinks` on `GET /api/v1/config` — a label and a URL each,
-  stored in `business_profiles.policy_links_json`, edited in
-  **Settings → Policy links** and written by
-  `PATCH /api/v1/admin/settings/policy-links` (needs `SETTINGS_WRITE`).
-  Nothing in either frontend knows what a policy is called or where it
-  lives: whatever labels the operator sets are the labels that appear, in
-  that order. A deployment that has set none renders the sentence with no
-  links rather than a link to a page that does not exist — and the tick is
-  still required, because what is being accepted is the contract, not the
-  web page.
-- **The wording differs by surface, on purpose.** A customer accepts *terms of
-  business* (`auth.login.acceptTerms` in `apps/customer-web`, the same
-  sentence the sign-up form uses); a member of staff accepts *terms of use*
-  (the same key in `apps/admin-web`). Staff are not buying anything. Once the
-  operator publishes staff terms, the panel's box names them instead - see
-  the next section.
+| Who | Where | Terms asked for | Plus |
+|---|---|---|---|
+| Buyer (individual or company) | storefront | `PLATFORM_TERMS` | `PRIVACY_POLICY` |
+| Seller (every member of a seller) | Seller Hub | `PLATFORM_TERMS` and `SELLER_TERMS` (the Seller Addendum) | `PRIVACY_POLICY` |
+| Carrier staff | logistics portal | `LOGISTICS_PARTNER_TERMS` | `PRIVACY_POLICY` |
+| Operator staff | admin console | `STAFF_TERMS` | `PRIVACY_POLICY` |
+| Audit Console users | Audit Console | `AUDIT_CONSOLE_TERMS` | `PRIVACY_POLICY` |
 
-The storefront’s three consent ticks — sign-in, sign-up and invitation
-activation — are one component, `components/AcceptTermsCheckbox.tsx`, so the
-sentence and the links cannot drift apart between the screens.
+The scope is chosen by the server from the surface (`termsKindsForScope` in
+`backend/src/domain/legal-document.ts`). A buyer is never asked for the Seller
+Addendum. A buyer who becomes a seller is asked for it the first time they open
+the Seller Hub, because it is newly applicable to them.
 
-### The staff terms on the panel's sign-in
+**Two boxes, never one.** "I agree to the **Terms & Conditions**." and "I
+acknowledge that I have read the **Privacy Policy**." Clicking a box, its
+sentence or the document's name opens that document. It never ticks the box.
+A box is ticked only when the server says a record exists. The privacy box is an
+acknowledgment, not a consent: it switches on no marketing, analytics or other
+optional processing, and the screen says so.
 
-The operator can write terms for their own staff: the legal-document kind
-`STAFF_TERMS`, written and published under **Settings → Legal documents** like
-any other kind (migration `20261103100000_legal_staff_terms` added it to
-`legal_documents.kind`). When a version is in force, the panel's `/login` box
-works the way the storefront's sign-up box does: it reads "I have read and
-agree to the *Staff Terms*", clicking it (or Space, Enter, or the words) opens
-the text in a dialog, **I agree** is enabled only once the end of the text has
-been in view, and only **I agree** ticks the box. The pieces are copies of the
-storefront's - `apps/admin-web/src/components/legal/` (`TermsAgreementField`,
-`TermsAcceptanceDialog`, `LegalDocumentBody`, `useCurrentTerms`,
-`useReadToEnd`) - on the panel's own `Modal`, which gained `bodyRef` and
-`bodyLabel` for it.
+**The dialog** is `components/agreement-kit/PolicyDocumentDialog.tsx`. It shows
+the title, version, the date it applies from and the language, then the whole
+text in one scrolling area between a fixed header and a fixed footer. The
+footer says "Scroll to the end to enable acknowledgment." until the end of the
+text has been in view. Then **I agree** (Terms) or **I acknowledge** (Privacy
+Policy) is enabled. Text that fits is enabled at once. A resize or a new text
+recalculates. Another version or language starts over. A document that failed
+to load can never be accepted. Cancel, Close and Escape record nothing. A
+document already recorded opens read-only, with the date it was recorded. A
+seller's Terms box shows the Terms of Use and the Seller Addendum one after the
+other in the same dialog.
 
-Three rules hold it in place:
+**Continue** is enabled only when both records are saved, and it uncovers the
+page that was asked for, so a deep link survives. **Sign out** is always there.
+Before Continue, clicking a ticked box clears that one record: the row is kept
+with `clearedAt`, an audit event is written, and nothing else the person agreed
+to changes. After Continue the account's history is read-only.
 
-- **It is still only a gate.** The tick sets `acceptedTerms`, which the form
-  requires and does not send. `POST /admin/auth/login` is unchanged, no
-  consent row is written, and staff agree again on every sign-in.
-  `STAFF_TERMS` is deliberately not a `TermsKindName`, so
-  `assertAcceptableTerms` can never be handed it, and it is not a policy, so
-  `GET /legal/in-force` (the storefront's help hub) never lists it.
-- **The screen asks the server, before anybody is signed in.**
-  `GET /legal/current?kind=STAFF_TERMS&locale=…` is public, in the language
-  the screen is read in, with the usual English fallback.
-- **A missing document never locks anybody out.** If nothing is published the
-  endpoint answers 503 `TERMS_DOCUMENT_UNAVAILABLE`, and the panel shows the
-  plain **I accept the terms of use** tick from the section above. A request
-  that fails for any other reason does the same. The storefront refuses to
-  open accounts without Terms; the panel cannot refuse its own staff, because
-  they are the people who would publish the missing document.
+**The kit is one folder in four apps.** `components/agreement-kit/` is the same
+files in `customer-web`, `admin-web`, `logistics-web` and `audit-web`, and
+`components/agreement-kit-sync.test.ts` fails the build when the copies differ.
+Each app has its own `lib/agreements.ts` (which `/auth` prefix to call, how a
+document is linked) and a small gate wrapper: `layout/StoreAgreementGate.tsx`
+and `layout/SellerAgreementGate.tsx` on the storefront, and
+`auth/PortalAgreementGate.tsx` in the other three, placed after their
+second-factor and location screens. The old `components/legal/` dialog in the
+admin console was retired; the storefront and the carrier portal keep theirs
+for sign-up and invitation activation.
+
+**The server is the control.** Every application guard - `requireCustomer`,
+`optionalCustomer`, `requireSeller`, `requireAdmin`, `requireLogistics`,
+`requireAudit` - calls `assertAgreementsSatisfied` and refuses with 403
+`AGREEMENTS_REQUIRED` (`details[].meta.kind` names what is missing). The few
+routes that must work before the screen use a "before agreements" guard:
+`/auth/*` and the agreement routes themselves, support on all three surfaces,
+and `/account/data-requests`. The public `/legal/*` routes need no session.
+Payment webhooks and the worker never pass through these guards.
+`tests/integration/agreement-gate-routes.test.ts` reads the real route table and
+fails if any other route borrows one of those guards. Each app's API client
+announces `AGREEMENTS_REQUIRED`, and the screen asks the server again.
+
+**What a record holds.** One `consent_records` row per box: the person, the
+document id, version, language and SHA-256 copied from the stored document,
+the scope, the action (`TERMS_ACCEPTED` or `PRIVACY_NOTICE_ACKNOWLEDGED`) and
+the database's own time. No IP address or browser string. A double submit
+writes one row (a unique index on `userId, activeDocumentId`). A document id
+that is not the one in force is refused with `TERMS_VERSION_OUTDATED`; the
+dialog then shows the new version and starts the reading over.
+
+**Asked again only when a version says so.** A version published with
+"Ask everyone to accept this version again" off (`requiresReacceptance`) is a
+correction: earlier acceptances keep counting. A version with it on asks
+everybody again on their next request (`acceptableVersions`). Existing users
+with no record see the screen on their next request; no acceptance is ever
+back-dated. A kind with nothing published is not asked for, so a fresh
+deployment never locks out the staff who will publish its documents.
+
+**`FEATURE_AGREEMENT_GATE`** switches the server-side gate. It is on by
+default, refused off in production, and pinned off in `tests/setup.ts` for
+unrelated suites.
+
+**Privacy requests and history.** `/privacy-requests` on the storefront shows
+the data-request panel on its own, so it can be reached before agreeing. The
+storefront's profile page, the carrier portal's and the Audit Console's profile
+pages, and the admin console's user menu (**Terms and privacy**, `/my-agreements`)
+show every record with a link to the exact version.
+
+**Policy documents.** The Gloviaa Mart drafts are in `legal/drafts/gloviaa-mart/`
+(see `legal/README.md`). `cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart`
+loads them as DRAFTS only. Publishing refuses a document that still holds a
+`[[...]]` blank (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). They are not published and
+not legally approved.
 
 ### Agreeing to the Terms and Conditions when an account is opened
 
@@ -11066,6 +11276,27 @@ It is not the same as the other quantity rules:
 - The offer's own minimum and maximum work **per line** and bind every buyer.
 - The preorder minimum is a **floor** on a bulk request, with its own errors.
 - This one is a **ceiling**, for held buyers only, over the whole product.
+
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
 
 ### Where it is stored
 
@@ -19999,6 +20230,7 @@ the carrier portal does not sign a member of staff out of the console.
 
 | Flag | Default | Effect |
 |---|---|---|
+| `FEATURE_AGREEMENT_GATE` | `true` | The agreement screen after sign-in: every application route refuses until the Terms for the account's kind are accepted and the Privacy Policy acknowledged. Refused off in production |
 | `FEATURE_CUSTOMER_SELF_REGISTRATION` | `false` | Shows the sign-up form |
 | `CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL` | `true` | A confirmed sign-up still waits for staff |
 | `FEATURE_STOCK_RESERVATIONS` | `true` | Reserve stock at checkout |
@@ -20219,6 +20451,23 @@ The link a document is read through reuses `LOGISTICS_DOCUMENT_URL_TTL_SECONDS`
 rather than adding a setting of its own: a deployment that has decided how long
 a signed document link should last has decided it for every private document,
 and two settings is one of them being wrong.
+
+## Who may apply to sell
+
+The marketplace's own turnover rule (section 4a, "The turnover requirement").
+None of it is a legal requirement, and every value is the operator's to change.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `SELLER_TURNOVER_REQUIRED` | `true` | Whether a turnover declaration is needed to apply, submit and be approved. Off, the card is not shown and nothing is checked |
+| `SELLER_TURNOVER_MIN_MINOR` | `30000000000` | The minimum, in whole minor units (digits only). A business must be **strictly above** it. The default is ₹30 crore in paise |
+| `SELLER_TURNOVER_CURRENCY` | `INR` | The currency the turnover is declared in |
+| `SELLER_TURNOVER_POLICY_VERSION` | `2026-10` | Stored with every declaration. Change it whenever the minimum or the wording changes |
+| `SELLER_TURNOVER_FY_START_MONTH` | `4` | 1 to 12. Only the form's default year-end (April, as in India); the other year-ends stay selectable |
+
+The storefront reads the policy from `GET /api/v1/config` → `sellerEligibility`
+(`required`, `minimumMinor` as a string, `currency`, `currencyExponent`,
+`policyVersion`, `financialYearStartMonth`, `suggestedFinancialYear`).
 
 ## Pluggable adapters
 
@@ -20983,6 +21232,13 @@ Booking an inspection, the dispatch gate and release work either way.
   members: `AGENCY_ADMIN`, `COORDINATOR`, `INSPECTOR`, `QA_REVIEWER`. Whose
   data a request sees comes from the session's membership, never from an id in
   the request.
+- **Who holds what.** Both staff roles hold `audit.seller.read` and
+  `audit.seller.verify` (seller onboarding verification - see "Who verifies a
+  seller: the Audit Team"), `audit.case.review` and `audit.document.read`;
+  only `SUPERVISOR` approves rules, manages checklists and asks for sub-lot
+  releases. Agency roles hold only the `inspection.*` keys, so no inspector,
+  coordinator, QA reviewer or agency admin can see or decide a seller
+  application. Material inspection is unchanged by seller verification.
 
 ### What moved
 
@@ -21070,6 +21326,53 @@ It uses no new endpoint: `GET /audit/dashboard` and `GET /audit/rules/coverage`.
 The ring, card and grid components are copies of the Admin Panel's dashboard
 pieces (`components/dashboard/console.tsx`, `ModernDonutCard.tsx`,
 `lib/donut.ts`), so the two dashboards look and behave alike.
+
+### Seller health, verification report and quality analytics
+
+Three staff screens, modelled on how Amazon, Alibaba.com and QIMA show the same
+things. Agency members see none of them.
+
+- **Seller health** (Amazon's Account Health Rating). Every seller gets a rating
+  from 0 to 1,000 in three bands: **Healthy** 200–1,000, **At risk** 100–199,
+  **Unhealthy** 0–99. It starts at 1,000 and each open issue takes points off:
+  critical 400, high 150, medium 50, low 10. Any critical issue holds it at 99
+  or less; any high issue at 199 or less, so the band always names the worst
+  thing open. The rule is `backend/src/domain/seller-health.ts`, gathered by
+  `modules/audit-console/health.service.ts`.
+  - Critical: an open critical non-conformance, a suspended case, a suspended
+    document.
+  - High: goods held (requirement `FAILED` or `BLOCKED_BY_NCR`), an open major
+    non-conformance, an expired document (by status or by date), an expired
+    qualification, a business identity check expired or rejected, and an
+    **inspection failure rate above 10%** over the last 365 days, judged from
+    three signed reports (fail and inconclusive both count as not passed).
+  - Medium: a qualification needing a new review, an approved document expiring
+    within 30 days, a rejected document.
+  - Low: an open minor non-conformance; a case or document waiting on the
+    seller (changes requested).
+  - The thresholds are constants in that file, not settings.
+- **Sellers list** (`/sellers`) has a Health column, a filter by band
+  (`?health=`) and "Riskiest first" ordering (`?sort=risk`).
+- **One seller** (`/sellers/:id`) opens with a **Seller health** card: the
+  rating on a red/amber/green bar, open issues counted by severity, each issue
+  with what it means and a link to where it is fixed, and the inspection pass
+  rate against its target. Under it, a **Verification report** (Alibaba's
+  Verified Supplier assessment): legal status, sanctions screening, production
+  sites, certifications, category qualifications and quality record, each
+  Verified, Needs attention, In progress, Declared or Not assessed, plus the
+  approved certificates. "Verified seller" means legal status, screening and
+  certifications are all verified and nothing needs attention. A production site
+  is only ever "Declared": nobody visited it.
+- **Quality analytics** (`/insights`, QIMA's quality insights; needs
+  `audit.job.oversee`). The last twelve months: pass rate, inspections not
+  passed, open non-conformances, share of healthy sellers; pass / inconclusive /
+  fail by month (with a table view); findings by severity; the most frequently
+  cited requirements; the five best and five worst suppliers by pass rate; and
+  each agency's completed inspections, reports signed by their deadline and pass
+  rate. The seller-health ring appears only for people who may read sellers.
+- Endpoints: `GET /audit/sellers` (now with `health` per row, `?health=`,
+  `?sort=`), `GET /audit/sellers/:id` (now with `health`) and
+  `GET /audit/insights`. No table changed.
 
 ### Elsewhere
 

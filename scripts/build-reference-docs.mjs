@@ -543,7 +543,7 @@ function precedingComment(source, index) {
 }
 
 const GUARD_RE =
-  /\b(requireAdmin|requireSeller|requireSellerBeforeLock|requireTradingSeller|requireLogistics|requireLogisticsAny|requireLogisticsSession|requireAudit|requireAuditSession|requireCustomer|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
+  /\b(requireAdmin|requireAdminBeforeAgreements|requireAuditBeforeAgreements|requireSeller|requireSellerBeforeLock|requireSellerBeforeAgreements|requireTradingSeller|requireLogistics|requireLogisticsAny|requireLogisticsSession|requireLogisticsBeforeAgreements|requireAudit|requireAuditSession|requireCustomer|requireCustomerBeforeAgreements|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
 
 function guardsIn(text) {
   const found = [];
@@ -560,11 +560,11 @@ function guardsIn(text) {
 
 function audienceOf(guards, url, mount) {
   const names = guards.map((g) => g.name);
-  if (names.includes('requireAdmin')) return 'Staff';
+  if (names.includes('requireAdmin') || names.includes('requireAdminBeforeAgreements')) return 'Staff';
   if (names.some((n) => n.startsWith('requireSeller') || n === 'requireTradingSeller')) return 'Seller';
   if (names.some((n) => n.startsWith('requireLogistics'))) return 'Logistics';
   if (names.some((n) => n.startsWith('requireAudit'))) return 'Audit';
-  if (names.includes('requireCustomer')) return 'Customer';
+  if (names.includes('requireCustomer') || names.includes('requireCustomerBeforeAgreements')) return 'Customer';
   if (names.includes('requireAuthenticated')) return 'Signed in';
   if (names.includes('optionalCustomer')) return 'Public (customer optional)';
   if (mount.audience) return `Public (${mount.audience.toLowerCase()} sign-in)`;

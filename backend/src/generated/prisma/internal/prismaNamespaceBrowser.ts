@@ -364,6 +364,7 @@ export const ModelName = {
   SellerCertification: 'SellerCertification',
   SellerTrustCheck: 'SellerTrustCheck',
   SellerScreeningCheck: 'SellerScreeningCheck',
+  SellerTurnoverDeclaration: 'SellerTurnoverDeclaration',
   SellerProfileChangeRequest: 'SellerProfileChangeRequest',
   SellerListingTrust: 'SellerListingTrust',
   SellerListingCertification: 'SellerListingCertification',
@@ -6108,7 +6109,12 @@ export const PreorderPolicyScalarFieldEnum = {
   productId: 'productId',
   isEnabled: 'isEnabled',
   moqUnit: 'moqUnit',
-  moqQuantity: 'moqQuantity',
+  legacyMoqQuantity: 'legacyMoqQuantity',
+  originalBrandEnabled: 'originalBrandEnabled',
+  originalBrandMoqQuantity: 'originalBrandMoqQuantity',
+  oemEnabled: 'oemEnabled',
+  oemMoqQuantity: 'oemMoqQuantity',
+  productOptionsReviewRequired: 'productOptionsReviewRequired',
   incrementQuantity: 'incrementQuantity',
   maxQuantity: 'maxQuantity',
   capacityBaseUnits: 'capacityBaseUnits',
@@ -6180,6 +6186,10 @@ export const PreorderRequestScalarFieldEnum = {
   unitQuantity: 'unitQuantity',
   unitsPerPackage: 'unitsPerPackage',
   requestedBaseUnits: 'requestedBaseUnits',
+  productOption: 'productOption',
+  productOptionMoqQuantity: 'productOptionMoqQuantity',
+  productOptionMoqUnit: 'productOptionMoqUnit',
+  productOptionMinimumBaseUnits: 'productOptionMinimumBaseUnits',
   containerLoadingSnapshotJson: 'containerLoadingSnapshotJson',
   containerLoadingVersion: 'containerLoadingVersion',
   availableToPromiseAtSubmission: 'availableToPromiseAtSubmission',
@@ -6985,6 +6995,10 @@ export const ConsentRecordScalarFieldEnum = {
   legalDocumentId: 'legalDocumentId',
   locale: 'locale',
   acceptanceSource: 'acceptanceSource',
+  action: 'action',
+  scope: 'scope',
+  activeDocumentId: 'activeDocumentId',
+  clearedAt: 'clearedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -7002,6 +7016,7 @@ export const LegalDocumentScalarFieldEnum = {
   body: 'body',
   changeSummary: 'changeSummary',
   effectiveAt: 'effectiveAt',
+  requiresReacceptance: 'requiresReacceptance',
   contentSha256: 'contentSha256',
   publishedAt: 'publishedAt',
   publishedById: 'publishedById',
@@ -7878,6 +7893,31 @@ export const SellerScreeningCheckScalarFieldEnum = {
 } as const
 
 export type SellerScreeningCheckScalarFieldEnum = (typeof SellerScreeningCheckScalarFieldEnum)[keyof typeof SellerScreeningCheckScalarFieldEnum]
+
+
+export const SellerTurnoverDeclarationScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  financialYearStart: 'financialYearStart',
+  financialYearEnd: 'financialYearEnd',
+  minimumMinor: 'minimumMinor',
+  policyVersion: 'policyVersion',
+  declaredAt: 'declaredAt',
+  declaredByProfileId: 'declaredByProfileId',
+  verificationState: 'verificationState',
+  decisionReason: 'decisionReason',
+  internalNote: 'internalNote',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewedAt: 'reviewedAt',
+  supersededReason: 'supersededReason',
+  isCurrent: 'isCurrent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerTurnoverDeclarationScalarFieldEnum = (typeof SellerTurnoverDeclarationScalarFieldEnum)[keyof typeof SellerTurnoverDeclarationScalarFieldEnum]
 
 
 export const SellerProfileChangeRequestScalarFieldEnum = {
@@ -13266,7 +13306,8 @@ export const ConsentRecordOrderByRelevanceFieldEnum = {
   userAgent: 'userAgent',
   legalDocumentId: 'legalDocumentId',
   locale: 'locale',
-  acceptanceSource: 'acceptanceSource'
+  acceptanceSource: 'acceptanceSource',
+  activeDocumentId: 'activeDocumentId'
 } as const
 
 export type ConsentRecordOrderByRelevanceFieldEnum = (typeof ConsentRecordOrderByRelevanceFieldEnum)[keyof typeof ConsentRecordOrderByRelevanceFieldEnum]
@@ -13823,6 +13864,21 @@ export const SellerScreeningCheckOrderByRelevanceFieldEnum = {
 } as const
 
 export type SellerScreeningCheckOrderByRelevanceFieldEnum = (typeof SellerScreeningCheckOrderByRelevanceFieldEnum)[keyof typeof SellerScreeningCheckOrderByRelevanceFieldEnum]
+
+
+export const SellerTurnoverDeclarationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  currency: 'currency',
+  policyVersion: 'policyVersion',
+  declaredByProfileId: 'declaredByProfileId',
+  decisionReason: 'decisionReason',
+  internalNote: 'internalNote',
+  reviewedByUserId: 'reviewedByUserId',
+  supersededReason: 'supersededReason'
+} as const
+
+export type SellerTurnoverDeclarationOrderByRelevanceFieldEnum = (typeof SellerTurnoverDeclarationOrderByRelevanceFieldEnum)[keyof typeof SellerTurnoverDeclarationOrderByRelevanceFieldEnum]
 
 
 export const SellerProfileChangeRequestOrderByRelevanceFieldEnum = {

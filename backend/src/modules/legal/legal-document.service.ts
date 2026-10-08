@@ -31,8 +31,9 @@
  * version in their language is never offered instead: agreeing to superseded
  * terms in a familiar language is not agreeing to the terms in force.
  */
-import { AppError, ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, conflict, notFound, unprocessable } from '../../domain/errors.js';
 import {
+  findLegalPlaceholders,
   LEGAL_BODY_MAX,
   LEGAL_CHANGE_SUMMARY_MAX,
   LEGAL_DOCUMENT_KINDS,
@@ -46,6 +47,7 @@ import {
   type LegalDocumentKindName,
   type TermsAcceptanceSource,
   type TermsKindName,
+  type VersionRequirementRow,
 } from '../../domain/legal-document.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
@@ -53,6 +55,7 @@ import { getMarketplaceName } from '../settings/marketplace-name.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { SUPPORTED_LANGUAGES, isSupportedLanguage } from '../identity/language.service.js';
 import { PdfBuilder } from '../documents/pdf.js';
+import { bumpLegalPublicationGeneration } from './publication-generation.js';
 
 /** The language shown when the reader's own is not published. */
 const FALLBACK_LOCALE = 'en';
@@ -76,6 +79,8 @@ export interface PublicLegalDocument {
   effectiveAt: string;
   publishedAt: string;
   contentSha256: string;
+  /** Whether accepting an earlier version stopped counting when this one took effect. */
+  requiresReacceptance: boolean;
 }
 
 export interface CurrentLegalDocument {
@@ -97,6 +102,7 @@ type PublishedRow = {
   effectiveAt: Date;
   publishedAt: Date | null;
   contentSha256: string | null;
+  requiresReacceptance: boolean;
 };
 
 const PUBLIC_SELECT = {
@@ -110,6 +116,7 @@ const PUBLIC_SELECT = {
   effectiveAt: true,
   publishedAt: true,
   contentSha256: true,
+  requiresReacceptance: true,
 } as const;
 
 function toPublic(row: PublishedRow): PublicLegalDocument {
@@ -125,6 +132,7 @@ function toPublic(row: PublishedRow): PublicLegalDocument {
     // A published row always has both; the CHECK constraint guarantees it.
     publishedAt: (row.publishedAt ?? row.effectiveAt).toISOString(),
     contentSha256: row.contentSha256 ?? '',
+    requiresReacceptance: row.requiresReacceptance,
   };
 }
 
@@ -159,6 +167,32 @@ async function currentVersionOf(
     take: 2,
   });
   return pickCurrent(candidates, now)?.version ?? null;
+}
+
+/**
+ * Every version of a kind in force at `now`, NEWEST FIRST, one entry per
+ * version, in the order `currentVersionOf` would choose between them. A
+ * version asks for re-acceptance if any of its languages does - they are one
+ * document. Input for `acceptableVersions`.
+ */
+export async function inForceVersions(
+  kind: LegalDocumentKindName,
+  now: Date = new Date(),
+  client: PrismaTransaction | typeof prisma = prisma,
+): Promise<VersionRequirementRow[]> {
+  const rows = await client.legalDocument.findMany({
+    where: { kind, status: 'PUBLISHED', effectiveAt: { lte: now } },
+    orderBy: [{ effectiveAt: 'desc' }, { publishedAt: 'desc' }],
+    select: { version: true, requiresReacceptance: true },
+    take: 500,
+  });
+  const byVersion = new Map<string, VersionRequirementRow>();
+  for (const row of rows) {
+    const seen = byVersion.get(row.version);
+    if (seen === undefined) byVersion.set(row.version, { ...row });
+    else if (row.requiresReacceptance) seen.requiresReacceptance = true;
+  }
+  return [...byVersion.values()];
 }
 
 /**
@@ -323,12 +357,50 @@ export async function assertAcceptableTerms(input: {
     );
   }
 
+  const document = await assertCurrentDocument({
+    kind: input.kind,
+    documentId: input.documentId,
+    now,
+    client,
+    field: 'acceptedTerms',
+  });
+  return { ...document, kind: input.kind };
+}
+
+export interface CurrentDocumentRef {
+  id: string;
+  kind: LegalDocumentKindName;
+  version: string;
+  locale: string;
+  contentSha256: string;
+}
+
+/**
+ * Refuse unless `documentId` names a published document of `kind` whose
+ * version is the one in force now, in any language. What sign-up and the
+ * agreement screen both rely on: the browser points at a document, and the
+ * version, language and hash are read off the stored row.
+ *
+ * A document that was current when the dialog opened and has since been
+ * replaced is refused with TERMS_VERSION_OUTDATED, and the screen fetches the
+ * new one. Nothing is written by a refusal.
+ */
+export async function assertCurrentDocument(input: {
+  kind: LegalDocumentKindName;
+  documentId: string;
+  now?: Date;
+  client?: PrismaTransaction | typeof prisma;
+  field?: string;
+}): Promise<CurrentDocumentRef> {
+  const client = input.client ?? prisma;
+  const now = input.now ?? new Date();
+
   const current = await currentVersionOf(input.kind, now, client);
   if (current === null) throw termsUnavailable();
 
   const document = await client.legalDocument.findFirst({
     where: { id: input.documentId, kind: input.kind, status: 'PUBLISHED' },
-    select: { id: true, kind: true, version: true, locale: true, contentSha256: true, effectiveAt: true },
+    select: { id: true, version: true, locale: true, contentSha256: true, effectiveAt: true },
   });
 
   if (
@@ -339,8 +411,16 @@ export async function assertAcceptableTerms(input: {
   ) {
     throw conflict(
       ErrorCode.TERMS_VERSION_OUTDATED,
-      'The Terms and Conditions have changed. Read the current version and agree to it to continue.',
-      [{ field: 'acceptedTerms', code: 'TERMS_VERSION_OUTDATED', meta: { currentVersion: current } }],
+      input.kind === 'PRIVACY_POLICY'
+        ? 'The Privacy Policy has changed. Read the current version and acknowledge it to continue.'
+        : 'The Terms and Conditions have changed. Read the current version and agree to it to continue.',
+      [
+        {
+          field: input.field ?? 'documentId',
+          code: 'TERMS_VERSION_OUTDATED',
+          meta: { currentVersion: current, kind: input.kind },
+        },
+      ],
     );
   }
 
@@ -382,8 +462,11 @@ export async function recordTermsAcceptance(
       textVersion: terms.version,
       textHash: terms.contentSha256,
       legalDocumentId: terms.id,
+      activeDocumentId: terms.id,
       locale: terms.locale,
       acceptanceSource: input.source,
+      action: 'TERMS_ACCEPTED',
+      scope: terms.kind === 'LOGISTICS_PARTNER_TERMS' ? 'LOGISTICS' : 'BUYER',
     },
   });
 }
@@ -483,6 +566,7 @@ function toAdmin(row: AdminRow, acceptanceCount: number, currentVersion: string 
     body: row.body,
     changeSummary: row.changeSummary,
     effectiveAt: row.effectiveAt.toISOString(),
+    requiresReacceptance: row.requiresReacceptance,
     status: row.status,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     contentSha256: row.contentSha256,
@@ -545,6 +629,8 @@ export interface DraftInput {
   body: string;
   changeSummary?: string | null;
   effectiveAt: Date;
+  /** Whether people who accepted an earlier version must accept this one. Default true. */
+  requiresReacceptance?: boolean;
 }
 
 function validateDraft(input: DraftInput): DraftInput {
@@ -591,6 +677,7 @@ function validateDraft(input: DraftInput): DraftInput {
     body,
     changeSummary: changeSummary === '' ? null : changeSummary,
     effectiveAt: input.effectiveAt,
+    requiresReacceptance: input.requiresReacceptance ?? true,
   };
 }
 
@@ -630,6 +717,7 @@ export async function createDraft(input: DraftInput, actor: LegalActor): Promise
           body: draft.body,
           changeSummary: draft.changeSummary ?? null,
           effectiveAt: draft.effectiveAt,
+          requiresReacceptance: draft.requiresReacceptance ?? true,
           createdById: actor.userId,
         },
       });
@@ -681,6 +769,7 @@ export async function updateDraft(
           body: draft.body,
           changeSummary: draft.changeSummary ?? null,
           effectiveAt: draft.effectiveAt,
+          requiresReacceptance: draft.requiresReacceptance ?? true,
         },
       });
       if (changed.count !== 1) throw immutable();
@@ -760,6 +849,23 @@ export async function publishDraft(id: string, actor: LegalActor): Promise<Legal
     if (draft === null) throw notFound('Document');
     if (draft.status !== 'DRAFT') throw immutable();
 
+    // A blank left for a decision - "[[DECISION: registered legal name]]" -
+    // can never be published: nobody may be bound by a blank.
+    const placeholders = findLegalPlaceholders(`${draft.title}
+${draft.body}
+${draft.changeSummary ?? ''}`);
+    if (placeholders.length > 0) {
+      throw unprocessable(
+        ErrorCode.LEGAL_DOCUMENT_HAS_PLACEHOLDERS,
+        'This document still has blanks to fill in, written [[...]]. Replace each one before publishing.',
+        placeholders.slice(0, 50).map((placeholder) => ({
+          field: 'body',
+          code: 'LEGAL_DOCUMENT_HAS_PLACEHOLDERS',
+          meta: { placeholder },
+        })),
+      );
+    }
+
     const now = new Date();
     const effectiveAt = draft.effectiveAt.getTime() < now.getTime() ? now : draft.effectiveAt;
 
@@ -815,5 +921,6 @@ export async function publishDraft(id: string, actor: LegalActor): Promise<Legal
     );
   });
 
+  bumpLegalPublicationGeneration();
   return getLegalDocumentForAdmin(id);
 }

@@ -668,4 +668,46 @@ describe('module B: quantities, holds, reports and sub-lots', () => {
     // Staff cannot perform agency actions.
     expect((await asAudit(app, supervisor, 'POST', `/audit/agency/jobs/${jobId}/start`)).statusCode).toBe(403);
   });
+
+  it('rates each seller’s health on the Amazon scale, and lists the riskiest first', async () => {
+    const list = await asAudit(app, supervisor, 'GET', '/audit/sellers?sort=risk');
+    expect(list.statusCode, list.body).toBe(200);
+    type Row = { id: string; health: { score: number; band: string; bySeverity: Record<string, number>; passRatePercent: number | null } };
+    const rows = list.json<{ sellers: Row[] }>().sellers;
+    const sellerA = rows.find((row) => row.id === desk.sellerAId);
+    // Seller A's only signed report is INCONCLUSIVE, so its pass rate is 0%.
+    expect(sellerA?.health.passRatePercent).toBe(0);
+    for (const row of rows) expect(['HEALTHY', 'AT_RISK', 'UNHEALTHY']).toContain(row.health.band);
+    const scores = rows.map((row) => row.health.score);
+    expect(scores).toEqual([...scores].sort((a, b) => a - b));
+
+    const healthy = await asAudit(app, supervisor, 'GET', '/audit/sellers?health=HEALTHY');
+    expect(healthy.json<{ sellers: Row[] }>().sellers.every((row) => row.health.band === 'HEALTHY')).toBe(true);
+    expect((await asAudit(app, supervisor, 'GET', '/audit/sellers?health=SICK')).statusCode).toBe(400);
+
+    const detail = await asAudit(app, supervisor, 'GET', `/audit/sellers/${desk.sellerAId}`);
+    expect(detail.statusCode, detail.body).toBe(200);
+    const health = detail.json<{ health: { score: number; band: string; issues: { kind: string; severity: string; count: number }[]; inspection: { reports: number } } }>().health;
+    expect(health.score).toBe(sellerA?.health.score);
+    expect(health.inspection.reports).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows the audit team quality insights, and keeps them from agencies', async () => {
+    const insights = await asAudit(app, supervisor, 'GET', '/audit/insights');
+    expect(insights.statusCode, insights.body).toBe(200);
+    const body = insights.json<{
+      months: { month: string; pass: number; fail: number; inconclusive: number }[];
+      reports: { total: number; inconclusive: number };
+      suppliers: { worst: { sellerAccountId: string }[] };
+      agencies: { name: string; completed: number }[];
+      health: { sellers: number; bands: Record<string, number> } | null;
+    }>();
+    expect(body.months).toHaveLength(12);
+    expect(body.reports.inconclusive).toBeGreaterThanOrEqual(1);
+    expect(body.reports.total).toBe(body.months.reduce((sum, row) => sum + row.pass + row.fail + row.inconclusive, 0));
+    expect(body.suppliers.worst.map((row) => row.sellerAccountId)).toContain(desk.sellerAId);
+    expect(body.agencies.some((row) => row.name.startsWith(TAG) && row.completed >= 1)).toBe(true);
+    expect(body.health?.sellers).toBe(Object.values(body.health?.bands ?? {}).reduce((sum, count) => sum + count, 0));
+    expect((await asAudit(app, coordinator, 'GET', '/audit/insights')).statusCode).toBe(403);
+  });
 });

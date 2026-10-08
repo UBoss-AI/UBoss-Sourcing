@@ -51,6 +51,10 @@ const BASE: Available = {
     incrementBaseUnits: 100,
     maximumBaseUnits: null,
   },
+  productOptions: [
+    { option: 'OEM', status: 'NOT_OFFERED', unit: 'PIECE', quantity: null, minimumBaseUnits: null },
+    { option: 'ORIGINAL_BRAND', status: 'OFFERED', unit: 'PIECE', quantity: 10_000, minimumBaseUnits: 10_000 },
+  ],
   pricingMode: 'FIXED',
   tiers: [{ minBaseUnits: 10_000, unitPriceMinor: '9000' }],
   window: {
@@ -307,5 +311,100 @@ describe('the summary', () => {
     expect(screen.getByText('24,000 pieces')).toBeInTheDocument();
     expect(screen.getByText('15,000 pieces')).toBeInTheDocument();
     expect(screen.getByText('9,000 pieces')).toBeInTheDocument();
+  });
+});
+
+describe('OEM and Original Brand', () => {
+  const BOTH: Available = {
+    ...BASE,
+    moq: { ...BASE.moq, quantity: 10, minimumBaseUnits: 10, incrementQuantity: 1, incrementBaseUnits: 1 },
+    productOptions: [
+      { option: 'OEM', status: 'OFFERED', unit: 'PIECE', quantity: 500, minimumBaseUnits: 500 },
+      { option: 'ORIGINAL_BRAND', status: 'OFFERED', unit: 'PIECE', quantity: 10, minimumBaseUnits: 10 },
+    ],
+  };
+
+  async function chooseDate(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+    await user.click(screen.getByRole('button', { name: /Delivery wanted by/i }));
+    const cell = screen.getByRole('dialog', { name: /Delivery wanted by/i }).querySelector<HTMLElement>('[data-iso="2026-10-20"]');
+    if (cell === null) throw new Error('no day');
+    await user.click(cell);
+  }
+
+  it('asks for an explicit choice when both are offered, and sends nothing until then', async () => {
+    const user = userEvent.setup();
+    const previews = stub(BOTH);
+    open(BOTH);
+    const oem = screen.getByRole('radio', { name: /OEM/ });
+    const original = screen.getByRole('radio', { name: /Original Brand/ });
+    expect(oem).not.toBeChecked();
+    expect(original).not.toBeChecked();
+    expect(screen.getByText('Minimum 500 pieces')).toBeInTheDocument();
+    expect(screen.getByText('Minimum 10 pieces')).toBeInTheDocument();
+    expect(screen.getByText('Choose OEM or Original Brand to see the minimum that applies.')).toBeInTheDocument();
+    await chooseDate(user);
+    expect(previews).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Send preorder request' })).toBeDisabled();
+  });
+
+  it('judges 100 pieces valid for Original Brand and short for OEM, without changing the quantity', async () => {
+    const user = userEvent.setup();
+    const previews = stub(BOTH);
+    open(BOTH);
+    const quantity = screen.getByLabelText('How many');
+    await user.clear(quantity);
+    await user.type(quantity, '100');
+
+    await user.click(screen.getByRole('radio', { name: /Original Brand/ }));
+    expect(screen.getByText('Original Brand minimum: 10 pieces, then in steps of 1.')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).toBeNull();
+
+    await user.click(screen.getByRole('radio', { name: /OEM/ }));
+    expect(screen.getByText('OEM minimum: 500 pieces, then in steps of 1.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('This is below the OEM minimum of 500 pieces.');
+    // Switching options never rewrites what the buyer typed.
+    expect(quantity).toHaveValue('100');
+
+    await chooseDate(user);
+    await waitFor(() => {
+      expect(previews.at(-1)).toMatchObject({ productOption: 'OEM', unitQuantity: 100 });
+    });
+    // No minimum ever travels from the browser.
+    expect(previews.at(-1)).not.toHaveProperty('minimumBaseUnits');
+  });
+
+  it('shows a single offered option as already chosen, and the other as not offered', async () => {
+    const user = userEvent.setup();
+    const ONLY_OEM: Available = {
+      ...BOTH,
+      productOptions: [
+        { option: 'OEM', status: 'OFFERED', unit: 'PIECE', quantity: 500, minimumBaseUnits: 500 },
+        { option: 'ORIGINAL_BRAND', status: 'NOT_OFFERED', unit: 'PIECE', quantity: null, minimumBaseUnits: null },
+      ],
+    };
+    const previews = stub(ONLY_OEM);
+    open(ONLY_OEM);
+    expect(screen.queryByRole('radio')).toBeNull();
+    expect(screen.getByText('The only option this seller offers for this product.')).toBeInTheDocument();
+    expect(screen.getByText('OEM minimum: 500 pieces, then in steps of 1.')).toBeInTheDocument();
+    await chooseDate(user);
+    await waitFor(() => {
+      expect(previews.at(-1)).toMatchObject({ productOption: 'OEM' });
+    });
+  });
+
+  it('converts a carton minimum to pieces only through the real carton size', () => {
+    const CARTONS: Available = {
+      ...BOTH,
+      units: [...BASE.units, { unit: 'CARTON', baseUnits: 24 }],
+      productOptions: [
+        { option: 'OEM', status: 'OFFERED', unit: 'CARTON', quantity: 50, minimumBaseUnits: 1200 },
+        { option: 'ORIGINAL_BRAND', status: 'NOT_CONFIGURED', unit: 'CARTON', quantity: null, minimumBaseUnits: null },
+      ],
+    };
+    stub(CARTONS);
+    open(CARTONS);
+    expect(screen.getByText(/Minimum 50 cartons/)).toBeInTheDocument();
+    expect(screen.getByText('(1,200 pieces)')).toBeInTheDocument();
   });
 });

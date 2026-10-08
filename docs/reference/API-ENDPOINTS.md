@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1462 endpoints** in 133 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1498 endpoints** in 137 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -28,12 +28,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 572 |
-| [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Audit Console](#audit-console) | 77 |
-| [Seller Hub](#seller-hub) | 352 |
+| [Admin panel (staff)](#admin-panel-staff) | 580 |
+| [Logistics partner portal](#logistics-partner-portal) | 95 |
+| [Audit Console](#audit-console) | 91 |
+| [Seller Hub](#seller-hub) | 354 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 303 |
+| [Customer account](#customer-account) | 309 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -98,7 +98,7 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 
 ### `admin/auth`
 
-Defined in `backend/src/http/routes/auth.ts`.
+Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/agreements.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -115,6 +115,12 @@ Defined in `backend/src/http/routes/auth.ts`.
 | POST | `/api/v1/admin/auth/password/change` | Signed in | Authenticated(kind) | Change the signed-in person's password, given their current one. Signs the account out of every session, including this one, and writes an audit entry. |
 | POST | `/api/v1/admin/auth/password/forgot` | Public (admin sign-in) |  | Ask for a password-reset link. If an active account exists for the email address, a reset link is emailed to it; the reply is the same either way, so nobody can use it to find out who has an account. |
 | POST | `/api/v1/admin/auth/password/reset` | Public (admin sign-in) |  | Set a new password using the link from a "forgot password" email. Signs the account out everywhere and writes an audit entry; refused if the link has expired or was already used. |
+| GET | `/api/v1/admin/auth/agreements` | Staff | AdminBeforeAgreements | Whether this member of staff has accepted the staff terms and acknowledged the Privacy Policy in force. |
+| POST | `/api/v1/admin/auth/agreements/terms` | Staff | AdminBeforeAgreements | "I agree" in the staff terms dialog. |
+| POST | `/api/v1/admin/auth/agreements/privacy` | Staff | AdminBeforeAgreements | "I acknowledge" in the Privacy Policy dialog. |
+| DELETE | `/api/v1/admin/auth/agreements/terms` | Staff | AdminBeforeAgreements | Untick the staff terms box before Continue. |
+| DELETE | `/api/v1/admin/auth/agreements/privacy` | Staff | AdminBeforeAgreements | Untick the Privacy Policy box before Continue. |
+| GET | `/api/v1/admin/auth/agreements/history` | Staff | AdminBeforeAgreements | Every acceptance and acknowledgment this member of staff has given, newest first. |
 
 ### `admin/brand-requests`
 
@@ -978,7 +984,7 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 |---|---|---|---|---|
 | POST | `/api/v1/admin/seller-documents/:id/link` | Staff | Admin(CUSTOMER_READ) | A link to read one back. |
 | GET | `/api/v1/admin/seller-documents/:id/download` | Staff | Admin(CUSTOMER_READ) | Redeem it. |
-| POST | `/api/v1/admin/seller-documents/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Accept or refuse one. |
+| POST | `/api/v1/admin/seller-documents/:id/decision` | Staff | Admin(CUSTOMER_READ) | Refused: accepting or refusing an onboarding document is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY. |
 
 ### `admin/seller-factories`
 
@@ -1038,8 +1044,10 @@ Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/
 | GET | `/api/v1/admin/sellers/:id` | Staff | Admin(CUSTOMER_READ) | One seller application in full, including internal notes the seller never sees. |
 | GET | `/api/v1/admin/sellers/:id/insight` | Staff | Admin(CUSTOMER_READ) | How this seller is doing, and where its goods are. |
 | GET | `/api/v1/admin/sellers/:id/access-review` | Staff | Admin(CUSTOMER_READ) | Who can act for this seller, read-only: each member's role, when they joined, who invited them, when they last signed in and used the Hub, the open invitations and the recent access reviews. |
-| POST | `/api/v1/admin/sellers/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Decide an application. |
-| POST | `/api/v1/admin/sellers/:id/screening` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Record a manual restricted-party / sanctions screening of the seller business or one of its owners: which lists were checked, the result (CLEAR, POTENTIAL_MATCH or CONFIRMED_MATCH) and a note. Always recorded as a manual check by a member of staff, never as an automated one. The previous screening of the same subject is kept as history. Writes an audit entry; the seller is not told. |
+| POST | `/api/v1/admin/sellers/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Suspend a seller, or lift a suspension. Nothing else. |
+| POST | `/api/v1/admin/sellers/:id/screening` | Staff | Admin(CUSTOMER_READ) | Refused: recording a sanctions screening is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY. |
+| GET | `/api/v1/admin/sellers/:id/turnover` | Staff | Admin(CUSTOMER_READ) | The seller's declared annual turnover under the eligibility policy, every earlier declaration, the supporting documents and who verified what. Staff only. |
+| POST | `/api/v1/admin/sellers/:id/turnover/decision` | Staff | Admin(CUSTOMER_READ) | Refused: verifying turnover is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY. |
 | GET | `/api/v1/admin/sellers/:id/approval-readiness` | Staff | Admin(CUSTOMER_READ) | What approving this seller is still waiting for: unfinished required steps, required documents not accepted or expired, and missing or unclear screenings. Empty means the seller can be approved. |
 | PATCH | `/api/v1/admin/sellers/:id/commission` | Staff | Admin(SETTINGS_WRITE) | One seller's own commission rate. |
 | GET | `/api/v1/admin/sellers/:id/documents` | Staff | Admin(CUSTOMER_READ) | The current certificates and licences a seller has uploaded, with the review status of each. |
@@ -1161,7 +1169,7 @@ Defined in `backend/src/http/routes/logistics.portal.ts`.
 
 ### `logistics/auth`
 
-Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/logistics.portal.ts`.
+Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/agreements.ts`, `backend/src/http/routes/logistics.portal.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1175,6 +1183,12 @@ Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/logistics
 | POST | `/api/v1/logistics/auth/password/forgot` | Public (logistics sign-in) |  | Ask for a password-reset link. If an active account exists for the email address, a reset link is emailed to it; the reply is the same either way, so nobody can use it to find out who has an account. |
 | POST | `/api/v1/logistics/auth/password/reset` | Public (logistics sign-in) |  | Set a new password using the link from a "forgot password" email. Signs the account out everywhere and writes an audit entry; refused if the link has expired or was already used. |
 | POST | `/api/v1/logistics/auth/invitations/accept` | Public (logistics sign-in) |  | Accept an emailed invitation to the logistics portal: the person chooses their own password and their carrier account becomes active. Refused if the link has expired, was already used, or was issued for another part of the system. |
+| GET | `/api/v1/logistics/auth/agreements` | Logistics | LogisticsBeforeAgreements | Whether this carrier staff member has accepted the Logistics Partner Terms and acknowledged the Privacy Policy in force. |
+| POST | `/api/v1/logistics/auth/agreements/terms` | Logistics | LogisticsBeforeAgreements | "I agree" in the Logistics Partner Terms dialog. |
+| POST | `/api/v1/logistics/auth/agreements/privacy` | Logistics | LogisticsBeforeAgreements | "I acknowledge" in the Privacy Policy dialog. |
+| DELETE | `/api/v1/logistics/auth/agreements/terms` | Logistics | LogisticsBeforeAgreements | Untick the Logistics Partner Terms box before Continue. |
+| DELETE | `/api/v1/logistics/auth/agreements/privacy` | Logistics | LogisticsBeforeAgreements | Untick the Privacy Policy box before Continue. |
+| GET | `/api/v1/logistics/auth/agreements/history` | Logistics | LogisticsBeforeAgreements | Every acceptance and acknowledgment this person has given, newest first. |
 | GET | `/api/v1/logistics/auth/me` | Logistics | LogisticsSession | Everything the portal needs to boot. |
 | POST | `/api/v1/logistics/auth/mfa/setup` | Logistics | LogisticsSession | Start setting up two-step sign-in: returns a new secret for an authenticator app and a set of recovery codes, shown this once only. Replaces any earlier secret and codes. Writes an audit entry. |
 | POST | `/api/v1/logistics/auth/mfa/verify` | Logistics | LogisticsSession | Check a two-step sign-in code: either to finish setting it up, or to pass this session's challenge. A recovery code also works for a challenge and is used up. On success this session counts as verified. |
@@ -1362,14 +1376,14 @@ Defined in `backend/src/http/routes/support.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/logistics/support/context` | Logistics | Logistics | What the portal's Support page needs: whether it takes requests, the contacts and the prefill. |
-| POST | `/api/v1/logistics/support/tickets` | Logistics | Logistics | Send a support request from the logistics portal. Needs an Idempotency-Key. |
-| GET | `/api/v1/logistics/support/tickets` | Logistics | Logistics | Your own support requests sent from the portal for this company. |
-| GET | `/api/v1/logistics/support/tickets/:reference` | Logistics | Logistics | One of your portal support requests and its thread. |
-| POST | `/api/v1/logistics/support/tickets/:reference/messages` | Logistics | Logistics | Write again on one of your portal requests. Needs an Idempotency-Key. |
-| POST | `/api/v1/logistics/support/tickets/:reference/attachments` | Logistics | Logistics | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
-| POST | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/link` | Logistics | Logistics | A download link for one file on your ticket: five minutes, single use, this session only. |
-| GET | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/download` | Logistics | Logistics | Redeem a download link. Served as a download, never inline. |
+| GET | `/api/v1/logistics/support/context` | Logistics | LogisticsBeforeAgreements | What the portal's Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/logistics/support/tickets` | Logistics | LogisticsBeforeAgreements | Send a support request from the logistics portal. Needs an Idempotency-Key. |
+| GET | `/api/v1/logistics/support/tickets` | Logistics | LogisticsBeforeAgreements | Your own support requests sent from the portal for this company. |
+| GET | `/api/v1/logistics/support/tickets/:reference` | Logistics | LogisticsBeforeAgreements | One of your portal support requests and its thread. |
+| POST | `/api/v1/logistics/support/tickets/:reference/messages` | Logistics | LogisticsBeforeAgreements | Write again on one of your portal requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/logistics/support/tickets/:reference/attachments` | Logistics | LogisticsBeforeAgreements | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/link` | Logistics | LogisticsBeforeAgreements | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/download` | Logistics | LogisticsBeforeAgreements | Redeem a download link. Served as a download, never inline. |
 
 ### `logistics/vehicles`
 
@@ -1408,7 +1422,7 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 ### `audit/auth`
 
-Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/audit.console.ts`.
+Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/agreements.ts`, `backend/src/http/routes/audit.console.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1422,6 +1436,12 @@ Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/audit.con
 | POST | `/api/v1/audit/auth/password/forgot` | Public (audit sign-in) |  | Ask for a password-reset link. If an active account exists for the email address, a reset link is emailed to it; the reply is the same either way, so nobody can use it to find out who has an account. |
 | POST | `/api/v1/audit/auth/password/reset` | Public (audit sign-in) |  | Set a new password using the link from a "forgot password" email. Signs the account out everywhere and writes an audit entry; refused if the link has expired or was already used. |
 | POST | `/api/v1/audit/auth/invitations/accept` | Public (audit sign-in) |  | Accept an emailed invitation to the Audit Console: the person chooses their own password and their console membership becomes active. They set up two-step sign-in at their first sign-in. |
+| GET | `/api/v1/audit/auth/agreements` | Audit | AuditBeforeAgreements | Whether this Audit Console user has accepted the console terms and acknowledged the Privacy Policy in force. |
+| POST | `/api/v1/audit/auth/agreements/terms` | Audit | AuditBeforeAgreements | "I agree" in the Audit Console terms dialog. |
+| POST | `/api/v1/audit/auth/agreements/privacy` | Audit | AuditBeforeAgreements | "I acknowledge" in the Privacy Policy dialog. |
+| DELETE | `/api/v1/audit/auth/agreements/terms` | Audit | AuditBeforeAgreements | Untick the Audit Console terms box before Continue. |
+| DELETE | `/api/v1/audit/auth/agreements/privacy` | Audit | AuditBeforeAgreements | Untick the Privacy Policy box before Continue. |
+| GET | `/api/v1/audit/auth/agreements/history` | Audit | AuditBeforeAgreements | Every acceptance and acknowledgment this person has given, newest first. |
 | GET | `/api/v1/audit/auth/me` | Audit | AuditSession | Everything the console needs to start: the person, their membership and permissions, and their second factor. |
 | POST | `/api/v1/audit/auth/mfa/setup` | Audit | AuditSession | Start setting up two-step sign-in: a secret for an authenticator app and recovery codes, shown this once. |
 | POST | `/api/v1/audit/auth/mfa/verify` | Audit | AuditSession | Check a two-step code: to finish setting it up, or to pass this session's challenge. |
@@ -1498,6 +1518,14 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/audit/evidence/:id` | Public |  | One evidence file, for those who may read its job. Every read is audited. |
 
+### `audit/insights`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/insights` | Audit | Audit(JOB_OVERSEE) | Quality insights: pass/fail by month, defects, top findings, best and worst suppliers, agency performance. |
+
 ### `audit/jobs`
 
 Defined in `backend/src/http/routes/audit.console.ts`.
@@ -1553,13 +1581,27 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 | POST | `/api/v1/audit/rules/:id/revise` | Audit | Audit(RULE_DRAFT) | Draft a new version of a rule. |
 | POST | `/api/v1/audit/rules/:id/retire` | Audit | Audit(RULE_APPROVE) | Withdraw a rule, with the reason. |
 
+### `audit/seller-verification`
+
+Defined in `backend/src/http/routes/audit.console.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/seller-verification` | Audit | Audit(SELLER_READ) | Seller applications a page at a time, oldest submission first, with a count per status. resubmitted=true is the queue of applications sent back after corrections. |
+| GET | `/api/v1/audit/seller-verification/:id` | Audit | Audit(SELLER_READ) | One application in full: business details, documents, ownership and screenings, turnover, what approval is still waiting for, and the verification history with who decided each step. |
+| POST | `/api/v1/audit/seller-verification/:id/decision` | Audit | Audit(SELLER_VERIFY) | Decide an application: take it for review, ask for corrections, approve or reject. A reason the seller sees is required to ask for corrections or reject; the version read is required so a decision made meanwhile is never overwritten. Approval still runs the evidence gate. |
+| POST | `/api/v1/audit/seller-verification/:id/screening` | Audit | Audit(SELLER_VERIFY) | Record a manual sanctions / restricted-party screening of the business or one owner: which lists were checked, the result and a note. Always recorded as a person's check, never an automated one. |
+| POST | `/api/v1/audit/seller-verification/:id/turnover/decision` | Audit | Audit(SELLER_VERIFY) | Verify or refuse the seller's current turnover declaration, with a reason the seller sees. Refused when the seller changed it, or another reviewer decided it, since it was loaded. Never approves the seller. |
+| GET | `/api/v1/audit/seller-verification/documents/:id/file` | Audit | Audit(SELLER_READ) | One onboarding document's file, as an attachment. Scanned files only; every read is audited. |
+| POST | `/api/v1/audit/seller-verification/documents/:id/decision` | Audit | Audit(SELLER_VERIFY) | Accept or refuse one onboarding document. A refusal needs a reason the seller sees; a document decided by somebody else meanwhile is refused with SELLER_STALE_VERSION. |
+
 ### `audit/sellers`
 
 Defined in `backend/src/http/routes/audit.console.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/audit/sellers` | Audit | Audit(SELLER_READ) | Sellers, with their qualification and document counts. |
+| GET | `/api/v1/audit/sellers` | Audit | Audit(SELLER_READ) | Sellers, with their qualification and document counts and their health rating; filter by band, sort by risk. |
 | GET | `/api/v1/audit/sellers/:id` | Audit | Audit(SELLER_READ) | One seller: business identity (read-only), category qualifications, product cases and documents - kept apart. |
 
 ### `audit/sublot-releases`
@@ -2317,14 +2359,14 @@ Defined in `backend/src/http/routes/support.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/seller/support/context` | Seller | Seller | What the Seller Hub Support page needs: whether it takes requests, the contacts and the prefill. |
-| POST | `/api/v1/seller/support/tickets` | Seller | Seller | Send a support request from Seller Hub. Needs an Idempotency-Key. |
-| GET | `/api/v1/seller/support/tickets` | Seller | Seller | Your own support requests sent from this seller's Hub. |
-| GET | `/api/v1/seller/support/tickets/:reference` | Seller | Seller | One of your Seller Hub support requests and its thread. |
-| POST | `/api/v1/seller/support/tickets/:reference/messages` | Seller | Seller | Write again on one of your Seller Hub requests. Needs an Idempotency-Key. |
-| POST | `/api/v1/seller/support/tickets/:reference/attachments` | Seller | Seller | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
-| POST | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/link` | Seller | Seller | A download link for one file on your ticket: five minutes, single use, this session only. |
-| GET | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/download` | Seller | Seller | Redeem a download link. Served as a download, never inline. |
+| GET | `/api/v1/seller/support/context` | Seller | SellerBeforeAgreements | What the Seller Hub Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/seller/support/tickets` | Seller | SellerBeforeAgreements | Send a support request from Seller Hub. Needs an Idempotency-Key. |
+| GET | `/api/v1/seller/support/tickets` | Seller | SellerBeforeAgreements | Your own support requests sent from this seller's Hub. |
+| GET | `/api/v1/seller/support/tickets/:reference` | Seller | SellerBeforeAgreements | One of your Seller Hub support requests and its thread. |
+| POST | `/api/v1/seller/support/tickets/:reference/messages` | Seller | SellerBeforeAgreements | Write again on one of your Seller Hub requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/seller/support/tickets/:reference/attachments` | Seller | SellerBeforeAgreements | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/link` | Seller | SellerBeforeAgreements | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/download` | Seller | SellerBeforeAgreements | Redeem a download link. Served as a download, never inline. |
 
 ### `seller/team`
 
@@ -2341,6 +2383,15 @@ Defined in `backend/src/http/routes/seller.shipment-paperwork.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/trade-documents/versions/:id/file` | Seller | Seller(ORDER_READ) | Download the file of one version of the seller's own trade document. |
+
+### `seller/turnover`
+
+Defined in `backend/src/http/routes/seller.account.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/turnover` | Seller | Seller + Seller(ACCOUNT_WRITE) | The seller turnover eligibility policy and this seller's current declaration: amount, financial year, policy version, whether it exceeds the minimum and whether the marketplace has verified it. Owners and administrators only - it is business financial data. |
+| PUT | `/api/v1/seller/turnover` | Seller | Seller + Seller(ACCOUNT_WRITE) | Declare or correct the annual turnover. Saved even at or below the minimum, so nothing typed is lost, but the business details step stays unfinished and submission is refused. Changing the amount or the year sends it back for verification. Refused once the application is under review. Writes an audit entry without the figure. |
 
 ### `sellers`
 
@@ -2473,8 +2524,8 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/account/data-requests` | Customer | Customer | The signed-in customer’s data subject requests |
-| POST | `/api/v1/account/data-requests` | Customer | Customer | Exercise a data subject right |
+| GET | `/api/v1/account/data-requests` | Customer | CustomerBeforeAgreements | The signed-in customer’s data subject requests |
+| POST | `/api/v1/account/data-requests` | Customer | CustomerBeforeAgreements | Exercise a data subject right |
 
 ### `account/deactivate`
 
@@ -2719,7 +2770,7 @@ Defined in `backend/src/http/routes/assistant.public.ts`.
 
 ### `auth`
 
-Defined in `backend/src/http/routes/auth.ts`.
+Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/agreements.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -2731,6 +2782,12 @@ Defined in `backend/src/http/routes/auth.ts`.
 | POST | `/api/v1/auth/password/change` | Signed in | Authenticated(kind) | Change the signed-in person's password, given their current one. Signs the account out of every session, including this one, and writes an audit entry. |
 | GET | `/api/v1/auth/buyer-context` | Signed in | Authenticated(kind) | The buyer this session is acting as, and every company it may switch to. |
 | PUT | `/api/v1/auth/buyer-context` | Signed in | Authenticated(kind) | Switch between buying for yourself and for one of your companies. Refused, with one answer for every reason, for a company you are not an active member of. |
+| GET | `/api/v1/auth/agreements` | Customer | CustomerBeforeAgreements | Whether this buyer (or, with scope=SELLER, this seller) has accepted the Terms and acknowledged the Privacy Policy in force, with both documents to read. |
+| POST | `/api/v1/auth/agreements/terms` | Customer | CustomerBeforeAgreements | "I agree" in the Terms dialog: records acceptance of the named Terms in force. Never acknowledges the Privacy Policy. |
+| POST | `/api/v1/auth/agreements/privacy` | Customer | CustomerBeforeAgreements | "I acknowledge" in the Privacy Policy dialog: records the acknowledgment of the notice in force. Never accepts the Terms and consents to nothing optional. |
+| DELETE | `/api/v1/auth/agreements/terms` | Customer | CustomerBeforeAgreements | Untick the Terms box before Continue. The record is kept, marked cleared, and the screen asks again. |
+| DELETE | `/api/v1/auth/agreements/privacy` | Customer | CustomerBeforeAgreements | Untick the Privacy Policy box before Continue. Withdraws no consent; the record is kept, marked cleared. |
+| GET | `/api/v1/auth/agreements/history` | Customer | CustomerBeforeAgreements | Every Terms acceptance and privacy-notice acknowledgment this person has given, newest first, for their account page. |
 
 ### `buyer-companies`
 
@@ -3018,14 +3075,14 @@ Defined in `backend/src/http/routes/support.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/support/context` | Customer | Customer | What the Support page needs: whether it takes requests, the contacts and the prefill. |
-| POST | `/api/v1/support/tickets` | Customer | Customer | Send a support request. Needs an Idempotency-Key. |
-| GET | `/api/v1/support/tickets` | Customer | Customer | Your own support requests sent from the storefront, most recently active first. |
-| GET | `/api/v1/support/tickets/:reference` | Customer | Customer | One of your support requests and its thread. Somebody else's answers "not found". |
-| POST | `/api/v1/support/tickets/:reference/messages` | Customer | Customer | Write again on one of your requests. Needs an Idempotency-Key. |
-| POST | `/api/v1/support/tickets/:reference/attachments` | Customer | Customer | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
-| POST | `/api/v1/support/tickets/:reference/attachments/:attachmentId/link` | Customer | Customer | A download link for one file on your ticket: five minutes, single use, this session only. |
-| GET | `/api/v1/support/tickets/:reference/attachments/:attachmentId/download` | Customer | Customer | Redeem a download link. Served as a download, never inline. |
+| GET | `/api/v1/support/context` | Customer | CustomerBeforeAgreements | What the Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/support/tickets` | Customer | CustomerBeforeAgreements | Send a support request. Needs an Idempotency-Key. |
+| GET | `/api/v1/support/tickets` | Customer | CustomerBeforeAgreements | Your own support requests sent from the storefront, most recently active first. |
+| GET | `/api/v1/support/tickets/:reference` | Customer | CustomerBeforeAgreements | One of your support requests and its thread. Somebody else's answers "not found". |
+| POST | `/api/v1/support/tickets/:reference/messages` | Customer | CustomerBeforeAgreements | Write again on one of your requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/support/tickets/:reference/attachments` | Customer | CustomerBeforeAgreements | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/support/tickets/:reference/attachments/:attachmentId/link` | Customer | CustomerBeforeAgreements | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/support/tickets/:reference/attachments/:attachmentId/download` | Customer | CustomerBeforeAgreements | Redeem a download link. Served as a download, never inline. |
 
 ## Public and storefront
 

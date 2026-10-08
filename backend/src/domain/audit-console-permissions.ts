@@ -31,6 +31,11 @@ export const AuditPermission = {
   SELLER_READ: 'audit.seller.read',
   /// Decide compliance documents and qualification/product cases.
   CASE_REVIEW: 'audit.case.review',
+  /// Decide seller onboarding applications: take one for review, ask for
+  /// corrections, approve or reject it, accept or refuse its documents and
+  /// turnover, and record a manual screening. The Audit Team owns this; the
+  /// Admin Panel only reads it. Never granted to an inspection agency.
+  SELLER_VERIFY: 'audit.seller.verify',
   /// Documents and their expiry.
   DOCUMENT_READ: 'audit.document.read',
   RULE_READ: 'audit.rule.read',
@@ -59,7 +64,8 @@ export type AuditRoleName = AuditStaffRoleName | InspectionAgencyRoleName;
 const A = AuditPermission;
 
 /**
- * Staff grants. A reviewer decides cases and drafts rules; only a supervisor
+ * Staff grants. A reviewer decides cases and seller applications and drafts
+ * rules (agency members never verify sellers); only a supervisor
  * approves a rule, manages checklists or asks for a sub-lot release - and the
  * services refuse a supervisor approving their own draft.
  */
@@ -68,6 +74,7 @@ export const AUDIT_STAFF_ROLES: Readonly<Record<AuditStaffRoleName, readonly Aud
     A.DASHBOARD_READ,
     A.SELLER_READ,
     A.CASE_REVIEW,
+    A.SELLER_VERIFY,
     A.DOCUMENT_READ,
     A.RULE_READ,
     A.RULE_DRAFT,
@@ -81,6 +88,7 @@ export const AUDIT_STAFF_ROLES: Readonly<Record<AuditStaffRoleName, readonly Aud
     A.DASHBOARD_READ,
     A.SELLER_READ,
     A.CASE_REVIEW,
+    A.SELLER_VERIFY,
     A.DOCUMENT_READ,
     A.RULE_READ,
     A.RULE_DRAFT,

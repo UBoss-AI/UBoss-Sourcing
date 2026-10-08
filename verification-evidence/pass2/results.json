@@ -1,0 +1,135 @@
+{
+ "ranAt": "2026-09-29T03:00:04.275Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "navW": 240,
+    "navSW": 240,
+    "formW": 236,
+    "links": [
+     "Home:78",
+     "AI Assistant:194",
+     "Products:269"
+    ]
+   },
+   "darkClass": "|",
+   "page": "tabs",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "tabs-320.png"
+  },
+  {
+   "afterResult": {
+    "navW": 280,
+    "navSW": 280,
+    "formW": 276,
+    "links": [
+     "Home:84",
+     "AI Assistant:219",
+     "Products:310"
+    ]
+   },
+   "darkClass": "|",
+   "page": "tabs",
+   "path": "/",
+   "w": 360,
+   "finalPath": "/",
+   "cw": 360,
+   "sw": 360,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "tabs-360.png"
+  },
+  {
+   "afterResult": {
+    "navW": 295,
+    "navSW": 295,
+    "formW": 291,
+    "links": [
+     "Home:84",
+     "AI Assistant:219",
+     "Products:310"
+    ]
+   },
+   "darkClass": "|",
+   "page": "tabs",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "tabs-375.png"
+  },
+  {
+   "afterResult": {
+    "navW": 656,
+    "navSW": 656,
+    "formW": 652,
+    "links": [
+     "Home:111",
+     "AI Assistant:284",
+     "Products:407"
+    ]
+   },
+   "darkClass": "|",
+   "page": "tabs",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "tabs-768.png"
+  }
+ ]
+}

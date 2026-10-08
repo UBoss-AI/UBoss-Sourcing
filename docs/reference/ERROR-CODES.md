@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**546 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**554 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -43,7 +43,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Auto-pay](#auto-pay) | 15 |
 | [Data protection](#data-protection) | 6 |
 | [A buyer's own ERP, and the organisation that owns it](#a-buyer-s-own-erp-and-the-organisation-that-owns-it) | 26 |
-| [Seller Hub](#seller-hub) | 46 |
+| [Seller Hub](#seller-hub) | 49 |
 | [Logistics partner portal](#logistics-partner-portal) | 23 |
 | [How a seller's own goods get delivered](#how-a-seller-s-own-goods-get-delivered) | 15 |
 | [Console notifications](#console-notifications) | 2 |
@@ -52,13 +52,13 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [A seller's own accounting system (TallyPrime)](#a-seller-s-own-accounting-system-tallyprime) | 13 |
 | [The four delivery levels (L1-L4)](#the-four-delivery-levels-l1-l4) | 18 |
 | [Platform fee](#platform-fee) | 5 |
-| [Bulk preorders](#bulk-preorders) | 20 |
+| [Bulk preorders](#bulk-preorders) | 22 |
 | [Preorder chat](#preorder-chat) | 10 |
 | [Support tickets](#support-tickets) | 8 |
 | [Disputes, claims and chargebacks](#disputes-claims-and-chargebacks) | 9 |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | 7 |
 | [Seller commission invoices](#seller-commission-invoices) | 8 |
-| [Terms and Conditions](#terms-and-conditions) | 5 |
+| [Terms and Conditions](#terms-and-conditions) | 8 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
 | [Buyer companies](#buyer-companies) | 18 |
 | [Product reviews](#product-reviews) | 3 |
@@ -405,7 +405,10 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SELLER_ONBOARDING_INCOMPLETE` | Submission was refused because required onboarding steps are unfinished. `details` carries one entry per missing step, keyed to the step so the interface can link straight to it. |
 | `SELLER_RESUBMISSION_NOT_ALLOWED` | A rejected application whose operator closed resubmission. |
 | `SELLER_APPROVAL_EVIDENCE_MISSING` | Approval refused: the evidence a reviewer needs is not all there yet. A required onboarding step is unfinished, a required document is not accepted or has expired, or (with SELLER_REQUIRE_SCREENING) the business or one of its owners has no current CLEAR screening. `details` carries one entry per missing item: `STEP_INCOMPLETE` (field = step key), `DOCUMENT_NOT_APPROVED` / `DOCUMENT_EXPIRED` (field = requirement key), `SCREENING_REQUIRED` / `SCREENING_NOT_CLEAR` (field = `entity` or the owner… |
+| `SELLER_TURNOVER_NOT_ELIGIBLE` | The seller turnover eligibility policy (SELLER_TURNOVER_*) refused an application or its submission: no turnover is declared, it does not EXCEED the minimum, or its financial year is no longer the most recently completed one. `details` carries one entry with `code` NOT_DECLARED, BELOW_MINIMUM or OUT_OF_DATE and `meta` naming the minimum and currency. The marketplace's own policy, never presented as a legal requirement. |
 | `SELLER_STALE_VERSION` | Somebody else saved this application, listing or offer since it was loaded. The client reloads and shows what changed rather than overwriting it. |
+| `SELLER_VERIFICATION_AUDIT_ONLY` | Seller onboarding verification is decided in the Audit Console. The Admin Panel reads applications but cannot take one for review, ask for corrections, approve, reject, decide a document or turnover, or record a screening - by any route, bulk action or pending-action approval. 403. |
+| `SELLER_VERIFICATION_NOT_INDEPENDENT` | The Audit Console reviewer is connected to this seller (their email is one of its members or its representative), so somebody independent has to decide it. 403. |
 | `SELLER_LAST_OWNER` | The last owner cannot be removed or demoted. An organisation with no owner has nobody who can invite one. |
 | `SELLER_INVITATION_INVALID` | The invitation is expired, already accepted, revoked, or addressed to a different email than the one signed in. |
 | `SELLER_MEMBERSHIP_EXISTS` | This account already belongs to a seller organisation. One profile, one seller - see `SellerMember`. |
@@ -585,6 +588,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `PREORDER_ACKNOWLEDGEMENT_REQUIRED` | The buyer has not acknowledged the current version of the bulk preorder information (minimum quantity, seller confirmation, nothing charged yet). The storefront shows the note again. meta.policyVersion. |
 | `PREORDER_INFO_OUTDATED` | The acknowledgement named a version of the information that is not the current one - the page was open while the operator changed it. Reload and read it again. meta.policyVersion is the current version. |
 | `PREORDER_CONTAINER_NOT_CONFIGURED` | A 20-ft or 40-ft container was asked for, and the seller has not configured and verified how many pieces of this product fit in one. Pieces are still available. meta.unit. |
+| `PREORDER_PRODUCT_OPTION_REQUIRED` | The seller offers both OEM and Original Brand preorders, with different minimums, and the request did not say which it is for. meta.offered. |
+| `PREORDER_PRODUCT_OPTION_NOT_OFFERED` | The request named OEM or Original Brand and the seller does not offer preorders of that kind for this product. meta.productOption, meta.offered. |
 | `PREORDER_PROPOSAL_INVALID` | A revised-date or split-delivery proposal does not hold together - the shipments do not add up, a date is not later than the one before, the first shipment is more than is available now. `details` lists each problem with its field and code. |
 | `PREORDER_STOCK_CHANGED` | The buyer accepted, and the stock the seller's proposal was built on is no longer there. Nothing was reserved or charged; the proposal is withdrawn and the seller has been asked for a new one. meta.availableToPromise, meta.required. |
 | `CONTAINER_LOADING_INVALID` | A seller's container loading is impossible or unsafe - heavier than the container's configured payload, larger than its volume, or missing a figure. `details` lists each problem with its field and code. |
@@ -665,6 +670,9 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `TERMS_DOCUMENT_UNAVAILABLE` | No Terms and Conditions are published for this kind of account, so no account can be created or activated. The operator must publish them in the admin console. 503. |
 | `LEGAL_DOCUMENT_IMMUTABLE` | A published legal document never changes. Publish a new version instead. |
 | `LEGAL_DOCUMENT_VERSION_EXISTS` | A document with this kind, version and language already exists. |
+| `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` | The document still contains a blank left for a decision, written `[[...]]`, and cannot be published until it is filled in. details[].meta.placeholder names each one. 422. |
+| `AGREEMENTS_REQUIRED` | Signed in, but the Terms for this kind of account have not been accepted or the Privacy Policy has not been acknowledged, in a version still in force. Everything but signing out, the agreement screen, reading the documents, support and privacy requests is refused until both are done. details[].meta.kind names each missing document. 403. |
+| `AGREEMENT_DOCUMENT_NOT_APPLICABLE` | The document named is not one this account is asked to accept or acknowledge on this screen. 400. |
 
 ## Quantity price bands
 

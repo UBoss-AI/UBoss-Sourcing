@@ -1,0 +1,4 @@
+{ "base": "http://localhost:5174", "widths": [320, 340, 360, 375, 400], "focusWidth": 0,
+  "pages": [
+    { "name": "brand-before", "path": "/", "after": "(() => { const a = document.querySelector('header a[href=\"/\"]'); const s = a && a.querySelector('.brand-wordmark'); return { text: s && s.textContent, sw: s && s.scrollWidth, cw: s && s.clientWidth, ctrls: [...document.querySelectorAll('header .ml-auto > *')].map(e => Math.round(e.getBoundingClientRect().width)) }; })()" }
+  ] }

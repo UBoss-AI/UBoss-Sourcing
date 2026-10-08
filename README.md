@@ -32,7 +32,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Development sign-ins](#development-sign-ins) | Seeded accounts for each surface |
 | [What each surface does](#what-each-surface-does) | Storefront, Seller Hub, console, carrier portal |
 | [Role dashboards](#role-dashboards) | The ring, the figures and the AI panel each role opens on |
-| [Configuration](#configuration) | Environment, origins, sign-in location, self-registration, buyer companies, product reviews, support tickets |
+| [Configuration](#configuration) | Environment, origins, sign-in location, the agreement screen after sign-in, self-registration, buyer companies, product reviews, support tickets |
 | [Markets, currencies and prices](#markets-currencies-and-prices) | Opening a market, and keeping converted prices current |
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
 | [Languages](#languages) | Eight languages, and how to add or translate one |
@@ -370,13 +370,12 @@ production, because their passwords are printed to a log.
 | `carrier.driver@uboss.local` | `DriverDev!2026` | Sees only their own round |
 
 The storefront is browsable without signing in; the sign-in wall sits at the
-cart, which is where the backend puts it. On the admin sign-in page, tick the
-Terms checkbox — and allow the browser's location prompt, or the session will
-not finish (see [Configuration](#configuration)). Once the operator publishes
-**Staff terms** in **Administration → Legal documents**, that box opens them
-in the same read-to-the-end dialog the storefront uses, and only **I agree**
-ticks it; with none published it stays a plain tick box. Either way it is
-asked on every sign-in and nothing is recorded.
+cart, which is where the backend puts it. On the admin sign-in page, allow the
+browser's location prompt, or the session will not finish (see
+[Configuration](#configuration)). No sign-in page asks for a terms tick any
+more: the Terms and the Privacy Policy are accepted once, on the agreement
+screen after signing in, and recorded (see
+[The agreement screen after sign-in](#the-agreement-screen-after-sign-in)).
 
 **Then every staff account meets the second factor.** The first time one
 reaches it the console shows a **QR code** — scan it with any authenticator
@@ -577,9 +576,43 @@ Optionally the customer's own ERP can collect orders and post back receipts.
 
 Always available — there is no switch that hides it. "Become a seller" is
 offered on the marketplace's own domain (never on a seller's own shop front),
-but nothing is sold until staff approve: a business applies, is reviewed and
-approved, and only then has its own console inside the storefront: listings,
-offers, stock, orders to pack, shipments, returns and settlements.
+but nothing is sold until the business is verified: it applies, the **Audit
+Team** reviews and approves it in the Audit Console, and only then does it have
+its own console inside the storefront: listings, offers, stock, orders to pack,
+shipments, returns and settlements.
+
+**The Audit Team verifies sellers; the Admin Panel only reads it.** Reviewing an
+application, asking for corrections, accepting or refusing its documents,
+verifying turnover, recording screenings, approving and rejecting are done in
+the Audit Console's **Seller verification** queue (audit Supervisor and
+Compliance reviewer). The Admin Panel's **Sellers** screens show every
+application, its documents, the decisions with who made them and the history,
+marked "Read-only — seller verification is managed by the Audit Team", and keep
+only **Suspend** and **Lift suspension**. The server refuses every other
+verification change from the Admin Panel, whatever the role. This needs
+`FEATURE_AUDIT_CONSOLE=true` and at least one invited audit reviewer — see
+[Going live](#going-live) step 22. Sellers see "Awaiting verification" and
+"Under Audit Team review".
+
+**Only a business above a turnover minimum may apply.** This is the
+marketplace's own rule, not a legal one, and it is a setting. By default the
+annual turnover for the most recently completed financial year must be **more
+than** ₹30 crore (INR 300 million); exactly ₹30 crore is not enough. The
+**Seller eligibility** card on `/sell` and at the top of the Business identity
+step asks for the year, the figure (in crore or rupees, converted exactly) and
+a ticked declaration, and keeps the application closed until the figure is
+eligible. The server checks the same rule when somebody applies, submits and is
+approved. The Audit Team verifies the figure, with a reason the seller sees and
+any supporting document, on the **Annual turnover** card of the seller's
+verification page in the Audit Console (read-only in the Admin Panel).
+A declaration never approves anybody; approval needs a verified one. Changing
+the figure or the evidence sends it back for review. Sellers approved before
+the rule are not asked for it; applying it to them is not built and is the
+operator's decision. Settings: `SELLER_TURNOVER_REQUIRED` (default `true`),
+`SELLER_TURNOVER_MIN_MINOR` (default `30000000000`, paise),
+`SELLER_TURNOVER_CURRENCY` (`INR`), `SELLER_TURNOVER_POLICY_VERSION`
+(`2026-10`; change it with the minimum or wording) and
+`SELLER_TURNOVER_FY_START_MONTH` (`4`, April).
 
 **Home is one workspace.** Besides sales, orders and payouts it lists requests
 for quotation waiting for a quote, inspections waiting for the lot, open
@@ -923,7 +956,7 @@ It needs `support_ticket.view`, and answering needs `support_ticket.reply`. See
 [Support tickets](#support-tickets).
 
 **Two people for the critical decisions.** Deactivating a customer, suspending
-or refusing a seller and suspending a buyer company each need a reason and,
+a seller and suspending a buyer company each need a reason and,
 with the database feature flag `critical_action_approval` on (the default),
 a **second member of staff** to approve before anything happens: the request
 waits on the record's page and on **Exception queues**, and the person who
@@ -1617,6 +1650,36 @@ in `GET /api/v1/config`.
 </details>
 
 ---
+
+### The agreement screen after sign-in
+
+Every signed-in person - buyer, seller, carrier staff, operator staff and Audit
+Console user - must accept the Terms for their kind of account and acknowledge
+the Privacy Policy before the application answers them. The screen shows two
+separate boxes: "I agree to the Terms & Conditions." and "I acknowledge that I
+have read the Privacy Policy." Clicking a box or a document's name opens the
+document; the box is ticked only when the server has saved the record, after
+**I agree** or **I acknowledge** at the end of the text. **Continue** is enabled
+once both are saved. Before Continue a box can be cleared again.
+
+| Account | Terms asked for |
+|---|---|
+| Buyer | Buyer Terms and Conditions |
+| Seller (in the Seller Hub) | Buyer Terms and Conditions and Seller terms |
+| Carrier staff | Logistics partner terms |
+| Operator staff | Staff terms |
+| Audit Console user | Audit Console terms |
+
+- Only documents that are published and in force are asked for.
+- A new version asks everybody again only when it was published with
+  **Ask everyone to accept this version again** on. Off is for a correction.
+- Support and privacy requests stay reachable before agreeing.
+- Each person's records are on their profile page (the console: user menu →
+  **Terms and privacy**).
+
+| Variable | What it does |
+|---|---|
+| `FEATURE_AGREEMENT_GATE` | The server-side gate. Default `true`; production refuses `false`. Tests switch it off for unrelated suites |
 
 ## Markets, currencies and prices
 
@@ -2969,6 +3032,27 @@ product:
   buyer is told the store's name, never the staff member's. The resulting
   order is an ordinary operator order; staff moving it to *Processing* hands
   the preorder over to fulfilment.
+
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
 
 With `PREORDER_OPEN_TO_ALL=false`, only listings whose seller configured terms
 take preorders, and everything else shows the button disabled with *"Bulk
@@ -4502,7 +4586,25 @@ seam that would have to change.
     - Publish each language you sell in. A reader whose language is missing is
       shown the English version, told so, and agrees to that text.
     - A published version can never be edited or deleted. A correction is a new
-      version; people who agreed to the old one stay linked to it.
+      version; people who agreed to the old one stay linked to it. Turn
+      **Ask everyone to accept this version again** off for a correction, so
+      nobody is asked again.
+    - Publish the **Privacy policy**, and the terms for every other kind of
+      account you have: *Seller terms* if you have sellers, *Staff terms* for
+      your own staff, *Audit Console terms* if the Audit Console is on. Each
+      is asked for on the agreement screen after sign-in as soon as it is
+      published; existing accounts are asked on their next visit.
+    - A document that still contains a `[[...]]` blank cannot be published.
+    - Drafts adapted for Gloviaa Mart are in `legal/drafts/gloviaa-mart/`. Load
+      them as drafts with:
+
+      ```powershell
+      cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart
+      ```
+
+      This never publishes. They are not legal advice and are not approved:
+      fill in every blank and have your own counsel approve them first. See
+      `legal/README.md` and `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`.
 20. **Run the go-live check of your reference data.** Open **Settings → Master
     data** in the admin console. The **Ready to go live?** card lists every
     reference list the marketplace needs (categories, currencies and fresh
@@ -4517,6 +4619,16 @@ seam that would have to change.
     accounts unused for `STAFF_DORMANT_AFTER_DAYS` (default 90) are flagged.
     Nobody reviews their own account, so a deployment needs two owners to
     review everyone.
+22. **Set up the Audit Team before the first seller applies.** Seller
+    verification is decided only in the Audit Console. Set
+    `FEATURE_AUDIT_CONSOLE=true` (with `AUDIT_WEB_ORIGIN`), then, as an
+    administrator with `audit_console.manage`, open **Audit Console people**
+    and invite at least one **Compliance reviewer** (or **Supervisor**) — two,
+    so nobody is a single point of failure and a reviewer connected to a seller
+    can hand it to a colleague. Each person activates the invitation and sets
+    up their one-time code. Until then applications wait, the Admin Panel says
+    so, and nothing falls back to admin approval. No reviewer account is ever
+    created for you.
 
 </details>
 
@@ -4663,6 +4775,21 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   through `assertBuyerCompanyTransition`, and a company buys only once it is
   approved — checked on the server on every checkout, payment and preorder
   confirmation, with the membership re-read on every request.
+- **A seller's turnover is declared, verified and approved as three separate
+  facts.** Applying, submitting and approval all check, on the server, that the
+  declared turnover for the most recently completed financial year is strictly
+  above `SELLER_TURNOVER_MIN_MINOR`, compared as whole minor units and never as
+  a rounded figure. The seller's tick never makes a figure eligible, a
+  declaration never approves anyone, and approval needs an Audit-Team-verified
+  one. Changing the figure, the year or the evidence reopens review.
+- **Only the Audit Team verifies a seller.** Every seller verification decision
+  — review, corrections, documents, turnover, screenings, approval, rejection —
+  needs the Audit Console key `audit.seller.verify`; the Admin Panel's routes
+  answer `403 SELLER_VERIFICATION_AUDIT_ONLY` for any admin role. Each decision
+  is conditional on the version the reviewer saw, so two reviewers cannot both
+  win, and a reviewer connected to the seller is refused. Approval still needs
+  the full evidence gate and never stands in for the payment provider's own
+  onboarding. Earlier admin decisions keep their attribution.
 - **Only somebody who received a product may review it.** A review needs the
   reviewer's own order containing the product to have reached `DELIVERED` (or
   `RETURNED`). One review per buyer per product, published at once; staff hide
@@ -4917,6 +5044,13 @@ inspection agencies and the marketplace's own compliance staff. **Off unless
   use a one-time code from an authenticator app. Cookies are `uboss_audit_*`.
 - **Roles.** Marketplace staff: Supervisor, Compliance reviewer. Agency:
   Agency admin, Coordinator, Inspector, QA reviewer.
+- **Seller verification.** The marketplace staff roles own seller onboarding
+  verification: a **Seller verification** queue (new, in review, corrections
+  requested, resubmitted, approved, rejected) and each application's details,
+  documents, ownership and screenings, turnover and history, with Start review,
+  Request corrections, Approve and Reject. New applications, resubmissions and
+  uploads notify them. Agency roles never see seller applications. Material
+  inspection is unaffected.
 - **Agency work moved here.** The storefront's agency pages now say the work
   has moved; the agency API is now `/api/v1/audit/agency`.
 - **Compliance qualification.** Versioned requirements per category, market
@@ -4935,6 +5069,22 @@ inspection agencies and the marketplace's own compliance staff. **Off unless
   cases, documents and rules by status, and bars for inspection work and for
   categories with products but no approved rule. Every figure, slice and bar
   opens the list behind it. Agency members keep their own dashboard.
+- **Seller health, verification report and quality analytics** (audit staff),
+  modelled on Amazon's Account Health, Alibaba.com's Verified Supplier
+  assessment and QIMA's quality insights:
+  - every seller gets a **health rating** from 0 to 1,000 — Healthy 200–1,000,
+    At risk 100–199, Unhealthy 0–99 — built from open non-conformances, held
+    goods, suspended or expired cases and documents, lapsed identity checks and
+    an inspection failure rate above 10%. The seller list can be filtered by
+    band and ordered riskiest first; a seller's page lists each open issue by
+    severity with a link to where it is fixed;
+  - a **verification report** on each seller's page: legal status, sanctions
+    screening, production sites, certifications, category qualifications and
+    quality record, each with its state, and a "Verified seller" badge only
+    when identity, screening and certifications are all verified;
+  - a **Quality analytics** page (`/insights`): pass rate and results by month,
+    findings by severity, the most frequent findings, best and worst suppliers,
+    and each agency's on-time and pass rates over the last twelve months.
 
 | Variable | What it does |
 |---|---|
@@ -4967,6 +5117,7 @@ not ISO 2859-1.
 | **[`docs/DATABASE-DESIGN.md`](docs/DATABASE-DESIGN.md)** | Why the database is shaped as it is: the principles, each domain with its diagram, and the life of an order in rows |
 | **[`docs/API.md`](docs/API.md)** | How to call the API: signing in, permissions, money, errors, webhooks, and worked examples |
 | **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
+| [`legal/README.md`](legal/README.md) | The policy drafts (Terms, Seller Addendum, Privacy Policy, carrier, staff and Audit Console terms), how they were adapted, the open decisions, and how to load them as drafts |
 | [`docs/compliance/REGULATORY-SOURCES.md`](docs/compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with |
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |

@@ -462,6 +462,7 @@ export type SellerAccountWhereInput = {
   complianceCases?: Prisma.ComplianceCaseListRelationFilter
   trustChecks?: Prisma.SellerTrustCheckListRelationFilter
   screeningChecks?: Prisma.SellerScreeningCheckListRelationFilter
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationListRelationFilter
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
   productReviews?: Prisma.ProductReviewListRelationFilter
@@ -559,6 +560,7 @@ export type SellerAccountOrderByWithRelationInput = {
   complianceCases?: Prisma.ComplianceCaseOrderByRelationAggregateInput
   trustChecks?: Prisma.SellerTrustCheckOrderByRelationAggregateInput
   screeningChecks?: Prisma.SellerScreeningCheckOrderByRelationAggregateInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationOrderByRelationAggregateInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestOrderByRelationAggregateInput
   listingTrust?: Prisma.SellerListingTrustOrderByRelationAggregateInput
   productReviews?: Prisma.ProductReviewOrderByRelationAggregateInput
@@ -660,6 +662,7 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   complianceCases?: Prisma.ComplianceCaseListRelationFilter
   trustChecks?: Prisma.SellerTrustCheckListRelationFilter
   screeningChecks?: Prisma.SellerScreeningCheckListRelationFilter
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationListRelationFilter
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
   productReviews?: Prisma.ProductReviewListRelationFilter
@@ -821,6 +824,7 @@ export type SellerAccountCreateInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -918,6 +922,7 @@ export type SellerAccountUncheckedCreateInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -1015,6 +1020,7 @@ export type SellerAccountUpdateInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -1112,6 +1118,7 @@ export type SellerAccountUncheckedUpdateInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2235,6 +2242,20 @@ export type SellerAccountUpdateOneRequiredWithoutScreeningChecksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutScreeningChecksInput, Prisma.SellerAccountUpdateWithoutScreeningChecksInput>, Prisma.SellerAccountUncheckedUpdateWithoutScreeningChecksInput>
 }
 
+export type SellerAccountCreateNestedOneWithoutTurnoverDeclarationsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutTurnoverDeclarationsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutTurnoverDeclarationsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutTurnoverDeclarationsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutTurnoverDeclarationsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUpdateWithoutTurnoverDeclarationsInput>, Prisma.SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput>
+}
+
 export type SellerAccountCreateNestedOneWithoutProfileChangeRequestsInput = {
   create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutProfileChangeRequestsInput, Prisma.SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput>
   connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutProfileChangeRequestsInput
@@ -2396,6 +2417,7 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -2492,6 +2514,7 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -2604,6 +2627,7 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -2700,6 +2724,7 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2797,6 +2822,7 @@ export type SellerAccountCreateWithoutProductReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
 }
@@ -2893,6 +2919,7 @@ export type SellerAccountUncheckedCreateWithoutProductReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
 }
@@ -3005,6 +3032,7 @@ export type SellerAccountUpdateWithoutProductReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
 }
@@ -3101,6 +3129,7 @@ export type SellerAccountUncheckedUpdateWithoutProductReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
@@ -3196,6 +3225,7 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -3292,6 +3322,7 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3404,6 +3435,7 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -3500,6 +3532,7 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3596,6 +3629,7 @@ export type SellerAccountCreateWithoutDisputesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -3692,6 +3726,7 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3804,6 +3839,7 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -3900,6 +3936,7 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3996,6 +4033,7 @@ export type SellerAccountCreateWithoutMembersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -4092,6 +4130,7 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4204,6 +4243,7 @@ export type SellerAccountUpdateWithoutMembersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -4300,6 +4340,7 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4396,6 +4437,7 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -4492,6 +4534,7 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4604,6 +4647,7 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -4700,6 +4744,7 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4796,6 +4841,7 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -4892,6 +4938,7 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5004,6 +5051,7 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -5100,6 +5148,7 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5196,6 +5245,7 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -5292,6 +5342,7 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5404,6 +5455,7 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -5500,6 +5552,7 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5596,6 +5649,7 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -5692,6 +5746,7 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5804,6 +5859,7 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -5900,6 +5956,7 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5996,6 +6053,7 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -6092,6 +6150,7 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6204,6 +6263,7 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -6300,6 +6360,7 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6396,6 +6457,7 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -6492,6 +6554,7 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6604,6 +6667,7 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -6700,6 +6764,7 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6796,6 +6861,7 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -6892,6 +6958,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7004,6 +7071,7 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -7100,6 +7168,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7196,6 +7265,7 @@ export type SellerAccountCreateWithoutLocationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -7292,6 +7362,7 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7404,6 +7475,7 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -7500,6 +7572,7 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7596,6 +7669,7 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -7692,6 +7766,7 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7804,6 +7879,7 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -7900,6 +7976,7 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7996,6 +8073,7 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -8092,6 +8170,7 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8204,6 +8283,7 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -8300,6 +8380,7 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8396,6 +8477,7 @@ export type SellerAccountCreateWithoutOffersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -8492,6 +8574,7 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8604,6 +8687,7 @@ export type SellerAccountUpdateWithoutOffersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -8700,6 +8784,7 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8796,6 +8881,7 @@ export type SellerAccountCreateWithoutInventoryInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -8892,6 +8978,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9004,6 +9091,7 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -9100,6 +9188,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9196,6 +9285,7 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -9292,6 +9382,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9404,6 +9495,7 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -9500,6 +9592,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9596,6 +9689,7 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -9692,6 +9786,7 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9804,6 +9899,7 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -9900,6 +9996,7 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9996,6 +10093,7 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -10092,6 +10190,7 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10204,6 +10303,7 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -10300,6 +10400,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10396,6 +10497,7 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -10492,6 +10594,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10604,6 +10707,7 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -10700,6 +10804,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10796,6 +10901,7 @@ export type SellerAccountCreateWithoutReturnsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -10892,6 +10998,7 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11004,6 +11111,7 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -11100,6 +11208,7 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11196,6 +11305,7 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -11292,6 +11402,7 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11404,6 +11515,7 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -11500,6 +11612,7 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11596,6 +11709,7 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -11692,6 +11806,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11804,6 +11919,7 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -11900,6 +12016,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11996,6 +12113,7 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -12092,6 +12210,7 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12204,6 +12323,7 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -12300,6 +12420,7 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12396,6 +12517,7 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -12492,6 +12614,7 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12604,6 +12727,7 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -12700,6 +12824,7 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12796,6 +12921,7 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -12892,6 +13018,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13004,6 +13131,7 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -13100,6 +13228,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13196,6 +13325,7 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -13292,6 +13422,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13404,6 +13535,7 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -13500,6 +13632,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13596,6 +13729,7 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -13692,6 +13826,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13804,6 +13939,7 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -13900,6 +14036,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13996,6 +14133,7 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -14092,6 +14230,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14204,6 +14343,7 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -14300,6 +14440,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14396,6 +14537,7 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -14492,6 +14634,7 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14604,6 +14747,7 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -14700,6 +14844,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14796,6 +14941,7 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -14892,6 +15038,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15004,6 +15151,7 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -15100,6 +15248,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15196,6 +15345,7 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -15292,6 +15442,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15404,6 +15555,7 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -15500,6 +15652,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15596,6 +15749,7 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -15692,6 +15846,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15804,6 +15959,7 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -15900,6 +16056,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15996,6 +16153,7 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -16092,6 +16250,7 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16204,6 +16363,7 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -16300,6 +16460,7 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16396,6 +16557,7 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -16492,6 +16654,7 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16604,6 +16767,7 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -16700,6 +16864,7 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16796,6 +16961,7 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -16892,6 +17058,7 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17004,6 +17171,7 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -17100,6 +17268,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17196,6 +17365,7 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -17292,6 +17462,7 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17404,6 +17575,7 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -17500,6 +17672,7 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17596,6 +17769,7 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -17692,6 +17866,7 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17804,6 +17979,7 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -17900,6 +18076,7 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17996,6 +18173,7 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -18092,6 +18270,7 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18204,6 +18383,7 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -18300,6 +18480,7 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18396,6 +18577,7 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -18492,6 +18674,7 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18604,6 +18787,7 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -18700,6 +18884,7 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18796,6 +18981,7 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -18892,6 +19078,7 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19004,6 +19191,7 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -19100,6 +19288,7 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19196,6 +19385,7 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -19292,6 +19482,7 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19404,6 +19595,7 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -19500,6 +19692,7 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19596,6 +19789,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -19692,6 +19886,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19804,6 +19999,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -19900,6 +20096,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19996,6 +20193,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -20092,6 +20290,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20204,6 +20403,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -20300,6 +20500,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20396,6 +20597,7 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -20492,6 +20694,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20604,6 +20807,7 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -20700,6 +20904,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20796,6 +21001,7 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -20892,6 +21098,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21004,6 +21211,7 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -21100,6 +21308,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21196,6 +21405,7 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -21292,6 +21502,7 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21404,6 +21615,7 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -21500,6 +21712,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21596,6 +21809,7 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -21692,6 +21906,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21804,6 +22019,7 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -21900,6 +22116,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21996,6 +22213,7 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -22092,6 +22310,7 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22204,6 +22423,7 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -22300,6 +22520,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -22396,6 +22617,7 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -22492,6 +22714,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22604,6 +22827,7 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -22700,6 +22924,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -22796,6 +23021,7 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -22892,6 +23118,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23004,6 +23231,7 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -23100,6 +23328,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23196,6 +23425,7 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -23292,6 +23522,7 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23404,6 +23635,7 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -23500,6 +23732,7 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23596,6 +23829,7 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -23692,6 +23926,7 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23804,6 +24039,7 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -23900,6 +24136,7 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23996,6 +24233,7 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -24092,6 +24330,7 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24204,6 +24443,7 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -24300,6 +24540,7 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24396,6 +24637,7 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -24492,6 +24734,7 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24604,6 +24847,7 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -24700,6 +24944,7 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24796,6 +25041,7 @@ export type SellerAccountCreateWithoutAccessReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -24892,6 +25138,7 @@ export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25004,6 +25251,7 @@ export type SellerAccountUpdateWithoutAccessReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -25100,6 +25348,7 @@ export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25196,6 +25445,7 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -25292,6 +25542,7 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25404,6 +25655,7 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -25500,6 +25752,7 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25596,6 +25849,7 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -25692,6 +25946,7 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25804,6 +26059,7 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -25900,6 +26156,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25996,6 +26253,7 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -26092,6 +26350,7 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -26204,6 +26463,7 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -26300,6 +26560,7 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26396,6 +26657,7 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -26492,6 +26754,7 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -26604,6 +26867,7 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -26700,6 +26964,7 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26796,6 +27061,7 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -26892,6 +27158,7 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -27004,6 +27271,7 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -27100,6 +27368,7 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -27196,6 +27465,7 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -27292,6 +27562,7 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -27404,6 +27675,7 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -27500,6 +27772,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -27596,6 +27869,7 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -27692,6 +27966,7 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -27804,6 +28079,7 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -27900,6 +28176,411 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutTurnoverDeclarationsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutTurnoverDeclarationsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput>
+}
+
+export type SellerAccountUpsertWithoutTurnoverDeclarationsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutTurnoverDeclarationsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutTurnoverDeclarationsInput, Prisma.SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput>
+}
+
+export type SellerAccountUpdateWithoutTurnoverDeclarationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -27997,6 +28678,7 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
@@ -28093,6 +28775,7 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
@@ -28205,6 +28888,7 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
@@ -28301,6 +28985,7 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
@@ -28397,6 +29082,7 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
@@ -28493,6 +29179,7 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
@@ -28605,6 +29292,7 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
@@ -28701,6 +29389,7 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
@@ -28796,6 +29485,7 @@ export type SellerAccountCreateWithoutRfqInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -28892,6 +29582,7 @@ export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -29004,6 +29695,7 @@ export type SellerAccountUpdateWithoutRfqInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -29100,6 +29792,7 @@ export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -29196,6 +29889,7 @@ export type SellerAccountCreateWithoutRfqQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -29292,6 +29986,7 @@ export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -29404,6 +30099,7 @@ export type SellerAccountUpdateWithoutRfqQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -29500,6 +30196,7 @@ export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
   complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -29596,6 +30293,7 @@ export type SellerAccountCreateWithoutComplianceCasesInput = {
   certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
@@ -29692,6 +30390,7 @@ export type SellerAccountUncheckedCreateWithoutComplianceCasesInput = {
   certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -29804,6 +30503,7 @@ export type SellerAccountUpdateWithoutComplianceCasesInput = {
   certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
@@ -29900,6 +30600,7 @@ export type SellerAccountUncheckedUpdateWithoutComplianceCasesInput = {
   certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -29971,6 +30672,7 @@ export type SellerAccountCountOutputType = {
   complianceCases: number
   trustChecks: number
   screeningChecks: number
+  turnoverDeclarations: number
   profileChangeRequests: number
   listingTrust: number
   productReviews: number
@@ -30037,6 +30739,7 @@ export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   complianceCases?: boolean | SellerAccountCountOutputTypeCountComplianceCasesArgs
   trustChecks?: boolean | SellerAccountCountOutputTypeCountTrustChecksArgs
   screeningChecks?: boolean | SellerAccountCountOutputTypeCountScreeningChecksArgs
+  turnoverDeclarations?: boolean | SellerAccountCountOutputTypeCountTurnoverDeclarationsArgs
   profileChangeRequests?: boolean | SellerAccountCountOutputTypeCountProfileChangeRequestsArgs
   listingTrust?: boolean | SellerAccountCountOutputTypeCountListingTrustArgs
   productReviews?: boolean | SellerAccountCountOutputTypeCountProductReviewsArgs
@@ -30475,6 +31178,13 @@ export type SellerAccountCountOutputTypeCountScreeningChecksArgs<ExtArgs extends
 /**
  * SellerAccountCountOutputType without action
  */
+export type SellerAccountCountOutputTypeCountTurnoverDeclarationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerTurnoverDeclarationWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
 export type SellerAccountCountOutputTypeCountProfileChangeRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SellerProfileChangeRequestWhereInput
 }
@@ -30586,6 +31296,7 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   complianceCases?: boolean | Prisma.SellerAccount$complianceCasesArgs<ExtArgs>
   trustChecks?: boolean | Prisma.SellerAccount$trustChecksArgs<ExtArgs>
   screeningChecks?: boolean | Prisma.SellerAccount$screeningChecksArgs<ExtArgs>
+  turnoverDeclarations?: boolean | Prisma.SellerAccount$turnoverDeclarationsArgs<ExtArgs>
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
   productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
@@ -30690,6 +31401,7 @@ export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.Intern
   complianceCases?: boolean | Prisma.SellerAccount$complianceCasesArgs<ExtArgs>
   trustChecks?: boolean | Prisma.SellerAccount$trustChecksArgs<ExtArgs>
   screeningChecks?: boolean | Prisma.SellerAccount$screeningChecksArgs<ExtArgs>
+  turnoverDeclarations?: boolean | Prisma.SellerAccount$turnoverDeclarationsArgs<ExtArgs>
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
   productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
@@ -30806,6 +31518,7 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
     complianceCases: Prisma.$ComplianceCasePayload<ExtArgs>[]
     trustChecks: Prisma.$SellerTrustCheckPayload<ExtArgs>[]
     screeningChecks: Prisma.$SellerScreeningCheckPayload<ExtArgs>[]
+    turnoverDeclarations: Prisma.$SellerTurnoverDeclarationPayload<ExtArgs>[]
     profileChangeRequests: Prisma.$SellerProfileChangeRequestPayload<ExtArgs>[]
     listingTrust: Prisma.$SellerListingTrustPayload<ExtArgs>[]
     /**
@@ -31320,6 +32033,7 @@ export interface Prisma__SellerAccountClient<T, Null = never, ExtArgs extends ru
   complianceCases<T extends Prisma.SellerAccount$complianceCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$complianceCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComplianceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trustChecks<T extends Prisma.SellerAccount$trustChecksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$trustChecksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerTrustCheckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   screeningChecks<T extends Prisma.SellerAccount$screeningChecksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$screeningChecksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerScreeningCheckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  turnoverDeclarations<T extends Prisma.SellerAccount$turnoverDeclarationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$turnoverDeclarationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerTurnoverDeclarationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   profileChangeRequests<T extends Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerProfileChangeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingTrust<T extends Prisma.SellerAccount$listingTrustArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$listingTrustArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerListingTrustPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productReviews<T extends Prisma.SellerAccount$productReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$productReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -33276,6 +33990,30 @@ export type SellerAccount$screeningChecksArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.SellerScreeningCheckScalarFieldEnum | Prisma.SellerScreeningCheckScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.turnoverDeclarations
+ */
+export type SellerAccount$turnoverDeclarationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerTurnoverDeclaration
+   */
+  select?: Prisma.SellerTurnoverDeclarationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerTurnoverDeclaration
+   */
+  omit?: Prisma.SellerTurnoverDeclarationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerTurnoverDeclarationInclude<ExtArgs> | null
+  where?: Prisma.SellerTurnoverDeclarationWhereInput
+  orderBy?: Prisma.SellerTurnoverDeclarationOrderByWithRelationInput | Prisma.SellerTurnoverDeclarationOrderByWithRelationInput[]
+  cursor?: Prisma.SellerTurnoverDeclarationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerTurnoverDeclarationScalarFieldEnum | Prisma.SellerTurnoverDeclarationScalarFieldEnum[]
 }
 
 /**

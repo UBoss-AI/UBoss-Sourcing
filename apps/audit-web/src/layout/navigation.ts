@@ -16,6 +16,7 @@ import {
   ClockIcon,
   DashboardIcon,
   DataProtectionIcon,
+  InsightsIcon,
   ListingReviewIcon,
   OrdersIcon,
   ProductsIcon,
@@ -62,6 +63,12 @@ export const NAVIGATION: readonly NavSection[] = [
   {
     labelKey: 'nav.verification',
     entries: [
+      {
+        to: '/seller-verification',
+        labelKey: 'nav.sellerVerification',
+        icon: ListingReviewIcon,
+        anyOf: [Permission.SELLER_READ],
+      },
       { to: '/sellers', labelKey: 'nav.sellers', icon: SellerIcon, anyOf: [Permission.SELLER_READ] },
       { to: '/products', labelKey: 'nav.products', icon: ProductsIcon, anyOf: [Permission.SELLER_READ] },
       {
@@ -87,6 +94,13 @@ export const NAVIGATION: readonly NavSection[] = [
         labelKey: 'nav.reports',
         icon: ReportsIcon,
         anyOf: [Permission.JOB_READ, Permission.JOB_OVERSEE],
+      },
+      {
+        // QIMA-style quality insights. Audit staff only: it reads every agency.
+        to: '/insights',
+        labelKey: 'nav.insights',
+        icon: InsightsIcon,
+        anyOf: [Permission.JOB_OVERSEE],
       },
       {
         to: '/corrective-actions',

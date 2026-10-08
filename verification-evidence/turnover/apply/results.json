@@ -1,0 +1,31 @@
+{
+ "ranAt": "2026-10-08T08:02:54.940Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": "disabledBefore=false path=/seller/onboarding",
+   "darkClass": "|dark",
+   "page": "apply-submit",
+   "path": "/sell",
+   "w": 1024,
+   "finalPath": "/seller/onboarding",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Choose your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "apply-submit-1024.png"
+  }
+ ]
+}

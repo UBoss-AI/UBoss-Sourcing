@@ -27,7 +27,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { env } from '../../../config/env.js';
 import { prisma } from '../../../infra/prisma.js';
-import { evaluateEligibility } from '../../preorders/policy.service.js';
+import { evaluateEligibility, lowestOfferedMoq } from '../../preorders/policy.service.js';
 import { buildChatContext, type BuiltChatContext, type ChatContextInput } from '../context.service.js';
 import type { FaqAnswer, FaqFacts } from './answers.js';
 
@@ -116,7 +116,12 @@ export async function gatherFaqFacts(input: ChatContextInput, viewer: FaqViewer)
         incrementBaseUnits: rules.incrementBaseUnits,
         maximumBaseUnits: rules.maximumBaseUnits,
         moqUnit: policy.moqUnit,
-        moqQuantity: policy.moqQuantity,
+        moqQuantity: lowestOfferedMoq(policy, eligibility.options),
+        options: eligibility.options.flatMap((entry) =>
+          entry.status === 'OFFERED'
+            ? [{ option: entry.option, minimumBaseUnits: entry.rules.minimumBaseUnits }]
+            : [],
+        ),
       },
       pricing: {
         mode: policy.pricingMode,

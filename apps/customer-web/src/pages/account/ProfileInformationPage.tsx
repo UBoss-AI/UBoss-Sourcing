@@ -35,6 +35,8 @@
  * to one of the two.
  */
 import { useEffect, useState } from 'react';
+import { AgreementHistory } from '@/components/agreement-kit/AgreementHistory';
+import { agreementsClient } from '@/lib/agreements';
 import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -749,6 +751,11 @@ export function ProfileInformationPage(): React.JSX.Element {
             tracks the request, and a second Delete control elsewhere would be
             a second erasure implementation. */}
         <YourDataPanel />
+
+        {/* Every Terms acceptance and Privacy Policy acknowledgment, with the
+            exact version to read again. Read-only: a box is cleared only on
+            the agreement screen, before Continue. */}
+        <AgreementHistory client={agreementsClient} />
 
         <CloseAccountPanel account={account} />
 

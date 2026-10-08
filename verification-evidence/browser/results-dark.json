@@ -1,0 +1,529 @@
+{
+ "ranAt": "2026-09-28T21:00:20.662Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 14,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Home"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "wishlist-dark",
+   "path": "/account/wishlist",
+   "w": 320,
+   "finalPath": "/account/wishlist",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Wishlist"
+   ],
+   "title": "Wishlist · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "wishlist-dark-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "wishlist-dark",
+   "path": "/account/wishlist",
+   "w": 375,
+   "finalPath": "/account/wishlist",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Wishlist"
+   ],
+   "title": "Wishlist · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "wishlist-dark-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "wishlist-dark",
+   "path": "/account/wishlist",
+   "w": 768,
+   "finalPath": "/account/wishlist",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Wishlist"
+   ],
+   "title": "Wishlist · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "wishlist-dark-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "wishlist-dark",
+   "path": "/account/wishlist",
+   "w": 1024,
+   "finalPath": "/account/wishlist",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Wishlist"
+   ],
+   "title": "Wishlist · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "wishlist-dark-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "wishlist-dark",
+   "path": "/account/wishlist",
+   "w": 1440,
+   "finalPath": "/account/wishlist",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Wishlist"
+   ],
+   "title": "Wishlist · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "wishlist-dark-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "region-dark",
+   "path": "/account/region",
+   "w": 320,
+   "finalPath": "/account/region",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Language and region"
+   ],
+   "title": "Language and region · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "region-dark-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "region-dark",
+   "path": "/account/region",
+   "w": 375,
+   "finalPath": "/account/region",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Language and region"
+   ],
+   "title": "Language and region · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "region-dark-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "region-dark",
+   "path": "/account/region",
+   "w": 768,
+   "finalPath": "/account/region",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Language and region"
+   ],
+   "title": "Language and region · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "region-dark-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "region-dark",
+   "path": "/account/region",
+   "w": 1024,
+   "finalPath": "/account/region",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Language and region"
+   ],
+   "title": "Language and region · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "region-dark-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "region-dark",
+   "path": "/account/region",
+   "w": 1440,
+   "finalPath": "/account/region",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "Language and region"
+   ],
+   "title": "Language and region · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "region-dark-1440.png"
+  },
+  {
+   "resolved": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation"
+  },
+  {
+   "darkClass": "|",
+   "page": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "w": 320,
+   "finalPath": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "We could not find this payment"
+   ],
+   "title": "Payment confirmation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "payment-result-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "w": 375,
+   "finalPath": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "We could not find this payment"
+   ],
+   "title": "Payment confirmation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "payment-result-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "w": 768,
+   "finalPath": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "We could not find this payment"
+   ],
+   "title": "Payment confirmation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "payment-result-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "w": 1024,
+   "finalPath": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "We could not find this payment"
+   ],
+   "title": "Payment confirmation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "payment-result-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "payment-result",
+   "path": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "w": 1440,
+   "finalPath": "/checkout/payment/01M3MGNKXVJV94BKTMMY3J40QQ/confirmation",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "We could not find this payment"
+   ],
+   "title": "Payment confirmation · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "All your orders"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "payment-result-1440.png"
+  },
+  {
+   "afterResult": {
+    "status": "Microphone access was refused. Allow it in your browser settings, then try again.",
+    "inputAfter": "gloves",
+    "buttonStill": true,
+    "activeIsInput": true
+   },
+   "darkClass": "|",
+   "page": "voice-denied",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Clear the search box",
+    "Image searchImage search",
+    "Search by voice",
+    "Search",
+    "AI AssistantAsk about a line",
+    "Schedule your CartPlan a del",
+    "ERP IntegrationOrders handed",
+    "AutopayA standing authority,",
+    "319 productsMedical Devices2",
+    "15 productsLaboratory & Scie"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "voice-denied-1440.png"
+  }
+ ]
+}

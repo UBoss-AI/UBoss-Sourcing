@@ -136,6 +136,27 @@ function announceSessionEnded(): void {
 }
 
 /**
+ * Listeners told when the server refuses a request with AGREEMENTS_REQUIRED:
+ * the Terms for this account, or the Privacy Policy, are owed in a version
+ * still in force - a new one was published, or a box was cleared elsewhere.
+ * The agreement screen subscribes and asks the server where things stand.
+ */
+type AgreementsRequiredListener = () => void;
+const agreementsRequiredListeners = new Set<AgreementsRequiredListener>();
+
+export function onAgreementsRequired(listener: AgreementsRequiredListener): () => void {
+  agreementsRequiredListeners.add(listener);
+  return () => agreementsRequiredListeners.delete(listener);
+}
+
+function noteAgreementsRequired(error: ApiError): ApiError {
+  if (error.code === 'AGREEMENTS_REQUIRED') {
+    for (const listener of agreementsRequiredListeners) listener();
+  }
+  return error;
+}
+
+/**
  * The confirmation a sensitive act asks for ("confirm it is you").
  *
  * The server refuses the act with STEP_UP_REQUIRED - or MFA_SETUP_REQUIRED
@@ -386,7 +407,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     announceSessionEnded();
   }
 
-  const failure = toApiError(response.status, payload, response.headers.get('retry-after'));
+  const failure = noteAgreementsRequired(toApiError(response.status, payload, response.headers.get('retry-after')));
 
   const challenge =
     stepUpHandler === null || options.stepUpRetried === true ? null : stepUpChallengeOf(failure);
@@ -571,7 +592,7 @@ export async function postFile<T>(
     announceSessionEnded();
   }
 
-  throw toApiError(response.status, payload, response.headers.get('retry-after'));
+  throw noteAgreementsRequired(toApiError(response.status, payload, response.headers.get('retry-after')));
 }
 
 export const api = {

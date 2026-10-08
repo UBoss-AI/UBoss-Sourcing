@@ -29,6 +29,7 @@ import {
   type AuditMember,
 } from '../../modules/audit-console/membership.service.js';
 import { auditMfaGate } from '../../modules/audit-console/mfa.service.js';
+import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
 import { currentUser, requireAuthenticated } from './auth.js';
 
 declare module 'fastify' {
@@ -51,7 +52,11 @@ export async function requireAuditSession(request: FastifyRequest, reply: Fastif
   request.audit = await resolveAuditMember(currentUser(request).id);
 }
 
-async function authenticateWithSecondFactor(request: FastifyRequest, reply: FastifyReply): Promise<AuditMember> {
+async function authenticateWithSecondFactor(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  options: { agreements: boolean } = { agreements: true },
+): Promise<AuditMember> {
   await requireAuditSession(request, reply);
   const auth = currentUser(request);
   const user = await prisma.user.findUnique({ where: { id: auth.id }, select: { mfaEnabledAt: true } });
@@ -65,7 +70,19 @@ async function authenticateWithSecondFactor(request: FastifyRequest, reply: Fast
   if (gate === 'CHALLENGE_REQUIRED') {
     throw forbidden(ErrorCode.AUDIT_MFA_CHALLENGE_REQUIRED, 'Enter the code from your authenticator to continue.');
   }
+  // The Audit Console terms and the Privacy Policy, once signing in has finished.
+  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'AUDIT');
   return currentAudit(request);
+}
+
+/**
+ * Signed in to the console in full, second factor included, but not yet
+ * through the agreement screen. For the agreement routes alone.
+ */
+export function requireAuditBeforeAgreements() {
+  return async function auditAgreementGuard(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    await authenticateWithSecondFactor(request, reply, { agreements: false });
+  };
 }
 
 /** Every listed key is required. An empty list means "any console member". */

@@ -21,7 +21,9 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { taxNumberProblem } from '../../domain/seller-kyb.js';
 import { recordSellerAudit } from './audit.service.js';
+import { notifyVerifiersOfSubmission } from './verification.service.js';
 import { kybGapsFor } from './kyb-facts.service.js';
+import { assertTurnoverEligibleForSubmission, turnoverGapsFor } from './turnover-facts.service.js';
 import {
   assertApplicationEditable,
   assertSellerPermission,
@@ -755,6 +757,18 @@ export async function markRequirementSteps(
   identity.missing.push(...kyb.map((gap) => gap.label));
   byStep.set('kyb_kyc', identity);
 
+  /*
+   * The seller turnover policy answers to `business_identity`, judged here for
+   * the same reason: the business-details step is where the form asks for it,
+   * and one function marking the step keeps the checklist and the submit gate
+   * in agreement. Empty when the policy is off or the seller was approved
+   * before it existed.
+   */
+  const turnover = await turnoverGapsFor(subject.sellerAccountId);
+  const business = byStep.get('business_identity') ?? { missing: [], waitingOnReview: [] };
+  business.missing.push(...turnover);
+  byStep.set('business_identity', business);
+
   for (const [stepKey, outcome] of byStep) {
     await markStep({
       membership: subject,
@@ -1210,6 +1224,13 @@ export async function submitApplication(
   assertSellerPermission(membership, SellerPermission.ACCOUNT_SUBMIT);
   assertApplicationEditable(membership);
 
+  /*
+   * The turnover policy first, with its own code, so the seller is told the
+   * one thing no amount of form-filling fixes before being sent round the
+   * checklist. Every submission and resubmission comes through here.
+   */
+  await assertTurnoverEligibleForSubmission(membership.sellerAccountId);
+
   const view = await readOnboarding(membership);
 
   if (!view.canSubmit) {
@@ -1224,11 +1245,31 @@ export async function submitApplication(
     );
   }
 
-  await transitionApplication({
-    sellerAccountId: membership.sellerAccountId,
-    to: 'SUBMITTED',
-    actor: 'SELLER',
-    actorLabel: membership.displayName,
-    correlationId: correlationId ?? null,
+  /*
+   * The move and the Audit Team's notice in one transaction: a submission the
+   * reviewers were never told about is an application nobody reviews, and a
+   * notice about a submission that rolled back sends them to nothing.
+   * Corrections sent back after ACTION_REQUIRED are announced as a
+   * resubmission, so a reviewer knows to look at what changed.
+   */
+  await prisma.$transaction(async (tx) => {
+    const before = await tx.sellerAccount.findUniqueOrThrow({
+      where: { id: membership.sellerAccountId },
+      select: { status: true, version: true },
+    });
+    await transitionApplication({
+      sellerAccountId: membership.sellerAccountId,
+      to: 'SUBMITTED',
+      actor: 'SELLER',
+      actorLabel: membership.displayName,
+      correlationId: correlationId ?? null,
+      tx,
+    });
+    await notifyVerifiersOfSubmission(tx, {
+      sellerAccountId: membership.sellerAccountId,
+      displayName: membership.displayName,
+      resubmission: before.status === 'ACTION_REQUIRED',
+      version: before.version + 1,
+    });
   });
 }

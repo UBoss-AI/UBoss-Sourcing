@@ -41,19 +41,22 @@ export const POLICY_KINDS = [
 export type PolicyKindName = (typeof POLICY_KINDS)[number];
 
 /**
- * The terms the operator's own staff agree to on the admin console's sign-in.
- *
- * Neither of the lists above. Not a sign-up agreement: the console asks for a
- * tick on every sign-in and nothing is recorded, so no consent record ever
- * names this kind and it is not a `TermsKindName`. Not a policy either:
- * it is for staff, so the storefront's help hub (`listDocumentsInForce`) never
- * lists it. Read through `GET /legal/current?kind=STAFF_TERMS`, which the
- * sign-in screen calls before anybody is signed in.
+ * The terms the operator's own staff accept on the admin console's agreement
+ * screen. Not a sign-up agreement and not a policy: it is for staff, so the
+ * storefront's help hub (`listDocumentsInForce`) never lists it.
  */
 export const STAFF_TERMS_KIND = 'STAFF_TERMS' as const;
 
+/** The terms Audit Console users - inspection agencies, auditors - accept. */
+export const AUDIT_CONSOLE_TERMS_KIND = 'AUDIT_CONSOLE_TERMS' as const;
+
 /** Every kind the legal-document service manages. */
-export const LEGAL_DOCUMENT_KINDS = [...TERMS_KINDS, ...POLICY_KINDS, STAFF_TERMS_KIND] as const;
+export const LEGAL_DOCUMENT_KINDS = [
+  ...TERMS_KINDS,
+  ...POLICY_KINDS,
+  STAFF_TERMS_KIND,
+  AUDIT_CONSOLE_TERMS_KIND,
+] as const;
 export type LegalDocumentKindName = (typeof LEGAL_DOCUMENT_KINDS)[number];
 
 export function isTermsKind(kind: string): kind is TermsKindName {
@@ -65,7 +68,112 @@ export const TERMS_ACCEPTANCE_SOURCES = [
   'STOREFRONT_SIGN_UP',
   'CUSTOMER_INVITATION',
   'LOGISTICS_INVITATION',
+  'AGREEMENT_SCREEN',
 ] as const;
+
+// ---------------------------------------------------------------------------
+// The agreement screen after sign-in
+// ---------------------------------------------------------------------------
+
+/**
+ * Which kind of account the agreement screen is asking for.
+ *
+ * One person can be several: a buyer who also sells is BUYER on the storefront
+ * and SELLER in the Seller Hub. The scope decides which Terms apply, never
+ * whether the Privacy Policy does - it always does.
+ */
+export const AGREEMENT_SCOPES = ['BUYER', 'SELLER', 'LOGISTICS', 'STAFF', 'AUDIT'] as const;
+export type AgreementScopeName = (typeof AGREEMENT_SCOPES)[number];
+
+/** The Terms kinds an agreement screen can ask for. */
+export const AGREEMENT_TERMS_KINDS = [
+  'PLATFORM_TERMS',
+  'SELLER_TERMS',
+  'LOGISTICS_PARTNER_TERMS',
+  STAFF_TERMS_KIND,
+  AUDIT_CONSOLE_TERMS_KIND,
+] as const;
+export type AgreementTermsKind = (typeof AGREEMENT_TERMS_KINDS)[number];
+
+/** The one notice everybody acknowledges, whatever their scope. */
+export const PRIVACY_NOTICE_KIND = 'PRIVACY_POLICY' as const;
+
+export type AgreementDocumentKind = AgreementTermsKind | typeof PRIVACY_NOTICE_KIND;
+
+/**
+ * The Terms a scope must have accepted, in the order they are read.
+ *
+ * A seller accepts the buyer-facing Terms of Use AND the Seller Addendum: the
+ * addendum supplements the Terms of Use and makes no sense alone. A buyer
+ * never sees the addendum - nobody accepts obligations of a role they do not
+ * hold. Carrier staff, operator staff and Audit Console users each have one
+ * document that carries the common terms and their own part.
+ */
+export function termsKindsForScope(scope: AgreementScopeName): readonly AgreementTermsKind[] {
+  switch (scope) {
+    case 'BUYER':
+      return ['PLATFORM_TERMS'];
+    case 'SELLER':
+      return ['PLATFORM_TERMS', 'SELLER_TERMS'];
+    case 'LOGISTICS':
+      return ['LOGISTICS_PARTNER_TERMS'];
+    case 'STAFF':
+      return [STAFF_TERMS_KIND];
+    case 'AUDIT':
+      return [AUDIT_CONSOLE_TERMS_KIND];
+  }
+}
+
+export function isAgreementTermsKind(kind: string): kind is AgreementTermsKind {
+  return (AGREEMENT_TERMS_KINDS as readonly string[]).includes(kind);
+}
+
+/**
+ * The consent purpose a record of this kind is stored under. The privacy
+ * notice keeps its long-standing purpose, PRIVACY_NOTICE: an acknowledgement,
+ * not a consent in the GDPR Art. 6(1)(a) sense.
+ */
+export function consentPurposeFor(kind: AgreementDocumentKind): AgreementTermsKind | 'PRIVACY_NOTICE' {
+  return kind === PRIVACY_NOTICE_KIND ? 'PRIVACY_NOTICE' : kind;
+}
+
+export interface VersionRequirementRow {
+  version: string;
+  requiresReacceptance: boolean;
+}
+
+/**
+ * The versions of one kind whose acceptance still counts, given every version
+ * in force NEWEST FIRST (one entry per version).
+ *
+ * The newest always counts. Walking back, each older version counts too until
+ * a version that asked for re-acceptance is passed: an acceptance of anything
+ * before that one is no longer enough. A version published as a correction
+ * (`requiresReacceptance` false) therefore asks nobody again, and the first
+ * version of a kind - with nothing older - ends the walk by running out.
+ */
+export function acceptableVersions(newestFirst: readonly VersionRequirementRow[]): string[] {
+  const acceptable: string[] = [];
+  for (const row of newestFirst) {
+    acceptable.push(row.version);
+    if (row.requiresReacceptance) break;
+  }
+  return acceptable;
+}
+
+/**
+ * A blank left for a decision, written `[[...]]`. Drafts carry them on
+ * purpose - "[[DECISION: registered legal name]]" - and publishing refuses a
+ * document that still holds one, so nobody can be bound by a blank.
+ */
+export const LEGAL_PLACEHOLDER_PATTERN = /\[\[[^\]\n]{0,300}\]\]/g;
+
+export function findLegalPlaceholders(text: string): string[] {
+  const found = [...new Set(text.match(LEGAL_PLACEHOLDER_PATTERN) ?? [])];
+  // An opening "[[" whose close was lost in editing is still a blank.
+  if (found.length === 0 && text.includes('[[')) found.push('[[');
+  return found;
+}
 export type TermsAcceptanceSource = (typeof TERMS_ACCEPTANCE_SOURCES)[number];
 
 /**

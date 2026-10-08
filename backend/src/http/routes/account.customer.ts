@@ -66,6 +66,7 @@ import {
   buyerCompanyIdOf,
   currentUser,
   requireCustomer,
+  requireCustomerBeforeAgreements,
 } from '../plugins/auth.js';
 import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
 import {
@@ -698,11 +699,14 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
   /**
    * What has been asked for, and where each one stands.
    *
+   * Reachable before the agreement screen is done, like the request below:
+   * somebody who will not accept the Terms keeps every privacy right.
+   *
    * Carries the live download token for a finished export, so a page reload
    * does not lose the link. Once the window closes the field is null rather
    * than a token the download route would refuse.
    */
-  app.get('/data-requests', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/data-requests', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) => {
     const auth = currentUser(request);
     const requests = await listRequestsForSubject(auth.id);
     return reply.status(200).send({ requests });
@@ -718,7 +722,7 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
   app.post(
     '/data-requests',
     {
-      preHandler: requireCustomer,
+      preHandler: requireCustomerBeforeAgreements,
       config: { rateLimit: { max: 5, timeWindow: '1 hour' } },
     },
     async (request, reply) => {

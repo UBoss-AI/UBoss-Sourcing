@@ -4529,6 +4529,13 @@ export type EnumPreorderStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel> | $Enums.PreorderStatus
 }
 
+export type EnumPreorderProductOptionNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderProductOption | Prisma.EnumPreorderProductOptionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderProductOption[] | null
+  notIn?: $Enums.PreorderProductOption[] | null
+  not?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel> | $Enums.PreorderProductOption | null
+}
+
 export type EnumPreorderQuantityUnitNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.PreorderQuantityUnit | Prisma.EnumPreorderQuantityUnitFieldRefInput<$PrismaModel> | null
   in?: $Enums.PreorderQuantityUnit[] | null
@@ -4551,6 +4558,16 @@ export type EnumPreorderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel>
+}
+
+export type EnumPreorderProductOptionNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderProductOption | Prisma.EnumPreorderProductOptionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderProductOption[] | null
+  notIn?: $Enums.PreorderProductOption[] | null
+  not?: Prisma.NestedEnumPreorderProductOptionNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreorderProductOption | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel>
 }
 
 export type EnumPreorderQuantityUnitNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -5243,6 +5260,20 @@ export type EnumConsentPurposeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel> | $Enums.ConsentPurpose
 }
 
+export type EnumConsentActionNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ConsentAction | Prisma.EnumConsentActionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ConsentAction[] | null
+  notIn?: $Enums.ConsentAction[] | null
+  not?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel> | $Enums.ConsentAction | null
+}
+
+export type EnumAgreementScopeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgreementScope | Prisma.EnumAgreementScopeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AgreementScope[] | null
+  notIn?: $Enums.AgreementScope[] | null
+  not?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel> | $Enums.AgreementScope | null
+}
+
 export type EnumConsentPurposeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ConsentPurpose | Prisma.EnumConsentPurposeFieldRefInput<$PrismaModel>
   in?: $Enums.ConsentPurpose[]
@@ -5251,6 +5282,26 @@ export type EnumConsentPurposeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel>
+}
+
+export type EnumConsentActionNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ConsentAction | Prisma.EnumConsentActionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ConsentAction[] | null
+  notIn?: $Enums.ConsentAction[] | null
+  not?: Prisma.NestedEnumConsentActionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ConsentAction | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel>
+}
+
+export type EnumAgreementScopeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgreementScope | Prisma.EnumAgreementScopeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AgreementScope[] | null
+  notIn?: $Enums.AgreementScope[] | null
+  not?: Prisma.NestedEnumAgreementScopeNullableWithAggregatesFilter<$PrismaModel> | $Enums.AgreementScope | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel>
 }
 
 export type EnumLegalDocumentKindFilter<$PrismaModel = never> = {
@@ -11499,6 +11550,13 @@ export type NestedEnumPreorderStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel> | $Enums.PreorderStatus
 }
 
+export type NestedEnumPreorderProductOptionNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderProductOption | Prisma.EnumPreorderProductOptionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderProductOption[] | null
+  notIn?: $Enums.PreorderProductOption[] | null
+  not?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel> | $Enums.PreorderProductOption | null
+}
+
 export type NestedEnumPreorderQuantityUnitNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.PreorderQuantityUnit | Prisma.EnumPreorderQuantityUnitFieldRefInput<$PrismaModel> | null
   in?: $Enums.PreorderQuantityUnit[] | null
@@ -11521,6 +11579,16 @@ export type NestedEnumPreorderStatusWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPreorderStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderProductOptionNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderProductOption | Prisma.EnumPreorderProductOptionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderProductOption[] | null
+  notIn?: $Enums.PreorderProductOption[] | null
+  not?: Prisma.NestedEnumPreorderProductOptionNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreorderProductOption | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderProductOptionNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumPreorderQuantityUnitNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -12213,6 +12281,20 @@ export type NestedEnumConsentPurposeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel> | $Enums.ConsentPurpose
 }
 
+export type NestedEnumConsentActionNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ConsentAction | Prisma.EnumConsentActionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ConsentAction[] | null
+  notIn?: $Enums.ConsentAction[] | null
+  not?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel> | $Enums.ConsentAction | null
+}
+
+export type NestedEnumAgreementScopeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgreementScope | Prisma.EnumAgreementScopeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AgreementScope[] | null
+  notIn?: $Enums.AgreementScope[] | null
+  not?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel> | $Enums.AgreementScope | null
+}
+
 export type NestedEnumConsentPurposeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ConsentPurpose | Prisma.EnumConsentPurposeFieldRefInput<$PrismaModel>
   in?: $Enums.ConsentPurpose[]
@@ -12221,6 +12303,26 @@ export type NestedEnumConsentPurposeWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumConsentPurposeFilter<$PrismaModel>
+}
+
+export type NestedEnumConsentActionNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ConsentAction | Prisma.EnumConsentActionFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ConsentAction[] | null
+  notIn?: $Enums.ConsentAction[] | null
+  not?: Prisma.NestedEnumConsentActionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ConsentAction | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumConsentActionNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumAgreementScopeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgreementScope | Prisma.EnumAgreementScopeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AgreementScope[] | null
+  notIn?: $Enums.AgreementScope[] | null
+  not?: Prisma.NestedEnumAgreementScopeNullableWithAggregatesFilter<$PrismaModel> | $Enums.AgreementScope | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAgreementScopeNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumLegalDocumentKindFilter<$PrismaModel = never> = {

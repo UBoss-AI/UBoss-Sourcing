@@ -33,6 +33,7 @@ const draftSchema = z.object({
   body: z.string().max(500_000),
   changeSummary: z.string().max(4000).nullable().optional(),
   effectiveAt: z.coerce.date(),
+  requiresReacceptance: z.boolean().optional(),
 });
 
 function actorOf(request: FastifyRequest): LegalActor {

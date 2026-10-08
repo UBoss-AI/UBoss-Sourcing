@@ -3277,6 +3277,7 @@ billing and shipping addresses are copied into `addresses` with her company's
 | [`SellerMember`](reference/DATABASE-TABLES.md#model-sellermember) / [`SellerInvitation`](reference/DATABASE-TABLES.md#model-sellerinvitation) | `seller_members` / `seller_invitations` | a person in the seller, with a role / a pending invite |
 | [`SellerOnboardingProgress`](reference/DATABASE-TABLES.md#model-selleronboardingprogress) / [`SellerOnboardingRequirement`](reference/DATABASE-TABLES.md#model-selleronboardingrequirement) | `seller_onboarding_progress` / `seller_onboarding_requirements` | how far the application has got / what each country asks for, **as data, not code** |
 | [`SellerBusinessProfile`](reference/DATABASE-TABLES.md#model-sellerbusinessprofile) | `seller_business_profiles` | registration details (one per seller) |
+| [`SellerTurnoverDeclaration`](reference/DATABASE-TABLES.md#model-sellerturnoverdeclaration) | `seller_turnover_declarations` | one annual-turnover declaration under the seller eligibility policy, with its verification decision; rows accumulate and `isCurrent` marks the live one (see below) |
 | [`SellerVerificationCase`](reference/DATABASE-TABLES.md#model-sellerverificationcase), [`SellerDocument`](reference/DATABASE-TABLES.md#model-sellerdocument), [`SellerAgreementAcceptance`](reference/DATABASE-TABLES.md#model-selleragreementacceptance), [`SellerPayoutAccountReference`](reference/DATABASE-TABLES.md#model-sellerpayoutaccountreference) | `seller_verification_cases`, `seller_documents`, `seller_agreement_acceptances`, `seller_payout_account_references` | a verification check, an uploaded certificate (malware-scanned), an accepted agreement, a reference to the payout account held by a regulated provider |
 | [`SellerLocation`](reference/DATABASE-TABLES.md#model-sellerlocation) | `seller_locations` | one of the seller's warehouses or pickup points |
 | [`Brand`](reference/DATABASE-TABLES.md#model-brand) / [`BrandRequest`](reference/DATABASE-TABLES.md#model-brandrequest) | `brands` / `brand_requests` | a marketplace-wide brand name / a seller asking to sell under one |
@@ -3292,6 +3293,7 @@ erDiagram
     seller_accounts ||--o{ seller_members : "staffed by"
     customer_profiles ||--o| seller_members : "works as"
     seller_accounts ||--o{ seller_locations : "operates"
+    seller_accounts ||--o{ seller_turnover_declarations : "declares turnover"
     seller_accounts ||--o{ seller_listing_drafts : "writes"
     categories |o--o{ seller_listing_drafts : "filed under"
     brands |o--o{ seller_listing_drafts : "branded"
@@ -3502,6 +3504,42 @@ for a material change sets the current `seller_verification_cases` row of that
 kind `isCurrent = false` and inserts a fresh `IN_PROGRESS` one, in the same
 transaction as the decision.
 
+**Turnover eligibility declarations.** `seller_turnover_declarations`
+(`SellerTurnoverDeclaration`, migration
+`20261105100000_seller_turnover_eligibility`) holds what a seller declared
+under the marketplace's own turnover policy: a business may apply to sell only
+if its annual turnover for its most recently completed financial year is
+strictly above a minimum set in `SELLER_TURNOVER_MIN_MINOR`. One row is one
+declaration.
+
+| Column | Meaning |
+|---|---|
+| `sellerAccountId` | The seller. FK to `seller_accounts`, `ON DELETE CASCADE ON UPDATE RESTRICT` |
+| `amountMinor` `BIGINT`, `currency` `CHAR(3)` | The declared turnover, in whole minor units (paise for INR). Never a float |
+| `financialYearStart`, `financialYearEnd` `DATE` | The twelve-month reporting period it is for |
+| `minimumMinor` `BIGINT`, `policyVersion` `VARCHAR(32)` | The minimum and policy version **in force when it was declared**, so a later change of setting does not rewrite what a seller was judged against |
+| `declaredAt`, `declaredByProfileId` | When, and which member, declared it |
+| `verificationState` | Reuses `SellerVerificationState`: `AWAITING_INPUT` (no supporting document yet), `IN_PROGRESS` (waiting for a reviewer), `VERIFIED`, `FAILED` |
+| `decisionReason` `TEXT` | The reviewer's reason. **The seller sees it** |
+| `internalNote` `TEXT` | Staff only. Never returned on a seller route |
+| `reviewedByUserId`, `reviewedAt` | Who decided, and when |
+| `supersededReason` | Why a row stopped being current: `AMENDED` (the seller changed the amount, currency or year), `EVIDENCE_CHANGED` (a supporting document was uploaded or withdrawn after a decision), `REDECIDED` |
+| `isCurrent` | Marks the live row |
+
+Rows **accumulate**, like the screening checks: a change never overwrites a
+decided row, it marks it `isCurrent = false` with a `supersededReason` and
+inserts a new current one waiting for review, so the history of what was
+declared and what staff decided is kept. Saving the same figures again updates
+the current row's `declaredAt` and `policyVersion` only, and keeps its
+verification. Indexes: `ix_seller_turnover_current` (`sellerAccountId`,
+`isCurrent`) for "the live declaration" and `ix_seller_turnover_state`
+(`verificationState`) for the review queue. Declared, verified and approved are
+three separate facts: a row never changes `seller_accounts.status`. Supporting
+documents are ordinary `seller_documents` rows (kind `OTHER`,
+`requirementFieldKey = 'annual_turnover_evidence'`). This is business
+financial data, not personal data. The rule is
+`backend/src/domain/seller-turnover.ts`.
+
 **Application lifecycle** (`APPLICATION_TRANSITIONS` in
 `backend/src/domain/seller-state.ts`). Only `APPROVED` sellers may list and
 receive orders.
@@ -3527,6 +3565,18 @@ stateDiagram-v2
     SUSPENDED --> ACTION_REQUIRED : OPERATOR
     SUSPENDED --> REJECTED : OPERATOR
 ```
+
+**Who the OPERATOR is.** Every OPERATOR move except suspending and lifting a
+suspension is a verification decision, and only the Audit Team makes those
+(Audit Console, `audit.seller.verify`); the Admin Panel makes only
+`APPROVED → SUSPENDED` and `SUSPENDED → APPROVED`. The move is written with
+`UPDATE … WHERE id = ? AND version = <the version read>`, so of two reviewers
+deciding at once exactly one changes the row and the other is told to reload
+(`SELLER_STALE_VERSION`). Its `seller_audit_logs` row records
+`actorType = AUDIT` (or `ADMIN`) and the reviewer's `actorUserId`; rows
+written before the Audit Team took over keep `ADMIN`, which is how both panels
+show who made each earlier decision. Document and turnover decisions are
+conditional on the decision that was read in the same way.
 
 **Seller order group lifecycle** (`ORDER_GROUP_TRANSITIONS`, same file).
 Stock is held while the group is `NEW`, `ACCEPTED`, `PROCESSING` or
@@ -4516,6 +4566,27 @@ erDiagram
     }
 ```
 
+**OEM and Original Brand preorder minimums.** A seller's preorder terms say,
+separately, whether they take **Original Brand** preorders (the product exactly
+as listed, under its own brand) and **OEM** preorders (made to the buyer's own
+design or brand), each with its own minimum in the terms' unit. Increment and
+maximum are shared. The "i" inside Preorder shows a "Minimum preorder
+quantities" section: each option's minimum, "Not offered for this product", or
+"Not set up yet" - never an invented figure. When both are offered the buyer
+must choose (`productOption`, error `PREORDER_PRODUCT_OPTION_REQUIRED`); an
+option not offered is refused (`PREORDER_PRODUCT_OPTION_NOT_OFFERED`). The
+server reads the minimum from the seller's current terms, never from the
+request, and freezes the option and its minimum on the request
+(`preorder_requests.productOption*`), shown on buyer, seller and admin detail.
+Platform-default terms offer Original Brand only. Migration
+`20261107100000_preorder_product_options` moved each old single minimum to
+Original Brand (preorders were always for the product as listed), never
+switched OEM on, and flagged `productOptionsReviewRequired` where the seller
+advertises OEM on that product so Seller Hub asks them to confirm. Requests made
+before it keep NULL option columns and their original snapshot. OEM pricing and
+lead times reuse the same preorder price bands and lead time - no separate OEM
+figures exist yet.
+
 **Lifecycle** (`TRANSITIONS` in `backend/src/domain/preorder-state.ts`):
 
 ```mermaid
@@ -5318,8 +5389,8 @@ person agreed to. The operator writes them; the software supplies none.
 
 | Model | Table | One row is |
 |---|---|---|
-| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement or policy in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced. `kind` is one of the two terms that are accepted at sign-up (`PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`) or a published policy that is only read (`SELLER_TERMS`, `PRIVACY_POLICY`, `RETURNS_POLICY` — added 29 Sep 2026 —, `BUYER_PROTECTION_POLICY`, `INSPECTION_POLICY`, `PROHIBITED_PRODUCTS`), or `STAFF_TERMS` — added 4 Oct 2026 by `20261103100000_legal_staff_terms` — which the console's sign-in shows its staff and which no `consent_records` row ever names |
-| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | with `purpose` `PLATFORM_TERMS` or `LOGISTICS_PARTNER_TERMS`: one person's acceptance of one `legal_documents` row |
+| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement or policy in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced. `kind` is one of the two terms that are accepted at sign-up (`PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`) or a published policy that is only read (`SELLER_TERMS`, `PRIVACY_POLICY`, `RETURNS_POLICY` — added 29 Sep 2026 —, `BUYER_PROTECTION_POLICY`, `INSPECTION_POLICY`, `PROHIBITED_PRODUCTS`), or `STAFF_TERMS` — added 4 Oct 2026 by `20261103100000_legal_staff_terms` — and `AUDIT_CONSOLE_TERMS` — added 8 Oct 2026 by `20261106100000_policy_acknowledgments` — accepted by staff and Audit Console users on the agreement screen. `requiresReacceptance` (default true) says whether earlier acceptances stop counting when this version takes effect |
+| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | with `purpose` `PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`, `SELLER_TERMS`, `STAFF_TERMS` or `AUDIT_CONSOLE_TERMS`: one person's acceptance of one `legal_documents` row. With `purpose` `PRIVACY_NOTICE` and a `legalDocumentId`: one person's acknowledgment of a published Privacy Policy. `action` says which (`TERMS_ACCEPTED`, `PRIVACY_NOTICE_ACKNOWLEDGED`), `scope` which kind of account they were acting as (`BUYER`, `SELLER`, `LOGISTICS`, `STAFF`, `AUDIT`) |
 
 ```mermaid
 erDiagram
@@ -5345,15 +5416,23 @@ erDiagram
         string textHash
         string locale
         string acceptanceSource
+        enum action
+        enum scope
+        string activeDocumentId
+        datetime clearedAt
     }
 ```
 
 **Kinds.** `PLATFORM_TERMS` is accepted by buyers: somebody signing up on the
 storefront (individually, or as the first step of registering a company) and an
 invited customer activating their account. `LOGISTICS_PARTNER_TERMS` is accepted
-by a carrier's staff activating a portal account. `STAFF_TERMS` is read by the
-operator's own staff on the console's sign-in screen and agreed to on every
-sign-in, but that agreement is never stored: it gates the form and is not sent.
+by a carrier's staff activating a portal account. On the agreement screen after
+sign-in, `PLATFORM_TERMS` is asked of buyers, `PLATFORM_TERMS` and
+`SELLER_TERMS` of every seller member, `LOGISTICS_PARTNER_TERMS` of carrier
+staff, `STAFF_TERMS` of the operator's staff and `AUDIT_CONSOLE_TERMS` of
+Audit Console users - and `PRIVACY_POLICY` of everybody. Each is stored as a
+`consent_records` row. The console no longer asks for an unrecorded tick at
+sign-in.
 Seller Hub agreements live in
 `seller_agreement_acceptances` ([5.17](#517-seller-hub)), and a company
 application's declarations are the other `consent_records` purposes.
@@ -5394,16 +5473,43 @@ not part of it; it sits beside it on a row that cannot change.
 account, after the server re-checks the document is the version in force. The
 server copies `textVersion`, `textHash` and `locale` from the document;
 `acceptedAt` is the column default. `acceptanceSource` is
-`STOREFRONT_SIGN_UP`, `CUSTOMER_INVITATION` or `LOGISTICS_INVITATION`.
+`STOREFRONT_SIGN_UP`, `CUSTOMER_INVITATION`, `LOGISTICS_INVITATION` or
+`AGREEMENT_SCREEN`.
 `ipAddress` and `userAgent` stay null for these rows: nothing about the device
 is kept "for evidence" without a purpose and retention period the privacy notice
 states. `chk_consent_record_terms_names_document` makes a Terms row always name
-its document, and `uq_consent_record_user_document` allows one acceptance per
-person per document. The company declarations have a null `legalDocumentId`,
-which a MariaDB unique index treats as distinct, so they are unaffected.
+its document. `activeDocumentId` equals `legalDocumentId` while the record is
+in force and is null once it is withdrawn or cleared, and
+`uq_consent_record_user_active_document` on (`userId`, `activeDocumentId`)
+allows one ACTIVE record per person per document - a doubled request writes one
+row, and a cleared record can be given again as a new row. The company
+declarations and cleared rows have a null there, which a MariaDB unique index
+treats as distinct. `ix_consent_record_user_document` replaces the old unique
+`uq_consent_record_user_document`.
+
+**Clearing is not withdrawing.** On the agreement screen, before Continue, a
+person can untick a box. The row stays, with `clearedAt` set and
+`activeDocumentId` null, and an audit event is written. `withdrawnAt` is not
+touched: clearing one box withdraws no consent to anything else.
+
+**Which records still count.** For each kind the server walks the versions in
+force from the newest back: each counts, until it passes one with
+`requiresReacceptance` true (`acceptableVersions` in
+`domain/legal-document.ts`). An active record for any of those versions
+satisfies the gate.
+
+**CHECK constraints** (`20261106100000_policy_acknowledgments`):
+`chk_consent_record_terms_names_document` now covers all five Terms purposes;
+`chk_consent_record_active_document` requires `activeDocumentId` to be null or
+equal to `legalDocumentId` with neither `withdrawnAt` nor `clearedAt` set;
+`chk_consent_record_action_matches_purpose` keeps a privacy notice from ever
+being recorded as "accepted" and Terms from being "acknowledged". The migration
+labelled existing rows only with facts they already carried (action from the
+purpose, scope from `acceptanceSource`) and invented no acceptance.
 
 **Privacy.** Terms acceptances are disclosed in the Art. 15 export under
-`termsAcceptances`, including for carrier staff, who have no customer profile.
+`termsAcceptances` (with `action`, scope, `clearedAt` and `withdrawnAt`),
+including for carrier staff, who have no customer profile.
 An erasure keeps them as evidence of the contract; they carry no device details
 to blank. `legal_documents` holds no personal data beyond the staff ids of who
 drafted and published.
@@ -5421,6 +5527,11 @@ it, and a form still holding the October id is refused with
 Migration: `20261012090000_legal_documents`. It creates `legal_documents` and
 adds three nullable columns, two enum members, two indexes, a foreign key and a
 CHECK to `consent_records`. Nothing is seeded.
+`20261106100000_policy_acknowledgments` adds the `AUDIT_CONSOLE_TERMS` kind,
+`legal_documents.requiresReacceptance`, three `ConsentPurpose` members
+(`SELLER_TERMS`, `STAFF_TERMS`, `AUDIT_CONSOLE_TERMS`), the
+`consent_records` columns `action`, `scope`, `activeDocumentId` and
+`clearedAt`, the new unique index and the CHECK constraints above.
 
 ### 5.26 Data protection requests
 
@@ -6222,7 +6333,7 @@ No schema change. The `refund.poll` worker job reads `refunds` with `status = 'P
 
 Migration `20261101100000_admin_governance_moderation_cms`.
 
-- `admin_pending_actions` (maker-checker): one row per request for a critical account action. `kind` is `ENUM('SELLER_SUSPEND', 'SELLER_REJECT', 'CUSTOMER_DEACTIVATE', 'BUYER_COMPANY_SUSPEND')`; `status` is `ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'FAILED')`. `resourceType`/`resourceId` name the record (`customer` = a customer profile id, `seller_account`, `buyer_company`), `payloadJson` what the action will do (version, flags), `reason` why. **`pendingKey`** is `KIND:resourceId` while the row is PENDING and NULL once decided; its UNIQUE index (`uq_admin_pending_action_open`) therefore allows exactly one open request per action per record, because MariaDB treats every NULL as distinct. The decision is a conditional `UPDATE … WHERE status = 'PENDING'`, so two approvers cannot both win. Asker and approver are plain ids and e-mails (no foreign keys: the row is evidence), and the asker can never be the approver (service rule). Indexed by `(status, requestedAt)` and `(resourceType, resourceId)`.
+- `admin_pending_actions` (maker-checker): one row per request for a critical account action. `kind` is `ENUM('SELLER_SUSPEND', 'SELLER_REJECT', 'CUSTOMER_DEACTIVATE', 'BUYER_COMPANY_SUSPEND')` (`SELLER_REJECT` is kept for history only: rejecting a seller application is the Audit Team's, and an open one cannot be approved); `status` is `ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'FAILED')`. `resourceType`/`resourceId` name the record (`customer` = a customer profile id, `seller_account`, `buyer_company`), `payloadJson` what the action will do (version, flags), `reason` why. **`pendingKey`** is `KIND:resourceId` while the row is PENDING and NULL once decided; its UNIQUE index (`uq_admin_pending_action_open`) therefore allows exactly one open request per action per record, because MariaDB treats every NULL as distinct. The decision is a conditional `UPDATE … WHERE status = 'PENDING'`, so two approvers cannot both win. Asker and approver are plain ids and e-mails (no foreign keys: the row is evidence), and the asker can never be the approver (service rule). Indexed by `(status, requestedAt)` and `(resourceType, resourceId)`.
 - `exception_queue_settings`: `queueKey` (primary key), `slaHours`, `ownerRole`, `escalationRole` (role keys, validated against `roles` by the service), `updatedById`. A queue with no row uses the default in `modules/governance/exception-queues.definitions.ts`.
 - `listing_prohibited_terms`: `term` (UNIQUE, stored lower case), `reason`, `severity` (the listing issue severities, default WARNING), `isActive`. A hit on submission is written to `seller_listing_issues` with code `PROHIBITED_TERM` and `isFromModerator = false`.
 - `seller_listing_drafts`: status gains `APPEALED` (REJECTED → APPEALED by the seller; APPEALED → PENDING_REVIEW or REJECTED by a moderator other than `reviewedByUserId`, in `domain/seller-state.ts`). New columns `evidenceRequestJson` (`[{ kind, label, note }]`, set with ACTION_REQUIRED), `appealReason`, `appealedAt`, `appealDecidedById`, `appealDecidedAt`, `appealOutcome` (UPHELD or REFUSED).

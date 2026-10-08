@@ -30,7 +30,6 @@ function visitor(login = vi.fn().mockResolvedValue({ next: 'READY' })): ReturnTy
 async function signIn(user: ReturnType<typeof userEvent.setup>): Promise<void> {
   await user.type(screen.getByLabelText(/email address/i), 'asha@example.test');
   await user.type(screen.getByLabelText(/password/i), 'CorrectHorseBattery1');
-  await user.click(screen.getByRole('checkbox'));
   await user.click(screen.getByRole('button', { name: /sign in/i }));
 }
 

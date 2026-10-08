@@ -15,7 +15,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
-import { badRequest, ErrorCode, notFound } from '../../domain/errors.js';
+import { badRequest, ErrorCode, forbidden, notFound } from '../../domain/errors.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
 import {
   criticalActionApprovalRequired,
@@ -25,7 +25,6 @@ import { staffActorFrom } from './governance.admin.js';
 import { prisma } from '../../infra/prisma.js';
 import {
   createAdminDocumentLink,
-  decideSellerDocument,
   listDocumentsForReview,
   redeemDocumentLink,
 } from '../../modules/seller/document.service.js';
@@ -35,7 +34,8 @@ import {
   MAX_SUPPLIERS,
 } from '../../modules/catalog/supplier-directory.service.js';
 import { sellerAccessForStaff } from '../../modules/access-review/admin-access-review.service.js';
-import { approvalReadiness, recordScreening } from '../../modules/seller/application-review.service.js';
+import { approvalReadiness } from '../../modules/seller/application-review.service.js';
+import { readTurnoverReview } from '../../modules/seller/turnover.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -72,6 +72,18 @@ const idParam = z.object({ id: z.string().length(26) });
 function safeFileName(name: string): string {
   const cleaned = name.replace(/[^\w.\-() ]+/g, '_').slice(0, 120);
   return cleaned.length > 0 ? cleaned : 'document';
+}
+
+/**
+ * The Admin Panel reads seller verification and never decides it. One refusal,
+ * so every route that used to decide answers the same way, and no role -
+ * however senior - has a way round it here.
+ */
+function refuseVerificationWrite(): never {
+  throw forbidden(
+    ErrorCode.SELLER_VERIFICATION_AUDIT_ONLY,
+    'Seller verification is managed by the Audit Team in the Audit Console. The Admin Panel can read it but not change it.',
+  );
 }
 
 export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
@@ -184,11 +196,16 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   );
 
   /**
-   * Decide an application.
+   * Suspend a seller, or lift a suspension. Nothing else.
    *
-   * `CUSTOMER_STATUS_WRITE` rather than `CUSTOMER_WRITE`: approving a seller is
-   * the same kind of authority as activating or suspending an account, and the
-   * operator's role matrix already separates those two for exactly this reason.
+   * Seller verification - taking an application for review, asking for
+   * corrections, approving, rejecting - belongs to the Audit Team and is
+   * decided in the Audit Console. The Admin Panel keeps the two operational
+   * controls over a seller that is already verified: stopping it trading, and
+   * letting it trade again. Lifting a suspension still runs the evidence gate,
+   * so it cannot turn a seller whose evidence has lapsed back on. Any other
+   * status is refused with SELLER_VERIFICATION_AUDIT_ONLY, whatever role or
+   * permission the administrator holds.
    */
   app.post(
     '/sellers/:id/decision',
@@ -206,41 +223,47 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
             'REJECTED',
             'SUSPENDED',
           ]),
-          /** Seller-visible. The machine requires it on every refusal and stop. */
+          /** Seller-visible. The machine requires it on every stop. */
           reason: z.string().trim().max(4000).nullable().optional(),
           /** Operator-only. Never serialised to a seller route. */
           internalNote: z.string().trim().max(4000).nullable().optional(),
           resubmissionAllowed: z.boolean().optional(),
-          /** Refuses the write if another administrator decided it meanwhile. */
+          /** Refuses the write if somebody else changed it meanwhile. */
           expectedVersion: z.number().int().min(0).nullable().optional(),
         })
         .parse(request.body);
 
+      const seller = await prisma.sellerAccount.findUnique({
+        where: { id: params.id },
+        select: { displayName: true, status: true },
+      });
+      if (seller === null) throw notFound('Seller');
+
+      const liftingSuspension = body.status === 'APPROVED' && seller.status === 'SUSPENDED';
+      if (body.status !== 'SUSPENDED' && !liftingSuspension) refuseVerificationWrite();
+
       /*
-       * Maker-checker (JOURNEY-061). Suspending or refusing a seller stops a
-       * business trading, so with `critical_action_approval` on it is recorded
-       * as a request that a second member of staff approves. 202, not 204:
-       * nothing has changed yet.
+       * Maker-checker (JOURNEY-061). Suspending a seller stops a business
+       * trading, so with `critical_action_approval` on it is recorded as a
+       * request that a second member of staff approves. 202, not 204: nothing
+       * has changed yet.
        */
-      if ((body.status === 'SUSPENDED' || body.status === 'REJECTED') && (await criticalActionApprovalRequired())) {
+      if (body.status === 'SUSPENDED' && (await criticalActionApprovalRequired())) {
         const reason = (body.reason ?? '').trim();
         if (reason.length === 0) {
           throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the reason the seller will see.', [
             { field: 'reason', code: 'REQUIRED' },
           ]);
         }
-        const seller = await prisma.sellerAccount.findUnique({ where: { id: params.id }, select: { displayName: true } });
-        if (seller === null) throw notFound('Seller');
         const pending = await requestPendingAction(
           {
-            kind: body.status === 'SUSPENDED' ? 'SELLER_SUSPEND' : 'SELLER_REJECT',
+            kind: 'SELLER_SUSPEND',
             resourceType: 'seller_account',
             resourceId: params.id,
             resourceLabel: seller.displayName,
             payload: {
               internalNote: body.internalNote ?? null,
               expectedVersion: body.expectedVersion ?? null,
-              ...(body.resubmissionAllowed === undefined ? {} : { resubmissionAllowed: body.resubmissionAllowed }),
             },
             reason,
           },
@@ -255,9 +278,7 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         reason: body.reason ?? null,
         internalNote: body.internalNote ?? null,
         adminUserId: auth.id,
-        ...(body.resubmissionAllowed === undefined
-          ? {}
-          : { resubmissionAllowed: body.resubmissionAllowed }),
+        actorType: 'ADMIN',
         correlationId: request.correlationId,
         expectedVersion: body.expectedVersion ?? null,
       });
@@ -266,44 +287,32 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  /**
-   * Record a manual restricted-party / sanctions screening of the seller
-   * business or one of its owners: which lists were checked, the result
-   * (CLEAR, POTENTIAL_MATCH or CONFIRMED_MATCH) and a note. Always recorded as
-   * a manual check by a member of staff, never as an automated one. The
-   * previous screening of the same subject is kept as history. Writes an
-   * audit entry; the seller is not told.
-   */
+  // Refused: recording a sanctions screening is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY.
   app.post(
     '/sellers/:id/screening',
-    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    () => {
+      refuseVerificationWrite();
+    },
+  );
+
+  // The seller's declared annual turnover under the eligibility policy, every earlier declaration, the supporting documents and who verified what. Staff only.
+  app.get(
+    '/sellers/:id/turnover',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
-      const auth = currentUser(request);
+      const review = await readTurnoverReview(params.id);
+      return reply.header('cache-control', 'no-store').status(200).send(review);
+    },
+  );
 
-      const body = z
-        .object({
-          subjectType: z.enum(['ENTITY', 'BENEFICIAL_OWNER']),
-          beneficialOwnerId: z.string().length(26).nullable().optional(),
-          result: z.enum(['CLEAR', 'POTENTIAL_MATCH', 'CONFIRMED_MATCH']),
-          /** Which lists were consulted, in the reviewer's own words. */
-          listsChecked: z.string().trim().min(2).max(512),
-          note: z.string().trim().max(4000).nullable().optional(),
-        })
-        .parse(request.body);
-
-      const screening = await recordScreening({
-        sellerAccountId: params.id,
-        subjectType: body.subjectType,
-        beneficialOwnerId: body.beneficialOwnerId ?? null,
-        result: body.result,
-        listsChecked: body.listsChecked,
-        note: body.note ?? null,
-        adminUserId: auth.id,
-        correlationId: request.correlationId,
-      });
-
-      return reply.header('cache-control', 'no-store').status(201).send(screening);
+  // Refused: verifying turnover is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY.
+  app.post(
+    '/sellers/:id/turnover/decision',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    () => {
+      refuseVerificationWrite();
     },
   );
 
@@ -429,37 +438,12 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  /**
-   * Accept or refuse one.
-   *
-   * A refusal must carry a reason and the service enforces it, not the form:
-   * "your certificate was not accepted" with no reason is a seller who uploads
-   * the same file again, and a queue that grows.
-   */
+  // Refused: accepting or refusing an onboarding document is part of seller verification, which the Audit Team decides in the Audit Console. Always 403 SELLER_VERIFICATION_AUDIT_ONLY.
   app.post(
     '/seller-documents/:id/decision',
-    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
-    async (request, reply) => {
-      const params = idParam.parse(request.params);
-      const auth = currentUser(request);
-
-      const body = z
-        .object({
-          decision: z.enum(['APPROVED', 'REJECTED']),
-          /** Seller-visible, and required on a refusal. */
-          reason: z.string().trim().max(2000).nullable().optional(),
-        })
-        .parse(request.body);
-
-      await decideSellerDocument({
-        documentId: params.id,
-        decision: body.decision,
-        reason: body.reason ?? null,
-        adminUserId: auth.id,
-        correlationId: request.correlationId,
-      });
-
-      return reply.status(204).send();
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    () => {
+      refuseVerificationWrite();
     },
   );
 

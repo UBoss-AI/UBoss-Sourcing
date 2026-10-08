@@ -113,17 +113,16 @@ async function execute(action: PendingActionView, approver: StaffActor): Promise
   const expectedVersion = typeof payload.expectedVersion === 'number' ? payload.expectedVersion : null;
 
   switch (action.kind) {
-    case 'SELLER_SUSPEND':
     case 'SELLER_REJECT':
+      return refuseSellerReject();
+    case 'SELLER_SUSPEND':
       await decideApplication({
         sellerAccountId: action.resourceId,
-        to: action.kind === 'SELLER_SUSPEND' ? 'SUSPENDED' : 'REJECTED',
+        to: 'SUSPENDED',
         reason: action.reason,
         internalNote: text('internalNote'),
         adminUserId: approver.userId,
-        ...(typeof payload.resubmissionAllowed === 'boolean'
-          ? { resubmissionAllowed: payload.resubmissionAllowed }
-          : {}),
+        actorType: 'ADMIN',
         correlationId: approver.correlationId ?? null,
         expectedVersion,
       });
@@ -278,6 +277,19 @@ async function close(
   }
 }
 
+/**
+ * Rejecting a seller application is a verification decision, and those belong
+ * to the Audit Team. A request queued before that change cannot be approved
+ * into a rejection from the Admin Panel; the Audit Team decides the
+ * application in the Audit Console. The request can still be declined.
+ */
+function refuseSellerReject(): never {
+  throw forbidden(
+    ErrorCode.SELLER_VERIFICATION_AUDIT_ONLY,
+    'Rejecting a seller application is decided by the Audit Team in the Audit Console.',
+  );
+}
+
 /** Approve a request and run the action. The asker may not approve their own. */
 export async function approvePendingAction(id: string, approver: StaffActor, note: string | null): Promise<PendingActionView> {
   const row = await loadOpen(id);
@@ -290,6 +302,9 @@ export async function approvePendingAction(id: string, approver: StaffActor, not
   if (!approver.permissions.includes(PENDING_ACTION_PERMISSION[row.kind])) {
     throw forbidden();
   }
+  // Refused before the request is closed, so it stays open to be declined
+  // rather than being marked approved with nothing done.
+  if (row.kind === 'SELLER_REJECT') refuseSellerReject();
   await close(row, { status: 'APPROVED', decidedById: approver.userId, decidedByEmail: approver.email, decisionNote: note });
 
   let failure: unknown = null;

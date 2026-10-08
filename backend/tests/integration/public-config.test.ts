@@ -73,6 +73,10 @@ describe('GET /api/v1/config', () => {
       // one carton, worked out from the catalogue's piece price and this
       // figure, so the browser cannot render a price without it.
       'ordering',
+      // The seller turnover eligibility policy, so the public Sell page can
+      // state it before anybody applies: the minimum as a string of minor
+      // units, its currency and policy version. A setting, not a secret.
+      'sellerEligibility',
     ]);
 
     expect(Object.keys(body.ordering).sort()).toEqual(['piecesPerCarton']);

@@ -38,8 +38,13 @@ describe('platformDefaultPolicy', () => {
       defaultMinimum: 1000,
     });
     expect(policy.scope).toBe('PLATFORM_DEFAULT');
-    expect(policy.moqQuantity).toBe(1000);
-    expect(quantityRulesFor(policy, { PIECE: 1 }).rules?.minimumBaseUnits).toBe(1000);
+    expect(policy.originalBrandMoqQuantity).toBe(1000);
+    // Nobody wrote OEM terms, so the platform never offers OEM.
+    expect(policy.oemEnabled).toBe(false);
+    expect(policy.oemMoqQuantity).toBeNull();
+    expect(quantityRulesFor(policy, { PIECE: 1 }, 'ORIGINAL_BRAND').rules?.minimumBaseUnits).toBe(
+      1000,
+    );
     expect(policy.tiers[0]?.minBaseUnits).toBe(1000);
   });
 
@@ -51,7 +56,7 @@ describe('platformDefaultPolicy', () => {
       currency: 'INR',
     });
     // PREORDER_DEFAULT_MOQ's default.
-    expect(policy.moqQuantity).toBe(1000);
+    expect(policy.originalBrandMoqQuantity).toBe(1000);
     expect(policy.pricingMode).toBe('QUOTE_REQUIRED');
   });
 

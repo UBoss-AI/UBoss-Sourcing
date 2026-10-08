@@ -22,6 +22,8 @@ import {
   agencyJobList,
   operatorInspectionView,
 } from '../inspection/views.service.js';
+import { EMPTY_SIGNALS, compareHealth, rateSellerHealth, type HealthBand, type SellerHealth } from '../../domain/seller-health.js';
+import { sellerHealth, sellerHealthMap } from './health.service.js';
 import type { AuditMember } from './membership.service.js';
 
 const iso = (value: Date | null | undefined): string | null => (value === null || value === undefined ? null : value.toISOString());
@@ -484,7 +486,7 @@ export async function consoleDashboard(member: AuditMember) {
 // Sellers (staff)
 // ---------------------------------------------------------------------------
 
-export async function consoleSellers(filters: { search?: string | null; status?: string | null }) {
+export async function consoleSellers(filters: { search?: string | null; status?: string | null; health?: HealthBand | null; sort?: 'name' | 'risk' }) {
   const search = filters.search?.trim() ?? '';
   const sellers = await prisma.sellerAccount.findMany({
     where: {
@@ -504,7 +506,10 @@ export async function consoleSellers(filters: { search?: string | null; status?:
       certifications: { where: { archivedAt: null }, select: { reviewStatus: true } },
     },
   });
-  return sellers.map((seller) => ({
+  const health = await sellerHealthMap(sellers.map((seller) => seller.id));
+  // The map holds every id asked for; the fallback is a clean record.
+  const healthOf = (id: string): SellerHealth => health.get(id) ?? rateSellerHealth({ ...EMPTY_SIGNALS });
+  const rows = sellers.map((seller) => ({
     id: seller.id,
     name: seller.displayName,
     kind: seller.kind,
@@ -513,6 +518,14 @@ export async function consoleSellers(filters: { search?: string | null; status?:
     qualifications: seller.complianceCases.filter((row) => row.level === 'SELLER_CATEGORY' && row.status === 'QUALIFIED').length,
     casesOpen: seller.complianceCases.filter((row) => ['REQUESTED', 'UNDER_REVIEW', 'CHANGES_REQUESTED', 'REREVIEW_REQUIRED'].includes(row.status)).length,
     documentsWaiting: seller.certifications.filter((row) => row.reviewStatus === 'SUBMITTED' || row.reviewStatus === 'UNDER_REVIEW').length,
+    // The list carries the rating and its counts; the issues are on the seller's page.
+    rating: healthOf(seller.id),
+  }));
+  const filtered = filters.health ? rows.filter((row) => row.rating.band === filters.health) : rows;
+  if (filters.sort === 'risk') filtered.sort((a, b) => compareHealth(a.rating, b.rating) || a.name.localeCompare(b.name));
+  return filtered.map(({ rating, ...row }) => ({
+    ...row,
+    health: { score: rating.score, band: rating.band, bySeverity: rating.bySeverity, passRatePercent: rating.inspection.passRatePercent },
   }));
 }
 
@@ -535,7 +548,7 @@ export async function consoleSellerDetail(sellerAccountId: string) {
     },
   });
   if (seller === null) throw notFound('Seller');
-  const [trustChecks, screening, cases, documents] = await Promise.all([
+  const [trustChecks, screening, cases, documents, health] = await Promise.all([
     prisma.sellerTrustCheck.findMany({
       where: { sellerAccountId, isCurrent: true },
       select: { kind: true, state: true, method: true, issuer: true, checkedAt: true, validUntil: true },
@@ -543,6 +556,7 @@ export async function consoleSellerDetail(sellerAccountId: string) {
     prisma.sellerScreeningCheck.findMany({ where: { sellerAccountId }, orderBy: { createdAt: "desc" }, take: 5, select: { state: true, createdAt: true } }),
     prisma.complianceCase.findMany({ where: { sellerAccountId }, orderBy: { updatedAt: 'desc' }, include: { category: { select: { name: true } } } }),
     prisma.sellerCertification.findMany({ where: { sellerAccountId, archivedAt: null }, orderBy: { updatedAt: 'desc' } }),
+    sellerHealth(sellerAccountId),
   ]);
   return {
     seller: {
@@ -559,6 +573,7 @@ export async function consoleSellerDetail(sellerAccountId: string) {
       screening: screening.map((row) => ({ state: row.state, at: iso(row.createdAt) })),
     },
     factories: seller.factories,
+    health,
     cases: cases.map((row) => ({
       id: row.id,
       caseNumber: row.caseNumber,
@@ -578,6 +593,7 @@ export async function consoleSellerDetail(sellerAccountId: string) {
       documentType: row.documentType,
       reviewStatus: row.reviewStatus,
       expiresOn: row.expiresOn?.toISOString().slice(0, 10) ?? null,
+      issuer: row.issuer,
       requirementCodes: strings(row.requirementCodesJson),
       categoryScopeIds: strings(row.categoryScopeIdsJson),
       revision: row.revision,

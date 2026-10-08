@@ -16,6 +16,8 @@
  * `POST /audit/auth/password/change`.
  */
 import { useState } from 'react';
+import { AgreementHistory } from '@/components/agreement-kit/AgreementHistory';
+import { agreementsClient } from '@/lib/agreements';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -106,6 +108,9 @@ export function ProfilePage(): React.JSX.Element {
         </Card>
 
         <ChangePasswordCard />
+
+        {/* The console terms and Privacy Policy notices this person accepted. */}
+        <AgreementHistory client={agreementsClient} />
       </div>
     </>
   );

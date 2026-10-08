@@ -1,0 +1,29 @@
+{
+ "ranAt": "2026-09-29T03:09:20.344Z",
+ "browser": "Chrome/153.0.8010.48",
+ "out": [
+  {
+   "label": "normal",
+   "throttled": false,
+   "effectiveType": "4g",
+   "searchVisibleMs": 1085,
+   "productsLinkMs": 1085,
+   "canvasMs": 1552,
+   "globeRequests": 2,
+   "globeSample": [
+    "/assets/3d-globe-DgEUVitC.js",
+    "/assets/EarthScene-Bb8lj3LY.js"
+   ]
+  },
+  {
+   "label": "slow3g",
+   "throttled": true,
+   "effectiveType": "3g",
+   "searchVisibleMs": 8521,
+   "productsLinkMs": 8521,
+   "canvasMs": null,
+   "globeRequests": 0,
+   "globeSample": []
+  }
+ ]
+}

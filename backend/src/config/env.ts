@@ -1163,6 +1163,16 @@ const envSchema = z
     // all have to manufacture a fresh TOTP code for each session.
     FEATURE_ADMIN_MFA: booleanFromString.default(true),
 
+    // --- Terms and privacy notice after sign-in ---
+    // Every signed-in person - buyer, seller, carrier staff, operator staff,
+    // Audit Console user - must have accepted the Terms for their kind of
+    // account and acknowledged the Privacy Policy before anything else on the
+    // API answers them. Only documents that are published and in force are
+    // asked for. On by default and refused off in production; the switch exists
+    // for the same reason FEATURE_ADMIN_MFA has one - unrelated integration
+    // suites, and `agreement-gate.test.ts` switches it back on for itself.
+    FEATURE_AGREEMENT_GATE: booleanFromString.default(true),
+
     // --- Audit Console ---
     // The master switch. Off: every /audit route answers FEATURE_DISABLED and
     // nobody can be invited. Inspection itself - booking, the dispatch gate,
@@ -1807,6 +1817,35 @@ const envSchema = z
     /// Whether a seller application must name at least one person who owns
     /// or controls the business before it can be submitted. True by default.
     SELLER_REQUIRE_BENEFICIAL_OWNERS: booleanFromString.default(true),
+    // --- Seller turnover eligibility ---
+    //
+    // The marketplace's own platform policy, not a legal requirement: only a
+    // business whose annual turnover for its most recently completed
+    // financial year is STRICTLY GREATER than the minimum may apply to sell.
+    // Enforced on `/sellers/apply`, on every submission and resubmission, and
+    // at approval (a reviewer must verify the figure). Sellers approved before
+    // the rule existed are not affected. See `domain/seller-turnover.ts`.
+
+    /// Whether the rule applies at all. On by default.
+    SELLER_TURNOVER_REQUIRED: booleanFromString.default(true),
+    /// The minimum, in whole minor units of SELLER_TURNOVER_CURRENCY, that a
+    /// turnover must EXCEED. The default is INR 30 crore (300,000,000 rupees
+    /// = 30,000,000,000 paise). Digits only: never a float.
+    SELLER_TURNOVER_MIN_MINOR: z
+      .string()
+      .trim()
+      .regex(/^\d{1,18}$/, 'Whole minor units, digits only.')
+      .default('30000000000'),
+    /// The currency the turnover is declared and compared in. ISO 4217.
+    SELLER_TURNOVER_CURRENCY: z.string().trim().toUpperCase().length(3).default('INR'),
+    /// Stored with every declaration, so "which policy did this seller
+    /// declare against" stays answerable after the threshold changes. Change
+    /// it whenever the minimum or the wording changes.
+    SELLER_TURNOVER_POLICY_VERSION: z.string().trim().min(1).max(32).default('2026-10'),
+    /// The month (1-12) a financial year usually starts in here. Only the
+    /// default the form offers - a business with another year-end picks it.
+    /// 4 (April) for India.
+    SELLER_TURNOVER_FY_START_MONTH: intFromString(1, 12).default(4),
 
     // --- Product reviews ---
     //
@@ -2567,6 +2606,15 @@ const envSchema = z
           code: z.ZodIssueCode.custom,
           path: ['FEATURE_ADMIN_MFA'],
           message: 'must be true in production for every privileged staff session',
+        });
+      }
+      if (!value.FEATURE_AGREEMENT_GATE) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['FEATURE_AGREEMENT_GATE'],
+          message:
+            'must be true in production: without it nobody is asked to accept the Terms or ' +
+            'acknowledge the Privacy Policy after signing in',
         });
       }
       if (!value.FEATURE_AUDIT_MFA) {

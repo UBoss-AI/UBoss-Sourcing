@@ -1,0 +1,4 @@
+{ "base": "http://localhost:5174", "widths": [320, 360, 375, 768], "focusWidth": 0,
+  "pages": [
+    { "name": "tabs", "path": "/", "after": "(() => { const n = document.querySelector('nav[aria-label]'); const f = document.querySelector('form[role=search]'); return { navW: n.clientWidth, navSW: n.scrollWidth, formW: f.clientWidth, links: [...n.querySelectorAll('a')].map(a => a.textContent.trim() + ':' + Math.round(a.getBoundingClientRect().right)) }; })()" }
+  ] }

@@ -74,6 +74,7 @@ function doc(overrides: Partial<LegalDocument> = {}): LegalDocument {
     updatedAt: '2026-09-30T00:00:00.000Z',
     acceptanceCount: 12,
     isCurrentVersion: true,
+    requiresReacceptance: true,
     ...overrides,
   };
 }

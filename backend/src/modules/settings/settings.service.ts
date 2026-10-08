@@ -11,6 +11,7 @@
  *   - Disabling a feature that live records depend on reports the dependency
  *     rather than silently stranding them.
  */
+import { turnoverPolicyView } from '../seller/turnover-facts.service.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { parseRateToScaled } from '../../domain/money.js';
@@ -1010,6 +1011,14 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
     ordering: {
       piecesPerCarton: env.PIECES_PER_CARTON,
     },
+
+    /**
+     * The seller turnover eligibility policy, so the public "Sell" page can
+     * state it before anybody applies. The minimum travels as a string of
+     * minor units, like all money. The marketplace's own policy - the page
+     * must never present it as a legal requirement.
+     */
+    sellerEligibility: turnoverPolicyView(),
 
     /**
      * What the chat widget has to say about itself before anyone types.

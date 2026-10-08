@@ -34,7 +34,9 @@ export type AggregatePreorderPolicy = {
 }
 
 export type PreorderPolicyAvgAggregateOutputType = {
-  moqQuantity: number | null
+  legacyMoqQuantity: number | null
+  originalBrandMoqQuantity: number | null
+  oemMoqQuantity: number | null
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
@@ -47,7 +49,9 @@ export type PreorderPolicyAvgAggregateOutputType = {
 }
 
 export type PreorderPolicySumAggregateOutputType = {
-  moqQuantity: number | null
+  legacyMoqQuantity: number | null
+  originalBrandMoqQuantity: number | null
+  oemMoqQuantity: number | null
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
@@ -68,7 +72,12 @@ export type PreorderPolicyMinAggregateOutputType = {
   productId: string | null
   isEnabled: boolean | null
   moqUnit: $Enums.PreorderQuantityUnit | null
-  moqQuantity: number | null
+  legacyMoqQuantity: number | null
+  originalBrandEnabled: boolean | null
+  originalBrandMoqQuantity: number | null
+  oemEnabled: boolean | null
+  oemMoqQuantity: number | null
+  productOptionsReviewRequired: boolean | null
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
@@ -98,7 +107,12 @@ export type PreorderPolicyMaxAggregateOutputType = {
   productId: string | null
   isEnabled: boolean | null
   moqUnit: $Enums.PreorderQuantityUnit | null
-  moqQuantity: number | null
+  legacyMoqQuantity: number | null
+  originalBrandEnabled: boolean | null
+  originalBrandMoqQuantity: number | null
+  oemEnabled: boolean | null
+  oemMoqQuantity: number | null
+  productOptionsReviewRequired: boolean | null
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
@@ -128,7 +142,12 @@ export type PreorderPolicyCountAggregateOutputType = {
   productId: number
   isEnabled: number
   moqUnit: number
-  moqQuantity: number
+  legacyMoqQuantity: number
+  originalBrandEnabled: number
+  originalBrandMoqQuantity: number
+  oemEnabled: number
+  oemMoqQuantity: number
+  productOptionsReviewRequired: number
   incrementQuantity: number
   maxQuantity: number
   capacityBaseUnits: number
@@ -155,7 +174,9 @@ export type PreorderPolicyCountAggregateOutputType = {
 
 
 export type PreorderPolicyAvgAggregateInputType = {
-  moqQuantity?: true
+  legacyMoqQuantity?: true
+  originalBrandMoqQuantity?: true
+  oemMoqQuantity?: true
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
@@ -168,7 +189,9 @@ export type PreorderPolicyAvgAggregateInputType = {
 }
 
 export type PreorderPolicySumAggregateInputType = {
-  moqQuantity?: true
+  legacyMoqQuantity?: true
+  originalBrandMoqQuantity?: true
+  oemMoqQuantity?: true
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
@@ -189,7 +212,12 @@ export type PreorderPolicyMinAggregateInputType = {
   productId?: true
   isEnabled?: true
   moqUnit?: true
-  moqQuantity?: true
+  legacyMoqQuantity?: true
+  originalBrandEnabled?: true
+  originalBrandMoqQuantity?: true
+  oemEnabled?: true
+  oemMoqQuantity?: true
+  productOptionsReviewRequired?: true
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
@@ -219,7 +247,12 @@ export type PreorderPolicyMaxAggregateInputType = {
   productId?: true
   isEnabled?: true
   moqUnit?: true
-  moqQuantity?: true
+  legacyMoqQuantity?: true
+  originalBrandEnabled?: true
+  originalBrandMoqQuantity?: true
+  oemEnabled?: true
+  oemMoqQuantity?: true
+  productOptionsReviewRequired?: true
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
@@ -249,7 +282,12 @@ export type PreorderPolicyCountAggregateInputType = {
   productId?: true
   isEnabled?: true
   moqUnit?: true
-  moqQuantity?: true
+  legacyMoqQuantity?: true
+  originalBrandEnabled?: true
+  originalBrandMoqQuantity?: true
+  oemEnabled?: true
+  oemMoqQuantity?: true
+  productOptionsReviewRequired?: true
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
@@ -369,7 +407,12 @@ export type PreorderPolicyGroupByOutputType = {
   productId: string | null
   isEnabled: boolean
   moqUnit: $Enums.PreorderQuantityUnit
-  moqQuantity: number | null
+  legacyMoqQuantity: number | null
+  originalBrandEnabled: boolean
+  originalBrandMoqQuantity: number | null
+  oemEnabled: boolean
+  oemMoqQuantity: number | null
+  productOptionsReviewRequired: boolean
   incrementQuantity: number
   maxQuantity: number | null
   capacityBaseUnits: number | null
@@ -425,7 +468,12 @@ export type PreorderPolicyWhereInput = {
   productId?: Prisma.StringNullableFilter<"PreorderPolicy"> | string | null
   isEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFilter<"PreorderPolicy"> | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  legacyMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  originalBrandEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  originalBrandMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  oemEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  oemMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  productOptionsReviewRequired?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   incrementQuantity?: Prisma.IntFilter<"PreorderPolicy"> | number
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
@@ -461,7 +509,12 @@ export type PreorderPolicyOrderByWithRelationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   moqUnit?: Prisma.SortOrder
-  moqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalBrandEnabled?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  oemEnabled?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionsReviewRequired?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -502,7 +555,12 @@ export type PreorderPolicyWhereUniqueInput = Prisma.AtLeast<{
   productId?: Prisma.StringNullableFilter<"PreorderPolicy"> | string | null
   isEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFilter<"PreorderPolicy"> | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  legacyMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  originalBrandEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  originalBrandMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  oemEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  oemMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  productOptionsReviewRequired?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   incrementQuantity?: Prisma.IntFilter<"PreorderPolicy"> | number
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
@@ -538,7 +596,12 @@ export type PreorderPolicyOrderByWithAggregationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   moqUnit?: Prisma.SortOrder
-  moqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalBrandEnabled?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  oemEnabled?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  productOptionsReviewRequired?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -579,7 +642,12 @@ export type PreorderPolicyScalarWhereWithAggregatesInput = {
   productId?: Prisma.StringNullableWithAggregatesFilter<"PreorderPolicy"> | string | null
   isEnabled?: Prisma.BoolWithAggregatesFilter<"PreorderPolicy"> | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitWithAggregatesFilter<"PreorderPolicy"> | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
+  legacyMoqQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
+  originalBrandEnabled?: Prisma.BoolWithAggregatesFilter<"PreorderPolicy"> | boolean
+  originalBrandMoqQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
+  oemEnabled?: Prisma.BoolWithAggregatesFilter<"PreorderPolicy"> | boolean
+  oemMoqQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
+  productOptionsReviewRequired?: Prisma.BoolWithAggregatesFilter<"PreorderPolicy"> | boolean
   incrementQuantity?: Prisma.IntWithAggregatesFilter<"PreorderPolicy"> | number
   maxQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
@@ -611,7 +679,12 @@ export type PreorderPolicyCreateInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -647,7 +720,12 @@ export type PreorderPolicyUncheckedCreateInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -681,7 +759,12 @@ export type PreorderPolicyUpdateInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -717,7 +800,12 @@ export type PreorderPolicyUncheckedUpdateInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -752,7 +840,12 @@ export type PreorderPolicyCreateManyInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -784,7 +877,12 @@ export type PreorderPolicyUpdateManyMutationInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -817,7 +915,12 @@ export type PreorderPolicyUncheckedUpdateManyInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -872,7 +975,12 @@ export type PreorderPolicyCountOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   moqUnit?: Prisma.SortOrder
-  moqQuantity?: Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrder
+  originalBrandEnabled?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrder
+  oemEnabled?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrder
+  productOptionsReviewRequired?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
@@ -897,7 +1005,9 @@ export type PreorderPolicyCountOrderByAggregateInput = {
 }
 
 export type PreorderPolicyAvgOrderByAggregateInput = {
-  moqQuantity?: Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
@@ -918,7 +1028,12 @@ export type PreorderPolicyMaxOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   moqUnit?: Prisma.SortOrder
-  moqQuantity?: Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrder
+  originalBrandEnabled?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrder
+  oemEnabled?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrder
+  productOptionsReviewRequired?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
@@ -948,7 +1063,12 @@ export type PreorderPolicyMinOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   moqUnit?: Prisma.SortOrder
-  moqQuantity?: Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrder
+  originalBrandEnabled?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrder
+  oemEnabled?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrder
+  productOptionsReviewRequired?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
@@ -970,7 +1090,9 @@ export type PreorderPolicyMinOrderByAggregateInput = {
 }
 
 export type PreorderPolicySumOrderByAggregateInput = {
-  moqQuantity?: Prisma.SortOrder
+  legacyMoqQuantity?: Prisma.SortOrder
+  originalBrandMoqQuantity?: Prisma.SortOrder
+  oemMoqQuantity?: Prisma.SortOrder
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
@@ -1081,7 +1203,12 @@ export type PreorderPolicyCreateWithoutSellerAccountInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1115,7 +1242,12 @@ export type PreorderPolicyUncheckedCreateWithoutSellerAccountInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1179,7 +1311,12 @@ export type PreorderPolicyScalarWhereInput = {
   productId?: Prisma.StringNullableFilter<"PreorderPolicy"> | string | null
   isEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFilter<"PreorderPolicy"> | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  legacyMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  originalBrandEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  originalBrandMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  oemEnabled?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
+  oemMoqQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
+  productOptionsReviewRequired?: Prisma.BoolFilter<"PreorderPolicy"> | boolean
   incrementQuantity?: Prisma.IntFilter<"PreorderPolicy"> | number
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
@@ -1211,7 +1348,12 @@ export type PreorderPolicyCreateWithoutTiersInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1246,7 +1388,12 @@ export type PreorderPolicyUncheckedCreateWithoutTiersInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1295,7 +1442,12 @@ export type PreorderPolicyUpdateWithoutTiersInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1330,7 +1482,12 @@ export type PreorderPolicyUncheckedUpdateWithoutTiersInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1363,7 +1520,12 @@ export type PreorderPolicyCreateWithoutCapacityInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1398,7 +1560,12 @@ export type PreorderPolicyUncheckedCreateWithoutCapacityInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1447,7 +1614,12 @@ export type PreorderPolicyUpdateWithoutCapacityInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1482,7 +1654,12 @@ export type PreorderPolicyUncheckedUpdateWithoutCapacityInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1515,7 +1692,12 @@ export type PreorderPolicyCreateManySellerAccountInput = {
   productId?: string | null
   isEnabled?: boolean
   moqUnit?: $Enums.PreorderQuantityUnit
-  moqQuantity?: number | null
+  legacyMoqQuantity?: number | null
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: number | null
+  oemEnabled?: boolean
+  oemMoqQuantity?: number | null
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: number
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
@@ -1547,7 +1729,12 @@ export type PreorderPolicyUpdateWithoutSellerAccountInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1581,7 +1768,12 @@ export type PreorderPolicyUncheckedUpdateWithoutSellerAccountInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1615,7 +1807,12 @@ export type PreorderPolicyUncheckedUpdateManyWithoutSellerAccountInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moqUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
-  moqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  legacyMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalBrandEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  originalBrandMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oemEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oemMoqQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productOptionsReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   incrementQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1688,7 +1885,12 @@ export type PreorderPolicySelect<ExtArgs extends runtime.Types.Extensions.Intern
   productId?: boolean
   isEnabled?: boolean
   moqUnit?: boolean
-  moqQuantity?: boolean
+  legacyMoqQuantity?: boolean
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: boolean
+  oemEnabled?: boolean
+  oemMoqQuantity?: boolean
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: boolean
   maxQuantity?: boolean
   capacityBaseUnits?: boolean
@@ -1727,7 +1929,12 @@ export type PreorderPolicySelectScalar = {
   productId?: boolean
   isEnabled?: boolean
   moqUnit?: boolean
-  moqQuantity?: boolean
+  legacyMoqQuantity?: boolean
+  originalBrandEnabled?: boolean
+  originalBrandMoqQuantity?: boolean
+  oemEnabled?: boolean
+  oemMoqQuantity?: boolean
+  productOptionsReviewRequired?: boolean
   incrementQuantity?: boolean
   maxQuantity?: boolean
   capacityBaseUnits?: boolean
@@ -1751,7 +1958,7 @@ export type PreorderPolicySelectScalar = {
   updatedAt?: boolean
 }
 
-export type PreorderPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "scope" | "scopeKey" | "offerId" | "productId" | "isEnabled" | "moqUnit" | "moqQuantity" | "incrementQuantity" | "maxQuantity" | "capacityBaseUnits" | "capacityPeriod" | "safetyStockBaseUnits" | "minLeadTimeDays" | "maxAdvanceDays" | "deliveryCountriesJson" | "eligibleLocationIdsJson" | "packagingTypesJson" | "pricingMode" | "allowPartialFulfilment" | "allowSplitDelivery" | "requestExpiryHours" | "offerExpiryHours" | "cancellationTerms" | "specialInstructions" | "version" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderPolicy"]>
+export type PreorderPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "scope" | "scopeKey" | "offerId" | "productId" | "isEnabled" | "moqUnit" | "legacyMoqQuantity" | "originalBrandEnabled" | "originalBrandMoqQuantity" | "oemEnabled" | "oemMoqQuantity" | "productOptionsReviewRequired" | "incrementQuantity" | "maxQuantity" | "capacityBaseUnits" | "capacityPeriod" | "safetyStockBaseUnits" | "minLeadTimeDays" | "maxAdvanceDays" | "deliveryCountriesJson" | "eligibleLocationIdsJson" | "packagingTypesJson" | "pricingMode" | "allowPartialFulfilment" | "allowSplitDelivery" | "requestExpiryHours" | "offerExpiryHours" | "cancellationTerms" | "specialInstructions" | "version" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderPolicy"]>
 export type PreorderPolicyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   tiers?: boolean | Prisma.PreorderPolicy$tiersArgs<ExtArgs>
@@ -1784,12 +1991,40 @@ export type $PreorderPolicyPayload<ExtArgs extends runtime.Types.Extensions.Inte
     offerId: string | null
     productId: string | null
     isEnabled: boolean
+    /**
+     * The unit BOTH minimums below are counted in, and the increment and
+     * maximum too, so "500 cartons OEM, 10 cartons Original Brand" can never
+     * become one figure in cartons and the other in pieces.
+     */
     moqUnit: $Enums.PreorderQuantityUnit
     /**
-     * Null means the seller has not set one. Never defaulted: a preorder with
-     * no minimum would be an ordinary order with extra steps.
+     * The single minimum from before OEM and Original Brand were separate.
+     * Kept only so the migration that split it can be audited; nothing reads or
+     * writes it. See `20261107100000_preorder_product_options`.
      */
-    moqQuantity: number | null
+    legacyMoqQuantity: number | null
+    /**
+     * Whether a buyer may preorder the product exactly as listed, under its
+     * own brand, and the least they may ask for. Null means not set. Never
+     * defaulted: a preorder with no minimum would be an ordinary order with
+     * extra steps.
+     */
+    originalBrandEnabled: boolean
+    originalBrandMoqQuantity: number | null
+    /**
+     * Whether a buyer may preorder it made to their own design or brand (OEM),
+     * and the least they may ask for. Independent of Original Brand: both may
+     * be offered at once, with different minimums.
+     */
+    oemEnabled: boolean
+    oemMoqQuantity: number | null
+    /**
+     * Set by the migration where the old single minimum could have been meant
+     * for OEM too (the seller advertises OEM on that product). Preorders keep
+     * working as Original Brand; the Seller Hub asks the seller to confirm.
+     * Cleared on the seller's next save.
+     */
+    productOptionsReviewRequired: boolean
     incrementQuantity: number
     maxQuantity: number | null
     /**
@@ -2224,7 +2459,12 @@ export interface PreorderPolicyFieldRefs {
   readonly productId: Prisma.FieldRef<"PreorderPolicy", 'String'>
   readonly isEnabled: Prisma.FieldRef<"PreorderPolicy", 'Boolean'>
   readonly moqUnit: Prisma.FieldRef<"PreorderPolicy", 'PreorderQuantityUnit'>
-  readonly moqQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
+  readonly legacyMoqQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
+  readonly originalBrandEnabled: Prisma.FieldRef<"PreorderPolicy", 'Boolean'>
+  readonly originalBrandMoqQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
+  readonly oemEnabled: Prisma.FieldRef<"PreorderPolicy", 'Boolean'>
+  readonly oemMoqQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
+  readonly productOptionsReviewRequired: Prisma.FieldRef<"PreorderPolicy", 'Boolean'>
   readonly incrementQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly maxQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly capacityBaseUnits: Prisma.FieldRef<"PreorderPolicy", 'Int'>

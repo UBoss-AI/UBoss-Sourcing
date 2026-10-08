@@ -8,7 +8,7 @@
  * would bind them to words nobody approved. A real deployment publishes its own
  * Terms from Administration → Legal documents, written by its own counsel.
  */
-import { legalContentHash, type TermsKindName } from '../../domain/legal-document.js';
+import { legalContentHash, type AgreementDocumentKind } from '../../domain/legal-document.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 
@@ -48,15 +48,24 @@ The website may terminate or suspend user access without prior notice for violat
 ## Governing Law
 These terms are governed by the laws of the jurisdiction where the website is primarily operated, without regard to conflict of law principles.`;
 
-const TITLES: Record<TermsKindName, string> = {
+/**
+ * Every document the agreement screen can ask for, so each surface's screen
+ * can be tried out. The Privacy Policy placeholder reuses the sample text: it
+ * describes nothing, which its notice says.
+ */
+const TITLES: Record<AgreementDocumentKind, string> = {
   PLATFORM_TERMS: 'Terms and Conditions (development placeholder)',
   LOGISTICS_PARTNER_TERMS: 'Logistics Partner Terms (development placeholder)',
+  SELLER_TERMS: 'Seller Addendum (development placeholder)',
+  STAFF_TERMS: 'Staff Terms (development placeholder)',
+  AUDIT_CONSOLE_TERMS: 'Audit Console Terms (development placeholder)',
+  PRIVACY_POLICY: 'Privacy Policy (development placeholder)',
 };
 
 /** Publish the placeholder for each kind that has nothing published yet. Idempotent. */
 export async function seedDevelopmentTerms(): Promise<number> {
   let published = 0;
-  for (const kind of Object.keys(TITLES) as TermsKindName[]) {
+  for (const kind of Object.keys(TITLES) as AgreementDocumentKind[]) {
     const existing = await prisma.legalDocument.count({ where: { kind, status: 'PUBLISHED' } });
     if (existing > 0) continue;
 

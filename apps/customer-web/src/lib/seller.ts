@@ -22,6 +22,7 @@ import type { SpecGroupKey } from './types';
 import type { CarrierSetupStatus } from './carrier-providers';
 import type { ConsignmentLogisticsState } from './consignment-logistics';
 import type { MapConfig } from '@/components/LocationMap';
+import type { TurnoverDeclarationInput } from './turnover';
 
 // ---------------------------------------------------------------------------
 // Who is selling
@@ -126,6 +127,8 @@ export interface ApplyInput {
   displayName: string;
   registrationCountry: string;
   kind?: 'MANUFACTURER' | 'AUTHORISED_DISTRIBUTOR' | 'WHOLESALER' | 'RESELLER';
+  /** The turnover eligibility declaration, where the policy asks for one. */
+  turnover?: TurnoverDeclarationInput;
 }
 
 export function applyToSell(input: ApplyInput): Promise<{ sellerAccountId: string }> {

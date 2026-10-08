@@ -20,11 +20,12 @@ import { errorActions } from '@/components/error-page/error-actions';
 import { useI18n } from '@/i18n/i18n-context';
 import type { PermissionKey } from '@/lib/permissions';
 import { MfaChallengePage, MfaSetupPage } from '@/pages/MfaPage';
+import { PortalAgreementGate } from './PortalAgreementGate';
 import { useSession } from './session-context';
 
 export function RequireSession({ children }: { children: ReactNode }): React.JSX.Element {
   const { t } = useI18n();
-  const { stage } = useSession();
+  const { stage, signOut } = useSession();
   const location = useLocation();
 
   if (stage === 'LOADING') {
@@ -52,7 +53,9 @@ export function RequireSession({ children }: { children: ReactNode }): React.JSX
   if (stage === 'MFA_SETUP') return <MfaSetupPage />;
   if (stage === 'MFA_CHALLENGE') return <MfaChallengePage />;
 
-  return <>{children}</>;
+  // Then the Logistics Partner Terms and the Privacy Policy, once signing in
+  // has finished - the same order the server applies them in.
+  return <PortalAgreementGate signOut={signOut}>{children}</PortalAgreementGate>;
 }
 
 export function RequirePermission({

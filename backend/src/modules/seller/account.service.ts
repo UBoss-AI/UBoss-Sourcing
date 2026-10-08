@@ -32,7 +32,8 @@ import {
 } from '../../domain/seller-state.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
-import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+import { AUDIT_TEAM_LABEL, OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+import { recordTurnoverDeclaration, type ParsedTurnover } from './turnover-facts.service.js';
 import { syncMarketplacePrice } from '../catalog/marketplace-price.service.js';
 
 // ---------------------------------------------------------------------------
@@ -294,6 +295,13 @@ export interface StartApplicationInput {
   kind?: SellerMemberRole extends never ? never : 'MANUFACTURER' | 'AUTHORISED_DISTRIBUTOR' | 'WHOLESALER' | 'RESELLER';
   correlationId?: string | null;
   userId?: string | null;
+  /**
+   * The turnover declared on the application form, already checked against
+   * the eligibility policy by the caller. Stored in the same transaction as
+   * the seller, so an application never exists without the declaration it
+   * was let in on.
+   */
+  turnover?: ParsedTurnover | null;
 }
 
 /** Is this public name free? Asked by the form as the seller types. */
@@ -409,6 +417,15 @@ export async function startSellerApplication(
     await tx.sellerPayoutAccountReference.create({
       data: { id: newId(), sellerAccountId, state: 'NOT_STARTED' },
     });
+
+    if (input.turnover !== null && input.turnover !== undefined) {
+      await recordTurnoverDeclaration({
+        sellerAccountId,
+        declaredByProfileId: input.customerProfileId,
+        parsed: input.turnover,
+        tx,
+      });
+    }
   });
 
   await recordSellerAudit({
@@ -434,6 +451,12 @@ export interface ApplicationTransitionInput {
   actor: SellerActor;
   actorUserId?: string | null;
   actorLabel?: string | null;
+  /**
+   * Which console an OPERATOR acted from: ADMIN for the Admin Panel (suspend,
+   * lift a suspension), AUDIT for the Audit Team's verification decisions.
+   * Recorded as the audit row's actor type, so history says who decided.
+   */
+  operatorType?: 'ADMIN' | 'AUDIT';
   /** Seller-visible. Required by the machine on every refusal and every stop. */
   reason?: string | null;
   /** Operator-only note, never serialised to a seller route. */
@@ -496,8 +519,14 @@ export async function transitionApplication(input: ApplicationTransitionInput): 
 
     const now = new Date();
 
-    await tx.sellerAccount.update({
-      where: { id: input.sellerAccountId },
+    /*
+     * Conditional on the version read above, not just on the id. Two reviewers
+     * deciding one application at the same moment both pass the read; only
+     * one of them matches the version here, and the other is told to reload
+     * instead of silently overwriting the first decision.
+     */
+    const written = await tx.sellerAccount.updateMany({
+      where: { id: input.sellerAccountId, version: account.version },
       data: {
         status: input.to,
         version: { increment: 1 },
@@ -509,6 +538,12 @@ export async function transitionApplication(input: ApplicationTransitionInput): 
         ...(input.to === 'SUSPENDED' ? { suspendedAt: now } : {}),
       },
     });
+    if (written.count !== 1) {
+      throw conflict(
+        ErrorCode.SELLER_STALE_VERSION,
+        'Somebody else changed this application while you had it open. Reload to see their change.',
+      );
+    }
 
     /*
      * Suspending (or reinstating) a seller changes what the shelf may show:
@@ -529,9 +564,19 @@ export async function transitionApplication(input: ApplicationTransitionInput): 
       sellerAccountId: input.sellerAccountId,
       action: `seller.application.${input.to.toLowerCase()}`,
       actor: {
-        type: input.actor === 'OPERATOR' ? 'ADMIN' : input.actor === 'SYSTEM' ? 'SYSTEM' : 'CUSTOMER',
+        type:
+          input.actor === 'OPERATOR'
+            ? (input.operatorType ?? 'ADMIN')
+            : input.actor === 'SYSTEM'
+              ? 'SYSTEM'
+              : 'CUSTOMER',
         userId: input.actorUserId ?? null,
-        label: input.actor === 'OPERATOR' ? OPERATOR_LABEL : (input.actorLabel ?? null),
+        label:
+          input.actor === 'OPERATOR'
+            ? input.operatorType === 'AUDIT'
+              ? AUDIT_TEAM_LABEL
+              : OPERATOR_LABEL
+            : (input.actorLabel ?? null),
       },
       resourceType: 'seller_account',
       resourceId: input.sellerAccountId,

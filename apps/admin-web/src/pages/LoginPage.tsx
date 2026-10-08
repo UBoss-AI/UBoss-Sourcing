@@ -7,18 +7,12 @@
  * way to enumerate who has an account. This page shows what the server said
  * and adds nothing.
  *
- * The terms are accepted on every sign-in, not remembered from the last one.
- * Nothing is stored to say "this browser already agreed": a console is shared
- * by several staff accounts behind nothing but a password, so a tick carried
- * forward would be one person's acceptance shown to the next.
- *
- * What the tick agrees to is the operator's own staff terms (`STAFF_TERMS`,
- * written under Settings → Legal documents). When a version is published the
- * box works as it does on the storefront: ticking it opens the terms, "I
- * agree" is enabled only once the text has been read to the end, and only "I
- * agree" ticks the box. When none is published - or the terms cannot be
- * fetched - the plain tick box stands in. A missing document must never lock
- * the operator's staff out of the console that publishes it.
+ * There is no terms tick here. The staff terms (`STAFF_TERMS`) and the Privacy
+ * Policy are accepted on the agreement screen after signing in
+ * (`auth/PortalAgreementGate.tsx`), recorded against the person's own account
+ * on the server - never against a browser - and asked for again only when a
+ * new version requires it. A document nobody has published yet is not asked
+ * for, so a fresh deployment never locks out the staff who publish it.
  *
  * The frame is `AuthSplit`, the same one the storefront and the logistics
  * portal sign in through: from `lg` up the form takes the right half and a
@@ -26,21 +20,17 @@
  * every word and control on this screen is in the column beside it, and the
  * page is finished on a narrow window and on a machine with no WebGL.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { Button, Field, Spinner } from '@/components/ui';
 import { DemoLoginPanel } from '@/components/DemoLoginPanel';
-import { TermsAgreementField } from '@/components/legal/TermsAgreementField';
-import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
 import {
   AuthCard,
   AuthDivider,
-  AuthTermsCheckbox,
   BottomGradient,
   GRADIENT_CTA,
   GlowInput,
@@ -48,7 +38,7 @@ import {
 import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
-import { ApiError, NetworkError, api } from '@/lib/api';
+import { ApiError, NetworkError } from '@/lib/api';
 import { PARENT_ATTRIBUTION } from '@/lib/brand';
 
 /**
@@ -65,9 +55,6 @@ function buildSchema(t: ReturnType<typeof useI18n>['t']) {
       .min(1, t('validation.emailRequired'))
       .pipe(z.email(t('validation.emailInvalid'))),
     password: z.string().min(1, t('validation.passwordRequired')),
-    // `literal(true)` rather than a boolean with a refinement: an unticked box
-    // is not a value the form may submit at all, so the type says so.
-    acceptedTerms: z.literal(true, { message: t('validation.acceptTermsToSignIn') }),
   });
 }
 
@@ -85,17 +72,11 @@ interface LocationState {
  * a policy is called or where it lives, which is the whole point: the deployed
  * product is somebody else's business, and its terms are its own.
  */
-interface PolicyConfigResponse {
-  business: {
-    policyLinks: Record<string, string> | null;
-  };
-}
-
 export function LoginPage(): React.JSX.Element {
   const { user, isLoading, login } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const [formError, setFormError] = useState<string | null>(null);
 
   // A flag, not a rendered sentence: somebody who has just failed to sign in
@@ -103,63 +84,19 @@ export function LoginPage(): React.JSX.Element {
   // language they picked, not left in the one they could not read.
   const [isRateLimited, setIsRateLimited] = useState(false);
 
-  // The same query key the rest of the panel uses, so the config document is
-  // fetched once. Unauthenticated on purpose — this screen needs it before a
-  // session exists, which is why `/config` is public.
-  const config = useQuery({
-    queryKey: ['storefront-config'],
-    queryFn: () => api.get<PolicyConfigResponse>('/config'),
-    staleTime: 5 * 60_000,
-    // A config read must never take the sign-in screen down with it. Without
-    // it the tick still works; it simply has no links beside it, which is the
-    // state a deployment that has set no policies is in anyway.
-    retry: false,
-  });
-
-  const policies = Object.entries(config.data?.business.policyLinks ?? {});
-
-  // The staff terms in force, in the language the screen is read in. While
-  // they load, and once they have arrived, the box opens them; with none
-  // published or the request failed, the plain box below stands in.
-  const staffTerms = useCurrentTerms('STAFF_TERMS', language);
-  const usesTermsDialog = staffTerms.state.status === 'loading' || staffTerms.state.status === 'ready';
-  // The id of the document agreed to in the dialog. Kept on this screen only:
-  // `acceptedTerms` below is what gates the submit, and neither is sent.
-  const [agreedDocumentId, setAgreedDocumentId] = useState<string | null>(null);
-
   const {
     register,
     handleSubmit,
     setFocus,
-    setValue,
-    formState: { errors, isSubmitting, isSubmitted },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(buildSchema(t)),
-    // Never pre-ticked. `false` is not assignable to the `true` the schema
-    // demands, which is the point: the form starts in a state it refuses to
-    // submit until somebody acts.
-    defaultValues: { email: '', password: '', acceptedTerms: false as never },
+    defaultValues: { email: '', password: '' },
   });
 
   useEffect(() => {
     setFocus('email');
   }, [setFocus]);
-
-  // Changing between the dialog and the plain box starts the tick over: a
-  // tick given to one is not a tick given to the other.
-  useEffect(() => {
-    setAgreedDocumentId(null);
-    setValue('acceptedTerms', false as never);
-  }, [usesTermsDialog, setValue]);
-
-  const onAgreementChange = useCallback(
-    (documentId: string | null): void => {
-      setAgreedDocumentId(documentId);
-      // `true` only through I agree in the dialog; null is an untick.
-      setValue('acceptedTerms', (documentId !== null) as never, { shouldValidate: isSubmitted });
-    },
-    [setValue, isSubmitted],
-  );
 
   if (isLoading) {
     return (
@@ -278,34 +215,6 @@ export function LoginPage(): React.JSX.Element {
               />
             )}
           </Field>
-
-          {/* Above the button, not below it. The tick is a condition of
-              signing in, so it has to be read before the thing it gates.
-
-              The shared control from `auth-form.tsx`, which is where the same
-              markup the storefront uses now lives. This screen had its own
-              copy of it, identical but for `text-accent` where the storefront
-              had `text-brand` — the exact drift a shared component exists to
-              stop. The policies still come from this app's own `/config`
-              query; only the markup is shared. */}
-          {usesTermsDialog ? (
-            <TermsAgreementField
-              terms={staffTerms}
-              value={agreedDocumentId}
-              onChange={onAgreementChange}
-              policies={policies}
-              error={errors.acceptedTerms?.message}
-              errorId="login-terms-error"
-            />
-          ) : (
-            <AuthTermsCheckbox
-              label={t('auth.login.acceptTerms')}
-              policies={policies}
-              error={errors.acceptedTerms?.message}
-              errorId="login-terms-error"
-              {...register('acceptedTerms')}
-            />
-          )}
 
           {/* `size="lg"`, matching the storefront: its submit is the large
               one, and a button a step smaller on an otherwise identical card

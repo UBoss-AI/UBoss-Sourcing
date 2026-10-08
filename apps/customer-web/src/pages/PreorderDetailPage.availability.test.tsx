@@ -80,6 +80,7 @@ function preorder(overrides: { stockStillAvailable?: boolean; isExpired?: boolea
     seller: { id: 'S', name: 'Epsilon Gloves' },
     buyer: null,
     quantity: { orderingUnit: 'CONTAINER_20_FT', unitQuantity: 2, unitsPerPackage: 12_000, baseUnits: 24_000 },
+    productOption: null,
     container: {
       unit: 'CONTAINER_20_FT',
       containers: 2,
