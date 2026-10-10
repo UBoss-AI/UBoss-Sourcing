@@ -67,9 +67,10 @@ import {
   startReview,
   withdrawClaim,
 } from '../../modules/disputes/dispute.service.js';
-import { currentUser, orderScopeWhere, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { currentUser, orderScopeWhere, requireAdmin, requireCustomerForRemedies } from '../plugins/auth.js';
 import { currentSeller, requireSeller } from '../plugins/seller.js';
 import { sendAttachment } from './preorder-chats.js';
+import { CASE_CATEGORIES } from '../../domain/commercial-policy.js';
 
 // ---------------------------------------------------------------------------
 // Shapes
@@ -93,6 +94,17 @@ const claimBody = z.object({
   description: z.string().max(20_000),
   desiredOutcome: z.enum(DisputeRemedyValues),
   requestedAmountMinor: minor,
+  // Doc 07 s7 case facts. Optional: a claim without them is handled exactly as before.
+  case: z
+    .object({
+      category: z.enum(CASE_CATEGORIES),
+      urgency: z.enum(['NORMAL', 'URGENT']).optional(),
+      statutoryBasis: z.boolean().optional(),
+      lateExplanation: z.string().max(4000).nullable().optional(),
+      affectedQuantity: z.number().int().min(1).max(1_000_000).nullable().optional(),
+      lotsOrSerials: z.array(z.string().min(1).max(64)).max(200).nullable().optional(),
+    })
+    .optional(),
 });
 
 const messageBody = z.object({ body: z.string().max(20_000) });
@@ -215,14 +227,14 @@ function noStore(reply: FastifyReply): FastifyReply {
 
 export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<void> {
   // What the claim form needs: the reasons offered, the windows and the file rules.
-  app.get('/context', { preHandler: requireCustomer }, async (_request, reply) => {
+  app.get('/context', { preHandler: requireCustomerForRemedies }, async (_request, reply) => {
     return noStore(reply).status(200).send(await readClaimContext());
   });
 
   // Raise a claim on one of your orders, or one line of it. Needs an Idempotency-Key.
   app.post(
     '/',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerForRemedies, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const actor = buyerActor(request);
       const input = claimBody.parse(request.body);
@@ -238,13 +250,13 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   );
 
   // Your claims, most recently active first. `orderId` narrows to one order.
-  app.get('/', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const query = partyListQuery.parse(request.query);
     return noStore(reply).status(200).send(await listPartyDisputes(buyerActor(request), query));
   });
 
   // One of your claims: its status, deadlines, decision, evidence and thread.
-  app.get('/:reference', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/:reference', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { reference } = referenceParams.parse(request.params);
     return noStore(reply).status(200).send({ dispute: await readPartyDispute(buyerActor(request), reference) });
   });
@@ -252,7 +264,7 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   // Write on your claim. The seller and the marketplace see it. Needs an Idempotency-Key.
   app.post(
     '/:reference/messages',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerForRemedies, config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const actor = buyerActor(request);
       const { reference } = referenceParams.parse(request.params);
@@ -270,19 +282,19 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   );
 
   // Ask the marketplace to decide, once the seller's time to answer has passed.
-  app.post('/:reference/escalate', { preHandler: requireCustomer }, async (request, reply) => {
+  app.post('/:reference/escalate', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { reference } = referenceParams.parse(request.params);
     return reply.status(200).send({ dispute: await escalateClaim(buyerActor(request), reference) });
   });
 
   // Withdraw your claim. It cannot be reopened.
-  app.post('/:reference/withdraw', { preHandler: requireCustomer }, async (request, reply) => {
+  app.post('/:reference/withdraw', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { reference } = referenceParams.parse(request.params);
     return reply.status(200).send({ dispute: await withdrawClaim(buyerActor(request), reference) });
   });
 
   // Appeal the decision on your claim, once, inside the appeal window.
-  app.post('/:reference/appeal', { preHandler: requireCustomer }, async (request, reply) => {
+  app.post('/:reference/appeal', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { reference } = referenceParams.parse(request.params);
     const { body } = messageBody.parse(request.body);
     return reply.status(200).send({ dispute: await appealDecision(buyerActor(request), reference, body) });
@@ -291,7 +303,7 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   // Attach one image, video or PDF as evidence. Checked by its contents, scanned, stored privately.
   app.post(
     '/:reference/attachments',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    { preHandler: requireCustomerForRemedies, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const { reference } = referenceParams.parse(request.params);
       const upload = await readUpload(request);
@@ -302,7 +314,7 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   // A download link for one file on your claim: five minutes, single use, this session only.
   app.post(
     '/:reference/attachments/:attachmentId/link',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    { preHandler: requireCustomerForRemedies, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const { reference, attachmentId } = attachmentParams.parse(request.params);
       const link = await createDisputeEvidenceLink(
@@ -316,7 +328,7 @@ export function registerCustomerDisputeRoutes(app: FastifyInstance): Promise<voi
   );
 
   // Redeem a download link. Served as a download, never inline.
-  app.get('/:reference/attachments/:attachmentId/download', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/:reference/attachments/:attachmentId/download', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { reference, attachmentId } = attachmentParams.parse(request.params);
     const { token } = tokenQuery.parse(request.query);
     return sendAttachment(reply, await redeemDisputeEvidenceLink(buyerActor(request), { reference }, attachmentId, token));

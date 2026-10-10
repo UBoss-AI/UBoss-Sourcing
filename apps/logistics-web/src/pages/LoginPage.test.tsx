@@ -34,6 +34,9 @@ import { Permission } from '@/lib/permissions';
 import type { PortalSession } from '@/lib/types';
 import { LoginPage } from './LoginPage';
 
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
+
 vi.mock('@/lib/logistics', () => ({
   fetchSession: vi.fn(),
   signIn: vi.fn(),
@@ -239,6 +242,10 @@ describe('filling the form in again after the server refused the credentials', (
 
     fireEvent.change(email, { target: { value: 'dispatch@sahyadri.example' } });
     fireEvent.change(password, { target: { value: 'not-the-password' } });
+    // Sign in waits for the agreement boxes (stood in for here) to report ticked.
+    await waitFor(() => {
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: /^sign in$/i }).disabled).toBe(false);
+    });
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
     expect(await screen.findByText(/do not match/i)).toBeDefined();
@@ -309,6 +316,10 @@ describe('where a sign-in lands', () => {
       target: { value: 'driver@sahyadri.example' },
     });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'a-password' } });
+    // Sign in waits for the agreement boxes (stood in for here) to report ticked.
+    await waitFor(() => {
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: /^sign in$/i }).disabled).toBe(false);
+    });
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
     expect(await screen.findByText("the driver's tasks")).toBeDefined();

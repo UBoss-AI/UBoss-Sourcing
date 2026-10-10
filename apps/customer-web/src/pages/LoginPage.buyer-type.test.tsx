@@ -16,6 +16,9 @@ import { makeSession, renderWithProviders } from '@/test/harness';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import type { StorefrontConfig } from '@/lib/types';
 
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
+
 function config(buyerCompanies: boolean): StorefrontConfig {
   return {
     ...FALLBACK_CONFIG,

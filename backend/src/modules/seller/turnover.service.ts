@@ -111,7 +111,7 @@ export function parseTurnoverInput(input: TurnoverInput, today: Date = new Date(
   };
 }
 
-/** Refuse a parsed declaration that does not exceed the minimum. */
+/** Refuse a parsed declaration that does not meet the minimum. */
 export function assertAboveMinimum(parsed: ParsedTurnover, today: Date = new Date()): void {
   const policy = turnoverPolicy();
   if (!policy.required) return;
@@ -302,8 +302,8 @@ export interface TurnoverReviewDeclaration {
   reviewedBy: string | null;
   supersededReason: string | null;
   isCurrent: boolean;
-  /** Whether this figure exceeds the minimum in force when it was declared. */
-  exceedsMinimum: boolean;
+  /** Whether this figure meets (is at least) the minimum in force when it was declared. */
+  meetsMinimum: boolean;
 }
 
 export interface TurnoverReview {
@@ -375,7 +375,7 @@ export async function readTurnoverReview(sellerAccountId: string): Promise<Turno
     reviewedBy: row.reviewedByUserId === null ? null : (reviewers.get(row.reviewedByUserId) ?? null),
     supersededReason: row.supersededReason,
     isCurrent: row.isCurrent,
-    exceedsMinimum: row.amountMinor > row.minimumMinor,
+    meetsMinimum: row.amountMinor >= row.minimumMinor,
   });
 
   const current = rows.find((row) => row.isCurrent) ?? null;

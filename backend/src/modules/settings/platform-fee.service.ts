@@ -646,6 +646,13 @@ export interface SettlementLine {
   categoryId: string | null;
   /** The seller's goods on this line, after discount, before tax. */
   goodsMinor: Minor;
+  /**
+   * The rate an ACTIVATED commercial schedule (Doc 08 s3) sets for this line's
+   * department and channel. Null or absent: no adopted schedule covers it. It
+   * ranks below a seller's own policy or negotiated rate (a signed seller
+   * schedule) and above every generic category, market or platform policy.
+   */
+  scheduleBps?: number | null;
 }
 
 interface ResolvedRule {
@@ -653,7 +660,7 @@ interface ResolvedRule {
   policy: PolicyRow | null;
   rule: FeeRule;
   /** Where the fee rate came from, for the breakdown. */
-  source: 'POLICY' | 'SELLER_NEGOTIATED' | 'LEGACY_PLATFORM_RATE';
+  source: 'POLICY' | 'SELLER_NEGOTIATED' | 'COMMERCIAL_SCHEDULE' | 'LEGACY_PLATFORM_RATE';
 }
 
 export interface SettlementCalculation {
@@ -845,9 +852,28 @@ export async function calculateSettlement(
       : new Map<number, Minor>();
   const ruleEffects = new Map<string, { kind: AppliedFeeRule['kind']; effectMinor: Minor }>();
 
-  const resolvedPerLine: ResolvedRule[] = keysPerLine.map((keys) => {
+  const resolvedPerLine: ResolvedRule[] = keysPerLine.map((keys, lineIndex) => {
     const hit = keys.map((key) => policies.get(key)).find((row) => row !== undefined) ?? null;
+    const scheduleBps = input.lines[lineIndex]?.scheduleBps ?? null;
 
+    if (scheduleBps !== null && negotiatedBp === null && hit?.scope !== 'SELLER') {
+      // The adopted schedule's rate on net goods only, rounded per line. Tax on
+      // the fee still follows the policy in force for the line.
+      return {
+        key: `schedule:${String(scheduleBps)}`,
+        policy: hit,
+        rule: {
+          feeType: 'PERCENT',
+          feeBasis: 'PRODUCT_SUBTOTAL',
+          percentRate: basisPointsToPercent(scheduleBps),
+          flatFeeMinor: 0n,
+          minFeeMinor: null,
+          maxFeeMinor: null,
+          taxRatePercent: hit?.taxRatePercent.toString() ?? '0',
+        },
+        source: 'COMMERCIAL_SCHEDULE',
+      };
+    }
     if (hit !== null && (hit.scope === 'SELLER' || negotiatedBp === null)) {
       return { key: `policy:${hit.id}`, policy: hit, rule: ruleOf(hit), source: 'POLICY' };
     }

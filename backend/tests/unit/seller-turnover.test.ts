@@ -1,14 +1,14 @@
 /**
  * The seller turnover eligibility rule (domain/seller-turnover.ts).
  *
- * The threshold is "more than", so the three cases that matter are the
- * minimum itself (refused), one minor unit above it (eligible) and anything
- * below (refused) - compared as integers, never as rounded display values.
+ * The threshold is "at least" (policy v1.0), so the three cases that matter are
+ * one minor unit below the minimum (refused), the minimum itself (eligible) and
+ * one minor unit above it (eligible) - compared as integers, never as rounded display values.
  */
 import { describe, expect, it } from 'vitest';
 import {
   financialYearProblem,
-  isTurnoverAboveMinimum,
+  meetsTurnoverMinimum,
   mostRecentFinancialYear,
   parseTurnoverMinor,
   turnoverStanding,
@@ -21,17 +21,17 @@ const POLICY = { minimumMinor: THIRTY_CRORE, currency: 'INR' };
 const FY = { financialYearStart: new Date(Date.UTC(2025, 3, 1)), financialYearEnd: new Date(Date.UTC(2026, 2, 31)) };
 
 describe('the minimum', () => {
-  it('refuses exactly the minimum, and accepts one paisa more', () => {
-    expect(isTurnoverAboveMinimum(THIRTY_CRORE, THIRTY_CRORE)).toBe(false);
-    expect(isTurnoverAboveMinimum(THIRTY_CRORE + 1n, THIRTY_CRORE)).toBe(true);
-    expect(isTurnoverAboveMinimum(THIRTY_CRORE - 1n, THIRTY_CRORE)).toBe(false);
+  it('accepts exactly the minimum and one paisa more, and refuses one paisa less', () => {
+    expect(meetsTurnoverMinimum(THIRTY_CRORE, THIRTY_CRORE)).toBe(true);
+    expect(meetsTurnoverMinimum(THIRTY_CRORE + 1n, THIRTY_CRORE)).toBe(true);
+    expect(meetsTurnoverMinimum(THIRTY_CRORE - 1n, THIRTY_CRORE)).toBe(false);
   });
 
   it('compares amounts a float would round together', () => {
     // 2^53 + 1 is not representable as a double; as a bigint it is exact.
     const big = 9_007_199_254_740_993n;
-    expect(isTurnoverAboveMinimum(big, big - 1n)).toBe(true);
-    expect(isTurnoverAboveMinimum(big - 1n, big - 1n)).toBe(false);
+    expect(meetsTurnoverMinimum(big, big - 1n)).toBe(true);
+    expect(meetsTurnoverMinimum(big - 2n, big - 1n)).toBe(false);
   });
 });
 
@@ -95,9 +95,10 @@ describe('where a declaration stands', () => {
     expect(turnoverStanding(null, POLICY, TODAY)).toBe('NOT_DECLARED');
   });
 
-  it('is eligible only above the minimum', () => {
+  it('is eligible at or above the minimum', () => {
     expect(turnoverStanding({ amountMinor: THIRTY_CRORE + 1n, currency: 'INR', ...FY }, POLICY, TODAY)).toBe('ELIGIBLE');
-    expect(turnoverStanding({ amountMinor: THIRTY_CRORE, currency: 'INR', ...FY }, POLICY, TODAY)).toBe('BELOW_MINIMUM');
+    expect(turnoverStanding({ amountMinor: THIRTY_CRORE, currency: 'INR', ...FY }, POLICY, TODAY)).toBe('ELIGIBLE');
+    expect(turnoverStanding({ amountMinor: THIRTY_CRORE - 1n, currency: 'INR', ...FY }, POLICY, TODAY)).toBe('BELOW_MINIMUM');
   });
 
   it('does not convert another currency at a guessed rate', () => {

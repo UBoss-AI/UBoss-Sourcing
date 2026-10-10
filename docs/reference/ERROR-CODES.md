@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**554 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**584 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -58,7 +58,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Disputes, claims and chargebacks](#disputes-claims-and-chargebacks) | 9 |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | 7 |
 | [Seller commission invoices](#seller-commission-invoices) | 8 |
-| [Terms and Conditions](#terms-and-conditions) | 8 |
+| [Terms and Conditions](#terms-and-conditions) | 10 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
 | [Buyer companies](#buyer-companies) | 18 |
 | [Product reviews](#product-reviews) | 3 |
@@ -74,6 +74,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067)](#admin-governance-maker-checker-moderation-cms-approval-journey-061-062-067) | 8 |
 | [Change control for a seller's verified company details (JOURNEY-027)](#change-control-for-a-seller-s-verified-company-details-journey-027) | 3 |
 | [Audit Console](#audit-console) | 10 |
+| [Shipment Assessment (between L1 and L2)](#shipment-assessment-between-l1-and-l2) | 28 |
 
 ## Generic
 
@@ -673,6 +674,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` | The document still contains a blank left for a decision, written `[[...]]`, and cannot be published until it is filled in. details[].meta.placeholder names each one. 422. |
 | `AGREEMENTS_REQUIRED` | Signed in, but the Terms for this kind of account have not been accepted or the Privacy Policy has not been acknowledged, in a version still in force. Everything but signing out, the agreement screen, reading the documents, support and privacy requests is refused until both are done. details[].meta.kind names each missing document. 403. |
 | `AGREEMENT_DOCUMENT_NOT_APPLICABLE` | The document named is not one this account is asked to accept or acknowledge on this screen. 400. |
+| `SELLER_AGREEMENTS_REQUIRED` | A seller application cannot be submitted: the Seller Terms and Conditions or the Seller Platform Services Agreement is not published, or the person submitting has not accepted the version now in force (it may have changed since they read it). details[].field names the kind; details[].code is AGREEMENT_NOT_PUBLISHED or AGREEMENT_NOT_ACCEPTED. 409. |
+| `COMPANY_SIGNATORY_REQUIRED` | Somebody acting for a buyer company tried to accept the B2B Buyer Platform Services Agreement for it without authority to bind it. Only the company's owner or a company admin may; other members wait for one of them. 403. |
 
 ## Quantity price bands
 
@@ -878,4 +881,37 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `INSPECTION_QUANTITY_INVALID` | A quantity is not a valid exact decimal for its unit, or the counts do not reconcile (tested more than sampled, conforming plus nonconforming more than tested). `details` names the field. 400. |
 | `INSPECTION_SUBLOT_NOT_ALLOWED` | A sub-lot release cannot be requested, approved or used: the code is taken, the quantities exceed the lot, it was already used, or the requester tried to approve it. `details[0].code` says which. 409. |
 | `INSPECTION_CORRECTION_NOT_ALLOWED` | A report correction is not allowed: the report is not signed, is already superseded, or the corrector is the inspector. 409. |
+
+## Shipment Assessment (between L1 and L2)
+
+| Code | Meaning |
+|---|---|
+| `SHIPMENT_ASSESSMENT_NOT_RELEASED` | L2 may not start: the shipment has no valid release. `details[0].code` says why (L1_NOT_COMPLETE, NOT_APPROVED, NO_AUTHORIZATION, AUTHORIZATION_EXPIRED, SHIPMENT_CHANGED, BADGE_CHANGED, SELLER_SUSPENDED, LOADING_CHECKS_PENDING). 409. |
+| `SHIPMENT_ASSESSMENT_TRANSITION_NOT_ALLOWED` | The assessment cannot take that step from where it is, or it changed meanwhile (`details[0].code` VERSION). 409. |
+| `SHIPMENT_ASSESSMENT_INCOMPLETE` | A round cannot be submitted or approved: checks, evidence, N/A reasons or quantities are missing. `details` lists each item. 409. |
+| `SHIPMENT_WAIVER_NOT_ALLOWED` | No waiver is possible for this shipment: badge, mandatory inspection, unknown applicability or missing review. `details[0].code` says which. 409. |
+| `SHIPMENT_ASSESSMENT_INDEPENDENCE_REQUIRED` | The same person tried to assess and QA-approve one round. 409. |
+| `SHIPMENT_ASSESSMENT_POLICY_INVALID` | A badge policy or dispatch deadline is not acceptable. `details[0].code` says why. 400. |
+| `AUDIT_DOCUMENT_NOT_ALLOWED` | An Audit certificate cannot be issued or revoked: the verification is not approved, or the document is not active. 409. |
+| `SELLER_SCOPE_NOT_APPROVED` | The seller has no current trading approval for this exact product, destination country and sales channel (B2B/B2C), or its independent certificate is not current. Buyer-facing; never carries assessment evidence. 409. |
+| `SELLER_ASSESSMENT_NOT_ALLOWED` | A Seller Assessment step is not allowed now: wrong status, a gate prerequisite not passed, a closed record, or a stale version. 409. |
+| `SELLER_ASSESSMENT_CAPABILITY_REQUIRED` | The Audit Console member lacks the assessment capability this step needs (for example FINANCE for Gate 2, RELEASE for Gate 8). 403. |
+| `SELLER_ASSESSMENT_INDEPENDENCE_REQUIRED` | Separation of duties: the person already took part in the decision they are now asked to approve, review on appeal, or second-approve. 403. |
+| `SELLER_ASSESSMENT_RELEASE_BLOCKED` | Release refused: gates, checklist, score, findings, certification or scope are not all satisfied. `details` lists every gap. 409. |
+| `SELLER_ASSESSMENT_POLICY_NOT_ADOPTED` | The assessment policy in force is a DRAFT and this deployment does not allow decisions under a draft. Adopt a version first. 409. |
+| `SELLER_ORDER_DISPOSITION_REQUIRED` | A placed seller order is held for a safety and legal disposition after a suspension or a lapsed scope. Audit records the disposition. 409. |
+| `COMMERCIAL_SCHEDULE_NOT_EDITABLE` | A commercial schedule (Doc 08) can be edited only while DRAFT. 409. |
+| `COMMERCIAL_SCHEDULE_NOT_ACTIVATABLE` | A commercial schedule cannot be activated yet. `details[].code` names each missing item: NOT_APPROVED, APPROVAL_EVIDENCE_MISSING, SIGNED_SCHEDULE_REFERENCE_MISSING, EFFECTIVE_DATE_MISSING, PROVIDER_CONFIRMATION_MISSING, ACTIVATOR_IS_PREPARER... 409. |
+| `SEPARATION_OF_DUTIES_REQUIRED` | The same person may not both prepare and approve, decide and review the appeal, own and review a launch decision, or open and release a safety case. `details[0].code` names the step. 403. |
+| `IMPORT_ROUTE_NOT_APPROVED` | No approved lawful import route (importer and local actors) for this consumer destination and category. Checkout stays blocked. 409. |
+| `ORDER_ACCEPTANCE_CONTROLS_MISSING` | A seller order cannot be accepted until its delivery and commercial controls are recorded. `details[].code` lists each gap. 409. |
+| `DISPATCH_EVIDENCE_MISSING` | Dispatch needs its evidence: payment, inspection, documents, eligibility, quantities, seals, photos, custody, temperature. `details[].code`. 409. |
+| `PARTIAL_SHIPMENT_NOT_ALLOWED` | A partial shipment needs explicit order approval and may not override a no-partial-release assessment rule. `details[].code`. 409. |
+| `CASE_DECISION_NOT_REASONED` | A case decision must name amounts, payers, return freight, expected completion and reasoning, and cannot rest on AI output alone. 422. |
+| `CERTIFICATION_COST_DUPLICATE` | This third-party certification cost is already recorded (in this or another programme) and cannot be recovered twice. 409. |
+| `SECURITY_EXPOSURE_REQUIRED` | Reserve, guarantee and deposit together need a documented exposure calculation, and may not exceed it. 409. |
+| `COUNTRY_NOT_LAUNCHED` | Checkout to a country whose launch has not been enabled. 409. |
+| `COUNTRY_LAUNCH_BLOCKED` | A country cannot be enabled: `details[]` lists each decision still missing, unreviewed or expired. 409. |
+| `SAFETY_RELEASE_NOT_READY` | A safety case cannot be released: containment, cause, correction, tests and current certificates must be recorded first. 409. |
+| `PRODUCT_UNDER_SAFETY_HOLD` | The product is contained under an open safety case and cannot be bought or dispatched until a person releases it. 409. |
 

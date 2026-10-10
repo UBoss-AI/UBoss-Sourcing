@@ -20,7 +20,15 @@ import { formatDateTime } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { verifyDocument, type VerifiableKind } from '@/lib/seller-documents';
 
-const KINDS: readonly VerifiableKind[] = ['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note'];
+const KINDS: readonly VerifiableKind[] = ['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note', 'audit-document'];
+
+/** The public scope of an Audit document, as plain text: who, and what it covers. */
+function scopeText(scope: Record<string, unknown>): string {
+  const parts: string[] = [];
+  for (const key of ['seller', 'assessment']) if (typeof scope[key] === 'string') parts.push(scope[key]);
+  for (const key of ['categories', 'markets']) if (Array.isArray(scope[key])) parts.push((scope[key] as unknown[]).map(String).join(', '));
+  return parts.join(' · ');
+}
 
 export function VerifyDocumentPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -63,7 +71,7 @@ export function VerifyDocumentPage(): React.JSX.Element {
           className="space-y-3 rounded-lg border border-border bg-surface p-5 shadow-card"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={query.data.status === 'ISSUED' ? 'success' : 'warning'}>
+            <Badge tone={query.data.status === 'ISSUED' || query.data.status === 'ACTIVE' ? 'success' : 'warning'}>
               {t(`verifyDocument.status.${query.data.status}` as TranslationKey)}
             </Badge>
             <span className="text-sm text-ink-muted">
@@ -87,8 +95,26 @@ export function VerifyDocumentPage(): React.JSX.Element {
                 <dd className="text-ink">{query.data.packageCount.toLocaleString()}</dd>
               </>
             )}
+            {query.data.validUntil != null && (
+              <>
+                <dt className="text-ink-muted">{t('verifyDocument.validUntil')}</dt>
+                <dd className="text-ink">{formatDateTime(query.data.validUntil)}</dd>
+              </>
+            )}
+            {query.data.dispatchBy != null && (
+              <>
+                <dt className="text-ink-muted">{t('verifyDocument.dispatchBy')}</dt>
+                <dd className="text-ink">{formatDateTime(query.data.dispatchBy)}</dd>
+              </>
+            )}
+            {query.data.scope != null && (
+              <>
+                <dt className="text-ink-muted">{t('verifyDocument.scope')}</dt>
+                <dd className="text-ink">{scopeText(query.data.scope)}</dd>
+              </>
+            )}
           </dl>
-          <p className="text-xs text-ink-muted">{t('verifyDocument.notEInvoice')}</p>
+          <p className="text-xs text-ink-muted">{kind === 'audit-document' ? t('verifyDocument.auditNote') : t('verifyDocument.notEInvoice')}</p>
         </div>
       )}
     </div>

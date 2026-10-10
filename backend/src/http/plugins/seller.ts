@@ -60,7 +60,7 @@ function isDeliberate(request: FastifyRequest): boolean {
   return request.headers[SELLER_ACTIVITY_HEADER] === '1';
 }
 import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
-import { currentUser, requireCustomer, requireCustomerBeforeAgreements } from './auth.js';
+import { currentUser, requireCustomerBeforeAgreements, requireCustomerForSellerHub } from './auth.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -110,7 +110,7 @@ async function sellerGuardBody(
   permissions: SellerPermissionKey[],
   options: { agreements: boolean },
 ): Promise<void> {
-  if (options.agreements) await requireCustomer(request, reply);
+  if (options.agreements) await requireCustomerForSellerHub(request, reply);
   else await requireCustomerBeforeAgreements(request, reply);
 
   const auth = currentUser(request);
@@ -202,7 +202,7 @@ export function requireSellerBeforeLock(...permissions: SellerPermissionKey[]) {
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {
-    await requireCustomer(request, reply);
+    await requireCustomerForSellerHub(request, reply);
 
     const auth = currentUser(request);
 

@@ -124,8 +124,8 @@ function Loaded({ review }: { review: SellerTurnoverReview }): React.JSX.Element
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone={current.exceedsMinimum ? 'success' : 'danger'}>
-                {current.exceedsMinimum ? t('sellerReview.turnover.exceeds') : t('sellerReview.turnover.doesNotExceed')}
+              <Badge tone={current.meetsMinimum ? 'success' : 'danger'}>
+                {current.meetsMinimum ? t('sellerReview.turnover.exceeds') : t('sellerReview.turnover.doesNotExceed')}
               </Badge>
               <Badge tone={STATE_TONE[current.verificationState]}>
                 {t(`sellerReview.turnover.state.${current.verificationState}` as TranslationKey)}

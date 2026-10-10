@@ -10,10 +10,18 @@
  * marketplace name - comes in through `AgreementsClient` and the props.
  */
 
-export type AgreementScope = 'BUYER' | 'SELLER' | 'LOGISTICS' | 'STAFF' | 'AUDIT';
+/**
+ * CONSUMER is the storefront's screen for somebody shopping for themselves
+ * once its documents are published. The app always asks as BUYER; the server
+ * answers with the scope that applies.
+ */
+export type AgreementScope = 'BUYER' | 'SELLER' | 'LOGISTICS' | 'STAFF' | 'AUDIT' | 'COMPANY_BUYER' | 'CONSUMER';
 
-/** The two boxes on the screen. */
-export type AgreementRole = 'TERMS' | 'PRIVACY';
+/**
+ * The boxes on the screen. SERVICES - a Platform Services Agreement - is a
+ * box of its own on the Seller Hub's, the company's and the consumer's screen.
+ */
+export type AgreementRole = 'TERMS' | 'PRIVACY' | 'SERVICES';
 
 export interface AgreementDocument {
   id: string;
@@ -43,6 +51,8 @@ export interface AgreementRecord {
   action: 'TERMS_ACCEPTED' | 'PRIVACY_NOTICE_ACKNOWLEDGED';
   /** Server time, ISO. */
   recordedAt: string;
+  /** A company-level acceptance another member gave: it counts, and it is not this person's to clear. */
+  byOtherMember?: boolean;
 }
 
 export interface AgreementDocumentStatus {
@@ -55,10 +65,17 @@ export interface AgreementDocumentStatus {
 export interface AgreementStatus {
   scope: AgreementScope;
   terms: AgreementDocumentStatus[];
+  /** The Seller Platform Services Agreement on the SELLER scope; empty (or absent) elsewhere. */
+  services?: AgreementDocumentStatus[];
   privacy: AgreementDocumentStatus;
   termsComplete: boolean;
+  servicesComplete?: boolean;
   privacyComplete: boolean;
   complete: boolean;
+  /** The company a COMPANY_BUYER screen is for; null or absent elsewhere. */
+  company?: { companyId: string; companyName: string; canBind: boolean } | null;
+  /** COMPANY_BUYER: the services box waits for an owner or company admin. */
+  awaitingSignatory?: boolean;
 }
 
 export interface AgreementHistoryEntry {
@@ -84,6 +101,8 @@ export interface AgreementsClient {
   record: (scope: AgreementScope, role: AgreementRole, documentIds: string[], locale: string) => Promise<AgreementStatus>;
   clear: (scope: AgreementScope, role: AgreementRole, locale: string) => Promise<AgreementStatus>;
   history: () => Promise<AgreementHistoryEntry[]>;
+  /** The published document of a kind in force now - public, for a sign-in form. Rejects when none is. */
+  currentDocument: (kind: string, locale: string) => Promise<CurrentAgreementDocument>;
   /** A link to the PDF of one published document. */
   pdfUrl: (documentId: string) => string;
   /** A page where one published document can be read, or null where the app has none. */

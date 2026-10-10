@@ -5428,12 +5428,33 @@ storefront (individually, or as the first step of registering a company) and an
 invited customer activating their account. `LOGISTICS_PARTNER_TERMS` is accepted
 by a carrier's staff activating a portal account. On the agreement screen after
 sign-in, `PLATFORM_TERMS` is asked of buyers, `PLATFORM_TERMS` and
-`SELLER_TERMS` of every seller member, `LOGISTICS_PARTNER_TERMS` of carrier
+`SELLER_TERMS` of every seller member - and, in a box of its own,
+`SELLER_SERVICES_AGREEMENT` (the Seller Platform Services Agreement) - `LOGISTICS_PARTNER_TERMS` of carrier
 staff, `STAFF_TERMS` of the operator's staff and `AUDIT_CONSOLE_TERMS` of
 Audit Console users - and `PRIVACY_POLICY` of everybody. Each is stored as a
 `consent_records` row. The console no longer asks for an unrecorded tick at
 sign-in.
-Seller Hub agreements live in
+A SELLER-scope record also holds `sellerAccountId`: the seller the person is a
+member of, set by the server from their membership and never from the request
+(foreign key, `ON DELETE SET NULL`, so removing a seller never removes what its
+people accepted). Records written before the column existed keep NULL; none is
+back-filled. Sending a seller application needs an active record for the
+current published `SELLER_TERMS` and `SELLER_SERVICES_AGREEMENT`, for that
+seller or with no seller recorded. A `COMPANY_BUYER` record of `B2B_BUYER_TERMS`
+or `B2B_BUYER_SERVICES_AGREEMENT` names the company in `companyId` and in
+`activeCompanyKey` ('' for every other record, never NULL); the one-active-record
+unique index is `(userId, activeDocumentId, activeCompanyKey)`, so a member of two
+companies holds one record per company. The services agreement counts for every
+member of the company once any authorised member accepted it
+(migration `20261112100000_b2b_buyer_agreements`). A `CONSUMER` record - scope
+added with the kinds `B2C_CONSUMER_TERMS` and `B2C_PLATFORM_SERVICES_AGREEMENT`
+in migration `20261113100000_b2c_consumer_agreements` - is personal: no company,
+no seller. Both new purposes are listed in the two CHECKs that name every terms
+purpose. Nothing is back-filled: an individual's earlier `PLATFORM_TERMS` record
+stays as it was. Publishing refuses a document that still
+holds `[[...]]`, a `____` fill-in line or the "For approval before
+implementation or signature" notice.
+The older onboarding-step agreements live in
 `seller_agreement_acceptances` ([5.17](#517-seller-hub)), and a company
 application's declarations are the other `consent_records` purposes.
 
@@ -6378,3 +6399,73 @@ Changed tables:
   equipment flags live in the checklist definition frozen in the plan.
 - `inspection_agencies` — `kind`: `THIRD_PARTY`, `INTERNAL`, `SELLER_SELF`.
 - `inspection_agency_members` — the console roles and an `INVITED` status.
+
+## Shipment Assessment tables (migration `20261109100000_shipment_assessment`)
+
+Between L1 and L2, the Audit Team assesses a seller order or approves a
+badge-based waiver. One case per seller order.
+
+| Table | What one row is | Rules it carries |
+| --- | --- | --- |
+| `seller_accounts.auditBadge`, `auditBadgeSetAt`, `auditBadgeVersion` | The seller's Audit badge (Platinum, Gold, Silver, Bronze or NULL = none) | Set only by an Audit supervisor. `auditBadgeVersion` goes up on every change, so a waiver can tell it is stale. |
+| `seller_badge_changes` | One badge change, with reason and who made it | Append-only. |
+| `shipment_assessment_policies` | One version of the badge policy | `version` is UNIQUE; the highest is in force; never updated. Version 1 is inserted by the migration. |
+| `shipment_assessments` | The case for one seller order (`sellerOrderGroupId` UNIQUE) | `status` changes only through `assertAssessmentTransition` (`domain/shipment-assessment.ts`). Optimistic `version`. `existingAtRollout` marks shipments that were already waiting when the feature was switched on. `scopeFingerprint` = SHA-256 of lines, quantities, packing list and destination. |
+| `shipment_assessment_rounds` | One assessment round (`assessmentId`, `round` UNIQUE) | A reassessment is a new round. Holds the checklist snapshot and each quantity separately. Never rewritten after submission. |
+| `shipment_assessment_checks` | One checklist item's result in one round | UNIQUE (`assessmentId`, `round`, `itemCode`). PASS, FAIL, HOLD or NOT_APPLICABLE; `sampled` marks a sample result. |
+| `shipment_assessment_evidence` | A private photo or PDF | Stored privately; SHA-256 recorded. |
+| `shipment_assessment_events` | The history | Append-only; optional UNIQUE `idempotencyKey`. |
+| `shipment_waiver_decisions` | An auditor's waiver decision | Records badge, badge version, policy version, the history shown, the review note and reason. `invalidatedAt` when withdrawn. |
+| `shipment_release_authorizations` | Permission for L2 to start | `activeSlot` is the assessment id while ACTIVE and NULL otherwise, under a UNIQUE index: at most one active release per case (MariaDB treats NULLs as distinct). Status ACTIVE → CONSUMED, INVALIDATED or EXPIRED. |
+| `shipment_assessment_exceptions` | A carrier-reported departure without a release | UNIQUE `shipmentEventId`: one exception per event. |
+| `audit_documents` | A certificate, waiver authorization or findings report | `number` UNIQUE; `supersedesId` UNIQUE links a correction to the version it replaces. Status ACTIVE, EXPIRED, REVOKED, SUPERSEDED or USED. The PDF (`storageKey`, `contentHash`) is never overwritten. `scopeJson` is the only part shown publicly. |
+
+`seller_notifications.kind` gains `SHIPMENT_ASSESSMENT`.
+
+State model (`shipment_assessments.status`): AWAITING_L1 → READY_FOR_ASSESSMENT
+or WAIVER_REVIEW → IN_PROGRESS → AWAITING_QA → APPROVED_FOR_L2 → DISPATCHED.
+FAILED and ON_HOLD block the whole shipment and lead only to
+REASSESSMENT_REQUIRED (or CANCELLED). No path leads from FAILED or ON_HOLD
+straight to APPROVED_FOR_L2 or DISPATCHED.
+
+## Seller Assessment tables (migrations `20261110100000_seller_assessment_onboarding`, `20261110100100_seller_assessment_notification_kind`, `20261110100200_seller_assessment_row_timestamps`)
+
+Statuses are `VARCHAR` checked in `backend/src/domain/seller-assessment.ts` (`canMoveAssessment`, `canMoveApproval`); no service writes a status without them. Money (turnover, insurance limits) is `BIGINT`-ready minor units carried as digit strings in the application JSON and compared as `BigInt`.
+
+| Table | Holds | Rule it encodes |
+|---|---|---|
+| `seller_assessment_policies` | Policy versions and their adoption / disclosure | `version` unique; v1.0 seeded DRAFT |
+| `seller_assessments` | One cycle per seller (initial, extension, renewal, reassessment, legacy) with the application JSON and its revision | Optimistic `version` and `applicationRevision` |
+| `seller_assessment_gates` | Eight per assessment | `uq_sa_gate (assessmentId, gate)`; `chk_sa_gate_number` 1-8 |
+| `seller_assessment_checklist_items` | 23 per assessment | `uq_sa_check`; N/A approver recorded separately |
+| `seller_assessment_scores` | Seven ratings | `uq_sa_score`; `chk_sa_score_rating` 0-5 |
+| `seller_assessment_evidence` | Private files, versioned per key, retention category, legal hold | New version per upload, `supersedesId` |
+| `seller_assessment_scope_items` | Product x site x country x channel classification (Gate 3, section 11) | `uq_sa_scope`; `chk_sa_scope_channel` B2B/B2C |
+| `seller_assessment_findings` | CAPA | Numbered; deadlines from the policy |
+| `seller_assessment_workpapers` | Site audits, samples, labs, contracts, mock orders, identity, bank, sanctions, specialist reviews, AI output | Append-only revisions; `mode` RECORDED / SIMULATED |
+| `seller_external_certifications` | The appointed body and its certificate | Authentication fields; status read live by the purchase gate |
+| `seller_trading_approvals` | Internal trading approval (section 9 record) | Validity, supersession, status |
+| `seller_trading_approval_scopes` | Released combinations (read by the purchase gate) | `ix_stas_lookup`; `chk_stas_channel` |
+| `seller_assessment_events` | Append-only decision history | Source of the independence check |
+| `seller_assessment_notices`, `seller_assessment_appeals` | Suspension / restriction / revocation and appeals | Appeal deadline stored on the notice |
+| `seller_assessment_change_requests`, `seller_incident_reports` | Change control and incidents | Undisclosed flag; late flag |
+| `seller_order_dispositions` | Placed seller orders held for a person's decision | `uq_sod_trigger (sellerOrderGroupId, triggerKey)` makes holds idempotent |
+| `seller_bank_change_requests` | Bank beneficiary changes | Known contact, two approvers |
+| `seller_surveillance_tasks` | Reminders, checks, revalidation, screening, surveillance | `uq_sst_dedupe` makes the daily sweep idempotent |
+
+Also: `audit_staff_members.assessmentCapabilitiesJson`, `audit_documents.kind` gains `SELLER_TRADING_APPROVAL`, `seller_notifications.kind` gains `SELLER_ASSESSMENT`. `seller_assessment_events` is listed in the GDPR export completeness test as business-role history.
+
+## Delivery, cases and commercial tables (migrations `20261114100000_delivery_commercial_policy`, `20261114100100_delivery_commercial_row_timestamps`)
+
+Additive: 32 tables and `logistics_proof_of_delivery.quantitiesJson`. References are plain `CHAR(26)` ids and statuses are strings, so no existing table changed shape. Rules live in `backend/src/domain/commercial-policy.ts`.
+
+- **`commercial_schedules`** (+ `commercial_schedule_events`): one row per kind and version, unique `(kind, version)`. DRAFT, PENDING_APPROVAL, APPROVED, ACTIVE, RETIRED. Activating one retires the previous ACTIVE row of its kind.
+- **`order_line_commercial_snapshots`**: one per order item (unique `orderItemId`), written at confirmation and changed only while the seller order is NEW.
+- **`import_routes`**: unique `(countryCode, categoryKey, channel)`; `categoryKey` is the category id or `''` because a UNIQUE index treats NULLs as distinct.
+- **`dispute_case_profiles`** (one per dispute), **`dispute_evidence_requests`**, **`dispute_remedy_actions`**, **`dispute_testing_records`**, **`loss_recoveries`** (unique `(source, sourceReference)`, so a replayed provider event records nothing twice).
+- **`commission_adjustments`**: unique `(refundId, orderItemId)`.
+- **`certification_programmes`** carry running totals updated under `SELECT ... FOR UPDATE`, taken as the transaction's first statement (MariaDB REPEATABLE READ fixes the snapshot at the first plain read). **`certification_cost_entries.externalReference`** is unique across every programme. **`certification_recovery_allocations`** are unique `(programmeId, quoteKey)` and read with a locking read before they change.
+- **`seller_security_schedules`**, **`security_reviews`** (unique `(scheduleId, kind, periodKey)`), **`insurance_policy_records`**, **`product_compliance_evidence`**.
+- **`safety_cases`**, **`safety_case_scope`** (unique `(safetyCaseId, kind, ref)`; `contained` is read live by checkout and dispatch), **`safety_case_actions`**, **`recall_rehearsals`**.
+- **`launch_readiness_items`** (unique `(countryCode, key)`), **`country_launches`** (unique `countryCode`).
+- **`freight_bookings`** (one per seller order), **`freight_quote_options`**, **`logistics_provider_reviews`**, **`handling_requirements`**, **`dispatch_evidence`** (one per seller order), **`custody_handovers`**, **`partial_shipment_approvals`**, **`return_authorizations`** (one per return, unique RMA number), **`order_payment_plans`** (one per order).

@@ -19,6 +19,7 @@ import { attributeRefundsToSellers } from '../../domain/settlement-refunds.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { notifySeller } from './notification.service.js';
+import { proposeCommissionReversals } from '../commercial-policy/finance.service.js';
 
 type Tx = Prisma.TransactionClient;
 
@@ -144,6 +145,8 @@ export async function syncSettlementRefunds(orderId: string, tx: Tx): Promise<Se
     });
   }
 
+  // Doc 08 s2: commission follows refunds proportionately - proposed for finance to apply.
+  await proposeCommissionReversals(tx, orderId);
   return { updated, unattributedMinor: 0n };
 }
 

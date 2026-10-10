@@ -328,16 +328,29 @@ export type VerifyAnswer =
   | { valid: false }
   | {
       valid: true;
-      kind: 'TAX_INVOICE' | 'INVOICE' | 'BILL_OF_SUPPLY' | 'CREDIT_NOTE' | 'PACKING_LIST';
+      kind:
+        | 'TAX_INVOICE'
+        | 'INVOICE'
+        | 'BILL_OF_SUPPLY'
+        | 'CREDIT_NOTE'
+        | 'PACKING_LIST'
+        | 'SELLER_VERIFICATION_CERTIFICATE'
+        | 'SHIPMENT_ASSESSMENT_CERTIFICATE'
+        | 'SHIPMENT_WAIVER_AUTHORIZATION'
+        | 'SHIPMENT_FINDINGS_REPORT';
       number: string;
-      status: SellerDocumentStatus | 'PARTIALLY_CREDITED' | 'FULLY_CREDITED' | 'VOID';
+      status: SellerDocumentStatus | 'PARTIALLY_CREDITED' | 'FULLY_CREDITED' | 'VOID' | 'ACTIVE' | 'EXPIRED' | 'REVOKED' | 'SUPERSEDED' | 'USED';
       issuedAt: string | null;
       issuer: string;
       packageCount?: number;
+      /** Audit documents: validity and the stated scope, nothing private. */
+      validUntil?: string | null;
+      dispatchBy?: string | null;
+      scope?: Record<string, unknown> | null;
     };
 
 /** What a QR can point at: a seller's own document, or the marketplace's commission invoice to a seller. */
-export type VerifiableKind = DocumentKind | 'commission-invoice' | 'commission-credit-note';
+export type VerifiableKind = DocumentKind | 'commission-invoice' | 'commission-credit-note' | 'audit-document';
 
 export function verifyDocument(
   kind: VerifiableKind,

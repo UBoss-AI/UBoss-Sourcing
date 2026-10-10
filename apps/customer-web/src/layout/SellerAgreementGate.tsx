@@ -4,10 +4,10 @@
  * including a buyer who has just become a seller, for whom the addendum is
  * newly applicable.
  *
- * Shown before the Hub's own lock and two-step screens, on the same reasoning
- * as the storefront's: nothing of the business is drawn until it is done. A
- * signed-in buyer who is not a seller is let through, and the Hub then sends
- * them to the page about selling as it always has.
+ * Shown after the Hub's own lock, whose password screen carries the same boxes:
+ * what was ticked there is recorded as the Hub opens, so this screen only
+ * appears for something not settled there - a version published since, say.
+ * Nothing of the business is drawn until it is done.
  */
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';

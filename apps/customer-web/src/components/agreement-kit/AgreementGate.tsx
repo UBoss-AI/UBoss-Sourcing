@@ -33,12 +33,22 @@ export interface AgreementGateProps {
   onSignOut: () => void;
   supportHref?: string | null;
   privacyRequestsHref?: string | null;
+  /** The person's orders, returns and claims: reachable whatever they decide here. */
+  ordersHref?: string | null;
+  /** Every published document, to read or download without accepting anything. */
+  legalHref?: string | null;
   /**
    * True for a refusal meaning the screen does not apply at all - the Seller
    * Hub's, for somebody who is not a seller. The app then carries on as it
    * would have, and its own pages explain.
    */
   notApplicable?: (error: unknown) => boolean;
+  /**
+   * Changes whenever the server-side context the screen depends on changes -
+   * on the storefront, switching between shopping for yourself and a company.
+   * A new value asks the server again.
+   */
+  contextKey?: string;
   children: ReactNode;
 }
 
@@ -53,7 +63,10 @@ export function AgreementGate({
   onSignOut,
   supportHref = null,
   privacyRequestsHref = null,
+  ordersHref = null,
+  legalHref = null,
   notApplicable,
+  contextKey = '',
   children,
 }: AgreementGateProps): React.JSX.Element {
   const { t, language } = useI18n();
@@ -95,7 +108,7 @@ export function AgreementGate({
     }
     setPhase((current) => (current === 'ready' ? current : 'loading'));
     void load();
-  }, [enabled, load, asked]);
+  }, [enabled, load, asked, contextKey]);
 
   // Any request refused for want of an agreement asks the server again.
   useEffect(
@@ -154,12 +167,20 @@ export function AgreementGate({
         onStatus={setStatus}
         onRefresh={load}
         onContinue={() => {
-          if (status.complete) setIsOpen(false);
+          // Checked with the server, not the screen's copy: a version published
+          // or a box cleared elsewhere since the last answer keeps it open.
+          return load().then((fresh) => {
+            if (fresh?.complete === true) setIsOpen(false);
+            // False only when the server could not be asked at all.
+            return fresh !== null;
+          });
         }}
         onSignOut={onSignOut}
         marketplaceName={marketplaceName}
         supportHref={supportHref}
         privacyRequestsHref={privacyRequestsHref}
+        ordersHref={ordersHref}
+        legalHref={legalHref}
       />
     );
   }

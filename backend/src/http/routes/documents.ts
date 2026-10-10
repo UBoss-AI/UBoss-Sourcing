@@ -17,7 +17,7 @@ import {
   redeemSellerBatch,
   verifyDocument,
 } from '../../modules/documents/documents.service.js';
-import { currentUser, requireCustomer } from '../plugins/auth.js';
+import { currentUser, requireCustomerForRemedies } from '../plugins/auth.js';
 
 const kindParam = z.object({
   kind: z.enum(['invoice', 'packing-list']),
@@ -32,7 +32,7 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const query = z
         .object({
-          kind: z.enum(['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note']),
+          kind: z.enum(['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note', 'audit-document']),
           number: z.string().trim().min(3).max(40),
           code: z.string().trim().length(16),
         })
@@ -43,7 +43,7 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
   );
 
   /** The buyer's view of an order's seller documents. */
-  app.get('/orders/:orderId', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/orders/:orderId', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { orderId } = z.object({ orderId: z.string().length(26) }).parse(request.params);
     const auth = currentUser(request);
     return reply.send(await listBuyerOrderDocuments(auth.customerProfileId ?? '', orderId));
@@ -55,7 +55,7 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
    */
   app.post(
     '/buyer/:kind/:id/link',
-    { preHandler: requireCustomer, config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+    { preHandler: requireCustomerForRemedies, config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const { kind, id } = kindParam.parse(request.params);
       const auth = currentUser(request);
@@ -68,7 +68,7 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
    * a link from the seller's batch-link request. Works once, only for the person
    * the link was made for, and records each document download in the audit log.
    */
-  app.get('/batch/:id/download', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/batch/:id/download', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { id } = z.object({ id: z.string().min(10).max(40) }).parse(request.params);
     const { token, docs } = z
       .object({ token: z.string().min(20).max(200), docs: z.string().max(4000) })
@@ -95,7 +95,7 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
    * or the buyer it was issued to. The link works once, only for the person it
    * was made for, and the download is recorded in the audit log.
    */
-  app.get('/:kind/:id/download', { preHandler: requireCustomer }, async (request, reply) => {
+  app.get('/:kind/:id/download', { preHandler: requireCustomerForRemedies }, async (request, reply) => {
     const { kind, id } = kindParam.parse(request.params);
     const { token } = z.object({ token: z.string().min(20).max(200) }).parse(request.query);
     const auth = currentUser(request);

@@ -45,6 +45,10 @@ import {
   type SellerIdentity,
 } from '@/lib/seller';
 import { SellerNotificationBell } from './SellerNotificationBell';
+import { SignInAgreements } from '@/components/agreement-kit/SignInAgreements';
+import { SellerAgreementGate } from '@/layout/SellerAgreementGate';
+import { setPendingSignInAgreements, type SignInAgreementValue } from '@/components/agreement-kit/sign-in-agreements';
+import { agreementsClient } from '@/lib/agreements';
 import { DocumentIcon, HeadsetIcon, ShieldIcon, StarIcon } from '@/components/icons';
 
 // ---------------------------------------------------------------------------
@@ -459,6 +463,14 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     needsApproval: true,
     permission: 'seller.analytics.read',
   },
+  // Commission reversals, security and certification recovery, read only.
+  {
+    to: '/seller/fees',
+    labelKey: 'seller.nav.fees',
+    icon: PaymentsIcon,
+    needsApproval: true,
+    permission: 'seller.finance.read',
+  },
   // Beside Payments: the invoice series, signatory and LUT the seller's own
   // tax invoices are issued under.
   { to: '/seller/invoicing', labelKey: 'seller.nav.invoicing', icon: DocumentIcon, needsApproval: false },
@@ -494,6 +506,8 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // Plants, machines, evidence and certificates, and their verification
   // (Master row 13). Open before approval: a factory is part of what a
   // reviewer weighs, so it can be recorded while the application is open.
+  // Seller assessment: open before approval - it is how approval is reached.
+  { to: '/seller/assessment', labelKey: 'seller.nav.assessment', icon: FactoryIcon, needsApproval: false },
   { to: '/seller/factories', labelKey: 'seller.nav.factories', icon: FactoryIcon, needsApproval: false },
   // Category qualifications and compliance documents, reviewed in the Audit
   // Console. Open before approval: a seller may need a qualification before
@@ -813,6 +827,12 @@ function SellerLockGate({
   }, []);
 
   const isChoosing = mode === 'choose';
+  // The seller's agreement boxes, under the password like any sign-in.
+  const [agreements, setAgreements] = useState<SignInAgreementValue>({});
+  const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const onAgreementsComplete = useCallback((complete: boolean) => {
+    setAgreementsComplete(complete);
+  }, []);
 
   const submit = useMutation({
     mutationFn: () =>
@@ -832,9 +852,11 @@ function SellerLockGate({
   const tooShort = isChoosing && password.length > 0 && password.length < 12;
   const mismatch = isChoosing && confirmation.length > 0 && confirmation !== password;
 
-  const canSubmit = isChoosing
-    ? password.length >= 12 && confirmation === password && !submit.isPending
-    : password.length > 0 && !submit.isPending;
+  const canSubmit =
+    agreementsComplete &&
+    (isChoosing
+      ? password.length >= 12 && confirmation === password && !submit.isPending
+      : password.length > 0 && !submit.isPending);
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-16">
@@ -866,7 +888,10 @@ function SellerLockGate({
             className="mt-5 space-y-4"
             onSubmit={(event) => {
               event.preventDefault();
-              if (canSubmit) submit.mutate();
+              if (!canSubmit) return;
+              // Recorded by the Seller Hub's first agreement request once it opens.
+              setPendingSignInAgreements('SELLER', agreements);
+              submit.mutate();
             }}
           >
             <Field
@@ -916,6 +941,14 @@ function SellerLockGate({
                 )}
               </Field>
             )}
+
+            <SignInAgreements
+              client={agreementsClient}
+              scope="SELLER"
+              value={agreements}
+              onChange={setAgreements}
+              onCompleteChange={onAgreementsComplete}
+            />
 
             {problem !== null && (
               <p role="alert" className="text-sm text-danger">
@@ -1033,151 +1066,159 @@ export function SellerLayout(): React.JSX.Element {
 
   const isTrading = seller.isTrading;
 
+  /*
+   * The agreement screen comes after the lock, not before it: the boxes under
+   * the lock's password are the seller's agreement, recorded as the Hub opens,
+   * so the screen only appears for something they could not settle there (a
+   * version published since). The server checks in the same order.
+   */
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
-      {/* The idle warning, and the re-lock when the server says the time is up. */}
-      <SellerSessionGuard session={seller.session} />
-      {/* ---- The rail ---------------------------------------------------- */}
-      <aside
-        className={cx(
-          'order-2 min-w-0 border-t border-border bg-surface lg:order-1 lg:w-60 lg:shrink-0 lg:border-r lg:border-t-0',
-          // Sticky on a phone so the rail is reachable without scrolling to the
-          // bottom of a three-hundred-row listings table.
-          'sticky bottom-0 z-20 lg:static',
-        )}
-      >
-        <div className="hidden px-5 py-5 lg:block">
-          <div className="flex items-center gap-3">
-            <CompanyMark
-              name={seller.displayName}
-              logoUrl={seller.logoUrl}
-              className="h-10 w-10 text-base"
-            />
-            <div className="min-w-0">
-              <p className="truncate text-title-sm leading-tight text-ink">{seller.displayName}</p>
-              <p className="truncate text-xxs uppercase tracking-wider text-ink-subtle">
-                Seller Hub
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <nav
-          aria-label={t('seller.nav.sellerHub')}
-          className="relative flex min-w-0 items-stretch gap-1 overflow-x-auto px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:overflow-visible lg:px-3 lg:py-0"
+    <SellerAgreementGate>
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        {/* The idle warning, and the re-lock when the server says the time is up. */}
+        <SellerSessionGuard session={seller.session} />
+        {/* ---- The rail ---------------------------------------------------- */}
+        <aside
+          className={cx(
+            'order-2 min-w-0 border-t border-border bg-surface lg:order-1 lg:w-60 lg:shrink-0 lg:border-r lg:border-t-0',
+            // Sticky on a phone so the rail is reachable without scrolling to the
+            // bottom of a three-hundred-row listings table.
+            'sticky bottom-0 z-20 lg:static',
+          )}
         >
-          {NAV_ITEMS.filter(
-            (item) =>
-              (item.permission === undefined || seller.permissions.includes(item.permission)) &&
-              (item.feature !== 'rfq' || features.rfq === true) &&
-              (item.feature !== 'productReviews' || features.productReviews === true),
-          ).map((item) => (
-            <RailLink
-              key={item.to}
-              item={item}
-              isDisabled={item.needsApproval && !isTrading}
-            />
-          ))}
-        </nav>
-
-        <div className="hidden border-t border-border-subtle px-3 py-4 lg:block">
-          <NavLink
-            to="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
-          >
-            <ShopIcon className="h-5 w-5 shrink-0" />
-            <span>{t('seller.nav.backToShop')}</span>
-          </NavLink>
-
-          {/* Shuts the Hub without signing out of the shop. The two share one
-              account and one browser, so somebody handing the machine over
-              needs a way to close this that does not cost them their basket. */}
-          <button
-            type="button"
-            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
-            disabled={closeHub.isPending}
-            onClick={() => {
-              closeHub.mutate();
-            }}
-          >
-            <LockIcon className="h-5 w-5 shrink-0" />
-            <span>{t('seller.nav.closeHub')}</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ---- The working area -------------------------------------------- */}
-      <div className="order-1 flex min-w-0 flex-1 flex-col lg:order-2">
-        <header className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-            <div className="flex min-w-0 items-center gap-3">
-              {/* Repeated from the rail on purpose: below `lg` the rail's head
-                  is hidden and this is the only place the seller's own company
-                  appears on the screen they are working in. */}
+          <div className="hidden px-5 py-5 lg:block">
+            <div className="flex items-center gap-3">
               <CompanyMark
                 name={seller.displayName}
                 logoUrl={seller.logoUrl}
-                className="h-9 w-9 text-sm lg:hidden"
+                className="h-10 w-10 text-base"
               />
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-ink">{seller.displayName}</p>
-                <p className="truncate text-xxs text-ink-subtle">{seller.legalName}</p>
+                <p className="truncate text-title-sm leading-tight text-ink">{seller.displayName}</p>
+                <p className="truncate text-xxs uppercase tracking-wider text-ink-subtle">
+                  Seller Hub
+                </p>
               </div>
-              <Badge tone={applicationStatusTone(seller.status)}>
-                {t(applicationStatusKey(seller.status))}
-              </Badge>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2">
-              {/* Beside Refresh, and for the same reason it is on every page:
-                  what a seller has to be told about is decided by somebody
-                  else, in another application, while they are looking at a
-                  screen that has no idea. */}
-              <SellerNotificationBell />
-
-              {/* On every page of the Hub, and that is the point: what a seller
-                  needs to re-read is whichever screen an operator has just
-                  decided something on, and they cannot know which that is. */}
-              <RefreshButton />
-
-              <NavLink
-                to="/"
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-hover lg:hidden"
-              >
-                <ShopIcon className="h-4 w-4" />
-                {t('seller.nav.shop')}
-              </NavLink>
-              <NavLink
-                to="/seller/listings/new"
-                className={cx(
-                  'inline-flex h-9 items-center rounded-md px-3.5 text-sm font-medium',
-                  isTrading
-                    ? 'bg-brand-fill text-white hover:bg-brand-fill-hover'
-                    : 'pointer-events-none bg-ink-subtle text-white opacity-60',
-                )}
-                aria-disabled={!isTrading}
-              >
-                {t('seller.nav.addListing')}
-              </NavLink>
             </div>
           </div>
-        </header>
 
-        <main
-          id="main"
-          ref={mainRef}
-          tabIndex={-1}
-          className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8"
-        >
-          <div className="mx-auto max-w-7xl space-y-6">
-            {/* Keyed on the path so the banner re-announces itself to a screen
-                reader on navigation rather than being read once and forgotten. */}
-            <ApplicationBanner key={location.pathname} seller={seller} />
-            <Outlet context={seller} />
+          <nav
+            aria-label={t('seller.nav.sellerHub')}
+            className="relative flex min-w-0 items-stretch gap-1 overflow-x-auto px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:overflow-visible lg:px-3 lg:py-0"
+          >
+            {NAV_ITEMS.filter(
+              (item) =>
+                (item.permission === undefined || seller.permissions.includes(item.permission)) &&
+                (item.feature !== 'rfq' || features.rfq === true) &&
+                (item.feature !== 'productReviews' || features.productReviews === true),
+            ).map((item) => (
+              <RailLink
+                key={item.to}
+                item={item}
+                isDisabled={item.needsApproval && !isTrading}
+              />
+            ))}
+          </nav>
+
+          <div className="hidden border-t border-border-subtle px-3 py-4 lg:block">
+            <NavLink
+              to="/"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+            >
+              <ShopIcon className="h-5 w-5 shrink-0" />
+              <span>{t('seller.nav.backToShop')}</span>
+            </NavLink>
+
+            {/* Shuts the Hub without signing out of the shop. The two share one
+                account and one browser, so somebody handing the machine over
+                needs a way to close this that does not cost them their basket. */}
+            <button
+              type="button"
+              className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+              disabled={closeHub.isPending}
+              onClick={() => {
+                closeHub.mutate();
+              }}
+            >
+              <LockIcon className="h-5 w-5 shrink-0" />
+              <span>{t('seller.nav.closeHub')}</span>
+            </button>
           </div>
-        </main>
+        </aside>
+
+        {/* ---- The working area -------------------------------------------- */}
+        <div className="order-1 flex min-w-0 flex-1 flex-col lg:order-2">
+          <header className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                {/* Repeated from the rail on purpose: below `lg` the rail's head
+                    is hidden and this is the only place the seller's own company
+                    appears on the screen they are working in. */}
+                <CompanyMark
+                  name={seller.displayName}
+                  logoUrl={seller.logoUrl}
+                  className="h-9 w-9 text-sm lg:hidden"
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-ink">{seller.displayName}</p>
+                  <p className="truncate text-xxs text-ink-subtle">{seller.legalName}</p>
+                </div>
+                <Badge tone={applicationStatusTone(seller.status)}>
+                  {t(applicationStatusKey(seller.status))}
+                </Badge>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                {/* Beside Refresh, and for the same reason it is on every page:
+                    what a seller has to be told about is decided by somebody
+                    else, in another application, while they are looking at a
+                    screen that has no idea. */}
+                <SellerNotificationBell />
+
+                {/* On every page of the Hub, and that is the point: what a seller
+                    needs to re-read is whichever screen an operator has just
+                    decided something on, and they cannot know which that is. */}
+                <RefreshButton />
+
+                <NavLink
+                  to="/"
+                  className="inline-flex h-9 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-hover lg:hidden"
+                >
+                  <ShopIcon className="h-4 w-4" />
+                  {t('seller.nav.shop')}
+                </NavLink>
+                <NavLink
+                  to="/seller/listings/new"
+                  className={cx(
+                    'inline-flex h-9 items-center rounded-md px-3.5 text-sm font-medium',
+                    isTrading
+                      ? 'bg-brand-fill text-white hover:bg-brand-fill-hover'
+                      : 'pointer-events-none bg-ink-subtle text-white opacity-60',
+                  )}
+                  aria-disabled={!isTrading}
+                >
+                  {t('seller.nav.addListing')}
+                </NavLink>
+              </div>
+            </div>
+          </header>
+
+          <main
+            id="main"
+            ref={mainRef}
+            tabIndex={-1}
+            className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8"
+          >
+            <div className="mx-auto max-w-7xl space-y-6">
+              {/* Keyed on the path so the banner re-announces itself to a screen
+                  reader on navigation rather than being read once and forgotten. */}
+              <ApplicationBanner key={location.pathname} seller={seller} />
+              <Outlet context={seller} />
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </SellerAgreementGate>
   );
 }
 

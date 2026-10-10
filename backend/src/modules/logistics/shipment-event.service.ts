@@ -36,6 +36,8 @@
  *     events must not create duplicate inventory movements - is true by
  *     construction rather than by this file remembering to be careful.
  */
+import { assertDispatchAllowed } from '../seller-assessment/purchase-gate.service.js';
+import { assertDispatchControls } from '../commercial-policy/logistics-controls.service.js';
 import { createHash } from 'node:crypto';
 import type { Prisma } from '../../generated/prisma/client.js';
 import type { LogisticsEventSource } from '../../generated/prisma/enums.js';
@@ -76,6 +78,7 @@ import { sendDeliveryCodeOnDispatch } from './delivery-code.service.js';
 import { notifyShipmentEvent } from './notification.service.js';
 // The seller's side of the same events. A leaf: it imports nothing from here.
 import { notifySellerConsignmentMovement } from '../seller/carrier-notification.service.js';
+import { assertConsignmentMayDepart, noteCarrierDeparture } from '../shipment-assessment/release-gate.service.js';
 import {
   NotificationEvent,
   enqueueNotification,
@@ -441,7 +444,18 @@ async function attemptShipmentEvent(
       // collected is past it; it was checked when it left.
       if (INSPECTION_GATED_SHIPMENT_STATUSES.includes(input.status)) {
         assertComplianceOpen(await evaluateShipmentCompliance(tx, shipment.id, from), { from, to: input.status });
+        // Seller Assessment: a held seller order, or one whose scope lapsed, does not move on.
+        const link = await tx.logisticsShipment.findUnique({ where: { id: shipment.id }, select: { sellerOrderGroupId: true } });
+        if (link?.sellerOrderGroupId) {
+          await assertDispatchAllowed(tx, link.sellerOrderGroupId);
+          await assertDispatchControls(tx, link.sellerOrderGroupId);
+        }
       }
+
+      // Shipment Assessment: after L1, a person moving the goods onward is
+      // starting L2, which needs an Audit release. Carrier feeds are recorded
+      // as they happened and raise an exception instead (after the commit).
+      await assertConsignmentMayDepart(tx, shipment.id, input.status, input.actor);
 
       // The insert that deduplicates. If this throws P2002 the work was
       // already done, and the catch below turns that into a success.
@@ -563,6 +577,9 @@ async function attemptShipmentEvent(
      * parcel WAS collected, and a timeline that denies it is worse than a
      * missing email.
      */
+    if (input.actor === 'CARRIER') {
+      await noteCarrierDeparture({ shipmentId: result.shipmentId, status: result.status, eventId: result.eventId, occurredAt });
+    }
     await propagateToOrder(result.orderId, input);
     await notifyShipmentEvent({
       shipmentId: result.shipmentId,

@@ -1,11 +1,9 @@
 /**
  * The sign-in form.
  *
- * There is no terms tick here any more, and these pin that: the Terms and the
- * Privacy Policy are accepted on the agreement screen after signing in, where
- * the acceptance is recorded against the account and asked for again only
- * when a new version requires it. A tick on every sign-in recorded nothing
- * and asked the same question again each time.
+ * The agreement boxes sit under the password (`SignInAgreements`, tested in
+ * the agreement kit): Sign in waits for them, and what was ticked is handed
+ * to the sign-in so the first agreement request afterwards records it.
  *
  * The credentials half is deliberately not re-tested here: "one message for a
  * wrong email and a wrong password alike" is the backend's promise, and this
@@ -16,6 +14,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { LoginPage } from './LoginPage';
 import { makeSession, renderWithProviders } from '@/test/harness';
+
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
 
 /** Nobody signed in — the state this page exists for. */
 function visitor(login = vi.fn()): ReturnType<typeof makeSession> {
@@ -28,10 +28,20 @@ async function fillCredentials(user: ReturnType<typeof userEvent.setup>): Promis
 }
 
 describe('LoginPage', () => {
-  it('asks for no terms tick: the agreement screen after sign-in records that', () => {
-    renderWithProviders(<LoginPage />, { session: visitor() });
-
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  it('shows the buyer agreement boxes under the password, and waits for them', async () => {
+    const flags = globalThis as { signInAgreementsIncomplete?: boolean };
+    flags.signInAgreementsIncomplete = true;
+    const user = userEvent.setup();
+    const login = vi.fn();
+    try {
+      renderWithProviders(<LoginPage />, { session: visitor(login) });
+      expect(screen.getByText('Agreement boxes for BUYER')).toBeInTheDocument();
+      await fillCredentials(user);
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeDisabled();
+      expect(login).not.toHaveBeenCalled();
+    } finally {
+      flags.signInAgreementsIncomplete = false;
+    }
   });
 
   it('signs in with the email and password alone', async () => {

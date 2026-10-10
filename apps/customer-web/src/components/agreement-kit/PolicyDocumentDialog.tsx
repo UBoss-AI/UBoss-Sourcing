@@ -1,6 +1,7 @@
 /**
  * One policy, shown in full, with its one button at the bottom: "I agree" for
- * the Terms & Conditions, "I acknowledge" for the Privacy Policy.
+ * the Terms & Conditions and the Seller Platform Services Agreement, "I
+ * acknowledge" for the Privacy Policy.
  *
  * Built on the app's own `Modal`, which keeps the title bar and the footer in
  * view while only the text scrolls, traps focus, hands it back to whatever
@@ -26,6 +27,7 @@ import { Button, Spinner } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { formatAgreementDate, languageName } from './format';
 import { LegalText } from './legal-text';
+import type { RoleTextPrefix } from './role-text';
 import type { AgreementRole, CurrentAgreementDocument } from './types';
 import { useReadToEnd } from './useReadToEnd';
 
@@ -45,6 +47,14 @@ export interface PolicyDocumentDialogProps {
   onConfirm: (documentIds: string[]) => void;
   pdfUrl: (documentId: string) => string;
   pageUrl: (documentId: string) => string | null;
+  /** The box's own words; by default the role's. */
+  textPrefix?: RoleTextPrefix | undefined;
+  /**
+   * Set when this person may read the document but not accept it - the company
+   * services agreement for a member who cannot bind the company. The sentence
+   * replaces the end-of-text hint and there is no agree button.
+   */
+  reviewOnlyReason?: string | null;
 }
 
 export function PolicyDocumentDialog({
@@ -60,20 +70,37 @@ export function PolicyDocumentDialog({
   onConfirm,
   pdfUrl,
   pageUrl,
+  textPrefix,
+  reviewOnlyReason = null,
 }: PolicyDocumentDialogProps): React.JSX.Element {
   const { t, language } = useI18n();
   const bodyRef = useRef<HTMLDivElement>(null);
   const hintId = useId();
   const isReady = state === 'ready' && documents.length > 0;
-  const readOnly = recordedAt !== null;
+  const readOnly = recordedAt !== null || reviewOnlyReason !== null;
+  const prefix: RoleTextPrefix =
+    textPrefix ?? (role === 'TERMS' ? 'agreements.terms' : role === 'SERVICES' ? 'agreements.services' : 'agreements.privacy');
   const resetKey = documents.map((entry) => entry.document.id).join('|');
   const hasReachedEnd = useReadToEnd(bodyRef, isOpen && isReady, resetKey);
 
-  const fallbackTitle = role === 'TERMS' ? t('agreements.terms.title') : t('agreements.privacy.title');
+  const fallbackTitle = t(`${prefix}.title`);
   const title = documents.length === 1 ? (documents[0]?.document.title ?? fallbackTitle) : fallbackTitle;
-  const confirmLabel = role === 'TERMS' ? t('agreements.dialog.agree') : t('agreements.dialog.acknowledge');
+  const confirmLabel = role === 'PRIVACY' ? t('agreements.dialog.acknowledge') : t('agreements.dialog.agree');
+  const description =
+    prefix === 'agreements.companyTerms' ||
+    prefix === 'agreements.companyServices' ||
+    prefix === 'agreements.consumerTerms' ||
+    prefix === 'agreements.consumerServices'
+      ? t(`${prefix}.dialogDescription`)
+      : role === 'TERMS'
+      ? t('agreements.dialog.termsDescription')
+      : role === 'SERVICES'
+        ? t('agreements.dialog.servicesDescription')
+        : t('agreements.dialog.privacyDescription');
 
-  const hint = readOnly
+  const hint = reviewOnlyReason !== null
+    ? reviewOnlyReason
+    : recordedAt !== null
     ? t('agreements.dialog.recordedOn', { date: formatAgreementDate(recordedAt, language) })
     : !isReady
       ? state === 'error'
@@ -88,7 +115,7 @@ export function PolicyDocumentDialog({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      description={role === 'TERMS' ? t('agreements.dialog.termsDescription') : t('agreements.dialog.privacyDescription')}
+      description={description}
       size="lg"
       bodyRef={bodyRef}
       bodyLabel={t('agreements.dialog.textRegion', { title })}

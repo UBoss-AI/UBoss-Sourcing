@@ -11,6 +11,8 @@ evaluating the software — can read it without knowing the code first.
 |---|---|
 | What the product is, who it is for, and what it must do | [`PRD.md`](PRD.md) — the Product Requirements Document |
 | What each screen shows and lets you do | [`UI-SCREENS.md`](UI-SCREENS.md) |
+| Seller Assessment and Onboarding: every requirement of document v1.0, what was built, the evidence and what is still open | [`SELLER-ASSESSMENT-MATRIX.md`](SELLER-ASSESSMENT-MATRIX.md) |
+| Delivery, returns, disputes and commercial schedules: every requirement of Doc 07 and Doc 08, what was built, the evidence and what is still open | [`DELIVERY-COMMERCIAL-MATRIX.md`](DELIVERY-COMMERCIAL-MATRIX.md) |
 | How the data is organised, and why | [`DATABASE-DESIGN.md`](DATABASE-DESIGN.md) |
 | How to talk to the backend from a program | [`API.md`](API.md) |
 | The exact columns of one table | [`reference/DATABASE-TABLES.md`](reference/DATABASE-TABLES.md) |

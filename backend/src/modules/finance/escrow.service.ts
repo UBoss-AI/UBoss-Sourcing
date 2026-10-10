@@ -35,6 +35,8 @@ import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { assertPayable, payoutAdapter, PayoutProviderRejectedError } from '../seller/payout.service.js';
 import { reconcileLedgerPayouts, unresolvedPayoutWhere, settleLedgerPayout, rejectLedgerPayout, markPayoutUnknown, PAYOUT_UNKNOWN_MESSAGE } from './ledger-payout-recovery.service.js';
 import { postEntry, sumLines, total } from './ledger.service.js';
+import { activeReserveTerms } from '../commercial-policy/finance.service.js';
+import { reserveForOrder } from '../../domain/commercial-policy.js';
 
 /** Dispute statuses that stop a release. */
 export const OPEN_DISPUTE_STATUSES: DisputeStatus[] = [
@@ -64,6 +66,9 @@ export interface ReleaseTerms {
   inspectionRequired: boolean;
   reserveBps: number;
   reserveDays: number;
+  /** An activated seller security schedule (Doc 07 s10): the cap on reserve held at once, and which schedule set it. */
+  reserveCapMinor?: string | null;
+  securityScheduleId?: string | null;
 }
 
 export function currentReleaseTerms(inspectionRequired = false): ReleaseTerms {
@@ -86,10 +91,24 @@ function termsOf(json: unknown): ReleaseTerms {
     inspectionRequired: value.inspectionRequired === true,
     reserveBps: Number(value.reserveBps ?? 0),
     reserveDays: Number(value.reserveDays ?? 0),
+    reserveCapMinor: value.reserveCapMinor ?? null,
+    securityScheduleId: value.securityScheduleId ?? null,
   };
 }
 
 const DAY_MS = 86_400_000;
+
+/**
+ * The release terms frozen on a new hold. An ACTIVE seller security schedule
+ * (approved, provider-permitted) replaces the deployment-wide reserve with the
+ * seller's own rate, period and cap; with none, nothing changes.
+ */
+async function termsForSeller(tx: PrismaTransaction, sellerAccountId: string, inspectionRequired: boolean): Promise<ReleaseTerms> {
+  const base = currentReleaseTerms(inspectionRequired);
+  const security = await activeReserveTerms(tx, sellerAccountId);
+  if (security === null) return base;
+  return { ...base, reserveBps: security.reserveBps, reserveDays: security.holdDays, reserveCapMinor: security.capMinor?.toString() ?? null, securityScheduleId: security.scheduleId };
+}
 
 // ---------------------------------------------------------------------------
 // Capture and allocation
@@ -189,7 +208,7 @@ export async function allocateOrder(orderId: string): Promise<{ captured: number
           orderId,
           currency: row.currency,
           allocatedMinor: share,
-          termsJson: currentReleaseTerms(level !== 'NOT_REQUIRED') as never,
+          termsJson: (await termsForSeller(tx, row.sellerAccountId, level !== 'NOT_REQUIRED')) as never,
         },
       });
     }
@@ -458,7 +477,12 @@ async function release(
   const terms = termsOf(hold.termsJson);
   const amount = await heldFor(tx, hold.sellerOrderGroupId);
   const releasable = amount > 0n ? amount : 0n;
-  const reserve = (releasable * BigInt(terms.reserveBps)) / 10_000n;
+  let reserve = (releasable * BigInt(terms.reserveBps)) / 10_000n;
+  if (terms.reserveCapMinor !== null && terms.reserveCapMinor !== undefined) {
+    // Never hold more in reserve at once than the seller's schedule caps.
+    const held = await tx.sellerFundHold.aggregate({ where: { sellerAccountId: hold.sellerAccountId, reserveReleasedAt: null, reserveMinor: { gt: 0n } }, _sum: { reserveMinor: true } });
+    reserve = reserveForOrder(releasable, terms.reserveBps, BigInt(terms.reserveCapMinor), held._sum.reserveMinor ?? 0n);
+  }
   const claimed = await tx.sellerFundHold.updateMany({
     where: { id: hold.id, status: { in: fromStatuses } },
     data: {

@@ -13,6 +13,11 @@ export type LegalDocumentKind =
   | 'PLATFORM_TERMS'
   | 'LOGISTICS_PARTNER_TERMS'
   | 'SELLER_TERMS'
+  | 'SELLER_SERVICES_AGREEMENT'
+  | 'B2B_BUYER_TERMS'
+  | 'B2B_BUYER_SERVICES_AGREEMENT'
+  | 'B2C_CONSUMER_TERMS'
+  | 'B2C_PLATFORM_SERVICES_AGREEMENT'
   | 'PRIVACY_POLICY'
   | 'RETURNS_POLICY'
   | 'BUYER_PROTECTION_POLICY'
@@ -21,7 +26,7 @@ export type LegalDocumentKind =
   | 'STAFF_TERMS'
   | 'AUDIT_CONSOLE_TERMS';
 /**
- * The two terms kinds are accepted at sign-up; the next six are published
+ * The two terms kinds are accepted at sign-up; the next seven are published
  * policies, shown in the storefront's help and policies hub (Master row 9).
  * `STAFF_TERMS` and `AUDIT_CONSOLE_TERMS` are what the console's staff and
  * Audit Console users accept on the agreement screen after signing in. The
@@ -31,6 +36,11 @@ export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
   'PLATFORM_TERMS',
   'LOGISTICS_PARTNER_TERMS',
   'SELLER_TERMS',
+  'SELLER_SERVICES_AGREEMENT',
+  'B2B_BUYER_TERMS',
+  'B2B_BUYER_SERVICES_AGREEMENT',
+  'B2C_CONSUMER_TERMS',
+  'B2C_PLATFORM_SERVICES_AGREEMENT',
   'PRIVACY_POLICY',
   'RETURNS_POLICY',
   'BUYER_PROTECTION_POLICY',

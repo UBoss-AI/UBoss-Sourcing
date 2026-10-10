@@ -726,15 +726,12 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorPage fullScreen />,
     lazy: async () => {
       const { SellerLayout } = await import('@/pages/seller/SellerLayout');
-      const { SellerAgreementGate } = await import('@/layout/SellerAgreementGate');
       return {
         element: (
           <RequireCustomer>
-            <SellerAgreementGate>
-              <Suspense fallback={<RouteFallback />}>
-                <SellerLayout />
-              </Suspense>
-            </SellerAgreementGate>
+            <Suspense fallback={<RouteFallback />}>
+              <SellerLayout />
+            </Suspense>
           </RequireCustomer>
         ),
       };
@@ -830,6 +827,13 @@ export const router = createBrowserRouter([
        * bury it behind a tab nobody presses.
        */
       {
+        // Seller Assessment and Onboarding: the application, gates, findings, scope, notices and appeals.
+        path: 'assessment',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerAssessmentPage').then((m) => m.SellerAssessmentPage),
+        ),
+      },
+      {
         // Factories and certificates, and sending them for verification.
         path: 'factories',
         ...accountPage(() =>
@@ -912,6 +916,11 @@ export const router = createBrowserRouter([
         ...accountPage(() =>
           import('@/pages/seller/SellerPaymentsPage').then((m) => m.SellerPaymentsPage),
         ),
+      },
+      // Commission reversals, security schedules and certification recovery (Doc 08).
+      {
+        path: 'fees',
+        ...accountPage(() => import('@/pages/seller/SellerFeesPage').then((m) => m.SellerFeesPage)),
       },
       {
         // How this seller numbers and signs the invoices issued in their name.

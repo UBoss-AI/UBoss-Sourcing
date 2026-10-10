@@ -41,12 +41,14 @@ export type AggregateSellerAccount = {
 export type SellerAccountAvgAggregateOutputType = {
   commissionBasisPoints: number | null
   qualityScore: runtime.Decimal | null
+  auditBadgeVersion: number | null
   version: number | null
 }
 
 export type SellerAccountSumAggregateOutputType = {
   commissionBasisPoints: number | null
   qualityScore: runtime.Decimal | null
+  auditBadgeVersion: number | null
   version: number | null
 }
 
@@ -67,6 +69,9 @@ export type SellerAccountMinAggregateOutputType = {
   commissionBasisPoints: number | null
   feeTier: string | null
   qualityScore: runtime.Decimal | null
+  auditBadge: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt: Date | null
+  auditBadgeVersion: number | null
   submittedAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
@@ -95,6 +100,9 @@ export type SellerAccountMaxAggregateOutputType = {
   commissionBasisPoints: number | null
   feeTier: string | null
   qualityScore: runtime.Decimal | null
+  auditBadge: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt: Date | null
+  auditBadgeVersion: number | null
   submittedAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
@@ -123,6 +131,9 @@ export type SellerAccountCountAggregateOutputType = {
   commissionBasisPoints: number
   feeTier: number
   qualityScore: number
+  auditBadge: number
+  auditBadgeSetAt: number
+  auditBadgeVersion: number
   submittedAt: number
   reviewedAt: number
   approvedAt: number
@@ -139,12 +150,14 @@ export type SellerAccountCountAggregateOutputType = {
 export type SellerAccountAvgAggregateInputType = {
   commissionBasisPoints?: true
   qualityScore?: true
+  auditBadgeVersion?: true
   version?: true
 }
 
 export type SellerAccountSumAggregateInputType = {
   commissionBasisPoints?: true
   qualityScore?: true
+  auditBadgeVersion?: true
   version?: true
 }
 
@@ -165,6 +178,9 @@ export type SellerAccountMinAggregateInputType = {
   commissionBasisPoints?: true
   feeTier?: true
   qualityScore?: true
+  auditBadge?: true
+  auditBadgeSetAt?: true
+  auditBadgeVersion?: true
   submittedAt?: true
   reviewedAt?: true
   approvedAt?: true
@@ -193,6 +209,9 @@ export type SellerAccountMaxAggregateInputType = {
   commissionBasisPoints?: true
   feeTier?: true
   qualityScore?: true
+  auditBadge?: true
+  auditBadgeSetAt?: true
+  auditBadgeVersion?: true
   submittedAt?: true
   reviewedAt?: true
   approvedAt?: true
@@ -221,6 +240,9 @@ export type SellerAccountCountAggregateInputType = {
   commissionBasisPoints?: true
   feeTier?: true
   qualityScore?: true
+  auditBadge?: true
+  auditBadgeSetAt?: true
+  auditBadgeVersion?: true
   submittedAt?: true
   reviewedAt?: true
   approvedAt?: true
@@ -336,6 +358,9 @@ export type SellerAccountGroupByOutputType = {
   commissionBasisPoints: number | null
   feeTier: string | null
   qualityScore: runtime.Decimal | null
+  auditBadge: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt: Date | null
+  auditBadgeVersion: number
   submittedAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
@@ -387,6 +412,9 @@ export type SellerAccountWhereInput = {
   commissionBasisPoints?: Prisma.IntNullableFilter<"SellerAccount"> | number | null
   feeTier?: Prisma.StringNullableFilter<"SellerAccount"> | string | null
   qualityScore?: Prisma.DecimalNullableFilter<"SellerAccount"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.EnumSellerBadgeTierNullableFilter<"SellerAccount"> | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
+  auditBadgeVersion?: Prisma.IntFilter<"SellerAccount"> | number
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
@@ -466,6 +494,12 @@ export type SellerAccountWhereInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
   productReviews?: Prisma.ProductReviewListRelationFilter
+  badgeChanges?: Prisma.SellerBadgeChangeListRelationFilter
+  shipmentAssessments?: Prisma.ShipmentAssessmentListRelationFilter
+  auditDocuments?: Prisma.AuditDocumentListRelationFilter
+  assessments?: Prisma.SellerAssessmentListRelationFilter
+  tradingApprovals?: Prisma.SellerTradingApprovalListRelationFilter
+  consentRecords?: Prisma.ConsentRecordListRelationFilter
 }
 
 export type SellerAccountOrderByWithRelationInput = {
@@ -485,6 +519,9 @@ export type SellerAccountOrderByWithRelationInput = {
   commissionBasisPoints?: Prisma.SortOrderInput | Prisma.SortOrder
   feeTier?: Prisma.SortOrderInput | Prisma.SortOrder
   qualityScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadge?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadgeSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -564,6 +601,12 @@ export type SellerAccountOrderByWithRelationInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestOrderByRelationAggregateInput
   listingTrust?: Prisma.SellerListingTrustOrderByRelationAggregateInput
   productReviews?: Prisma.ProductReviewOrderByRelationAggregateInput
+  badgeChanges?: Prisma.SellerBadgeChangeOrderByRelationAggregateInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentOrderByRelationAggregateInput
+  auditDocuments?: Prisma.AuditDocumentOrderByRelationAggregateInput
+  assessments?: Prisma.SellerAssessmentOrderByRelationAggregateInput
+  tradingApprovals?: Prisma.SellerTradingApprovalOrderByRelationAggregateInput
+  consentRecords?: Prisma.ConsentRecordOrderByRelationAggregateInput
   _relevance?: Prisma.SellerAccountOrderByRelevanceInput
 }
 
@@ -587,6 +630,9 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   commissionBasisPoints?: Prisma.IntNullableFilter<"SellerAccount"> | number | null
   feeTier?: Prisma.StringNullableFilter<"SellerAccount"> | string | null
   qualityScore?: Prisma.DecimalNullableFilter<"SellerAccount"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.EnumSellerBadgeTierNullableFilter<"SellerAccount"> | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
+  auditBadgeVersion?: Prisma.IntFilter<"SellerAccount"> | number
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
@@ -666,6 +712,12 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
   productReviews?: Prisma.ProductReviewListRelationFilter
+  badgeChanges?: Prisma.SellerBadgeChangeListRelationFilter
+  shipmentAssessments?: Prisma.ShipmentAssessmentListRelationFilter
+  auditDocuments?: Prisma.AuditDocumentListRelationFilter
+  assessments?: Prisma.SellerAssessmentListRelationFilter
+  tradingApprovals?: Prisma.SellerTradingApprovalListRelationFilter
+  consentRecords?: Prisma.ConsentRecordListRelationFilter
 }, "id" | "displayNameNormalized" | "slug">
 
 export type SellerAccountOrderByWithAggregationInput = {
@@ -685,6 +737,9 @@ export type SellerAccountOrderByWithAggregationInput = {
   commissionBasisPoints?: Prisma.SortOrderInput | Prisma.SortOrder
   feeTier?: Prisma.SortOrderInput | Prisma.SortOrder
   qualityScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadge?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadgeSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -721,6 +776,9 @@ export type SellerAccountScalarWhereWithAggregatesInput = {
   commissionBasisPoints?: Prisma.IntNullableWithAggregatesFilter<"SellerAccount"> | number | null
   feeTier?: Prisma.StringNullableWithAggregatesFilter<"SellerAccount"> | string | null
   qualityScore?: Prisma.DecimalNullableWithAggregatesFilter<"SellerAccount"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.EnumSellerBadgeTierNullableWithAggregatesFilter<"SellerAccount"> | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerAccount"> | Date | string | null
+  auditBadgeVersion?: Prisma.IntWithAggregatesFilter<"SellerAccount"> | number
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerAccount"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerAccount"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerAccount"> | Date | string | null
@@ -749,6 +807,9 @@ export type SellerAccountCreateInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -828,6 +889,12 @@ export type SellerAccountCreateInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateInput = {
@@ -847,6 +914,9 @@ export type SellerAccountUncheckedCreateInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -926,6 +996,12 @@ export type SellerAccountUncheckedCreateInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUpdateInput = {
@@ -945,6 +1021,9 @@ export type SellerAccountUpdateInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1024,6 +1103,12 @@ export type SellerAccountUpdateInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateInput = {
@@ -1043,6 +1128,9 @@ export type SellerAccountUncheckedUpdateInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1122,6 +1210,12 @@ export type SellerAccountUncheckedUpdateInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateManyInput = {
@@ -1141,6 +1235,9 @@ export type SellerAccountCreateManyInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -1169,6 +1266,9 @@ export type SellerAccountUpdateManyMutationInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1197,6 +1297,9 @@ export type SellerAccountUncheckedUpdateManyInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1236,6 +1339,9 @@ export type SellerAccountCountOrderByAggregateInput = {
   commissionBasisPoints?: Prisma.SortOrder
   feeTier?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
+  auditBadge?: Prisma.SortOrder
+  auditBadgeSetAt?: Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
@@ -1250,6 +1356,7 @@ export type SellerAccountCountOrderByAggregateInput = {
 export type SellerAccountAvgOrderByAggregateInput = {
   commissionBasisPoints?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
@@ -1270,6 +1377,9 @@ export type SellerAccountMaxOrderByAggregateInput = {
   commissionBasisPoints?: Prisma.SortOrder
   feeTier?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
+  auditBadge?: Prisma.SortOrder
+  auditBadgeSetAt?: Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
@@ -1298,6 +1408,9 @@ export type SellerAccountMinOrderByAggregateInput = {
   commissionBasisPoints?: Prisma.SortOrder
   feeTier?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
+  auditBadge?: Prisma.SortOrder
+  auditBadgeSetAt?: Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
@@ -1312,6 +1425,7 @@ export type SellerAccountMinOrderByAggregateInput = {
 export type SellerAccountSumOrderByAggregateInput = {
   commissionBasisPoints?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
+  auditBadgeVersion?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
@@ -1390,6 +1504,10 @@ export type EnumSellerKindFieldUpdateOperationsInput = {
 
 export type EnumSellerApplicationStatusFieldUpdateOperationsInput = {
   set?: $Enums.SellerApplicationStatus
+}
+
+export type NullableEnumSellerBadgeTierFieldUpdateOperationsInput = {
+  set?: $Enums.SellerBadgeTier | null
 }
 
 export type SellerAccountCreateNestedOneWithoutMembersInput = {
@@ -2144,6 +2262,22 @@ export type SellerAccountUpdateOneWithoutAccessReviewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutAccessReviewsInput, Prisma.SellerAccountUpdateWithoutAccessReviewsInput>, Prisma.SellerAccountUncheckedUpdateWithoutAccessReviewsInput>
 }
 
+export type SellerAccountCreateNestedOneWithoutConsentRecordsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedCreateWithoutConsentRecordsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutConsentRecordsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneWithoutConsentRecordsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedCreateWithoutConsentRecordsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutConsentRecordsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutConsentRecordsInput
+  disconnect?: Prisma.SellerAccountWhereInput | boolean
+  delete?: Prisma.SellerAccountWhereInput | boolean
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutConsentRecordsInput, Prisma.SellerAccountUpdateWithoutConsentRecordsInput>, Prisma.SellerAccountUncheckedUpdateWithoutConsentRecordsInput>
+}
+
 export type SellerAccountCreateNestedOneWithoutCommissionInvoicesInput = {
   create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutCommissionInvoicesInput, Prisma.SellerAccountUncheckedCreateWithoutCommissionInvoicesInput>
   connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutCommissionInvoicesInput
@@ -2326,6 +2460,76 @@ export type SellerAccountUpdateOneRequiredWithoutComplianceCasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutComplianceCasesInput, Prisma.SellerAccountUpdateWithoutComplianceCasesInput>, Prisma.SellerAccountUncheckedUpdateWithoutComplianceCasesInput>
 }
 
+export type SellerAccountCreateNestedOneWithoutBadgeChangesInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedCreateWithoutBadgeChangesInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutBadgeChangesInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutBadgeChangesNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedCreateWithoutBadgeChangesInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutBadgeChangesInput
+  upsert?: Prisma.SellerAccountUpsertWithoutBadgeChangesInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutBadgeChangesInput, Prisma.SellerAccountUpdateWithoutBadgeChangesInput>, Prisma.SellerAccountUncheckedUpdateWithoutBadgeChangesInput>
+}
+
+export type SellerAccountCreateNestedOneWithoutShipmentAssessmentsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutShipmentAssessmentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutShipmentAssessmentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutShipmentAssessmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutShipmentAssessmentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutShipmentAssessmentsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutShipmentAssessmentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutShipmentAssessmentsInput, Prisma.SellerAccountUpdateWithoutShipmentAssessmentsInput>, Prisma.SellerAccountUncheckedUpdateWithoutShipmentAssessmentsInput>
+}
+
+export type SellerAccountCreateNestedOneWithoutAuditDocumentsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedCreateWithoutAuditDocumentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAuditDocumentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutAuditDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedCreateWithoutAuditDocumentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAuditDocumentsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutAuditDocumentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutAuditDocumentsInput, Prisma.SellerAccountUpdateWithoutAuditDocumentsInput>, Prisma.SellerAccountUncheckedUpdateWithoutAuditDocumentsInput>
+}
+
+export type SellerAccountCreateNestedOneWithoutAssessmentsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutAssessmentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAssessmentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutAssessmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutAssessmentsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAssessmentsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutAssessmentsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutAssessmentsInput, Prisma.SellerAccountUpdateWithoutAssessmentsInput>, Prisma.SellerAccountUncheckedUpdateWithoutAssessmentsInput>
+}
+
+export type SellerAccountCreateNestedOneWithoutTradingApprovalsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedCreateWithoutTradingApprovalsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutTradingApprovalsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutTradingApprovalsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedCreateWithoutTradingApprovalsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutTradingApprovalsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutTradingApprovalsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutTradingApprovalsInput, Prisma.SellerAccountUpdateWithoutTradingApprovalsInput>, Prisma.SellerAccountUncheckedUpdateWithoutTradingApprovalsInput>
+}
+
 export type SellerAccountCreateWithoutCreatedProductsInput = {
   id: string
   legalName: string
@@ -2343,6 +2547,9 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -2421,6 +2628,12 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
@@ -2440,6 +2653,9 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -2518,6 +2734,12 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCreatedProductsInput = {
@@ -2553,6 +2775,9 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2631,6 +2856,12 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
@@ -2650,6 +2881,9 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2728,6 +2962,12 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutProductReviewsInput = {
@@ -2747,6 +2987,9 @@ export type SellerAccountCreateWithoutProductReviewsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -2825,6 +3068,12 @@ export type SellerAccountCreateWithoutProductReviewsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutProductReviewsInput = {
@@ -2844,6 +3093,9 @@ export type SellerAccountUncheckedCreateWithoutProductReviewsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -2922,6 +3174,12 @@ export type SellerAccountUncheckedCreateWithoutProductReviewsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutProductReviewsInput = {
@@ -2957,6 +3215,9 @@ export type SellerAccountUpdateWithoutProductReviewsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3035,6 +3296,12 @@ export type SellerAccountUpdateWithoutProductReviewsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutProductReviewsInput = {
@@ -3054,6 +3321,9 @@ export type SellerAccountUncheckedUpdateWithoutProductReviewsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3132,6 +3402,12 @@ export type SellerAccountUncheckedUpdateWithoutProductReviewsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutSupportTicketsInput = {
@@ -3151,6 +3427,9 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -3229,6 +3508,12 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
@@ -3248,6 +3533,9 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -3326,6 +3614,12 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSupportTicketsInput = {
@@ -3361,6 +3655,9 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3439,6 +3736,12 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
@@ -3458,6 +3761,9 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3536,6 +3842,12 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutDisputesInput = {
@@ -3555,6 +3867,9 @@ export type SellerAccountCreateWithoutDisputesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -3633,6 +3948,12 @@ export type SellerAccountCreateWithoutDisputesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutDisputesInput = {
@@ -3652,6 +3973,9 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -3730,6 +4054,12 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutDisputesInput = {
@@ -3765,6 +4095,9 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3843,6 +4176,12 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
@@ -3862,6 +4201,9 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3940,6 +4282,12 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutMembersInput = {
@@ -3959,6 +4307,9 @@ export type SellerAccountCreateWithoutMembersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4037,6 +4388,12 @@ export type SellerAccountCreateWithoutMembersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutMembersInput = {
@@ -4056,6 +4413,9 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4134,6 +4494,12 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutMembersInput = {
@@ -4169,6 +4535,9 @@ export type SellerAccountUpdateWithoutMembersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4247,6 +4616,12 @@ export type SellerAccountUpdateWithoutMembersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutMembersInput = {
@@ -4266,6 +4641,9 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4344,6 +4722,12 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInvitationsInput = {
@@ -4363,6 +4747,9 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4441,6 +4828,12 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
@@ -4460,6 +4853,9 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4538,6 +4934,12 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInvitationsInput = {
@@ -4573,6 +4975,9 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4651,6 +5056,12 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
@@ -4670,6 +5081,9 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4748,6 +5162,12 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOnboardingInput = {
@@ -4767,6 +5187,9 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4845,6 +5268,12 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
@@ -4864,6 +5293,9 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -4942,6 +5374,12 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOnboardingInput = {
@@ -4977,6 +5415,9 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5055,6 +5496,12 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
@@ -5074,6 +5521,9 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5152,6 +5602,12 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBusinessProfileInput = {
@@ -5171,6 +5627,9 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -5249,6 +5708,12 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
@@ -5268,6 +5733,9 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -5346,6 +5814,12 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBusinessProfileInput = {
@@ -5381,6 +5855,9 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5459,6 +5936,12 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
@@ -5478,6 +5961,9 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5556,6 +6042,12 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutVerificationCasesInput = {
@@ -5575,6 +6067,9 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -5653,6 +6148,12 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
@@ -5672,6 +6173,9 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -5750,6 +6254,12 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutVerificationCasesInput = {
@@ -5785,6 +6295,9 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5863,6 +6376,12 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
@@ -5882,6 +6401,9 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5960,6 +6482,12 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutDocumentsInput = {
@@ -5979,6 +6507,9 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6057,6 +6588,12 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
@@ -6076,6 +6613,9 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6154,6 +6694,12 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutDocumentsInput = {
@@ -6189,6 +6735,9 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6267,6 +6816,12 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
@@ -6286,6 +6841,9 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6364,6 +6922,12 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAgreementsInput = {
@@ -6383,6 +6947,9 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6461,6 +7028,12 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
@@ -6480,6 +7053,9 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6558,6 +7134,12 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAgreementsInput = {
@@ -6593,6 +7175,9 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6671,6 +7256,12 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
@@ -6690,6 +7281,9 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6768,6 +7362,12 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPayoutAccountInput = {
@@ -6787,6 +7387,9 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6865,6 +7468,12 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
@@ -6884,6 +7493,9 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -6962,6 +7574,12 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPayoutAccountInput = {
@@ -6997,6 +7615,9 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7075,6 +7696,12 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
@@ -7094,6 +7721,9 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7172,6 +7802,12 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLocationsInput = {
@@ -7191,6 +7827,9 @@ export type SellerAccountCreateWithoutLocationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -7269,6 +7908,12 @@ export type SellerAccountCreateWithoutLocationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLocationsInput = {
@@ -7288,6 +7933,9 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -7366,6 +8014,12 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLocationsInput = {
@@ -7401,6 +8055,9 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7479,6 +8136,12 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
@@ -7498,6 +8161,9 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7576,6 +8242,12 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBrandRequestsInput = {
@@ -7595,6 +8267,9 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -7673,6 +8348,12 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
@@ -7692,6 +8373,9 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -7770,6 +8454,12 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBrandRequestsInput = {
@@ -7805,6 +8495,9 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7883,6 +8576,12 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
@@ -7902,6 +8601,9 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7980,6 +8682,12 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutListingDraftsInput = {
@@ -7999,6 +8707,9 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8077,6 +8788,12 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
@@ -8096,6 +8813,9 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8174,6 +8894,12 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutListingDraftsInput = {
@@ -8209,6 +8935,9 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8287,6 +9016,12 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
@@ -8306,6 +9041,9 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8384,6 +9122,12 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOffersInput = {
@@ -8403,6 +9147,9 @@ export type SellerAccountCreateWithoutOffersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8481,6 +9228,12 @@ export type SellerAccountCreateWithoutOffersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOffersInput = {
@@ -8500,6 +9253,9 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8578,6 +9334,12 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOffersInput = {
@@ -8613,6 +9375,9 @@ export type SellerAccountUpdateWithoutOffersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8691,6 +9456,12 @@ export type SellerAccountUpdateWithoutOffersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOffersInput = {
@@ -8710,6 +9481,9 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8788,6 +9562,12 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInventoryInput = {
@@ -8807,6 +9587,9 @@ export type SellerAccountCreateWithoutInventoryInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8885,6 +9668,12 @@ export type SellerAccountCreateWithoutInventoryInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInventoryInput = {
@@ -8904,6 +9693,9 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -8982,6 +9774,12 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInventoryInput = {
@@ -9017,6 +9815,9 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9095,6 +9896,12 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
@@ -9114,6 +9921,9 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9192,6 +10002,12 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInventoryMovementsInput = {
@@ -9211,6 +10027,9 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -9289,6 +10108,12 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
@@ -9308,6 +10133,9 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -9386,6 +10214,12 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInventoryMovementsInput = {
@@ -9421,6 +10255,9 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9499,6 +10336,12 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -9518,6 +10361,9 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9596,6 +10442,12 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBulkImportsInput = {
@@ -9615,6 +10467,9 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -9693,6 +10548,12 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
@@ -9712,6 +10573,9 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -9790,6 +10654,12 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBulkImportsInput = {
@@ -9825,6 +10695,9 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9903,6 +10776,12 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
@@ -9922,6 +10801,9 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10000,6 +10882,12 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderGroupsInput = {
@@ -10019,6 +10907,9 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -10097,6 +10988,12 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
@@ -10116,6 +11013,9 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -10194,6 +11094,12 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderGroupsInput = {
@@ -10229,6 +11135,9 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10307,6 +11216,12 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
@@ -10326,6 +11241,9 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10404,6 +11322,12 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentsInput = {
@@ -10423,6 +11347,9 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -10501,6 +11428,12 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
@@ -10520,6 +11453,9 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -10598,6 +11534,12 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentsInput = {
@@ -10633,6 +11575,9 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10711,6 +11656,12 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
@@ -10730,6 +11681,9 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10808,6 +11762,12 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutReturnsInput = {
@@ -10827,6 +11787,9 @@ export type SellerAccountCreateWithoutReturnsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -10905,6 +11868,12 @@ export type SellerAccountCreateWithoutReturnsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutReturnsInput = {
@@ -10924,6 +11893,9 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -11002,6 +11974,12 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutReturnsInput = {
@@ -11037,6 +12015,9 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11115,6 +12096,12 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
@@ -11134,6 +12121,9 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11212,6 +12202,12 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutSettlementsInput = {
@@ -11231,6 +12227,9 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -11309,6 +12308,12 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
@@ -11328,6 +12333,9 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -11406,6 +12414,12 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSettlementsInput = {
@@ -11441,6 +12455,9 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11519,6 +12536,12 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
@@ -11538,6 +12561,9 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11616,6 +12642,12 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPayoutsInput = {
@@ -11635,6 +12667,9 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -11713,6 +12748,12 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
@@ -11732,6 +12773,9 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -11810,6 +12854,12 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPayoutsInput = {
@@ -11845,6 +12895,9 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11923,6 +12976,12 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
@@ -11942,6 +13001,9 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12020,6 +13082,12 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutNotificationsInput = {
@@ -12039,6 +13107,9 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -12117,6 +13188,12 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
@@ -12136,6 +13213,9 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -12214,6 +13294,12 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutNotificationsInput = {
@@ -12249,6 +13335,9 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12327,6 +13416,12 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
@@ -12346,6 +13441,9 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12424,6 +13522,12 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAuditLogsInput = {
@@ -12443,6 +13547,9 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -12521,6 +13628,12 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
@@ -12540,6 +13653,9 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -12618,6 +13734,12 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAuditLogsInput = {
@@ -12653,6 +13775,9 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12731,6 +13856,12 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
@@ -12750,6 +13881,9 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12828,6 +13962,12 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPartnersInput = {
@@ -12847,6 +13987,9 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -12925,6 +14068,12 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
@@ -12944,6 +14093,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -13022,6 +14174,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPartnersInput = {
@@ -13057,6 +14215,9 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13135,6 +14296,12 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
@@ -13154,6 +14321,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13232,6 +14402,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
@@ -13251,6 +14427,9 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -13329,6 +14508,12 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
@@ -13348,6 +14533,9 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -13426,6 +14614,12 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFulfilmentMethodsInput = {
@@ -13461,6 +14655,9 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13539,6 +14736,12 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
@@ -13558,6 +14761,9 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13636,6 +14842,12 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCarrierConnectionsInput = {
@@ -13655,6 +14867,9 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -13733,6 +14948,12 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
@@ -13752,6 +14973,9 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -13830,6 +15054,12 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCarrierConnectionsInput = {
@@ -13865,6 +15095,9 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13943,6 +15176,12 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
@@ -13962,6 +15201,9 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14040,6 +15282,12 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFulfilmentRulesInput = {
@@ -14059,6 +15307,9 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -14137,6 +15388,12 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
@@ -14156,6 +15413,9 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -14234,6 +15494,12 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFulfilmentRulesInput = {
@@ -14269,6 +15535,9 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14347,6 +15616,12 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
@@ -14366,6 +15641,9 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14444,6 +15722,12 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPickupProfilesInput = {
@@ -14463,6 +15747,9 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -14541,6 +15828,12 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
@@ -14560,6 +15853,9 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -14638,6 +15934,12 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPickupProfilesInput = {
@@ -14673,6 +15975,9 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14751,6 +16056,12 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
@@ -14770,6 +16081,9 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14848,6 +16162,12 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
@@ -14867,6 +16187,9 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -14945,6 +16268,12 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
@@ -14964,6 +16293,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -15042,6 +16374,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsRateCardsInput = {
@@ -15077,6 +16415,9 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15155,6 +16496,12 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
@@ -15174,6 +16521,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15252,6 +16602,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
@@ -15271,6 +16627,9 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -15349,6 +16708,12 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
@@ -15368,6 +16733,9 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -15446,6 +16814,12 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCarrierRateQuotesInput = {
@@ -15481,6 +16855,9 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15559,6 +16936,12 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
@@ -15578,6 +16961,9 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15656,6 +17042,12 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentPurchasesInput = {
@@ -15675,6 +17067,9 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -15753,6 +17148,12 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
@@ -15772,6 +17173,9 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -15850,6 +17254,12 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentPurchasesInput = {
@@ -15885,6 +17295,9 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15963,6 +17376,12 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
@@ -15982,6 +17401,9 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16060,6 +17482,12 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPartnerInvitationsInput = {
@@ -16079,6 +17507,9 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -16157,6 +17588,12 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
@@ -16176,6 +17613,9 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -16254,6 +17694,12 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPartnerInvitationsInput = {
@@ -16289,6 +17735,9 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16367,6 +17816,12 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
@@ -16386,6 +17841,9 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16464,6 +17922,12 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
@@ -16483,6 +17947,9 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -16561,6 +18028,12 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
@@ -16580,6 +18053,9 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -16658,6 +18134,12 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOwnedLogisticsPartnersInput = {
@@ -16693,6 +18175,9 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16771,6 +18256,12 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
@@ -16790,6 +18281,9 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16868,6 +18362,12 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPickupRequestsInput = {
@@ -16887,6 +18387,9 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -16965,6 +18468,12 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
@@ -16984,6 +18493,9 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -17062,6 +18574,12 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPickupRequestsInput = {
@@ -17097,6 +18615,9 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -17175,6 +18696,12 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
@@ -17194,6 +18721,9 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -17272,6 +18802,12 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPackagingProfilesInput = {
@@ -17291,6 +18827,9 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -17369,6 +18908,12 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
@@ -17388,6 +18933,9 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -17466,6 +19014,12 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPackagingProfilesInput = {
@@ -17501,6 +19055,9 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -17579,6 +19136,12 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
@@ -17598,6 +19161,9 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -17676,6 +19242,12 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
@@ -17695,6 +19267,9 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -17773,6 +19348,12 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
@@ -17792,6 +19373,9 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -17870,6 +19454,12 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFreightQuoteRequestsInput = {
@@ -17905,6 +19495,9 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -17983,6 +19576,12 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
@@ -18002,6 +19601,9 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18080,6 +19682,12 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpConnectionsInput = {
@@ -18099,6 +19707,9 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -18177,6 +19788,12 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
@@ -18196,6 +19813,9 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -18274,6 +19894,12 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpConnectionsInput = {
@@ -18309,6 +19935,9 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18387,6 +20016,12 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
@@ -18406,6 +20041,9 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18484,6 +20122,12 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
@@ -18503,6 +20147,9 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -18581,6 +20228,12 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
@@ -18600,6 +20253,9 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -18678,6 +20334,12 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpBridgeDevicesInput = {
@@ -18713,6 +20375,9 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18791,6 +20456,12 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
@@ -18810,6 +20481,9 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18888,6 +20562,12 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpSyncJobsInput = {
@@ -18907,6 +20587,9 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -18985,6 +20668,12 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
@@ -19004,6 +20693,9 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -19082,6 +20774,12 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpSyncJobsInput = {
@@ -19117,6 +20815,9 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19195,6 +20896,12 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
@@ -19214,6 +20921,9 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19292,6 +21002,12 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpAuditEventsInput = {
@@ -19311,6 +21027,9 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -19389,6 +21108,12 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
@@ -19408,6 +21133,9 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -19486,6 +21214,12 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpAuditEventsInput = {
@@ -19521,6 +21255,9 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19599,6 +21336,12 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
@@ -19618,6 +21361,9 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19696,6 +21442,12 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPolicyInput = {
@@ -19715,6 +21467,9 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -19793,6 +21548,12 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
@@ -19812,6 +21573,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -19890,6 +21654,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPolicyInput = {
@@ -19925,6 +21695,9 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20003,6 +21776,12 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
@@ -20022,6 +21801,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20100,6 +21882,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
@@ -20119,6 +21907,9 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -20197,6 +21988,12 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
@@ -20216,6 +22013,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -20294,6 +22094,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPolicyVersionsInput = {
@@ -20329,6 +22135,9 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20407,6 +22216,12 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
@@ -20426,6 +22241,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20504,6 +22322,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsProvidersInput = {
@@ -20523,6 +22347,9 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -20601,6 +22428,12 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
@@ -20620,6 +22453,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -20698,6 +22534,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsProvidersInput = {
@@ -20733,6 +22575,9 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20811,6 +22656,12 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
@@ -20830,6 +22681,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20908,6 +22762,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
@@ -20927,6 +22787,9 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21005,6 +22868,12 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
@@ -21024,6 +22893,9 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21102,6 +22974,12 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsLevelRatesInput = {
@@ -21137,6 +23015,9 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21215,6 +23096,12 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
@@ -21234,6 +23121,9 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21312,6 +23202,12 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
@@ -21331,6 +23227,9 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21409,6 +23308,12 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
@@ -21428,6 +23333,9 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21506,6 +23414,12 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderLogisticsLegsInput = {
@@ -21541,6 +23455,9 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21619,6 +23536,12 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
@@ -21638,6 +23561,9 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21716,6 +23642,12 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentLegsInput = {
@@ -21735,6 +23667,9 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21813,6 +23748,12 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
@@ -21832,6 +23773,9 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -21910,6 +23854,12 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentLegsInput = {
@@ -21945,6 +23895,9 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22023,6 +23976,12 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
@@ -22042,6 +24001,9 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22120,6 +24082,12 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderSettlementsInput = {
@@ -22139,6 +24107,9 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -22217,6 +24188,12 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
@@ -22236,6 +24213,9 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -22314,6 +24294,12 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderSettlementsInput = {
@@ -22349,6 +24335,9 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22427,6 +24416,12 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
@@ -22446,6 +24441,9 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22524,6 +24522,12 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPreorderPoliciesInput = {
@@ -22543,6 +24547,9 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -22621,6 +24628,12 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
@@ -22640,6 +24653,9 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -22718,6 +24734,12 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPreorderPoliciesInput = {
@@ -22753,6 +24775,9 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22831,6 +24856,12 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
@@ -22850,6 +24881,9 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -22928,6 +24962,12 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPreorderRequestsInput = {
@@ -22947,6 +24987,9 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23025,6 +25068,12 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
@@ -23044,6 +25093,9 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23122,6 +25174,12 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPreorderRequestsInput = {
@@ -23157,6 +25215,9 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23235,6 +25296,12 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
@@ -23254,6 +25321,9 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23332,6 +25402,12 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInvoiceSettingsInput = {
@@ -23351,6 +25427,9 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23429,6 +25508,12 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
@@ -23448,6 +25533,9 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23526,6 +25614,12 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInvoiceSettingsInput = {
@@ -23561,6 +25655,9 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23639,6 +25736,12 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
@@ -23658,6 +25761,9 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23736,6 +25842,12 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutSellerInvoicesInput = {
@@ -23755,6 +25867,9 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23833,6 +25948,12 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
@@ -23852,6 +25973,9 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -23930,6 +26054,12 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSellerInvoicesInput = {
@@ -23965,6 +26095,9 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24043,6 +26176,12 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
@@ -24062,6 +26201,9 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24140,6 +26282,12 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPackingListsInput = {
@@ -24159,6 +26307,9 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -24237,6 +26388,12 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
@@ -24256,6 +26413,9 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -24334,6 +26494,12 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPackingListsInput = {
@@ -24369,6 +26535,9 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24447,6 +26616,12 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
@@ -24466,6 +26641,9 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24544,6 +26722,12 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
@@ -24563,6 +26747,9 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -24641,6 +26828,12 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
@@ -24660,6 +26853,9 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -24738,6 +26934,12 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLinkedBuyerCompaniesInput = {
@@ -24773,6 +26975,9 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24851,6 +27056,12 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
@@ -24870,6 +27081,9 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24948,6 +27162,12 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAccessReviewsInput = {
@@ -24967,6 +27187,9 @@ export type SellerAccountCreateWithoutAccessReviewsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25045,6 +27268,12 @@ export type SellerAccountCreateWithoutAccessReviewsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
@@ -25064,6 +27293,9 @@ export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25142,6 +27374,12 @@ export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAccessReviewsInput = {
@@ -25177,6 +27415,9 @@ export type SellerAccountUpdateWithoutAccessReviewsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25255,6 +27496,12 @@ export type SellerAccountUpdateWithoutAccessReviewsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
@@ -25274,6 +27521,9 @@ export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25352,6 +27602,452 @@ export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutConsentRecordsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutConsentRecordsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutConsentRecordsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedCreateWithoutConsentRecordsInput>
+}
+
+export type SellerAccountUpsertWithoutConsentRecordsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedUpdateWithoutConsentRecordsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedCreateWithoutConsentRecordsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutConsentRecordsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutConsentRecordsInput, Prisma.SellerAccountUncheckedUpdateWithoutConsentRecordsInput>
+}
+
+export type SellerAccountUpdateWithoutConsentRecordsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutConsentRecordsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCommissionInvoicesInput = {
@@ -25371,6 +28067,9 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25449,6 +28148,12 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
@@ -25468,6 +28173,9 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25546,6 +28254,12 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCommissionInvoicesInput = {
@@ -25581,6 +28295,9 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25659,6 +28376,12 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
@@ -25678,6 +28401,9 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25756,6 +28482,12 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutTrustProfileInput = {
@@ -25775,6 +28507,9 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25853,6 +28588,12 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
@@ -25872,6 +28613,9 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -25950,6 +28694,12 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutTrustProfileInput = {
@@ -25985,6 +28735,9 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26063,6 +28816,12 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
@@ -26082,6 +28841,9 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26160,6 +28922,12 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBeneficialOwnersInput = {
@@ -26179,6 +28947,9 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -26257,6 +29028,12 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
@@ -26276,6 +29053,9 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -26354,6 +29134,12 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBeneficialOwnersInput = {
@@ -26389,6 +29175,9 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26467,6 +29256,12 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
@@ -26486,6 +29281,9 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26564,6 +29362,12 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFactoriesInput = {
@@ -26583,6 +29387,9 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -26661,6 +29468,12 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
@@ -26680,6 +29493,9 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -26758,6 +29574,12 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFactoriesInput = {
@@ -26793,6 +29615,9 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26871,6 +29696,12 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
@@ -26890,6 +29721,9 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26968,6 +29802,12 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCertificationsInput = {
@@ -26987,6 +29827,9 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27065,6 +29908,12 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
@@ -27084,6 +29933,9 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27162,6 +30014,12 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCertificationsInput = {
@@ -27197,6 +30055,9 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27275,6 +30136,12 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
@@ -27294,6 +30161,9 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27372,6 +30242,12 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutTrustChecksInput = {
@@ -27391,6 +30267,9 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27469,6 +30348,12 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
@@ -27488,6 +30373,9 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27566,6 +30454,12 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutTrustChecksInput = {
@@ -27601,6 +30495,9 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27679,6 +30576,12 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
@@ -27698,6 +30601,9 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27776,6 +30682,12 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutScreeningChecksInput = {
@@ -27795,6 +30707,9 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27873,6 +30788,12 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
@@ -27892,6 +30813,9 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -27970,6 +30894,12 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutScreeningChecksInput = {
@@ -28005,6 +30935,9 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28083,6 +31016,12 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
@@ -28102,6 +31041,9 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28180,6 +31122,12 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutTurnoverDeclarationsInput = {
@@ -28199,6 +31147,9 @@ export type SellerAccountCreateWithoutTurnoverDeclarationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -28277,6 +31228,12 @@ export type SellerAccountCreateWithoutTurnoverDeclarationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput = {
@@ -28296,6 +31253,9 @@ export type SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -28374,6 +31334,12 @@ export type SellerAccountUncheckedCreateWithoutTurnoverDeclarationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutTurnoverDeclarationsInput = {
@@ -28409,6 +31375,9 @@ export type SellerAccountUpdateWithoutTurnoverDeclarationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28487,6 +31456,12 @@ export type SellerAccountUpdateWithoutTurnoverDeclarationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput = {
@@ -28506,6 +31481,9 @@ export type SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28584,6 +31562,12 @@ export type SellerAccountUncheckedUpdateWithoutTurnoverDeclarationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
@@ -28603,6 +31587,9 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -28681,6 +31668,12 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
@@ -28700,6 +31693,9 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -28778,6 +31774,12 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutProfileChangeRequestsInput = {
@@ -28813,6 +31815,9 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28891,6 +31896,12 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
@@ -28910,6 +31921,9 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28988,6 +32002,12 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutListingTrustInput = {
@@ -29007,6 +32027,9 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29085,6 +32108,12 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
@@ -29104,6 +32133,9 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29182,6 +32214,12 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutListingTrustInput = {
@@ -29217,6 +32255,9 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29295,6 +32336,12 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
@@ -29314,6 +32361,9 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29392,6 +32442,12 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutRfqInvitationsInput = {
@@ -29411,6 +32467,9 @@ export type SellerAccountCreateWithoutRfqInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29489,6 +32548,12 @@ export type SellerAccountCreateWithoutRfqInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
@@ -29508,6 +32573,9 @@ export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29586,6 +32654,12 @@ export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutRfqInvitationsInput = {
@@ -29621,6 +32695,9 @@ export type SellerAccountUpdateWithoutRfqInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29699,6 +32776,12 @@ export type SellerAccountUpdateWithoutRfqInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
@@ -29718,6 +32801,9 @@ export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29796,6 +32882,12 @@ export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutRfqQuotesInput = {
@@ -29815,6 +32907,9 @@ export type SellerAccountCreateWithoutRfqQuotesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29893,6 +32988,12 @@ export type SellerAccountCreateWithoutRfqQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
@@ -29912,6 +33013,9 @@ export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -29990,6 +33094,12 @@ export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutRfqQuotesInput = {
@@ -30025,6 +33135,9 @@ export type SellerAccountUpdateWithoutRfqQuotesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30103,6 +33216,12 @@ export type SellerAccountUpdateWithoutRfqQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
@@ -30122,6 +33241,9 @@ export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30200,6 +33322,12 @@ export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutComplianceCasesInput = {
@@ -30219,6 +33347,9 @@ export type SellerAccountCreateWithoutComplianceCasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -30297,6 +33428,12 @@ export type SellerAccountCreateWithoutComplianceCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutComplianceCasesInput = {
@@ -30316,6 +33453,9 @@ export type SellerAccountUncheckedCreateWithoutComplianceCasesInput = {
   commissionBasisPoints?: number | null
   feeTier?: string | null
   qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
@@ -30394,6 +33534,12 @@ export type SellerAccountUncheckedCreateWithoutComplianceCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
   productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutComplianceCasesInput = {
@@ -30429,6 +33575,9 @@ export type SellerAccountUpdateWithoutComplianceCasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30507,6 +33656,12 @@ export type SellerAccountUpdateWithoutComplianceCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutComplianceCasesInput = {
@@ -30526,6 +33681,9 @@ export type SellerAccountUncheckedUpdateWithoutComplianceCasesInput = {
   commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30604,6 +33762,2212 @@ export type SellerAccountUncheckedUpdateWithoutComplianceCasesInput = {
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
   productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutBadgeChangesInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutBadgeChangesInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutBadgeChangesInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedCreateWithoutBadgeChangesInput>
+}
+
+export type SellerAccountUpsertWithoutBadgeChangesInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedUpdateWithoutBadgeChangesInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedCreateWithoutBadgeChangesInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutBadgeChangesInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutBadgeChangesInput, Prisma.SellerAccountUncheckedUpdateWithoutBadgeChangesInput>
+}
+
+export type SellerAccountUpdateWithoutBadgeChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutBadgeChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutShipmentAssessmentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutShipmentAssessmentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutShipmentAssessmentsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutShipmentAssessmentsInput>
+}
+
+export type SellerAccountUpsertWithoutShipmentAssessmentsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedUpdateWithoutShipmentAssessmentsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutShipmentAssessmentsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutShipmentAssessmentsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutShipmentAssessmentsInput, Prisma.SellerAccountUncheckedUpdateWithoutShipmentAssessmentsInput>
+}
+
+export type SellerAccountUpdateWithoutShipmentAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutShipmentAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutAuditDocumentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutAuditDocumentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutAuditDocumentsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedCreateWithoutAuditDocumentsInput>
+}
+
+export type SellerAccountUpsertWithoutAuditDocumentsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedUpdateWithoutAuditDocumentsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedCreateWithoutAuditDocumentsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutAuditDocumentsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAuditDocumentsInput, Prisma.SellerAccountUncheckedUpdateWithoutAuditDocumentsInput>
+}
+
+export type SellerAccountUpdateWithoutAuditDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutAuditDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutAssessmentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutAssessmentsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutAssessmentsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutAssessmentsInput>
+}
+
+export type SellerAccountUpsertWithoutAssessmentsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedUpdateWithoutAssessmentsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedCreateWithoutAssessmentsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutAssessmentsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAssessmentsInput, Prisma.SellerAccountUncheckedUpdateWithoutAssessmentsInput>
+}
+
+export type SellerAccountUpdateWithoutAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  tradingApprovals?: Prisma.SellerTradingApprovalUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutTradingApprovalsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutTradingApprovalsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Date | string | null
+  auditBadgeVersion?: number
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  assessments?: Prisma.SellerAssessmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutTradingApprovalsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedCreateWithoutTradingApprovalsInput>
+}
+
+export type SellerAccountUpsertWithoutTradingApprovalsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedUpdateWithoutTradingApprovalsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedCreateWithoutTradingApprovalsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutTradingApprovalsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutTradingApprovalsInput, Prisma.SellerAccountUncheckedUpdateWithoutTradingApprovalsInput>
+}
+
+export type SellerAccountUpdateWithoutTradingApprovalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutTradingApprovalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  auditBadge?: Prisma.NullableEnumSellerBadgeTierFieldUpdateOperationsInput | $Enums.SellerBadgeTier | null
+  auditBadgeSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditBadgeVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  complianceCases?: Prisma.ComplianceCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  turnoverDeclarations?: Prisma.SellerTurnoverDeclarationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  badgeChanges?: Prisma.SellerBadgeChangeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentAssessments?: Prisma.ShipmentAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditDocuments?: Prisma.AuditDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  assessments?: Prisma.SellerAssessmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 
@@ -30676,6 +36040,12 @@ export type SellerAccountCountOutputType = {
   profileChangeRequests: number
   listingTrust: number
   productReviews: number
+  badgeChanges: number
+  shipmentAssessments: number
+  auditDocuments: number
+  assessments: number
+  tradingApprovals: number
+  consentRecords: number
 }
 
 export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -30743,6 +36113,12 @@ export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   profileChangeRequests?: boolean | SellerAccountCountOutputTypeCountProfileChangeRequestsArgs
   listingTrust?: boolean | SellerAccountCountOutputTypeCountListingTrustArgs
   productReviews?: boolean | SellerAccountCountOutputTypeCountProductReviewsArgs
+  badgeChanges?: boolean | SellerAccountCountOutputTypeCountBadgeChangesArgs
+  shipmentAssessments?: boolean | SellerAccountCountOutputTypeCountShipmentAssessmentsArgs
+  auditDocuments?: boolean | SellerAccountCountOutputTypeCountAuditDocumentsArgs
+  assessments?: boolean | SellerAccountCountOutputTypeCountAssessmentsArgs
+  tradingApprovals?: boolean | SellerAccountCountOutputTypeCountTradingApprovalsArgs
+  consentRecords?: boolean | SellerAccountCountOutputTypeCountConsentRecordsArgs
 }
 
 /**
@@ -31203,6 +36579,48 @@ export type SellerAccountCountOutputTypeCountProductReviewsArgs<ExtArgs extends 
   where?: Prisma.ProductReviewWhereInput
 }
 
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountBadgeChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerBadgeChangeWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountShipmentAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShipmentAssessmentWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountAuditDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditDocumentWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerAssessmentWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountTradingApprovalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerTradingApprovalWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountConsentRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConsentRecordWhereInput
+}
+
 
 export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -31221,6 +36639,9 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   commissionBasisPoints?: boolean
   feeTier?: boolean
   qualityScore?: boolean
+  auditBadge?: boolean
+  auditBadgeSetAt?: boolean
+  auditBadgeVersion?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
@@ -31300,6 +36721,12 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
   productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
+  badgeChanges?: boolean | Prisma.SellerAccount$badgeChangesArgs<ExtArgs>
+  shipmentAssessments?: boolean | Prisma.SellerAccount$shipmentAssessmentsArgs<ExtArgs>
+  auditDocuments?: boolean | Prisma.SellerAccount$auditDocumentsArgs<ExtArgs>
+  assessments?: boolean | Prisma.SellerAccount$assessmentsArgs<ExtArgs>
+  tradingApprovals?: boolean | Prisma.SellerAccount$tradingApprovalsArgs<ExtArgs>
+  consentRecords?: boolean | Prisma.SellerAccount$consentRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerAccount"]>
 
@@ -31322,6 +36749,9 @@ export type SellerAccountSelectScalar = {
   commissionBasisPoints?: boolean
   feeTier?: boolean
   qualityScore?: boolean
+  auditBadge?: boolean
+  auditBadgeSetAt?: boolean
+  auditBadgeVersion?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
@@ -31333,7 +36763,7 @@ export type SellerAccountSelectScalar = {
   archivedAt?: boolean
 }
 
-export type SellerAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "displayNameNormalized" | "slug" | "kind" | "status" | "registrationCountry" | "description" | "logoStorageKey" | "statusReason" | "internalNotes" | "resubmissionAllowed" | "commissionBasisPoints" | "feeTier" | "qualityScore" | "submittedAt" | "reviewedAt" | "approvedAt" | "suspendedAt" | "createdByProfileId" | "version" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerAccount"]>
+export type SellerAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "displayNameNormalized" | "slug" | "kind" | "status" | "registrationCountry" | "description" | "logoStorageKey" | "statusReason" | "internalNotes" | "resubmissionAllowed" | "commissionBasisPoints" | "feeTier" | "qualityScore" | "auditBadge" | "auditBadgeSetAt" | "auditBadgeVersion" | "submittedAt" | "reviewedAt" | "approvedAt" | "suspendedAt" | "createdByProfileId" | "version" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerAccount"]>
 export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.SellerAccount$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.SellerAccount$invitationsArgs<ExtArgs>
@@ -31405,6 +36835,12 @@ export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.Intern
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
   productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
+  badgeChanges?: boolean | Prisma.SellerAccount$badgeChangesArgs<ExtArgs>
+  shipmentAssessments?: boolean | Prisma.SellerAccount$shipmentAssessmentsArgs<ExtArgs>
+  auditDocuments?: boolean | Prisma.SellerAccount$auditDocumentsArgs<ExtArgs>
+  assessments?: boolean | Prisma.SellerAccount$assessmentsArgs<ExtArgs>
+  tradingApprovals?: boolean | Prisma.SellerAccount$tradingApprovalsArgs<ExtArgs>
+  consentRecords?: boolean | Prisma.SellerAccount$consentRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -31525,6 +36961,18 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * Reviews of goods this seller sold - the source of its seller score.
      */
     productReviews: Prisma.$ProductReviewPayload<ExtArgs>[]
+    /**
+     * Audit badge history and the shipment assessments of this seller.
+     */
+    badgeChanges: Prisma.$SellerBadgeChangePayload<ExtArgs>[]
+    shipmentAssessments: Prisma.$ShipmentAssessmentPayload<ExtArgs>[]
+    auditDocuments: Prisma.$AuditDocumentPayload<ExtArgs>[]
+    assessments: Prisma.$SellerAssessmentPayload<ExtArgs>[]
+    tradingApprovals: Prisma.$SellerTradingApprovalPayload<ExtArgs>[]
+    /**
+     * What this seller's people accepted on the Seller Hub's agreement screen.
+     */
+    consentRecords: Prisma.$ConsentRecordPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -31607,6 +37055,18 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * zero.
      */
     qualityScore: runtime.Decimal | null
+    /**
+     * The seller's Audit badge (Platinum, Gold, Silver, Bronze). Set only by an
+     * Audit supervisor, with a reason, and never by the seller. Null is "no
+     * badge", which always means a shipment needs a physical assessment.
+     * See `domain/shipment-assessment.ts`.
+     */
+    auditBadge: $Enums.SellerBadgeTier | null
+    auditBadgeSetAt: Date | null
+    /**
+     * Bumped on every badge change, so a waiver can tell it is stale.
+     */
+    auditBadgeVersion: number
     submittedAt: Date | null
     reviewedAt: Date | null
     approvedAt: Date | null
@@ -32037,6 +37497,12 @@ export interface Prisma__SellerAccountClient<T, Null = never, ExtArgs extends ru
   profileChangeRequests<T extends Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerProfileChangeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingTrust<T extends Prisma.SellerAccount$listingTrustArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$listingTrustArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerListingTrustPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productReviews<T extends Prisma.SellerAccount$productReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$productReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  badgeChanges<T extends Prisma.SellerAccount$badgeChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$badgeChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerBadgeChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shipmentAssessments<T extends Prisma.SellerAccount$shipmentAssessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$shipmentAssessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShipmentAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditDocuments<T extends Prisma.SellerAccount$auditDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$auditDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assessments<T extends Prisma.SellerAccount$assessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tradingApprovals<T extends Prisma.SellerAccount$tradingApprovalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$tradingApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerTradingApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consentRecords<T extends Prisma.SellerAccount$consentRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$consentRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConsentRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32082,6 +37548,9 @@ export interface SellerAccountFieldRefs {
   readonly commissionBasisPoints: Prisma.FieldRef<"SellerAccount", 'Int'>
   readonly feeTier: Prisma.FieldRef<"SellerAccount", 'String'>
   readonly qualityScore: Prisma.FieldRef<"SellerAccount", 'Decimal'>
+  readonly auditBadge: Prisma.FieldRef<"SellerAccount", 'SellerBadgeTier'>
+  readonly auditBadgeSetAt: Prisma.FieldRef<"SellerAccount", 'DateTime'>
+  readonly auditBadgeVersion: Prisma.FieldRef<"SellerAccount", 'Int'>
   readonly submittedAt: Prisma.FieldRef<"SellerAccount", 'DateTime'>
   readonly reviewedAt: Prisma.FieldRef<"SellerAccount", 'DateTime'>
   readonly approvedAt: Prisma.FieldRef<"SellerAccount", 'DateTime'>
@@ -34086,6 +39555,150 @@ export type SellerAccount$productReviewsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.ProductReviewScalarFieldEnum | Prisma.ProductReviewScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.badgeChanges
+ */
+export type SellerAccount$badgeChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerBadgeChange
+   */
+  select?: Prisma.SellerBadgeChangeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerBadgeChange
+   */
+  omit?: Prisma.SellerBadgeChangeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerBadgeChangeInclude<ExtArgs> | null
+  where?: Prisma.SellerBadgeChangeWhereInput
+  orderBy?: Prisma.SellerBadgeChangeOrderByWithRelationInput | Prisma.SellerBadgeChangeOrderByWithRelationInput[]
+  cursor?: Prisma.SellerBadgeChangeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerBadgeChangeScalarFieldEnum | Prisma.SellerBadgeChangeScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.shipmentAssessments
+ */
+export type SellerAccount$shipmentAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShipmentAssessment
+   */
+  select?: Prisma.ShipmentAssessmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShipmentAssessment
+   */
+  omit?: Prisma.ShipmentAssessmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShipmentAssessmentInclude<ExtArgs> | null
+  where?: Prisma.ShipmentAssessmentWhereInput
+  orderBy?: Prisma.ShipmentAssessmentOrderByWithRelationInput | Prisma.ShipmentAssessmentOrderByWithRelationInput[]
+  cursor?: Prisma.ShipmentAssessmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShipmentAssessmentScalarFieldEnum | Prisma.ShipmentAssessmentScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.auditDocuments
+ */
+export type SellerAccount$auditDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditDocument
+   */
+  select?: Prisma.AuditDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditDocument
+   */
+  omit?: Prisma.AuditDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditDocumentInclude<ExtArgs> | null
+  where?: Prisma.AuditDocumentWhereInput
+  orderBy?: Prisma.AuditDocumentOrderByWithRelationInput | Prisma.AuditDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.AuditDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditDocumentScalarFieldEnum | Prisma.AuditDocumentScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.assessments
+ */
+export type SellerAccount$assessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerAssessment
+   */
+  select?: Prisma.SellerAssessmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerAssessment
+   */
+  omit?: Prisma.SellerAssessmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerAssessmentInclude<ExtArgs> | null
+  where?: Prisma.SellerAssessmentWhereInput
+  orderBy?: Prisma.SellerAssessmentOrderByWithRelationInput | Prisma.SellerAssessmentOrderByWithRelationInput[]
+  cursor?: Prisma.SellerAssessmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerAssessmentScalarFieldEnum | Prisma.SellerAssessmentScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.tradingApprovals
+ */
+export type SellerAccount$tradingApprovalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerTradingApproval
+   */
+  select?: Prisma.SellerTradingApprovalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerTradingApproval
+   */
+  omit?: Prisma.SellerTradingApprovalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerTradingApprovalInclude<ExtArgs> | null
+  where?: Prisma.SellerTradingApprovalWhereInput
+  orderBy?: Prisma.SellerTradingApprovalOrderByWithRelationInput | Prisma.SellerTradingApprovalOrderByWithRelationInput[]
+  cursor?: Prisma.SellerTradingApprovalWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerTradingApprovalScalarFieldEnum | Prisma.SellerTradingApprovalScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.consentRecords
+ */
+export type SellerAccount$consentRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ConsentRecord
+   */
+  select?: Prisma.ConsentRecordSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ConsentRecord
+   */
+  omit?: Prisma.ConsentRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConsentRecordInclude<ExtArgs> | null
+  where?: Prisma.ConsentRecordWhereInput
+  orderBy?: Prisma.ConsentRecordOrderByWithRelationInput | Prisma.ConsentRecordOrderByWithRelationInput[]
+  cursor?: Prisma.ConsentRecordWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ConsentRecordScalarFieldEnum | Prisma.ConsentRecordScalarFieldEnum[]
 }
 
 /**

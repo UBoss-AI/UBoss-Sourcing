@@ -41,6 +41,7 @@
  *   - The order is confirmed only by a signature-verified payment webhook,
  *     like any order. `onRfqOrderConfirmed` is how the purchase order hears.
  */
+import { assertSellerCountryScope } from '../seller-assessment/purchase-gate.service.js';
 import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { priceLines, type PricingLineInput } from '../../domain/pricing.js';
@@ -177,6 +178,8 @@ export async function convertPurchaseOrderToOrder(
   if (seller?.status !== 'APPROVED') {
     notConvertible('SELLER_UNAVAILABLE', 'The supplier on this purchase order cannot take orders at the moment.');
   }
+  // Seller Assessment: an RFQ order is a business purchase for the contract's destination.
+  await assertSellerCountryScope(prisma, po.sellerAccountId, contract.delivery.destinationCountry ?? '', 'B2B', 'rfq-conversion');
 
   const [profile, taxClass] = await Promise.all([
     prisma.customerProfile.findUniqueOrThrow({

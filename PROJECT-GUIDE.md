@@ -1832,9 +1832,10 @@ per-line result instead of stopping at the first refusal. `/sitemap.xml` lists
 `Organization` JSON-LD. The account dropdown has a Security entry that opens
 `/account/profile#security`.
 
-**Help, policies and legal.** The legal-document service now manages ten
+**Help, policies and legal.** The legal-document service now manages eleven
 kinds (`domain/legal-document.ts`): the two `TERMS_KINDS` that are accepted at
-sign-up, six `POLICY_KINDS` that are only read, `STAFF_TERMS` and
+sign-up, seven `POLICY_KINDS` that are published for reading (the two seller
+agreements among them are also accepted on the Seller Hub's agreement screen), `STAFF_TERMS` and
 `AUDIT_CONSOLE_TERMS` (accepted on the agreement screen, below). They share one pipeline —
 draft, publish, hash, never edit — because a returns policy a buyer later
 argues about needs the same "these exact words, in force on that date" proof as
@@ -5158,9 +5159,11 @@ No API shape, permission, schema or provider decision changes.
 
 **This is the marketplace's own rule, not a law.** By default only a business
 whose annual turnover (its total sales for a year) for its **most recently
-completed financial year** is **more than** ₹30 crore may apply to sell. That is
-INR 300,000,000, held as `30000000000` paise. Exactly ₹30 crore is **not**
-enough; one paisa more is. Every part of it is a setting (see section 14,
+completed financial year** is **at least** ₹30 crore may apply to sell. That is
+INR 300,000,000, held as `30000000000` paise. Exactly ₹30 crore **qualifies**;
+one paisa less does not. (Until 2026-10-09 it was "more than"; the Seller
+Assessment and Onboarding document v1.0 says "at least", and the code, screens
+and tests now follow it.) Every part of it is a setting (see section 14,
 "Who may apply to sell"), so another operator can change the figure, the
 currency or switch it off.
 
@@ -5220,7 +5223,7 @@ opened through short-lived single-use links, and seen only by the seller and
 staff.
 
 **Staff verify it on the seller's page.** The **Annual turnover** card on
-`/sellers/:id` (admin panel) shows whether the figure exceeds the minimum, its
+`/sellers/:id` (admin panel) shows whether the figure meets the minimum, its
 verification state, the exact amount and the crore figure, the year, the
 minimum and policy version in force when it was declared, the reviewer, the
 evidence with Open, and earlier declarations. The **Audit Team** (Audit Console,
@@ -10427,25 +10430,28 @@ Three deliberate choices here:
 
 ### The agreement screen after sign-in
 
-There is no terms tick on any sign-in form any more. The storefront's `/login`
-and the panel's `/login` used to ask for an **I accept the terms** tick on every
-sign-in. It was never sent to the server and recorded nothing, so the same
-question was asked again each time. Both ticks are gone.
+The storefront's `/login` and the panel's `/login` once had an **I accept the
+terms** tick that was never sent to the server and recorded nothing. That tick
+is gone. Sign-in forms now carry real agreement boxes again - one per document,
+each opening the document and recorded after sign-in - described under "Agreement
+boxes on every sign-in form" below.
 
 In their place, every signed-in person sees **the agreement screen** before the
 application itself, while they still owe it:
 
 | Who | Where | Terms asked for | Plus |
 |---|---|---|---|
-| Buyer (individual or company) | storefront | `PLATFORM_TERMS` | `PRIVACY_POLICY` |
-| Seller (every member of a seller) | Seller Hub | `PLATFORM_TERMS` and `SELLER_TERMS` (the Seller Addendum) | `PRIVACY_POLICY` |
+| Buyer (individual), until all three consumer documents are in force | storefront | `PLATFORM_TERMS` | `PRIVACY_POLICY` |
+| Buyer (individual) once `B2C_CONSUMER_TERMS`, `B2C_PLATFORM_SERVICES_AGREEMENT` and `PRIVACY_POLICY` are all in force (`CONSUMER`) | storefront | `B2C_CONSUMER_TERMS`; `B2C_PLATFORM_SERVICES_AGREEMENT` in its own box | `PRIVACY_POLICY` |
+| Buyer acting for a company (`COMPANY_BUYER`) | storefront | `B2B_BUYER_TERMS`; `B2B_BUYER_SERVICES_AGREEMENT` in its own box, once per company, by an owner or company admin | `PRIVACY_POLICY` |
+| Seller (every member of a seller) | Seller Hub | `PLATFORM_TERMS` and `SELLER_TERMS` (the Seller Terms and Conditions); `SELLER_SERVICES_AGREEMENT` in its own box | `PRIVACY_POLICY` |
 | Carrier staff | logistics portal | `LOGISTICS_PARTNER_TERMS` | `PRIVACY_POLICY` |
 | Operator staff | admin console | `STAFF_TERMS` | `PRIVACY_POLICY` |
 | Audit Console users | Audit Console | `AUDIT_CONSOLE_TERMS` | `PRIVACY_POLICY` |
 
 The scope is chosen by the server from the surface (`termsKindsForScope` in
 `backend/src/domain/legal-document.ts`). A buyer is never asked for the Seller
-Addendum. A buyer who becomes a seller is asked for it the first time they open
+Terms and Conditions. A buyer who becomes a seller is asked for it the first time they open
 the Seller Hub, because it is newly applicable to them.
 
 **Two boxes, never one.** "I agree to the **Terms & Conditions**." and "I
@@ -10464,8 +10470,8 @@ Policy) is enabled. Text that fits is enabled at once. A resize or a new text
 recalculates. Another version or language starts over. A document that failed
 to load can never be accepted. Cancel, Close and Escape record nothing. A
 document already recorded opens read-only, with the date it was recorded. A
-seller's Terms box shows the Terms of Use and the Seller Addendum one after the
-other in the same dialog.
+seller's Terms box shows the Terms of Use and the Seller Terms and Conditions one
+after the other in the same dialog.
 
 **Continue** is enabled only when both records are saved, and it uncovers the
 page that was asked for, so a deep link survives. **Sign out** is always there.
@@ -10478,7 +10484,9 @@ files in `customer-web`, `admin-web`, `logistics-web` and `audit-web`, and
 `components/agreement-kit-sync.test.ts` fails the build when the copies differ.
 Each app has its own `lib/agreements.ts` (which `/auth` prefix to call, how a
 document is linked) and a small gate wrapper: `layout/StoreAgreementGate.tsx`
-and `layout/SellerAgreementGate.tsx` on the storefront, and
+and `layout/SellerAgreementGate.tsx` on the storefront (inside `SellerLayout`, after
+the Hub's password screen, whose boxes are recorded as the Hub opens - so a
+seller is not asked twice), and
 `auth/PortalAgreementGate.tsx` in the other three, placed after their
 second-factor and location screens. The old `components/legal/` dialog in the
 admin console was retired; the storefront and the carrier portal keep theirs
@@ -10527,6 +10535,205 @@ show every record with a link to the exact version.
 loads them as DRAFTS only. Publishing refuses a document that still holds a
 `[[...]]` blank (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). They are not published and
 not legally approved.
+
+### Agreement boxes on every sign-in form, and the company buyer's agreements
+
+Every sign-in form now shows its agreement boxes **under the email and
+password**, one line each, the way most sign-in pages do:
+
+| Sign-in | Boxes |
+|---|---|
+| Storefront, **Individual** tab | Terms & Conditions (`PLATFORM_TERMS`); Privacy Policy - or, once all three consumer documents are published, B2C Consumer Terms & Conditions; Privacy Policy; B2C Platform Services Agreement |
+| Storefront, **Company** tab | B2B Buyer Terms & Conditions (`B2B_BUYER_TERMS`); Privacy Policy; B2B Buyer Platform Services Agreement (`B2B_BUYER_SERVICES_AGREEMENT`) |
+| Seller Hub (its own password screen) | Terms & Conditions (`PLATFORM_TERMS` + `SELLER_TERMS`); Seller Platform Services Agreement; Privacy Policy |
+| Admin console, logistics portal, Audit Console | That surface's Terms; Privacy Policy |
+
+How a box works (`components/agreement-kit/SignInAgreements.tsx`, the same
+file in all four apps):
+
+- Clicking an empty box, or the document's name, opens that document in the
+  agreement kit's dialog. Opening it ticks nothing. "I agree" (or "I
+  acknowledge" for the Privacy Policy) is enabled only at the end of the text,
+  and only that button ticks that box. Cancel, Escape and closing tick nothing.
+  Reading one document never unlocks another. Unticking just unticks.
+- **Sign in** stays disabled until every published document is ticked. A kind
+  the server says has nothing in force (`TERMS_DOCUMENT_UNAVAILABLE`) is not
+  asked for. Any other failure to fetch the documents **fails closed**: no box
+  can be ticked, Sign in stays disabled, and "Try again" is offered.
+- Nothing is recorded before sign-in - there is no account yet, and on the
+  storefront no company. The ids of the exact versions read are held in memory
+  (`sign-in-agreements.ts`, never browser storage) and recorded by the app's
+  first agreement-status request after sign-in, against the account and the
+  company the **server** resolves. Records are idempotent, so ticking the boxes
+  again at the next sign-in writes no new rows.
+- The **agreement screen after sign-in stays** as the server-enforced fallback.
+  The server refuses every protected request with `AGREEMENTS_REQUIRED` until
+  the records exist. So anything the sign-in could not record - a version
+  published meanwhile, a member who cannot bind their company, a dropped
+  connection, a direct link, switching into another company - is asked for
+  there.
+
+**The Company / B2B Buyer scope (`COMPANY_BUYER`).** A storefront session whose
+confirmed buyer context is a company (the membership, never the sign-in tab)
+answers to the company screen, for that company. The scope is chosen in
+`authenticateCustomer` (`backend/src/http/plugins/auth.ts`) and in the
+agreement routes from `buyerContextOf(request)`. An individual session keeps
+the buyer screen. The Seller Hub's guards use `requireCustomerForSellerHub`,
+which always checks the individual buyer screen under the SELLER one, so the
+company screen never stands in front of the Seller Hub.
+
+- The **B2B Buyer Terms** and the **Privacy Policy** are personal: each member
+  accepts them. The B2B Terms record names the company
+  (`consent_records.companyId`, `activeCompanyKey`) and counts only for it.
+- The **B2B Buyer Platform Services Agreement** is accepted **once for the
+  company** by a member who may bind it - the `OWNER` or a `COMPANY_ADMIN`
+  (`canBindCompany`). Once accepted, it counts for every member; nobody else
+  countersigns, and only the person who gave it can clear it. Any other member
+  is refused with `COMPANY_SIGNATORY_REQUIRED`. Their screen shows "Authorised
+  company representative required" and keeps Continue disabled. They can still
+  read the agreement.
+- Accepting changes nothing about the company's verification: purchasing still
+  waits for `APPROVED`. It is also **not execution**. It records the buyer's
+  acceptance of the published text only - not Gloviaa's signature, and not
+  Schedules A-C, which are completed and signed separately before trading on
+  negotiated terms. It creates no AutoPay mandate, marketing consent or service
+  purchase.
+
+The one-active-record unique index is now `(userId, activeDocumentId,
+activeCompanyKey)` (migration `20261112100000_b2b_buyer_agreements`), so a
+member of two companies holds one record per company. `activeCompanyKey` is
+`''` rather than NULL, because MariaDB treats every NULL in a UNIQUE index as
+distinct.
+
+**The words.** `03_B2B_Buyer_Terms_and_Conditions.docx` and
+`05_B2B_Buyer_Platform_Services_Agreement.docx` are stored word for word as
+drafts in `legal/drafts/gloviaa-mart/b2b-buyer-terms.en.txt` (14 sections) and
+`b2b-buyer-services-agreement.en.txt` (12 sections, Schedules A-C and the final
+"complete or mark not applicable" requirement), version `1.0`. The Word files
+are kept unchanged in `legal/source/` (gitignored). They are pinned by
+`backend/tests/unit/seller-legal-drafts.test.ts`. Both still carry the approval
+notice and blank fields, so publishing refuses them until they are approved and
+filled in.
+
+**The Individual / B2C consumer scope (`CONSUMER`).** Somebody shopping for
+themselves answers to the consumer screen - three boxes, in this order:
+
+- "I agree to the **B2C Consumer Terms & Conditions**." (`B2C_CONSUMER_TERMS`)
+- "I acknowledge that I have read the **Privacy Policy**." (`PRIVACY_POLICY`)
+- "I agree to the **B2C Platform Services Agreement**."
+  (`B2C_PLATFORM_SERVICES_AGREEMENT`, the `SERVICES` box)
+
+- **It switches itself on only when it can be completed.**
+  `individualAgreementScope()` (`backend/src/modules/legal/agreement.service.ts`)
+  answers `CONSUMER` only when every one of `CONSUMER_ACTIVATION_KINDS` - the
+  two B2C kinds and the Privacy Policy - has a published version in force.
+  Until then an individual is asked on the `BUYER` screen exactly as before.
+  So a draft, an approval still pending or a document never supplied cannot
+  become a sign-in nobody can pass. There is no flag: publishing the last of
+  the three is the switch. The sign-in form follows the same rule
+  (`consumerSetComplete` in `sign-in-agreements.ts`).
+- **Prospective.** When it switches on, everybody is asked again. A Terms of
+  Use acceptance stays on record and is never copied across; an order already
+  confirmed keeps the terms it was confirmed under.
+- **Decided by the session**, like the company screen: the confirmed buyer
+  context, never the tab or the request. A company session keeps
+  `COMPANY_BUYER`; the Seller Hub keeps its `BUYER` check under `SELLER`, so
+  the consumer documents never stand in front of it.
+- **Existing remedies stay open.** Orders, cancelling one, tracking, order
+  documents, returns and refunds, and claims use `requireCustomerForRemedies`
+  (`backend/src/http/plugins/auth.ts`). For an individual it skips the
+  agreement screen; a company session still owes its own. On the storefront,
+  `isConsumerRemedyPath` (`layout/agreement-paths.ts`) keeps
+  `/account/orders...`, `/account/returns...` and `/account/disputes...`
+  reachable, and the screen links to the orders and to `/legal`. Shopping -
+  the basket, checkout, addresses and the rest - still needs the screen.
+- **Consents to nothing else.** The three boxes write three records and
+  nothing more: no marketing preference, cookie choice, recurring order,
+  AutoPay mandate or paid service. The screen says so, and says that
+  accepting gives up no cancellation, return, guarantee, refund, complaint or
+  payment-dispute right.
+- **Records.** The same `consent_records` rows as every other screen, with
+  `scope = CONSUMER`, the document id, its version, language and SHA-256, and
+  the database's time (migration `20261113100000_b2c_consumer_agreements`).
+
+**The words.** `06_B2C_Consumer_Terms.docx` is stored word for word in
+`legal/drafts/gloviaa-mart/b2c-consumer-terms.en.txt`, version `1.0`: the
+approval notice, the introduction, all 11 sections and the whole section 11
+model withdrawal notice, each line its own paragraph. The Word file is kept
+unchanged in `legal/source/`. `seller-legal-drafts.test.ts` pins every heading,
+the withdrawal notice line by line, the consumer safeguards and a hash of the
+words, and compares them with the Word file itself when it is present. It
+cannot be published yet: it carries the approval notice and blank fields
+(effective date, registered address, corporate registration, support,
+complaints, grievance officer, privacy and cancellation contacts). The model
+withdrawal notice's own fill-in lines (order number, consumer name and so on)
+also count as blanks to the publishing check, so the approver must decide how
+that form is laid out in the published version. **No B2C Platform Services
+Agreement has been supplied**, and the repository's Privacy Policy is itself
+an unapproved draft, so the consumer screen stays off until both exist and
+are published.
+
+### The seller agreements: Seller Terms and Conditions and the Platform Services Agreement
+
+A seller agrees to two seller documents, and they are **two boxes**, never one:
+
+- "I agree to the **Terms & Conditions**." - the Terms of Use (`PLATFORM_TERMS`)
+  and the **Seller Terms and Conditions** (`SELLER_TERMS`), shown one after the
+  other in one dialog.
+- "I agree to the **Seller Platform Services Agreement**." -
+  `SELLER_SERVICES_AGREEMENT`, its own box, its own dialog and its own
+  end-of-text check. Only the Seller Hub shows it (`servicesKindsForScope`).
+
+The Privacy Policy box stays separate. Each box is recorded on its own route:
+`POST/DELETE /api/v1/auth/agreements/terms`, `.../services` and
+`.../privacy`, with `scope: SELLER`. Reading one document never unlocks
+another, and clearing one box clears only that box.
+
+**The words.** Both documents were supplied by the operator as Word files
+(`02_Seller_Terms_and_Conditions.docx`, `04_Seller_Platform_Services_Agreement.docx`).
+They are stored **word for word** as drafts in
+`legal/drafts/gloviaa-mart/seller-terms.en.txt` (15 numbered sections) and
+`seller-services-agreement.en.txt` (12 sections and Schedules A-F), version
+`1.0`. The original Word files are kept unchanged in `legal/source/`
+(gitignored). `backend/tests/unit/seller-legal-drafts.test.ts` checks every
+heading and pins a SHA-256 of the words, and compares against the Word file
+itself where it is present.
+
+**Drafts cannot be published by accident.** Both still say "For approval before
+implementation or signature" and contain fill-in blanks (`______`). Publishing
+refuses a document with a `[[...]]` decision, a fill-in blank, or that approval
+notice (`findLegalPlaceholders`, error `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`).
+Importing them (`npm run legal:import-drafts`) only ever creates DRAFT rows and
+never touches a published version. Until a version is published, the services
+box shows "Not published yet" and does not lock anybody out of the Hub.
+
+**What a record holds.** Each acceptance is a `ConsentRecord`: the exact
+published document, its version and SHA-256 (copied from the stored row), the
+language, the server's time, the accepting user, the scope, and - new -
+`sellerAccountId`, the seller the person is a member of. The server takes it
+from the session's membership, never from the request. Older seller records
+keep a null seller; none is back-filled.
+
+**Submitting an application** (`POST /api/v1/seller/submit`) now also calls
+`assertSellerSubmissionAgreements`. It refuses with 409
+`SELLER_AGREEMENTS_REQUIRED` unless the person submitting has accepted
+**both** documents in a published version that still counts, for this seller
+(or with no seller recorded). `details[]` names each kind with
+`AGREEMENT_NOT_PUBLISHED` or `AGREEMENT_NOT_ACCEPTED`. A draft never counts,
+a version that asked for re-acceptance sends the seller back to read it, and a
+record given for another seller does not count. The submission writes a
+`seller.application.agreements_confirmed` seller audit row, in the same
+transaction, naming the exact records and hashes. The onboarding page shows
+both agreements beside **Send for review** and keeps it disabled until both are
+accepted. The check is off with `FEATURE_AGREEMENT_GATE`, like the screen.
+
+**What it is not.** Accepting is a click-through record of one published
+version. It is not the operator's countersignature, and it does not fill in or
+agree the seller-specific schedules (A-F), which are negotiated and signed
+separately - the executed contract is still recorded by the Audit Console's
+CONTRACT workpaper. It approves nothing: verification and release stay with the
+Audit Console, the admin console stays read-only for seller verification, and
+the assessment and purchase gates are unchanged.
 
 ### Agreeing to the Terms and Conditions when an account is opened
 
@@ -20460,7 +20667,7 @@ None of it is a legal requirement, and every value is the operator's to change.
 | Variable | Default | Effect |
 |---|---|---|
 | `SELLER_TURNOVER_REQUIRED` | `true` | Whether a turnover declaration is needed to apply, submit and be approved. Off, the card is not shown and nothing is checked |
-| `SELLER_TURNOVER_MIN_MINOR` | `30000000000` | The minimum, in whole minor units (digits only). A business must be **strictly above** it. The default is ₹30 crore in paise |
+| `SELLER_TURNOVER_MIN_MINOR` | `30000000000` | The minimum, in whole minor units (digits only). A business must be **at least** it. The default is ₹30 crore in paise |
 | `SELLER_TURNOVER_CURRENCY` | `INR` | The currency the turnover is declared in |
 | `SELLER_TURNOVER_POLICY_VERSION` | `2026-10` | Stored with every declaration. Change it whenever the minimum or the wording changes |
 | `SELLER_TURNOVER_FY_START_MONTH` | `4` | 1 to 12. Only the form's default year-end (April, as in India); the other year-ends stay selectable |
@@ -21395,3 +21602,352 @@ things. Agency members see none of them.
 - The software does not give legal advice and does not accredit anybody. An
   agency's accreditation, and the legal weight of a report, come from the
   agency and the law, not from this system.
+
+## Shipment Assessment (between L1 and L2)
+
+**Status: built, behind `FEATURE_SHIPMENT_ASSESSMENT` (default off).** Decided in
+the Audit Console; read-only in the admin panel.
+
+### What it is
+
+L1 carries goods from the plant to the port or airport of loading. L2 carries
+them from there to the destination port. Between the two, the Audit Team
+either **assesses the shipment physically** or, for a seller whose Audit badge
+allows it, **an auditor approves a waiver**. Either way the result is one
+**release authorization**. L2 cannot start without it.
+
+### The Audit badge
+
+- A seller has an **Audit badge**: Platinum, Gold, Silver, Bronze, or none.
+  There was no badge before this feature; every seller starts with **none**.
+- Only an Audit **supervisor** sets it, with a written reason. Every change is
+  kept (`seller_badge_changes`). The seller cannot choose or change it.
+- The **badge policy** is versioned (`shipment_assessment_policies`). Version 1:
+  Platinum = waiver eligible; Gold = waiver eligible after a documented review;
+  Silver, Bronze and no badge = assessment required. A policy that lets "no
+  badge" skip assessment is refused. Only a supervisor publishes a new version.
+- Eligibility is never a waiver. An auditor decides each shipment.
+- A waiver is impossible when a mandatory, regulatory, contractual or
+  buyer-requested inspection applies (the existing inspection requirement says
+  MANDATORY or BUYER_REQUESTED), when that cannot be determined, or when the
+  seller is suspended.
+- For Gold, the reviewer is shown the seller's real recent inspection results,
+  earlier assessments and unresolved complaints, and must write what they
+  reviewed. No score is computed. If the history cannot be read, no waiver.
+- A badge **downgrade** withdraws unused waivers and sends the shipment back to
+  assessment. An **upgrade** creates no waiver.
+
+### The flow
+
+1. L1 handed over → the case opens: **Ready for assessment**, or **Waiver
+   review** when the badge allows it.
+2. **Physical assessment**: an auditor starts a round and records the
+   checklist. Sections A-G are "Sales Order & Packing Verification" (sales
+   order match, quantity, quality, condition, inner packaging, outer box and
+   pallet, labelling); H storage/staging; I shelf life; J arrival from L1;
+   K loading. Each check is Pass, Fail, Hold / not verified, or Not applicable
+   with a reason. Some checks need a photo or PDF. Category checks come from
+   the category's approved inspection plan.
+3. **Submit**: anything missing refuses the submission. Any Fail or Hold blocks
+   the **whole** shipment and issues a **findings report**. A pass goes to QA.
+4. **QA**: a second person (never the assessor) approves, setting a dispatch
+   deadline with a reason (there is no approved default window yet), or returns
+   the round. Approval issues the **Shipment Assessment Certificate**.
+5. **Waiver**: an auditor approves or refuses. Approval issues the **Waiver /
+   Release Authorization** instead of a certificate.
+6. **Final loading checks** (section K: container, securing, final count,
+   seals, documents) are recorded by the auditor or by the carrier holding L2.
+   They are needed for waivers too.
+7. **L2 starts** only now. The start consumes the release; the documents become
+   "used" and are kept as evidence.
+
+There is no partial release. The approved quantity must be the whole order.
+A failed or held shipment needs corrective action and a new round; earlier
+rounds, checks and reports are never changed.
+
+### The L2 gate
+
+Checked inside the transaction of every act that would start L2: the leg moving
+to "in progress" (admin, Seller Hub and carrier-portal routes all use the same
+function) and a person moving the consignment onward after L1 (every portal,
+manifest handover and admin correction uses the same function). It checks, at
+that moment: L1 complete, status approved, an active release, not past its
+deadline, the shipment unchanged (lines, quantities, packing list, destination),
+the badge unchanged for a waiver, the seller not suspended, and the loading
+checks passed. Two departures at once: one wins, the other is refused. A
+refusal writes nothing and tells no carrier anything.
+
+A **carrier feed** that reports departure during a hold is recorded as it
+happened and raises a **departure exception** for the Audit Team. It is never
+discarded and never treated as approval.
+
+### Documents
+
+- **Seller Verification Certificate** — from Seller Verify, after the final
+  approval, with an explicit scope (categories, markets, note). Review due after
+  12 months by platform policy (configurable; not a legal or ISO rule), never
+  after the first expiry of the seller's supporting documents. A suspended
+  seller's certificate is revoked.
+- **Shipment Assessment Certificate**, **Waiver / Release Authorization**
+  (says: "This shipment assessment was waived under the applicable
+  {marketplace} seller-badge policy. No physical shipment assessment is attested
+  by this waiver."), and **Findings Report** (never a pass).
+- Each has a number, a version, an immutable PDF with a SHA-256, a QR to the
+  public status check (`/verify-document?kind=audit-document`), and a sign-off
+  record (person, role, time) that is stated plainly **not** to be a
+  cryptographic signature. The public check shows status, dates and the stated
+  scope only. Corrections are new versions; revoking a release document
+  withdraws its unused release. No document claims ISO certification,
+  government approval or accredited inspection.
+
+### Who can do what
+
+| Who | Can | Cannot |
+| --- | --- | --- |
+| Audit compliance reviewer | Assess, upload evidence, hold, require reassessment, decide waivers, issue/revoke documents | QA-approve, set badges, publish policy |
+| Audit supervisor | All of the above, plus QA approval, badges and policy | QA-approve a round they assessed |
+| Admin panel (`inspection.read`) | Read queues, cases, decisions, documents | Change anything |
+| Seller | Readiness note, evidence, corrective response, download own documents | Change a finding, approve, set a badge |
+| Carrier holding L2 | See release / hold, record loading checks and evidence | Lift a hold |
+| Buyer | See status and download the certificate or waiver of own order | See findings or evidence |
+
+### Rollout
+
+The feature is off by default. When it is switched on, the worker opens a case
+for every shipment still waiting for L2. Shipments already at the port are
+marked **"Existing at switch-on"** and listed in their own queue. None is
+waived. Completed L2 journeys are not touched, no retrospective inspection or
+certificate is created, and no seller is given a badge.
+
+### Background job
+
+`shipment_assessment.sweep` (every maintenance slot): opens cases, catches
+missed L1 handovers, cancels cases of cancelled orders, withdraws releases that
+expired or whose shipment, badge or seller changed, expires documents, and
+reminds 30 days before a seller certificate's review date. The L2 gate never
+depends on it.
+
+
+## Shipment Assessment tables (migration `20261109100000_shipment_assessment`)
+
+Between L1 and L2, the Audit Team assesses a seller order or approves a
+badge-based waiver. One case per seller order.
+
+| Table | What one row is | Rules it carries |
+| --- | --- | --- |
+| `seller_accounts.auditBadge`, `auditBadgeSetAt`, `auditBadgeVersion` | The seller's Audit badge (Platinum, Gold, Silver, Bronze or NULL = none) | Set only by an Audit supervisor. `auditBadgeVersion` goes up on every change, so a waiver can tell it is stale. |
+| `seller_badge_changes` | One badge change, with reason and who made it | Append-only. |
+| `shipment_assessment_policies` | One version of the badge policy | `version` is UNIQUE; the highest is in force; never updated. Version 1 is inserted by the migration. |
+| `shipment_assessments` | The case for one seller order (`sellerOrderGroupId` UNIQUE) | `status` changes only through `assertAssessmentTransition` (`domain/shipment-assessment.ts`). Optimistic `version`. `existingAtRollout` marks shipments that were already waiting when the feature was switched on. `scopeFingerprint` = SHA-256 of lines, quantities, packing list and destination. |
+| `shipment_assessment_rounds` | One assessment round (`assessmentId`, `round` UNIQUE) | A reassessment is a new round. Holds the checklist snapshot and each quantity separately. Never rewritten after submission. |
+| `shipment_assessment_checks` | One checklist item's result in one round | UNIQUE (`assessmentId`, `round`, `itemCode`). PASS, FAIL, HOLD or NOT_APPLICABLE; `sampled` marks a sample result. |
+| `shipment_assessment_evidence` | A private photo or PDF | Stored privately; SHA-256 recorded. |
+| `shipment_assessment_events` | The history | Append-only; optional UNIQUE `idempotencyKey`. |
+| `shipment_waiver_decisions` | An auditor's waiver decision | Records badge, badge version, policy version, the history shown, the review note and reason. `invalidatedAt` when withdrawn. |
+| `shipment_release_authorizations` | Permission for L2 to start | `activeSlot` is the assessment id while ACTIVE and NULL otherwise, under a UNIQUE index: at most one active release per case (MariaDB treats NULLs as distinct). Status ACTIVE → CONSUMED, INVALIDATED or EXPIRED. |
+| `shipment_assessment_exceptions` | A carrier-reported departure without a release | UNIQUE `shipmentEventId`: one exception per event. |
+| `audit_documents` | A certificate, waiver authorization or findings report | `number` UNIQUE; `supersedesId` UNIQUE links a correction to the version it replaces. Status ACTIVE, EXPIRED, REVOKED, SUPERSEDED or USED. The PDF (`storageKey`, `contentHash`) is never overwritten. `scopeJson` is the only part shown publicly. |
+
+`seller_notifications.kind` gains `SHIPMENT_ASSESSMENT`.
+
+State model (`shipment_assessments.status`): AWAITING_L1 → READY_FOR_ASSESSMENT
+or WAIVER_REVIEW → IN_PROGRESS → AWAITING_QA → APPROVED_FOR_L2 → DISPATCHED.
+FAILED and ON_HOLD block the whole shipment and lead only to
+REASSESSMENT_REQUIRED (or CANCELLED). No path leads from FAILED or ON_HOLD
+straight to APPROVED_FOR_L2 or DISPATCHED.
+
+
+## Shipment Assessment screens
+
+| Screen | Where | Shows and does | Calls |
+| --- | --- | --- | --- |
+| Shipment assessment queues | Audit Console `/shipment-assessment` (sidebar under Verification) | Tabs: Ready for assessment, In progress, Awaiting QA, Waiver review, Approved for L2, Failed / on hold, Reassessment required, Awaiting L1, Dispatched / history, Existing shipments to review. Columns: shipment and order, seller and badge, goods, L1 arrival time and place, planned L2 departure, requirement and reason, assessor / QA, decision, dispatch deadline, document. Search. Cards on a phone. | `GET /audit/shipment-assessments` |
+| Shipment assessment case | Audit Console `/shipment-assessment/:id` | Next-step panel (start, waiver review with the seller history, QA approve/return with deadline, hold, reassessment). Tabs: Overview, Checklist (per-item result, note, sample flag; quantities; submit), Evidence (upload from a phone camera, download), Findings (each round, sample notice, waiver decisions), History, Documents (download, revoke). | `/audit/shipment-assessments/:id/*` |
+| Badge policy | Audit Console `/shipment-assessment/policy` | Policy in force and every version; supervisors publish a new one. | `GET/POST /audit/shipment-assessments/policy` |
+| Audit badge and certificates panel | Audit Console Seller Verify detail | Current badge and history; supervisor changes it with a reason. Seller verification certificates; issue after approval with an explicit scope. | `/audit/sellers/:id/badge`, `/audit/seller-verification/:id/certificates` |
+| Shipment assessment (read only) | Admin panel `/inspection/shipment-assessments[/:id]` | Queues, case, decisions, history, documents. No buttons that change anything. | `GET /admin/shipment-assessments*` |
+| Shipment assessment card | Seller Hub order detail | Status, badge, requirement, dispatch deadline, findings, corrective action, documents; readiness note, corrective response, evidence upload. | `/seller/orders/:id/shipment-assessment`, `/seller/shipment-assessments/:id/*` |
+| Audit release panel | Carrier portal, on each L2 leg | Release or hold, dispatch deadline; after release, the final loading checks and photo upload. | `/logistics/legs/:id/shipment-assessment*` |
+| Shipment assessment card | Storefront order detail (buyer) | Status and the released certificate or waiver PDF. | `/orders/:id/shipment-assessments` |
+| Document check | Storefront `/verify-document?kind=audit-document` | Status, dates and stated scope of an Audit document. | `GET /documents/verify` |
+
+## Seller Assessment and Onboarding (policy document v1.0)
+
+The source is *Seller Assessment and Onboarding Process and Checklist*, Version 1.0, prepared 9 October 2026, **effective date blank**. It says its commercial and operational defaults are **proposed** and bind only once adopted and disclosed. The software follows that literally:
+
+- **Policy versions.** `seller_assessment_policies` holds versions. v1.0 is seeded as **DRAFT** by the migration. An adopted version needs an adoption reference (the board or policy-register decision), an effective date and a disclosure reference, recorded by somebody other than its drafter. The software never invents a name, a signature or an approval. Decisions under a draft are refused unless `SELLER_ASSESSMENT_ALLOW_DRAFT_POLICY=true`, and production refuses that flag at start-up.
+- **Commercial defaults versus mandatory controls.** Score thresholds, CAPA deadlines, validity months, appeal windows, service targets and retention years are policy numbers. A version may only tighten them (`policyConfigProblems` in `backend/src/domain/seller-assessment.ts`). Hard gates, hard stops, current independent certification, exact scope and independent release are not numbers at all: no version, exception or badge waives them.
+- **Software implemented is not real assessment completed.** Every record names who recorded it. A mock-order step says whether it was simulated or verified with a provider, and a provider-verified step is refused when that integration is not enabled.
+
+### Who may apply
+
+Indian manufacturers, and Indian brand owners with documented brand rights, every actual Indian production facility declared, manufacturing and quality agreements for facilities they do not own, and audit access. Traders, unauthorised distributors, resellers, individuals and undisclosed dropshippers are refused. Facilities outside India, foreign subcontracting and foreign-made finished goods are refused (the India-manufacturing launch assumption).
+
+**Turnover: at least INR 30 crore** (INR 300,000,000 = `30000000000` paise). Exactly the minimum qualifies. It is the applicant entity's revenue from operations excluding GST for the most recently completed financial year, with audited statements and a CA confirmation. Group turnover, forecasts and unaudited GTV are refused. Where the latest audit is not legally due, the preceding audit plus current CA-certified results are accepted - the minimum still applies. The same change ("more than" to "at least") was made to the existing seller turnover rule (`domain/seller-turnover.ts`, `SELLER_TURNOVER_POLICY_VERSION` default `SAO-1.0`).
+
+### The eight gates
+
+Each assessment has eight `seller_assessment_gates` rows with a status, an assigned reviewer, the decider, the time, the reason and the policy version. A gate passes only when its prerequisites passed and its own evidence is in place (`gatePreconditions` in `review.service.ts`).
+
+| Gate | Decided with capability | Needs before it passes |
+|---|---|---|
+| 1 Application | `ASSESS` | Every application rule (`applicationProblems`); starts the 5-business-day **service target** and lays out one scope row per product x country x channel |
+| 2 Identity and finance | `FINANCE` | Gate 2 checklist items, a confirmed bank verification, a resolved sanctions screening (no prohibited or unresolved match), no identity mismatch, a Finance specialist review |
+| 3 Product and destination | `REGULATORY` | Every scope row classified (category, HS proposal, regulatory class, tests, authorisations, importer / local responsible person, importer licence, labels and languages, warnings, restrictions, recall, shipping and insurance) and at least one approved; a Regulatory review |
+| 4 Site audit and sampling | `ASSESS` | A site audit for every facility in approved scope, a sample plan with custody and a passing result, a laboratory-competence record |
+| 5 External certification | `ASSESS` | A marketplace-appointed certificate authenticated with the issuer, accreditation and independence verified, not expired |
+| 6 CAPA | `ASSESS` | No open critical or major finding |
+| 7 Contracts and readiness | `LEGAL` or `OPERATIONS` | All six contract kinds, a passing mock order, Legal and Operations reviews |
+| 8 Release | `RELEASE` | Everything above, every checklist item, a release-eligible score, no hard stop, the certificate covering each released site and product |
+
+**Capabilities** live in `audit_staff_members.assessmentCapabilitiesJson` on top of the existing Audit roles: `HEAD_OF_ASSURANCE`, `ASSESS` (Audit Team), `REGULATORY`, `FINANCE`, `OPERATIONS`, `LEGAL`, `RELEASE`, `APPEAL_REVIEW`. The Head of Seller Assurance grants them, never to themself. Both staff roles hold the route keys `audit.assessment.read` and `audit.assessment.work`; the service checks the capability for the exact step.
+
+**Separation of duties.** The release approver must not appear in the assessment's decision events (gate decisions, checklist reviews, N/A approvals, ratings, findings, specialist reviews, classifications, certification records, hard stops) and must not be its owner - checked against the event log, so holding several capabilities does not help. N/A is approved by a second person with `HEAD_OF_ASSURANCE`. An appeal reviewer must be uninvolved in the assessment and must not have issued the notice. A bank change needs two different Finance approvers.
+
+### Checklist and score
+
+All 23 applicant checklist items from section 8 (`CHECKLIST`, C01-C23) with Pass / Fail / Not applicable, evidence reference, reviewer, date, expiry and comments. Untouched stays UNREVIEWED. Mandatory items cannot be N/A. C23 is recorded by the release approver at release.
+
+Seven dimensions, weights 15/25/20/15/10/10/5, ratings 0-5, contribution = weight x rating / 5. The total is kept **times five as an integer** and compared against threshold x 5, so 79.8 is never "80". Release needs >= 80 and every dimension >= 3; 65-79 is remediation; below 65 is declined. Hard stops override any score.
+
+### CAPA
+
+Findings carry classification, requirement, evidence, containment, root cause, corrective and preventive action, owner, due dates, closure evidence, effectiveness verification and auditor closure. Critical: containment due at once, records the `CRITICAL_FINDING` hard stop. Major: plan in 7 days, closure in 30, blocks release until verified closed. Minor: closure in 60, stays visible and does not block. The seller answers; only an auditor closes.
+
+### Certification, approval, PDF
+
+The marketplace appoints (and pays) the body; the seller has no route to choose or replace it. A body is replaced only by the Head of Seller Assurance with the old record marked replaced. Authentication needs the method and the issuer reference. Withdrawal or suspension by the issuer takes effect at the purchase gate at once.
+
+Release creates a `seller_trading_approvals` row (every section 9 field in `recordJson`) and one `seller_trading_approval_scopes` row per released combination (the section 11 schedule in `scheduleJson`). Validity is no more than 12 months and is cut short by the earliest certificate, checklist, authorisation, licence or insurance expiry; the external certificate's own dates are never extended. A renewal supersedes the approval it renews; an extension adds a separate approval and never widens the old one. The PDF is an `audit_documents` row of kind `SELLER_TRADING_APPROVAL`, issued through the existing Audit document renderer with its QR status check, and says it is the marketplace's internal approval - not the external certificate, not a government or accreditation approval.
+
+### Purchase enforcement
+
+`backend/src/modules/seller-assessment/purchase-gate.service.ts` is the one answer. A seller offer is purchasable only with an ACTIVE approval not past its validity, a scope row for that exact offer, destination country and channel (B2B when the buyer is a company, otherwise B2C) that is ACTIVE and not past its own validity, and a live AUTHENTICATED, unexpired certificate. Every date is compared on the request; the daily job only reports.
+
+| Where | What happens when blocked |
+|---|---|
+| Basket view | Line issue `SELLER_SCOPE_NOT_APPROVED` (needs a known country) |
+| Checkout, preorder request, preorder confirmation, payment start, AutoPay charge | 409 `SELLER_SCOPE_NOT_APPROVED` |
+| RFQ purchase-order conversion | The seller must hold current scope for the country and B2B (the PO names no catalogue offer) |
+| Payment capture | Money is credited and reconciled exactly as before; seller orders out of scope get a disposition |
+| READY_FOR_DISPATCH / SHIPPED / shipment recording / carrier status moves | 409 `SELLER_ORDER_DISPOSITION_REQUIRED` while a disposition is open or the scope lapsed |
+
+Operator-sold lines (no seller offer, which includes every scheduled-order line today) are outside this policy.
+
+`SELLER_ASSESSMENT_PURCHASE_GATE`: `off` (default) changes nothing; `report` logs what would be blocked; `enforce` blocks. **Switching to `enforce` blocks every seller without a trading approval** - read the activation impact report first (Audit Console, Seller assurance, Activation impact).
+
+### Suspension, dispositions, appeals, changes, incidents
+
+A notice (`seller_assessment_notices`) states scope, reason, shareable evidence, affected orders, settlement treatment, corrective actions and review route. Whole-approval suspension moves the approval to SUSPENDED; a partial one needs a documented risk-containment note. Placed, undispatched seller orders in the blocked scope get a `seller_order_dispositions` row: nothing ships, cancels or refunds by itself; Audit records release, hold, cancellation recommended or recall. Appeals: within 7 calendar days, target 10 business days where feasible, never restore selling - reinstatement is a new assessment and release with a current certificate. A suspended approval can never move back to ACTIVE.
+
+Change requests cover facility, legal entity, beneficial ownership, brand rights, subcontractor, materials, formulation, design, process, intended use, safety software, labels and country; a new product or country needs an extension assessment. Audit can record an undisclosed change. Incidents record the awareness time and are marked late against the policy's 24 hours or a shorter statutory deadline.
+
+### Surveillance
+
+`SELLER_ASSESSMENT_SURVEILLANCE`, daily, idempotent by `seller_surveillance_tasks.dedupeKey`: approval expiry (no grace), 90/60/30-day reminders for the approval and the certificate, monthly certificate and insurance checks, turnover and ownership revalidation, sanctions re-screening every configured number of days (a manual task - never recorded as clear by the software), category surveillance. A failed run retries and then shows as a dead job.
+
+### Evidence, retention, AI
+
+Evidence files are scanned, stored privately, versioned per key (`evidenceVersion`, `supersedesId`) and served only through scoped, audited routes. The Admin Panel never receives identity, ownership or banking files. Retention categories: general assessment (policy default 7 years), product-specific, identity, banking, EU DSA trader and US INFORM; a category without a configured legal value is shown as a configuration dependency and nothing is deleted on a guessed date. Legal holds are per file. No AI touches seller documents; an `AI_OUTPUT` workpaper records source, retrieval date, confidence, uncertainty and reviewer, and refuses any text that claims to approve, certify, resolve a sanctions match, decide compliance or move money.
+
+### Existing sellers
+
+Nothing is converted. "Open legacy reassessments" creates a `LEGACY_REASSESSMENT` per seller approved under the earlier process, with a note that the old decision is preserved and is not a trading approval. The activation impact report lists, per seller, live offers, offers in approved scope and offers that would be blocked.
+
+### Tables (migrations `20261110100000_seller_assessment_onboarding`, `20261110100100_seller_assessment_notification_kind`, `20261110100200_seller_assessment_row_timestamps`)
+
+`seller_assessment_policies`, `seller_assessments`, `seller_assessment_gates`, `seller_assessment_checklist_items`, `seller_assessment_scores`, `seller_assessment_evidence`, `seller_assessment_scope_items`, `seller_assessment_findings`, `seller_assessment_workpapers`, `seller_external_certifications`, `seller_trading_approvals`, `seller_trading_approval_scopes`, `seller_assessment_events` (append-only), `seller_assessment_notices`, `seller_assessment_appeals`, `seller_assessment_change_requests`, `seller_incident_reports`, `seller_order_dispositions`, `seller_bank_change_requests`, `seller_surveillance_tasks`; plus `audit_staff_members.assessmentCapabilitiesJson`, `audit_documents.kind` value `SELLER_TRADING_APPROVAL` and `seller_notifications.kind` value `SELLER_ASSESSMENT`. All additive.
+
+### Screens
+
+| Screen | Where | Shows and does |
+|---|---|---|
+| Seller assessment queue | Audit Console `/seller-assessments` | Status, search, risk, overdue and approval-expiry filters; stage, owner, findings, hard stops |
+| Seller assessment | Audit Console `/seller-assessments/:id` | Gate progress; tabs for overview (application, file decision, gate decisions, owner and risk, evidence), checklist with evidence preview beside it, score, scope matrix, findings, workpapers, certification, release (gaps, exact scope, decline/remediation, hard stop, approvals with PDF, suspension), timeline |
+| Seller assurance | Audit Console `/seller-assessments/assurance` | Policy versions and adoption, capabilities, activation impact and legacy reassessment, notices / appeals / changes / incidents / bank changes, held orders, surveillance tasks, retention |
+| Seller assessment | Seller Hub `/seller/assessment` | Eligibility, the application saved section by section, documents, progress, corrections, findings to answer, approved and blocked scope with validity and renewal, notices and appeals, change notices, incidents, bank change |
+| Seller assessments (read only) | Admin Panel `/seller-assessments[/:id]` | Summary, gates, score, checklist, scope, findings, certification, approvals, permitted evidence, timeline. No write route exists |
+
+### Still open (not software)
+
+Policy v1.0 adoption, effective date and disclosure; named appointments (Head of Seller Assurance, release approvers); real site visits, sampling and laboratory results; appointing real certification bodies; legal retention values for identity, DSA and INFORM data; public-holiday calendars for business-day targets; a sanctions-screening provider. Tests use synthetic fixtures only.
+
+## Delivery, returns, disputes and commercial schedules (Doc 07 and Doc 08)
+
+The sources are *Delivery Returns Refunds and Dispute Administration Policy* (Doc 07) and *Commercial Certification and Launch Approval Guide* (Doc 08), both Version 1.0, prepared 9 October 2026, **effective dates blank**. Both say their numbers are **proposals** that bind only once adopted and disclosed, and that mandatory law and payment-provider rules prevail. Every requirement, what was built and what is still open is in `docs/DELIVERY-COMMERCIAL-MATRIX.md`.
+
+### Proposals are drafts until a person adopts them
+
+`commercial_schedules` holds every proposal from the two documents as version 1, **DRAFT**: the 25-department commission table, the large-B2B incremental discount (no rate supplied), the logistics charge (actual cost + 5%, capped, or a fixed fee), certification recovery (up to 1%), seller security (5% for 90 days, or 10% for 180 days or a guarantee), the three insurance risk groups, the 30/60/10 bespoke payment plan, subscriptions (basic INR 0, optional enterprise INR 120,000 a year plus tax) and the case windows. A schedule moves DRAFT → PENDING_APPROVAL → APPROVED → ACTIVE → RETIRED. The approver is not the preparer and records the adoption evidence. Activation needs a signed-schedule reference, an effective date and, for anything that holds or splits money, the payment provider's written confirmation. Nothing activates on import, on a timer or on deploy. Activating a commission schedule changes the rate the fee engine uses for **new** orders only; a confirmed order keeps its snapshot.
+
+### What is fixed on every order line
+
+At confirmation each line gets an `order_line_commercial_snapshots` row: the actual seller and manufacturer, the approved version, site and scope, destination, B2B or B2C, delivery term and named place, importer and local actors, goods, tax, charges, the commission rate, base, source, rule version and rounding, and the policy versions in force. While the seller order is NEW, the seller or staff record what is still missing (return route, insurance decision, packaging, transport review, an elected FCA or DDP term). After acceptance nothing on it changes.
+
+- **Delivery terms.** International B2B defaults to **DAP** at a precise named place, with the buyer as importer. **FCA** needs the business buyer's express election with an approval reference. **DDP** needs an approved import route. Domestic orders are DOMESTIC; consumer orders use consumer terms and a consumer is never treated as importer.
+- **Payment success is not acceptance.** With `DELIVERY_POLICY_GATES=enforce`, a seller order cannot be accepted while any control is missing (`ORDER_ACCEPTANCE_CONTROLS_MISSING`).
+- **Import routes.** `import_routes` records the importer and local actors per destination, category and channel, reviewed by somebody other than the preparer. With the gate on, a consumer basket crossing a border needs an approved route (`IMPORT_ROUTE_NOT_APPROVED`).
+- **Dispatch.** With the gate on, dispatch needs payment, the export documents (for cross-border), quantities, seals, packing photos, a custody handover and any temperature or handling evidence (`DISPATCH_EVIDENCE_MISSING`). Partial shipments need an order approval reference, are billed in proportion, and are refused when a Shipment Assessment exists (it forbids partial release). Freight bookings need two comparable quotes, or a written reason, at or above INR 50,000.
+- **Providers.** `logistics_provider_reviews` screen licences, coverage, territory, sanctions, competence, finances, insurance, claims history, data protection and subcontractors. A provider with no live integration shows **Credentials required**; a "verified" item with no evidence is stored as pending.
+
+### Cases, refunds and recoveries
+
+- **Case profile.** A claim may carry a category (fraud, safety, defect, shortage, transit loss, wrong item, delay, import failure, cancellation, warranty, installation, service breach), urgency, affected quantity and lots. Without one, a claim behaves exactly as before.
+- **Late claims.** Past the window, a safety, defect, warranty or fraud claim - or one the buyer says rests on a statutory right - is accepted and marked late for review. Anything else is refused as before.
+- **Clocks.** Acknowledgement (1 business day), initial decision (7 days after evidence is **recorded as sufficient**, with the reason) and appeal review (10 business days) run on an explicit calendar and time zone (`Asia/Kolkata`, no holidays until the operator records them). The decision clock is never reset.
+- **Evidence and decisions.** Requests are proportionate - asking for an unrelated identity document is refused - and the buyer can answer material contrary evidence. Testing records hold the protocol, interim payer and final allocation with its reason. A reasoned decision names amounts, payers, return freight and completion, and is refused when marked as AI output. The appeal is decided by someone who took no part in the decision under appeal (always enforced). Overdue cases are escalated by the worker.
+- **Safety.** A safety claim opens a safety case at once. The Audit Console contains it (offers, products, sites, lots or the seller), traces orders, customers, countries and stock, records reporting decisions by a named qualified role, and releases it only after the cause, correction, tests and current certificates are on file - by someone other than the opener. Containment is read live at checkout, payment start, repeat orders and dispatch, whatever flag is set. Existing orders, returns and refunds can still be managed.
+- **Refunds.** A provider timeout or 5xx no longer marks a refund FAILED. It stays REQUESTED with `OUTCOME_UNKNOWN`, and a retry with the same key asks the provider under the same idempotency key. Buyers and staff see when a refund was instructed and its actual provider status; a pending refund is never shown as completed.
+- **Commission and recoveries.** Every succeeded refund proposes a proportionate commission reversal for finance to apply against a credit note. `loss_recoveries` flags a carrier, insurer, chargeback or refund recovery that would exceed the loss, for investigation - it never blocks the buyer's remedy.
+
+### Certification recovery, security and insurance
+
+- **Certification recovery.** A programme per seller holds verified third-party costs (each invoice reference unique across all programmes). Once the schedule is adopted and the programme activated, a buyer's line can be charged up to 1% of net goods, capped by what is still unrecovered. Reservations are taken under a row lock, so simultaneous checkouts cannot exceed the cap, and a re-quote never raises what the buyer saw. Releases and refunds return the balance. **Not yet built:** adding the charge to the checkout total.
+- **Security.** A seller's reserve or guarantee is proposed with its exposure basis, cap and permitted uses. More than one form needs a documented exposure. Activation needs the adopted schedule, the provider's permission and a second person. The escrow then uses that seller's rate, days and cap. Monthly and quarterly reviews are created by the worker; reduction is considered only after six satisfactory months; nothing is forfeited automatically.
+- **Insurance.** Policies for sellers and for the marketplace itself are recorded with insurer, insured entity, sites, products, territories, limits, deductible, exclusions and expiry, and verified by a second person. Gaps against Doc 08's proposed group limits are shown; buying a limit never approves a category.
+
+### Product evidence and launch
+
+- **Product evidence.** The Audit Console records evidence per SKU and version, site and country, and a different person verifies it with the issuer. An expiry is stored only where the issuer or the law sets one. Required evidence that is withdrawn, suspended or expired blocks purchase and dispatch at once (`EVIDENCE_NOT_CURRENT`, with the assessment purchase gate on); reminders go at 90, 60 and 30 days. Doc 08's assurance matrix is shown as reviewer prompts.
+- **Country launch.** Each country has every Doc 08 section 11 decision plus the tax reviews that apply to it (EU VAT and IOSS, US marketplace tax and customs, India GST and export reconciliation, product obligations, EU fulfilment role). A decision is approved by someone other than its owner, with evidence and, where it can lapse, an expiry. A country can be enabled only with none open. With `COUNTRY_LAUNCH_GATE=enforce`, checkout refuses any country not enabled. Nothing is enabled by default.
+
+### Settings
+
+| Setting | Default | Effect |
+|---|---|---|
+| `DELIVERY_POLICY_GATES` | `off` | `report` logs would-be refusals; `enforce` refuses acceptance, consumer cross-border checkout and dispatch that lack their controls |
+| `COUNTRY_LAUNCH_GATE` | `off` | `enforce` refuses checkout to a country not enabled |
+
+### Tables
+
+`commercial_schedules`, `commercial_schedule_events`, `order_line_commercial_snapshots`, `import_routes`, `dispute_case_profiles`, `dispute_evidence_requests`, `dispute_remedy_actions`, `dispute_testing_records`, `loss_recoveries`, `commission_adjustments`, `certification_programmes`, `certification_cost_entries`, `certification_recovery_allocations`, `seller_security_schedules`, `security_reviews`, `insurance_policy_records`, `product_compliance_evidence`, `safety_cases`, `safety_case_scope`, `safety_case_actions`, `recall_rehearsals`, `launch_readiness_items`, `country_launches`, `freight_bookings`, `freight_quote_options`, `logistics_provider_reviews`, `handling_requirements`, `dispatch_evidence`, `custody_handovers`, `partial_shipment_approvals`, `return_authorizations`, `order_payment_plans`; plus `logistics_proof_of_delivery.quantitiesJson`. Migrations `20261114100000_delivery_commercial_policy` and `20261114100100_delivery_commercial_row_timestamps`. All additive.
+
+### Buyer policy
+
+`legal/drafts/gloviaa-mart/delivery-returns-disputes-policy.en.txt` is the buyer-facing Delivery, Returns, Refunds and Disputes Policy (kind `RETURNS_POLICY`), without internal reserve or fee terms. It still contains the approval notice and blank contacts, so publishing it is refused until legal review completes it. The policy version in force is kept on each order line.
+
+### Still open (not software)
+
+Adoption of every schedule; the large-order reduced rate; signed schedules; payment-provider written confirmations; broker-reviewed insurance; legal review and governing law; company details and the five contacts; the safety officer; certification bodies; per-country tax decisions; real launch tests and recall rehearsals. Tests use synthetic fixtures only.
+
+### Screens
+
+| Screen | Where | Shows and does | Calls |
+|---|---|---|---|
+| Commercial schedules | Admin Panel `/commercial/schedules` | Every schedule by kind and status; a "proposal - not active" banner on anything not ACTIVE; Reference tab with the Doc 08 commission table, the worked example (12,500 + 400 = 12,900) and catalogue differences | `GET /admin/commercial/schedules`, `GET /admin/commercial/reference` |
+| Commercial schedule | Admin Panel `/commercial/schedules/:id` | Source, scope, dates, signed-schedule reference, history, what still stops activation; draft, edit (JSON body), submit, approve / return with evidence, provider confirmation, activate, retire; financial preview on sample figures | `GET/PATCH /admin/commercial/schedules/:id`, `.../preview`, `.../submit`, `.../decision`, `.../provider-confirmation`, `.../activate`, `.../retire` |
+| Launch readiness | Admin Panel `/commercial/launch` and `/commercial/launch/:countryCode` | Countries with status and open decisions; each decision with owner, scope, evidence, reviewer, expiry, blocker and cited sources; edit, independent review, enable / disable | `GET /admin/commercial/launch[/:countryCode]`, `PUT .../:key`, `POST .../:key/review`, `.../enable`, `.../disable` |
+| Finance controls | Admin Panel `/commercial/finance` | Tabs: certification programmes (costs, verification, allocations, unrecovered balance), security (proposals, schedules, monthly / quarterly reviews), insurance register (three proposed groups, gaps, verification), commission adjustments (apply with credit-note reference) | `/admin/commercial/certification-programmes`, `/security`, `/security-reviews/:id`, `/insurance`, `/commission-adjustments` |
+| Operations controls | Admin Panel `/commercial/operations` | Tabs: import routes (importer, local actors, independent approval), provider reviews ("Credentials required" without a live integration), handling requirements | `/admin/commercial/import-routes`, `/provider-reviews`, `/handling-requirements` |
+| Product evidence, safety cases (read only) | Admin Panel `/commercial/product-evidence`, `/commercial/safety-cases[/:id]` | The Audit Console's records with "Read only here; the Audit Console decides." No action buttons | `GET /admin/commercial/product-evidence`, `GET /admin/commercial/safety-cases[/:id]` |
+| Commercial terms and refunds | Admin Panel order detail | Each line's frozen snapshot, the seller orders' acceptance and dispatch controls, and refunds with instruction date and provider status | `GET /admin/orders/:id/commercial-controls`, `/admin/seller-orders/:id/controls`, `/dispatch-controls` |
+| Case controls | Admin Panel dispute case | Category, urgency, late intake, clocks, evidence sufficiency, evidence requests, testing, reasoned decision and remedies, appeal reviewer, loss recoveries, legal notice | `/admin/disputes/:id/case-controls[/...]`, `/admin/orders/:id/loss-recoveries` |
+| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry", what it does not prove; record, verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as reviewer prompts | `/audit/product-evidence[/...]` |
+| Safety cases | Audit Console `/safety-cases[/:id]` | Cases and the annual rehearsal status; open, contain (listings, shipments, repeat orders), trace, reporting decisions by a qualified role (no AI option), notices and recall actions, correction, release by another person | `/audit/safety-cases[/...]`, `/audit/recall-rehearsals` |
+| Claim form | Storefront `orders/:id/claim` | Optional kind of problem (12 categories), urgency, statutory-rights box, late explanation, quantity, lots; a safety note for safety reports | `POST /disputes` (with `case`) |
+| Case progress | Storefront dispute detail | Category, acknowledgement, due dates, reasoning and remedies, requests to the buyer with an answer form, legal notice | `GET /disputes/:reference/case-controls`, `POST .../evidence-requests/:requestId` |
+| Refunds | Storefront order detail | Amount, instruction date and the provider's actual status; never "confirmed" while pending; link to the Delivery, returns and disputes policy | `GET /orders/:id/refund-status` |
+| Agreed terms, dispatch evidence | Seller Hub order detail | The frozen terms incl. commission rate, base, rule version and rounding; the controls form while NEW; dispatch gaps, customs documents, evidence, custody handover and freight booking forms | `/seller/orders/:id/controls`, `/dispatch-controls`, `/dispatch-evidence`, `/custody-handovers`, `/freight-booking` |
+| Case requests | Seller Hub dispute detail | Requests addressed to the seller with an answer form | `/seller/disputes/:reference/case-controls[/...]` |
+| Fees and security | Seller Hub `/seller/fees` | Commission reversals for the seller's orders, security schedules and reviews, certification programmes (read only) | `GET /seller/commercial/fees` |
+| Custody and dispatch evidence | Carrier portal shipment detail | What dispatch still needs, customs-document status, handling requirements, past handovers; record a handover | `GET/POST /logistics/shipments/:id/custody` |

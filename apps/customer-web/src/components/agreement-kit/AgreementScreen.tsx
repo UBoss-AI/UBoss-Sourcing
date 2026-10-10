@@ -3,10 +3,17 @@
  * the Terms for this kind of account are not accepted or the Privacy Policy
  * is not acknowledged in a version that still counts.
  *
- * Exactly two controls, and they never move together:
+ * Two controls - three on the Seller Hub and on the company screen - and they
+ * never move together:
  *
- *   - "I agree to the Terms & Conditions."
+ *   - "I agree to the Terms & Conditions." (the B2B Buyer Terms for a company)
+ *   - "I agree to the Seller Platform Services Agreement." (sellers), or the
+ *     B2B Buyer Platform Services Agreement (somebody acting for a company -
+ *     accepted ONCE for the company, by an owner or company admin)
  *   - "I acknowledge that I have read the Privacy Policy."
+ *
+ * Each box has its own dialog and its own end-of-text check: reading one
+ * document never unlocks another.
  *
  * A box is ticked only when the SERVER says a record exists - never because
  * somebody clicked it. Clicking an empty box, its sentence or the document's
@@ -14,7 +21,7 @@
  * at the end of it, once the record is saved. Clicking a ticked box, before
  * Continue, clears that one record (the server keeps it, marked cleared).
  *
- * Continue is enabled only when both records are saved. Neither box switches
+ * Continue is enabled only when every record is saved. Neither box switches
  * on marketing, analytics or any other optional use of data, and the screen
  * says so.
  */
@@ -24,6 +31,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { formatAgreementDate } from './format';
 import { PolicyDocumentDialog } from './PolicyDocumentDialog';
+import { roleTextPrefix } from './role-text';
 import type {
   AgreementDocumentStatus,
   AgreementRole,
@@ -40,19 +48,38 @@ export interface AgreementScreenProps {
   onStatus: (status: AgreementStatus) => void;
   /** Ask the server again - after a refused save, or when a version changed. */
   onRefresh: () => Promise<AgreementStatus | null>;
-  onContinue: () => void;
+  /** Resolves false when the server could not confirm; the screen then says so. */
+  onContinue: () => unknown;
   onSignOut: () => void;
   marketplaceName: string;
   supportHref?: string | null;
   privacyRequestsHref?: string | null;
+  ordersHref?: string | null;
+  legalHref?: string | null;
+}
+
+/** Every entry under one box, published or not. */
+function allEntriesOf(status: AgreementStatus, role: AgreementRole): AgreementDocumentStatus[] {
+  if (role === 'TERMS') return status.terms;
+  if (role === 'SERVICES') return status.services ?? [];
+  return [status.privacy];
 }
 
 function entriesOf(status: AgreementStatus, role: AgreementRole): AgreementDocumentStatus[] {
-  return (role === 'TERMS' ? status.terms : [status.privacy]).filter((entry) => !entry.unavailable);
+  return allEntriesOf(status, role).filter((entry) => !entry.unavailable);
 }
 
 function isDone(status: AgreementStatus, role: AgreementRole): boolean {
-  return role === 'TERMS' ? status.termsComplete : status.privacyComplete;
+  if (role === 'TERMS') return status.termsComplete;
+  if (role === 'SERVICES') return status.servicesComplete ?? true;
+  return status.privacyComplete;
+}
+
+type RowRole = AgreementRole;
+
+/** A company-level acceptance another member gave: shown ticked, never cleared from here. */
+function givenByOtherMember(status: AgreementStatus, role: AgreementRole): boolean {
+  return entriesOf(status, role).some((entry) => entry.record?.byOtherMember === true);
 }
 
 /** What the dialog shows: what still needs a record, or everything when nothing does. */
@@ -83,6 +110,8 @@ export function AgreementScreen({
   marketplaceName,
   supportHref = null,
   privacyRequestsHref = null,
+  ordersHref = null,
+  legalHref = null,
 }: AgreementScreenProps): React.JSX.Element {
   const { t, language } = useI18n();
   const headingId = useId();
@@ -114,9 +143,11 @@ export function AgreementScreen({
       onStatus(await client.record(scope, role, documentIds, language));
       setOpenRole(null);
     } catch (error) {
-      if (client.errorCode(error) === 'TERMS_VERSION_OUTDATED') {
-        // Published while the dialog was open. The new text replaces the old
-        // in the same dialog, and the end-of-text check starts over.
+      const code = client.errorCode(error);
+      if (code === 'TERMS_VERSION_OUTDATED' || code === 'AGREEMENT_DOCUMENT_NOT_APPLICABLE') {
+        // Published while the dialog was open - a new version, or a set that
+        // changed which document this box asks for. The new text replaces the
+        // old in the same dialog, and the end-of-text check starts over.
         setNotice(t('agreements.versionChanged'));
         await onRefresh();
       } else {
@@ -141,10 +172,17 @@ export function AgreementScreen({
     }
   };
 
-  const rows: { role: AgreementRole; sentenceKey: 'agreements.terms.label' | 'agreements.privacy.label'; nameKey: 'agreements.terms.documentName' | 'agreements.privacy.documentName' }[] = [
-    { role: 'TERMS', sentenceKey: 'agreements.terms.label', nameKey: 'agreements.terms.documentName' },
-    { role: 'PRIVACY', sentenceKey: 'agreements.privacy.label', nameKey: 'agreements.privacy.documentName' },
-  ];
+  // The services box only where the scope has one: the Seller Hub.
+  const hasServices = (status.services ?? []).length > 0;
+  const isCompany = status.scope === 'COMPANY_BUYER';
+  const isConsumer = status.scope === 'CONSUMER';
+  const companyName = status.company?.companyName ?? '';
+  const awaitingSignatory = status.awaitingSignatory === true;
+  const rows: RowRole[] = !hasServices
+    ? ['TERMS', 'PRIVACY']
+    : isConsumer
+      ? ['TERMS', 'PRIVACY', 'SERVICES']
+      : ['TERMS', 'SERVICES', 'PRIVACY'];
 
   const dialogDocuments = openRole === null ? [] : documentsFor(status, openRole);
   const dialogReadOnly =
@@ -163,21 +201,31 @@ export function AgreementScreen({
           {t('agreements.screen.title')}
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-          {t('agreements.screen.intro', { marketplace: marketplaceName })}
+          {isCompany
+            ? t('agreements.screen.introCompany', { company: companyName })
+            : isConsumer
+              ? t('agreements.screen.introConsumer', { marketplace: marketplaceName })
+              : t(hasServices ? 'agreements.screen.introSeller' : 'agreements.screen.intro', { marketplace: marketplaceName })}
         </p>
 
         <div className="mt-6 space-y-3">
-          {rows.map(({ role, sentenceKey, nameKey }) => {
-            const entries = role === 'TERMS' ? status.terms : [status.privacy];
+          {rows.map((role) => {
+            const prefix = roleTextPrefix(status.scope, role);
+            const entries = allEntriesOf(status, role);
             const unavailable = entries.every((entry) => entry.unavailable);
             const done = isDone(status, role) && !unavailable;
             const busy = clearing === role;
+            // The company's services agreement, given by another member, or
+            // waiting for one who may bind the company: not this person's box.
+            const byOther = done && givenByOtherMember(status, role);
+            const needsSignatory = role === 'SERVICES' && awaitingSignatory && !done;
+            const locked = unavailable || busy || byOther || needsSignatory;
             const checkboxId = `agreement-${role.toLowerCase()}`;
             const sentenceId = `${checkboxId}-sentence`;
             const hintId = `${checkboxId}-hint`;
             // Translated whole and split on its own placeholder, so the document's
             // name lands wherever each language puts it.
-            const [before = '', after = ''] = t(sentenceKey).split('{{document}}');
+            const [before = '', after = ''] = t(`${prefix}.label`).split('{{document}}');
             const recordedAt = latestRecordedAt(status, role);
             const version = entriesOf(status, role)
               .map((entry) => entry.record?.version ?? entry.current?.document.version)
@@ -198,7 +246,7 @@ export function AgreementScreen({
                     type="checkbox"
                     className="mt-0.5 h-5 w-5 shrink-0 rounded border-border-strong text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                     checked={done}
-                    disabled={unavailable || busy}
+                    disabled={locked}
                     aria-labelledby={sentenceId}
                     aria-describedby={hintId}
                     onChange={(event) => {
@@ -206,7 +254,7 @@ export function AgreementScreen({
                       else void clear(role);
                     }}
                     onKeyDown={(event) => {
-                      if (event.key === 'Enter' && !done && !unavailable) {
+                      if (event.key === 'Enter' && !done && !locked) {
                         event.preventDefault();
                         open(role);
                       }
@@ -224,7 +272,7 @@ export function AgreementScreen({
                       }}
                       className="font-semibold text-brand underline underline-offset-2 hover:no-underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:text-ink-muted disabled:no-underline"
                     >
-                      {t(nameKey)}
+                      {t(`${prefix}.documentName`)}
                     </button>
                     <label htmlFor={checkboxId} className="cursor-pointer">
                       {after}
@@ -235,19 +283,33 @@ export function AgreementScreen({
                   {busy && <Spinner className="h-3.5 w-3.5" />}
                   {unavailable
                     ? t('agreements.unavailableHint')
-                    : done && recordedAt !== null
-                      ? t(role === 'TERMS' ? 'agreements.terms.doneHint' : 'agreements.privacy.doneHint', {
+                    : byOther && recordedAt !== null
+                      ? t('agreements.companyServices.doneByCompanyHint', {
                           version,
+                          company: companyName,
                           date: formatAgreementDate(recordedAt, language),
                         })
-                      : t(role === 'TERMS' ? 'agreements.terms.pendingHint' : 'agreements.privacy.pendingHint')}
+                      : needsSignatory
+                        ? t('agreements.companyServices.signatoryRequired', { company: companyName })
+                        : done && recordedAt !== null
+                          ? t(`${prefix}.doneHint`, {
+                              version,
+                              date: formatAgreementDate(recordedAt, language),
+                            })
+                          : t(`${prefix}.pendingHint`)}
                 </p>
+                {role === 'SERVICES' && (
+                  <p className="mt-1.5 pl-8 text-xs leading-relaxed text-ink-muted">{t(isCompany ? 'agreements.companyServices.notSignature' : isConsumer ? 'agreements.consumerServices.note' : 'agreements.services.notSignature')}</p>
+                )}
               </div>
             );
           })}
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-ink-muted">{t('agreements.screen.optionalNote')}</p>
+        {isConsumer && (
+          <p className="mt-2 text-xs leading-relaxed text-ink-muted">{t('agreements.screen.consumerRightsNote')}</p>
+        )}
 
         {screenError !== null && (
           <p role="alert" className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-ink">
@@ -260,16 +322,31 @@ export function AgreementScreen({
             {t('agreements.signOut')}
           </Button>
           <div className="flex flex-col items-stretch gap-1.5 sm:items-end">
-            <Button type="button" variant="primary" disabled={!status.complete} onClick={onContinue} aria-describedby="agreement-continue-hint">
+            <Button
+              type="button"
+              variant="primary"
+              disabled={!status.complete}
+              onClick={() => {
+                setScreenError(null);
+                void Promise.resolve(onContinue()).then((confirmed) => {
+                  if (confirmed === false) setScreenError(t('agreements.continueFailed'));
+                });
+              }}
+              aria-describedby="agreement-continue-hint"
+            >
               {t('agreements.continue')}
             </Button>
             <p id="agreement-continue-hint" role="status" className="text-xs text-ink-muted max-sm:text-center">
-              {status.complete ? t('agreements.readyToContinue') : t('agreements.continueHint')}
+              {status.complete
+                ? t(hasServices ? 'agreements.readyToContinueAll' : 'agreements.readyToContinue')
+                : awaitingSignatory
+                  ? t('agreements.companyServices.continueBlocked')
+                  : t(hasServices ? 'agreements.continueHintAll' : 'agreements.continueHint')}
             </p>
           </div>
         </div>
 
-        {(supportHref !== null || privacyRequestsHref !== null) && (
+        {(supportHref !== null || privacyRequestsHref !== null || ordersHref !== null || legalHref !== null) && (
           <p className="mt-8 flex flex-wrap gap-x-4 gap-y-1 border-t border-border-subtle pt-4 text-xs text-ink-muted">
             {supportHref !== null && (
               <a href={supportHref} className="font-medium text-brand hover:underline">
@@ -279,6 +356,16 @@ export function AgreementScreen({
             {privacyRequestsHref !== null && (
               <a href={privacyRequestsHref} className="font-medium text-brand hover:underline">
                 {t('agreements.help.privacyRequests')}
+              </a>
+            )}
+            {ordersHref !== null && (
+              <a href={ordersHref} className="font-medium text-brand hover:underline">
+                {t('agreements.help.orders')}
+              </a>
+            )}
+            {legalHref !== null && (
+              <a href={legalHref} className="font-medium text-brand hover:underline">
+                {t('agreements.help.legal')}
               </a>
             )}
           </p>
@@ -305,6 +392,12 @@ export function AgreementScreen({
         }}
         pdfUrl={client.pdfUrl}
         pageUrl={client.pageUrl}
+        textPrefix={openRole === null ? undefined : roleTextPrefix(status.scope, openRole)}
+        reviewOnlyReason={
+          openRole === 'SERVICES' && awaitingSignatory && dialogReadOnly === null
+            ? t('agreements.companyServices.signatoryRequired', { company: companyName })
+            : null
+        }
       />
     </main>
   );

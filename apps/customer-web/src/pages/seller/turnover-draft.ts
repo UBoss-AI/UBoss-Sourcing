@@ -7,7 +7,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import {
   compactEquivalent,
   croreFigure,
-  exceedsMinimum,
+  meetsMinimum,
   formatTurnover,
   parseTurnoverEntry,
   type TurnoverDeclarationInput,
@@ -48,7 +48,7 @@ export function evaluateTurnover(draft: TurnoverDraft, policy: TurnoverPolicy): 
   const parsed = parseTurnoverEntry(draft.amountText, draft.unit, policy.currencyExponent);
   if (!parsed.ok) return { state: 'INVALID', problem: parsed.problem, yearMissing };
   if (yearMissing) return { state: 'INVALID', problem: null, yearMissing };
-  return exceedsMinimum(parsed.minor, policy)
+  return meetsMinimum(parsed.minor, policy)
     ? { state: 'ELIGIBLE', amountMinor: parsed.minor }
     : { state: 'BELOW', amountMinor: parsed.minor };
 }

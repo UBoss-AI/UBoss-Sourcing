@@ -1687,6 +1687,19 @@ export const ErrorCode = {
   /// acknowledge on this screen. 400.
   AGREEMENT_DOCUMENT_NOT_APPLICABLE: 'AGREEMENT_DOCUMENT_NOT_APPLICABLE',
 
+  /// A seller application cannot be submitted: the Seller Terms and
+  /// Conditions or the Seller Platform Services Agreement is not published, or
+  /// the person submitting has not accepted the version now in force (it may
+  /// have changed since they read it). details[].field names the kind;
+  /// details[].code is AGREEMENT_NOT_PUBLISHED or AGREEMENT_NOT_ACCEPTED. 409.
+  SELLER_AGREEMENTS_REQUIRED: 'SELLER_AGREEMENTS_REQUIRED',
+
+  /// Somebody acting for a buyer company tried to accept the B2B Buyer
+  /// Platform Services Agreement for it without authority to bind it. Only
+  /// the company's owner or a company admin may; other members wait for one
+  /// of them. 403.
+  COMPANY_SIGNATORY_REQUIRED: 'COMPANY_SIGNATORY_REQUIRED',
+
   // --- Quantity price bands -------------------------------------------------
 
   /// The seller's quantity bands contradict themselves or the list price. The
@@ -2128,6 +2141,96 @@ export const ErrorCode = {
   /// A report correction is not allowed: the report is not signed, is already
   /// superseded, or the corrector is the inspector. 409.
   INSPECTION_CORRECTION_NOT_ALLOWED: 'INSPECTION_CORRECTION_NOT_ALLOWED',
+
+  // --- Shipment Assessment (between L1 and L2) ---
+  /// L2 may not start: the shipment has no valid release. `details[0].code`
+  /// says why (L1_NOT_COMPLETE, NOT_APPROVED, NO_AUTHORIZATION,
+  /// AUTHORIZATION_EXPIRED, SHIPMENT_CHANGED, BADGE_CHANGED, SELLER_SUSPENDED,
+  /// LOADING_CHECKS_PENDING). 409.
+  SHIPMENT_ASSESSMENT_NOT_RELEASED: 'SHIPMENT_ASSESSMENT_NOT_RELEASED',
+  /// The assessment cannot take that step from where it is, or it changed
+  /// meanwhile (`details[0].code` VERSION). 409.
+  SHIPMENT_ASSESSMENT_TRANSITION_NOT_ALLOWED: 'SHIPMENT_ASSESSMENT_TRANSITION_NOT_ALLOWED',
+  /// A round cannot be submitted or approved: checks, evidence, N/A reasons
+  /// or quantities are missing. `details` lists each item. 409.
+  SHIPMENT_ASSESSMENT_INCOMPLETE: 'SHIPMENT_ASSESSMENT_INCOMPLETE',
+  /// No waiver is possible for this shipment: badge, mandatory inspection,
+  /// unknown applicability or missing review. `details[0].code` says which. 409.
+  SHIPMENT_WAIVER_NOT_ALLOWED: 'SHIPMENT_WAIVER_NOT_ALLOWED',
+  /// The same person tried to assess and QA-approve one round. 409.
+  SHIPMENT_ASSESSMENT_INDEPENDENCE_REQUIRED: 'SHIPMENT_ASSESSMENT_INDEPENDENCE_REQUIRED',
+  /// A badge policy or dispatch deadline is not acceptable. `details[0].code`
+  /// says why. 400.
+  SHIPMENT_ASSESSMENT_POLICY_INVALID: 'SHIPMENT_ASSESSMENT_POLICY_INVALID',
+  /// An Audit certificate cannot be issued or revoked: the verification is
+  /// not approved, or the document is not active. 409.
+  AUDIT_DOCUMENT_NOT_ALLOWED: 'AUDIT_DOCUMENT_NOT_ALLOWED',
+  /// The seller has no current trading approval for this exact product,
+  /// destination country and sales channel (B2B/B2C), or its independent
+  /// certificate is not current. Buyer-facing; never carries assessment
+  /// evidence. 409.
+  SELLER_SCOPE_NOT_APPROVED: 'SELLER_SCOPE_NOT_APPROVED',
+  /// A Seller Assessment step is not allowed now: wrong status, a gate
+  /// prerequisite not passed, a closed record, or a stale version. 409.
+  SELLER_ASSESSMENT_NOT_ALLOWED: 'SELLER_ASSESSMENT_NOT_ALLOWED',
+  /// The Audit Console member lacks the assessment capability this step needs
+  /// (for example FINANCE for Gate 2, RELEASE for Gate 8). 403.
+  SELLER_ASSESSMENT_CAPABILITY_REQUIRED: 'SELLER_ASSESSMENT_CAPABILITY_REQUIRED',
+  /// Separation of duties: the person already took part in the decision they
+  /// are now asked to approve, review on appeal, or second-approve. 403.
+  SELLER_ASSESSMENT_INDEPENDENCE_REQUIRED: 'SELLER_ASSESSMENT_INDEPENDENCE_REQUIRED',
+  /// Release refused: gates, checklist, score, findings, certification or
+  /// scope are not all satisfied. `details` lists every gap. 409.
+  SELLER_ASSESSMENT_RELEASE_BLOCKED: 'SELLER_ASSESSMENT_RELEASE_BLOCKED',
+  /// The assessment policy in force is a DRAFT and this deployment does not
+  /// allow decisions under a draft. Adopt a version first. 409.
+  SELLER_ASSESSMENT_POLICY_NOT_ADOPTED: 'SELLER_ASSESSMENT_POLICY_NOT_ADOPTED',
+  /// A placed seller order is held for a safety and legal disposition after a
+  /// suspension or a lapsed scope. Audit records the disposition. 409.
+  SELLER_ORDER_DISPOSITION_REQUIRED: 'SELLER_ORDER_DISPOSITION_REQUIRED',
+  /// A commercial schedule (Doc 08) can be edited only while DRAFT. 409.
+  COMMERCIAL_SCHEDULE_NOT_EDITABLE: 'COMMERCIAL_SCHEDULE_NOT_EDITABLE',
+  /// A commercial schedule cannot be activated yet. `details[].code` names
+  /// each missing item: NOT_APPROVED, APPROVAL_EVIDENCE_MISSING,
+  /// SIGNED_SCHEDULE_REFERENCE_MISSING, EFFECTIVE_DATE_MISSING,
+  /// PROVIDER_CONFIRMATION_MISSING, ACTIVATOR_IS_PREPARER... 409.
+  COMMERCIAL_SCHEDULE_NOT_ACTIVATABLE: 'COMMERCIAL_SCHEDULE_NOT_ACTIVATABLE',
+  /// The same person may not both prepare and approve, decide and review the
+  /// appeal, own and review a launch decision, or open and release a safety
+  /// case. `details[0].code` names the step. 403.
+  SEPARATION_OF_DUTIES_REQUIRED: 'SEPARATION_OF_DUTIES_REQUIRED',
+  /// No approved lawful import route (importer and local actors) for this
+  /// consumer destination and category. Checkout stays blocked. 409.
+  IMPORT_ROUTE_NOT_APPROVED: 'IMPORT_ROUTE_NOT_APPROVED',
+  /// A seller order cannot be accepted until its delivery and commercial
+  /// controls are recorded. `details[].code` lists each gap. 409.
+  ORDER_ACCEPTANCE_CONTROLS_MISSING: 'ORDER_ACCEPTANCE_CONTROLS_MISSING',
+  /// Dispatch needs its evidence: payment, inspection, documents, eligibility,
+  /// quantities, seals, photos, custody, temperature. `details[].code`. 409.
+  DISPATCH_EVIDENCE_MISSING: 'DISPATCH_EVIDENCE_MISSING',
+  /// A partial shipment needs explicit order approval and may not override a
+  /// no-partial-release assessment rule. `details[].code`. 409.
+  PARTIAL_SHIPMENT_NOT_ALLOWED: 'PARTIAL_SHIPMENT_NOT_ALLOWED',
+  /// A case decision must name amounts, payers, return freight, expected
+  /// completion and reasoning, and cannot rest on AI output alone. 422.
+  CASE_DECISION_NOT_REASONED: 'CASE_DECISION_NOT_REASONED',
+  /// This third-party certification cost is already recorded (in this or
+  /// another programme) and cannot be recovered twice. 409.
+  CERTIFICATION_COST_DUPLICATE: 'CERTIFICATION_COST_DUPLICATE',
+  /// Reserve, guarantee and deposit together need a documented exposure
+  /// calculation, and may not exceed it. 409.
+  SECURITY_EXPOSURE_REQUIRED: 'SECURITY_EXPOSURE_REQUIRED',
+  /// Checkout to a country whose launch has not been enabled. 409.
+  COUNTRY_NOT_LAUNCHED: 'COUNTRY_NOT_LAUNCHED',
+  /// A country cannot be enabled: `details[]` lists each decision still
+  /// missing, unreviewed or expired. 409.
+  COUNTRY_LAUNCH_BLOCKED: 'COUNTRY_LAUNCH_BLOCKED',
+  /// A safety case cannot be released: containment, cause, correction, tests
+  /// and current certificates must be recorded first. 409.
+  SAFETY_RELEASE_NOT_READY: 'SAFETY_RELEASE_NOT_READY',
+  /// The product is contained under an open safety case and cannot be bought
+  /// or dispatched until a person releases it. 409.
+  PRODUCT_UNDER_SAFETY_HOLD: 'PRODUCT_UNDER_SAFETY_HOLD',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

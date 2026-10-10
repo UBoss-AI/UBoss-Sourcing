@@ -290,7 +290,7 @@ export interface SellerTurnoverDeclaration {
   reviewedBy: string | null;
   supersededReason: string | null;
   isCurrent: boolean;
-  exceedsMinimum: boolean;
+  meetsMinimum: boolean;
 }
 
 export interface SellerTurnoverReview {

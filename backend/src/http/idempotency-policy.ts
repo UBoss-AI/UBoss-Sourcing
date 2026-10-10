@@ -86,6 +86,37 @@ const REQUIRED_SERVICE: Record<string, string> = {
  * first successful response under (route, key) and plays it back.
  */
 const REQUIRED_CENTRAL: Record<string, string> = {
+  // Doc 07 / Doc 08: anything that adds a record a repeat would duplicate.
+  [`POST ${P}/admin/seller-orders/:id/custody-handovers`]: 'Records a custody handover; replay must not add a second handover.',
+  [`POST ${P}/seller/orders/:id/custody-handovers`]: 'Records a custody handover; replay must not add a second handover.',
+  [`POST ${P}/logistics/shipments/:id/custody`]: 'Records a carrier custody handover; replay must not add a second handover.',
+  [`POST ${P}/admin/seller-orders/:id/partial-shipments`]: 'Approves a partial shipment and its billing; replay must not approve a second one.',
+  [`POST ${P}/admin/disputes/:id/case-controls/evidence-requests`]: 'Sends an evidence request to a party; replay must not send it twice.',
+  [`POST ${P}/admin/commercial/certification-programmes`]: 'Creates a certification-recovery programme; replay must not create a second ledger.',
+  [`POST ${P}/admin/commercial/security`]: 'Proposes a seller security schedule; replay must not propose it twice.',
+  [`POST ${P}/audit/product-evidence`]: 'Records product evidence; replay must not add a second record.',
+  [`POST ${P}/audit/safety-cases`]: 'Opens a safety case; replay must not open a second one.',
+  [`POST ${P}/audit/safety-cases/:id/actions`]: 'Records a reporting decision, notice or recall action; replay must not record it twice.',
+  [`POST ${P}/audit/recall-rehearsals`]: 'Records a recall rehearsal; replay must not record it twice.',
+  [`POST ${P}/audit/shipment-assessments/policy`]: 'Publishes a new badge-policy version; replay must not publish a second one.',
+  [`POST ${P}/audit/shipment-assessments/:id/evidence`]: 'Stores private assessment evidence; replay must not duplicate the file.',
+  [`POST ${P}/seller/shipment-assessments/:id/evidence`]: 'Stores private seller evidence for an assessment; replay must not duplicate the file.',
+  // Seller Assessment: anything that creates a record or a file.
+  [`POST ${P}/audit/seller-assessments/:id/evidence`]: 'Stores a private, versioned reviewer evidence file; replay must not add a second version.',
+  [`POST ${P}/seller/assessment/:id/evidence`]: 'Stores a private, versioned seller evidence file; replay must not add a second version.',
+  [`POST ${P}/audit/seller-assessments/:id/findings`]: 'Raises a numbered finding; replay must not raise it twice.',
+  [`POST ${P}/audit/seller-assessments/:id/workpapers`]: 'Records a workpaper revision; replay must not add a second revision.',
+  [`POST ${P}/audit/seller-assessments/:id/certifications`]: 'Appoints a certification body; replay must not appoint (and replace) twice.',
+  [`POST ${P}/audit/seller-assessments/policies`]: 'Drafts a policy version; replay must not collide on the version.',
+  [`POST ${P}/audit/seller-assessments/sellers/:id/undisclosed-changes`]: 'Records an undisclosed change; replay must not record it twice.',
+  [`POST ${P}/audit/seller-assessments/legacy-reassessments`]: 'Opens legacy reassessments; replay must return the first result.',
+  [`POST ${P}/seller/assessment`]: 'Starts an application; the service also returns the open one.',
+  [`POST ${P}/seller/assessment/notices/:id/appeal`]: 'Submits an appeal; replay must not open a second.',
+  [`POST ${P}/seller/assessment/changes`]: 'Notifies a change; replay must not notify twice.',
+  [`POST ${P}/seller/assessment/incidents`]: 'Reports an incident with its timing; replay must not report twice.',
+  [`POST ${P}/seller/assessment/bank-changes`]: 'Requests a bank change; replay must not open a second request.',
+  [`POST ${P}/logistics/legs/:id/shipment-assessment/evidence`]: 'Stores private loading evidence; replay must not duplicate the file.',
+  [`POST ${P}/audit/seller-verification/:id/certificates`]: 'Issues a seller verification certificate; replay must not issue a second version.',
   [`POST ${P}/audit/agency/jobs/:id/defects`]: 'Creates an NCR; replay must not count the same defect twice.',
   [`POST ${P}/audit/agency/jobs/:id/binding`]: 'Creates shipment binding and release records; replay must not release twice.',
   [`POST ${P}/audit/agency/defects/:id/reclassify`]: 'Records an evidenced severity decision; replay must not create another decision.',
@@ -124,6 +155,26 @@ const REQUIRED_CENTRAL: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 const OPTIONAL: Record<string, string> = {
+  [`POST ${P}/audit/shipment-assessments/:id/rounds`]: 'Starts an assessment round; the version read refuses a repeat, and the key makes it a replay.',
+  [`POST ${P}/audit/seller-assessments/policies/:id/adopt`]: 'Records adoption of a draft; a repeat finds it adopted and is refused.',
+  [`POST ${P}/audit/seller-assessments/policies/:id/disclose`]: 'Records disclosure; a repeat writes the same values.',
+  [`POST ${P}/audit/seller-assessments/dispositions/:id`]: 'Records a disposition; a repeat writes the same decision.',
+  [`POST ${P}/audit/seller-assessments/evidence/:id/legal-hold`]: 'Sets a legal hold; a repeat writes the same flag.',
+  [`POST ${P}/audit/seller-assessments/incidents/:id/review`]: 'Records an incident review; a repeat writes the same status.',
+  [`POST ${P}/audit/seller-assessments/bank-changes/:id`]: 'One bank-change step; the version read refuses a repeat.',
+  [`POST ${P}/audit/seller-assessments/:id/correction`]: 'Returns the file; the status machine refuses a repeat.',
+  [`POST ${P}/audit/seller-assessments/:id/accept-file`]: 'Accepts the file; the status machine refuses a repeat.',
+  [`POST ${P}/audit/seller-assessments/:id/gates/:gate`]: 'Decides a gate; a repeat writes the same decision.',
+  [`POST ${P}/audit/seller-assessments/:id/checklist/:code/approve-na`]: 'Approves an N/A; a repeat writes the same approval.',
+  [`POST ${P}/audit/seller-assessments/:id/hard-stops`]: 'Records a hard stop keyed by its kind; a repeat replaces the same entry.',
+  [`POST ${P}/audit/shipment-assessments/:id/checks`]: 'Records checklist results by item; a repeat writes the same results.',
+  [`POST ${P}/audit/shipment-assessments/:id/qa`]: 'A QA decision; the version read refuses a repeat, and the key makes it a replay.',
+  [`POST ${P}/audit/shipment-assessments/:id/waiver-review`]: 'Opens waiver review; the version read refuses a repeat.',
+  [`POST ${P}/audit/shipment-assessments/:id/waiver`]: 'A waiver decision; the version read and the one-active-release index refuse a repeat.',
+  [`POST ${P}/audit/shipment-assessments/:id/hold`]: 'Puts a shipment on hold; the version read refuses a repeat.',
+  [`POST ${P}/audit/shipment-assessments/:id/reassessment`]: 'Requires reassessment; the version read refuses a repeat.',
+  [`POST ${P}/seller/shipment-assessments/:id/response`]: 'Saves the seller readiness note or corrective response; a repeat saves the same text.',
+  [`POST ${P}/logistics/legs/:id/shipment-assessment/checks`]: 'Records loading checks by item; a repeat writes the same results.',
   [`POST ${P}/admin/logistics/shipments/:id/status-events`]:
     'A dispatcher on a bad line may resend; the key makes the resend a replay.',
   [`POST ${P}/logistics/shipments/:id/status-events`]:
@@ -265,6 +316,14 @@ const HARMLESS_CREATE_WORDS = new Set([
  * somebody has asked the question, never to silence the guard test.
  */
 const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
+  {
+    reason: 'Doc 07 / Doc 08: records a fact once on a single row (provider confirmation, the decision clock, an appeal reviewer, a reasoned decision, a correction, a containment, an agreement); a repeat is refused or sets the same values.',
+    routes: ['admin/commercial/schedules/:id/provider-confirmation', 'admin/commercial/schedules/:id/retire', 'admin/disputes/:id/case-controls/evidence-sufficient', 'admin/disputes/:id/case-controls/appeal-reviewer', 'audit/safety-cases/:id/contain', 'audit/safety-cases/:id/correction', 'admin/orders/:id/payment-plan/agreement', 'admin/commercial/launch/:countryCode/:key/review', 'admin/commercial/security-reviews/:id', 'admin/commercial/commission-adjustments/:id/apply'],
+  },
+  {
+    reason: 'Doc 07 / Doc 08: a unique key refuses the repeat - one payment plan per order, one cost per third-party reference, one recovery per provider reference, one answer per evidence request.',
+    routes: ['admin/orders/:id/payment-plan', 'admin/commercial/certification-programmes/:id/costs', 'admin/orders/:id/loss-recoveries', 'seller/disputes/:reference/case-controls/evidence-requests/:requestId', 'disputes/:reference/case-controls/evidence-requests/:requestId'],
+  },
   {
     reason: 'Audit Console: saves the one quantity record, laboratory result or applicability determination for its job, sample or requirement code; repeating the body leaves the same values.',
     routes: ['audit/agency/jobs/:id/quantities', 'audit/agency/jobs/:id/lab-samples/:sampleId/result', 'audit/cases/:id/determinations'],

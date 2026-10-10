@@ -102,6 +102,23 @@ export async function cleanUpOrderDesk(tag: string): Promise<void> {
   await prisma.adminNotification.deleteMany({
     where: { OR: [{ linkPath: { contains: tag } }, { relatedId: { in: orderIds } }] },
   });
+  // Doc 07 / Doc 08 rows: plain references, no foreign keys, so removed by hand.
+  const disputeIds = (await prisma.dispute.findMany({ where: { orderId: { in: orderIds } }, select: { id: true } })).map((d) => d.id);
+  await prisma.disputeCaseProfile.deleteMany({ where: { disputeId: { in: disputeIds } } });
+  await prisma.disputeEvidenceRequest.deleteMany({ where: { disputeId: { in: disputeIds } } });
+  await prisma.disputeRemedyAction.deleteMany({ where: { disputeId: { in: disputeIds } } });
+  await prisma.disputeTestingRecord.deleteMany({ where: { disputeId: { in: disputeIds } } });
+  await prisma.lossRecovery.deleteMany({ where: { orderId: { in: orderIds } } });
+  await prisma.orderLineCommercialSnapshot.deleteMany({ where: { orderId: { in: orderIds } } });
+  await prisma.orderPaymentPlan.deleteMany({ where: { orderId: { in: orderIds } } });
+  const groupIds = (await prisma.sellerOrderGroup.findMany({ where: { orderId: { in: orderIds } }, select: { id: true } })).map((g) => g.id);
+  await prisma.dispatchEvidence.deleteMany({ where: { sellerOrderGroupId: { in: groupIds } } });
+  await prisma.custodyHandover.deleteMany({ where: { sellerOrderGroupId: { in: groupIds } } });
+  await prisma.partialShipmentApproval.deleteMany({ where: { sellerOrderGroupId: { in: groupIds } } });
+  const bookingIds = (await prisma.freightBooking.findMany({ where: { sellerOrderGroupId: { in: groupIds } }, select: { id: true } })).map((b) => b.id);
+  await prisma.freightQuoteOption.deleteMany({ where: { bookingId: { in: bookingIds } } });
+  await prisma.freightBooking.deleteMany({ where: { id: { in: bookingIds } } });
+  await prisma.commissionAdjustment.deleteMany({ where: { sellerOrderGroupId: { in: groupIds } } });
   await prisma.dispute.deleteMany({ where: { orderId: { in: orderIds } } });
   const returnIds = (
     await prisma.returnRequest.findMany({
@@ -109,6 +126,7 @@ export async function cleanUpOrderDesk(tag: string): Promise<void> {
       select: { id: true },
     })
   ).map((row) => row.id);
+  await prisma.returnAuthorization.deleteMany({ where: { returnRequestId: { in: returnIds } } });
   await prisma.returnRequestFile.deleteMany({ where: { returnRequestId: { in: returnIds } } });
   await prisma.returnRequestEvent.deleteMany({ where: { returnRequestId: { in: returnIds } } });
   await prisma.returnRequestLine.deleteMany({ where: { returnRequestId: { in: returnIds } } });

@@ -1,0 +1,96 @@
+kind: B2B_BUYER_TERMS
+version: 1.0
+locale: en
+title: B2B Buyer Terms and Conditions
+---
+Gloviaa Mart | Uboss AI Private Limited
+
+Version 1.0 | Prepared 9 October 2026 | Effective date __________________
+
+For approval before implementation or signature. Proposed commercial and operational defaults become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
+
+These terms govern business purchases and platform services through Gloviaa Mart operated by Uboss AI Private Limited, registered address __________________, corporate registration __________________, tax registration __________________, notices email __________________. Buyer means the verified business customer identified in its accepted account and order. These terms apply to business purchases; a customer acting as a consumer receives the separate consumer terms and mandatory protections.
+
+## 1 Account eligibility and authority
+
+Buyer must provide its legal identity registration tax details authorised signatory billing and delivery addresses ownership information where required and relevant licences. Gloviaa may verify these through reliable sources and payment partners. Account staff must possess purchasing authority and comply with approved spending limits. A corporate account does not remove consumer rights where the transaction legally qualifies as consumer use.
+
+Buyer may not disguise personal purchases as business transactions, evade country restrictions, purchase for a prohibited end user or make false import declarations. Notify ownership address licence bank or signatory changes promptly. Protect access credentials and report suspected compromise. Gloviaa may restrict transactions while material identity or authority questions remain unresolved.
+
+## 2 Seller disclosure and platform role
+
+Buyer orders through Gloviaa's interface. Each confirmed order identifies the actual Indian seller and manufacturer; a multi-seller checkout may form separate sale contracts for different lines. Unless an expressly reviewed order states otherwise, seller sells the goods and buyer buys them; Gloviaa provides order administration and defined managed services. Gloviaa may act as disclosed limited agent within seller and buyer mandates. Goods and Gloviaa service invoices identify their respective suppliers.
+
+Gloviaa coordinates verification sourcing inspection fulfilment customs support installation and after-sales only within the agreed scope. Its certification badges are limited to approved scope and current evidence. Neither a badge nor inspection substitutes for buyer-specific technical suitability review or required local authorisations. Gloviaa remains accountable for its own undertaken services and non-excludable duties.
+
+## 3 Quotes RFQs and contract formation
+
+RFQs comparisons OEM proposals and landed-cost estimates are invitations to negotiate unless expressly issued as firm offers. Buyer verifies intended use specifications quantities drawings acceptance tests installation needs and destination. A quote states validity currency seller Incoterm named place estimated lead time fees taxes exclusions and any payment milestones.
+
+An order submitted online is an offer under the displayed terms. A receipt or payment authorisation is not acceptance. Binding acceptance occurs through an Order Confirmation identifying seller, goods, price, required compliance conditions and authorised acceptance. Automation operates only within recorded authority. If acceptance cannot be given, cancel and release or refund the authorised amount promptly under provider rules.
+
+Buyer purchase-order conditions do not override accepted platform terms merely by upload. Material changes require express agreement; silence is not acceptance. Do not rely on an AI answer as a binding specification quotation regulatory conclusion or amendment.
+
+## 4 Prices charges and payment
+
+Before commitment, disclose net goods price seller identity Gloviaa service charge any certification recovery payment or FX charge freight insurance taxes import duties brokerage and other mandatory amounts that can be calculated. Identify estimates and who pays each amount. No undisclosed mandatory surcharge after order acceptance.
+
+Buyer pays through the approved Payment Partner. Escrow arrangements settlement conditions and refund rules follow that provider's signed structure and applicable law; Gloviaa does not promise a regulated escrow service without an enabled provider arrangement. Optional credit requires a separately approved credit provider or written credit agreement; no implied Gloviaa finance or solvency guarantee arises.
+
+Routine buyer certification recovery is a separately disclosed order allocation, not a guarantee of product approval or delivery. Buyer-requested bespoke testing requires written scope cost and cancellation terms. Optional services require express consent. Buyer is not liable for seller onboarding costs not disclosed and accepted before its order.
+
+## 5 Importer responsibilities and logistics
+
+The seller is exporter of record; buyer is importer of record for default international B2B transactions. Buyer confirms legal ability to import the SKU and appoints a competent customs broker through a separate authorisation. Gloviaa coordinates its logistics partners, while legal declarations are made by the authorised exporter importer or broker. Buyer provides accurate consignee tax customs and end-use information and obtains licences permits and local responsible-person arrangements assigned to it before shipment.
+
+Default delivery is DAP the precisely named destination Incoterms 2020. Seller bears transport risk until goods are available on arriving transport ready for unloading at that place; buyer handles import clearance import duties taxes and unloading. Gloviaa-administered carriage does not itself transfer seller risk to Gloviaa. Alternative FCA or other terms require explicit order approval. DDP requires a separate compliant importer arrangement and is not the default.
+
+Buyer pays reasonable evidenced costs caused by its import failure refusal or inaccurate information. Seller bears corresponding costs caused by seller nonconformity or inaccurate seller documents. Allocation cannot override mandatory law. No shipment moves until the route importer and product-country eligibility are approved.
+
+## 6 Delivery receipt and inspection
+
+Buyer supplies safe access receiving staff and accurate opening hours and records visible package damage shortages and temperature exceptions promptly. Proposed business administration targets are visible transit notice within forty-eight hours and quantity or specification notice within seven calendar days. The general platform claims route remains available for thirty days after delivery. These windows do not remove latent defect warranties fraud safety or statutory rights.
+
+An order-specific inspection or acceptance protocol controls technical acceptance where expressly agreed. Buyer may not reject goods solely for a changed business preference absent an accepted return right. It must preserve goods evidence and traceability and avoid destructive tests beyond the agreed plan. Gloviaa may appoint an independent technical reviewer; its internal decision does not bar lawful dispute remedies.
+
+## 7 Cancellation returns and remedies
+
+Before acceptance buyer may withdraw the offer subject to reversal of payment authorisations and lawfully agreed separately performed services. After acceptance, cancellation requires agreement unless seller default law or order terms provide a right. Bespoke manufacture may entail evidenced irrecoverable costs under an agreed cancellation schedule; no automatic full-price penalty applies.
+
+Wrong defective unsafe or materially nonconforming goods follow the agreed repair replacement price adjustment or refund route. Seller remains responsible for goods warranties and recalls. Gloviaa administers communication evidence and authorised refunds. Supplier fault costs are allocated to seller; buyer-caused damage or incorrect specifications are allocated to buyer to the extent established and lawful. Title retention cannot prevent mandatory refunds or safe recall.
+
+## 8 Installation and after-sales services
+
+Installation commissioning training calibration and support occur only under a written service scope identifying provider competence access dependencies milestones testing and fees. Buyer supplies safe lawful site conditions and required utilities and staff. Neither delivery nor payment proves commissioning acceptance. Unauthorised modification operation outside intended use or failure to maintain equipment may affect contractual warranty only where causally relevant and lawfully permitted.
+
+## 9 Restricted uses and intellectual property
+
+No sanctions evasion unlawful resale export-controlled diversion counterfeiting fraudulent claims or unauthorised access. Buyer provides end-user and end-use information when legitimately required. Seller and Gloviaa may stop unlawful transactions. OEM buyer owns or is licensed to use its submitted brands drawings and specifications and warrants their lawful use. Allocations of tooling designs confidentiality and ownership of new developments must be stated in an OEM annex before production.
+
+## 10 Claims payment holds and appeals
+
+Use the Delivery Returns and Dispute Policy. Provide order ID affected quantities photos test evidence requested remedy and urgency. Buyer must not submit duplicate contradictory recovery claims or intentionally charge back an amount already refunded. Chargeback legal and card rights remain available. Gloviaa may request an authorised hold of the disputed amount while releasing unrelated undisputed amounts under payment rules. Its case decision governs platform administration, not the final adjudication of legal rights.
+
+## 11 Buyer indemnity and liability allocation
+
+Buyer indemnifies Gloviaa against third-party claims and reasonable documented losses caused by buyer false declarations infringement in supplied specifications unlawful import diversion misuse or breach. This excludes losses caused by Gloviaa's own breach negligence fraud or wilful misconduct. Prompt notice reasonable defence control participation rights and consent for admissions or non-monetary settlements apply.
+
+To the fullest lawful extent, exclude indirect and consequential losses in ordinary contractual disputes, except covered third-party indemnities and non-excludable liabilities. Proposed Gloviaa liability cap is service fees paid or payable by buyer to Gloviaa in the preceding twelve months; goods proceeds duties taxes and pass-through costs are not service fees. Exclude from the cap fraud wilful misconduct gross negligence unlawful personal-injury exclusions required return or safeguarding of funds mandatory statutory duties and confidentiality data or intellectual-property breaches. Seller goods obligations follow the goods contract and applicable law; the platform cap does not cap seller liability. Final adopted wording needs jurisdiction review.
+
+## 12 Data recurring purchases and integrations
+
+Use business and order data for account management verification fulfilment support fraud prevention and legal duties under the privacy notice. Limit access to authorised roles. Confidential drawings and commercial data are shared only with necessary providers under appropriate controls. A separate data-processing agreement applies where required.
+
+Each repeat schedule requires a valid mandate and a fresh order check. Disclose price changes limits fulfilment dates and cancellation route. Autopay may be revoked for future payments; revocation does not undo an already accepted lawful order. ERP credentials must be access-limited and revocable. Integration errors require reconciliation; imported records cannot bypass verification purchase gates or signatory authority.
+
+## 13 Suspension termination and general provisions
+
+Gloviaa may suspend for credible fraud sanctions unauthorised importing nonpayment or security risk. Provide reasons and remediation when lawful. Proposed ordinary convenience termination is thirty days' notice; material remediable breach has fifteen days to cure. Preserve accepted orders refunds and safety duties. Future material changes receive thirty days' notice and do not retrospectively amend confirmed orders without agreement.
+
+Force majeure requires notification mitigation and revised fulfilment or lawful cancellation; it does not excuse accrued payment or required refunds. Invalid clauses are severed to lawful extent. Notices use recorded addresses; actual delivery evidence is retained. Assignment requires protection of accrued duties and legitimate data controls.
+
+## 14 Commercial dispute framework and acceptance
+
+Proposed law is Indian law subject to mandatory destination laws. Parties escalate to authorised representatives for fifteen days, then arbitrate under the Arbitration and Conciliation Act 1996 before a sole arbitrator mutually appointed, or appointed through the statutory process if agreement fails. Proposed seat New Delhi India and language English. Competent courts may grant interim relief and hear non-arbitrable matters. This commercial clause does not apply to consumers or displace mandatory forums. Approved seat __________________.
+
+Mandatory law takes priority. Signed order terms govern goods-specific matters; signed buyer services agreement and accepted schedules govern platform services; these terms govern business access; policies implement process. Buyer legal name __________________. Signatory and authority __________________. Signature or electronic acceptance record __________________. Date __________________.

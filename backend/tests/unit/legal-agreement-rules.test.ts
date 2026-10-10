@@ -14,7 +14,10 @@ import {
   acceptableVersions,
   consentPurposeFor,
   findLegalPlaceholders,
+  LEGAL_APPROVAL_NOTICE,
+  servicesKindsForScope,
   termsKindsForScope,
+  CONSUMER_ACTIVATION_KINDS,
 } from '../../src/domain/legal-document.js';
 import { parseDraftFile } from '../../src/modules/legal/draft-file.js';
 
@@ -57,6 +60,16 @@ describe('termsKindsForScope', () => {
     expect(termsKindsForScope('AUDIT')).toEqual(['AUDIT_CONSOLE_TERMS']);
   });
 
+  it('gives a consumer the B2C documents only - never the Terms of Use, the B2B or the seller ones', () => {
+    expect(termsKindsForScope('CONSUMER')).toEqual(['B2C_CONSUMER_TERMS']);
+    expect(servicesKindsForScope('CONSUMER')).toEqual(['B2C_PLATFORM_SERVICES_AGREEMENT']);
+    expect(CONSUMER_ACTIVATION_KINDS).toEqual(['B2C_CONSUMER_TERMS', 'B2C_PLATFORM_SERVICES_AGREEMENT', 'PRIVACY_POLICY']);
+    // The B2C kinds stay on the consumer screen.
+    for (const scope of ['BUYER', 'SELLER', 'COMPANY_BUYER', 'LOGISTICS', 'STAFF', 'AUDIT'] as const) {
+      expect([...termsKindsForScope(scope), ...servicesKindsForScope(scope)].some((kind) => kind.startsWith('B2C_'))).toBe(false);
+    }
+  });
+
   it('records the privacy notice as a notice, never as terms', () => {
     expect(consentPurposeFor('PRIVACY_POLICY')).toBe('PRIVACY_NOTICE');
     expect(consentPurposeFor('STAFF_TERMS')).toBe('STAFF_TERMS');
@@ -74,6 +87,13 @@ describe('findLegalPlaceholders', () => {
   it('treats an unclosed blank as a blank, and plain brackets as text', () => {
     expect(findLegalPlaceholders('See [[DECISION: unfinished')).toEqual(['[[']);
     expect(findLegalPlaceholders('Clause [1] and [a]')).toEqual([]);
+  });
+
+  it('treats a Word fill-in line and the approval notice as blanks, and short underscores as text', () => {
+    expect(
+      findLegalPlaceholders('For approval before implementation or signature. Registered address __________________, PAN ________.'),
+    ).toEqual(['Registered address __________________', ', PAN ________', LEGAL_APPROVAL_NOTICE]);
+    expect(findLegalPlaceholders('A snake_case word and a __ pair')).toEqual([]);
   });
 });
 
@@ -98,9 +118,18 @@ describe('the Gloviaa Mart policy drafts', () => {
   it('cover every document the agreement screen asks for', () => {
     expect(drafts.map(({ draft }) => draft.kind).sort()).toEqual([
       'AUDIT_CONSOLE_TERMS',
+      'B2B_BUYER_SERVICES_AGREEMENT',
+      'B2B_BUYER_TERMS',
+      // No B2C Platform Services Agreement has been supplied: its kind exists
+      // and the consumer screen stays off until one is published.
+      'B2C_CONSUMER_TERMS',
       'LOGISTICS_PARTNER_TERMS',
       'PLATFORM_TERMS',
       'PRIVACY_POLICY',
+      // The buyer-facing Delivery, Returns, Refunds and Disputes Policy (Doc 07): a
+      // published policy with no acceptance checkbox, drafted beside the terms.
+      'RETURNS_POLICY',
+      'SELLER_SERVICES_AGREEMENT',
       'SELLER_TERMS',
       'STAFF_TERMS',
     ]);
@@ -108,7 +137,11 @@ describe('the Gloviaa Mart policy drafts', () => {
 
   it.each(files)('%s says it is a draft and still has decisions to make, so it cannot be published', (file) => {
     const text = readFileSync(join(folder, file), 'utf8');
-    expect(text).toContain('DRAFT - not legal advice and not approved for publication.');
+    // The adapted drafts open with their own DRAFT notice; the two the operator
+    // supplied as Word documents carry theirs ("For approval before ...").
+    expect(
+      text.includes('DRAFT - not legal advice and not approved for publication.') || text.includes(LEGAL_APPROVAL_NOTICE),
+    ).toBe(true);
     expect(findLegalPlaceholders(text).length).toBeGreaterThan(0);
   });
 
@@ -128,12 +161,12 @@ describe('the Gloviaa Mart policy drafts', () => {
     return start < 0 || end < 0 ? '' : body.slice(start, end);
   };
 
-  it('keeps every seller obligation out of the buyer Terms, and in the Seller Addendum', () => {
+  it('keeps every seller obligation out of the buyer Terms, and in the Seller Terms and Conditions', () => {
     const buyer = bodyOf('PLATFORM_TERMS');
     expect(buyer).toContain('## Part B - Terms for buyers');
     expect(buyer).not.toMatch(/^## S\d+\./m);
     expect(buyer).not.toContain('Regulated product declarations');
-    expect(bodyOf('SELLER_TERMS')).toMatch(/^## S1\./m);
+    expect(bodyOf('SELLER_TERMS')).toMatch(/^## 1 Definitions and contractual structure$/m);
   });
 
   it('gives every kind of account the same common terms (Part A), word for word', () => {

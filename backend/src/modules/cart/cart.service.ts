@@ -11,6 +11,7 @@
  * every call, and returns per-line issues rather than failing outright - a
  * customer with one unavailable line out of forty needs to see which one.
  */
+import { channelFor, enforcedBlocks, gateMode } from '../seller-assessment/purchase-gate.service.js';
 import {
   ErrorCode,
   badRequest,
@@ -909,6 +910,22 @@ export async function resolveCart(
     nextQuantityTier: CartLine['nextQuantityTier'];
   }[] = [];
 
+  // Seller Assessment: a seller line is buyable only inside the seller's
+  // approved scope for this destination and channel. Re-asked on every view,
+  // so a stale basket cannot outlive a suspension or an expiry. Checkout asks
+  // again with the shipping country.
+  const scopeCountry = options.destinationCountry ?? taxProfile?.preferredCountry ?? null;
+  const scopeBlocks =
+    scopeCountry === null || gateMode() === 'off'
+      ? new Map<string, string>()
+      : await enforcedBlocks(
+          prisma,
+          items.flatMap((item) => (item.sellerOffer === null ? [] : [{ sellerAccountId: item.sellerOffer.sellerAccountId, offerId: item.sellerOffer.id }])),
+          scopeCountry.toUpperCase(),
+          channelFor((await resolveB2cBuyer(prisma, { customerProfileId, buyerCompanyId: companyOfOwner(owner) })).kind === 'COMPANY'),
+          'cart',
+        );
+
   for (const item of items) {
     const product = item.product;
     const issues: CartLineIssue[] = [];
@@ -1020,6 +1037,14 @@ export async function resolveCart(
       issues.push({
         code: ErrorCode.CART_ITEM_UNAVAILABLE,
         message: `${offer.sellerAccount.displayName} is no longer selling ${product.name}.`,
+        meta: { productId: product.id, sellerOfferId: offer.id },
+      });
+    }
+
+    if (offer !== null && scopeBlocks.has(offer.id)) {
+      issues.push({
+        code: ErrorCode.SELLER_SCOPE_NOT_APPROVED,
+        message: `${product.name} from ${offer.sellerAccount.displayName} is not currently approved for sale to this destination.`,
         meta: { productId: product.id, sellerOfferId: offer.id },
       });
     }

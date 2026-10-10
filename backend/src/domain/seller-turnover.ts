@@ -6,9 +6,11 @@
  * ## The rule
  *
  * A business may apply to sell only when its annual turnover for its most
- * recently completed financial year is STRICTLY GREATER than the minimum the
+ * recently completed financial year is AT LEAST the minimum the
  * deployment configures (`SELLER_TURNOVER_MIN_MINOR`, in
- * `SELLER_TURNOVER_CURRENCY`). Exactly the minimum is not enough.
+ * `SELLER_TURNOVER_CURRENCY`). Exactly the minimum qualifies: Seller Assessment
+ * and Onboarding policy v1.0 says "at least INR 30 crore". The older wording
+ * ("exceeding") was replaced by that document on 2026-10-09.
  *
  * This is the marketplace's own platform policy, never a legal requirement,
  * and every number in it is a setting: the next company to run this software
@@ -19,8 +21,8 @@
  * Whole minor units as a `bigint`, compared as integers. The amount arrives as
  * a string of digits - the same `minorUnits` shape every other money field on
  * the wire uses - so there is no float, no rounding and no display value
- * anywhere in the comparison. A turnover one paisa above the minimum is
- * eligible; the minimum itself is not.
+ * anywhere in the comparison. The minimum itself is eligible; one paisa
+ * below it is not.
  *
  * ## The reporting period
  *
@@ -55,9 +57,9 @@ export function parseTurnoverMinor(
   return { ok: true, minor: BigInt(value) };
 }
 
-/** Strictly greater. Equal to the minimum is not eligible - the policy says "exceeding". */
-export function isTurnoverAboveMinimum(amountMinor: bigint, minimumMinor: bigint): boolean {
-  return amountMinor > minimumMinor;
+/** At least the minimum. Equal to it is eligible - policy v1.0 says "at least". */
+export function meetsTurnoverMinimum(amountMinor: bigint, minimumMinor: bigint): boolean {
+  return amountMinor >= minimumMinor;
 }
 
 /** A calendar date as UTC midnight, or null when the string is not a real date. */
@@ -149,9 +151,9 @@ export function mostRecentFinancialYear(startMonth: number, today: Date): { star
 export type TurnoverStanding =
   /** Nothing declared. */
   | 'NOT_DECLARED'
-  /** Declared, above the minimum, for the most recent year. */
+  /** Declared, at or above the minimum, for the most recent year. */
   | 'ELIGIBLE'
-  /** Declared at or below the minimum, or in another currency. */
+  /** Declared below the minimum, or in another currency. */
   | 'BELOW_MINIMUM'
   /** Declared for a year that is no longer the most recently completed one. */
   | 'OUT_OF_DATE';
@@ -189,5 +191,5 @@ export function turnoverStanding(
   // A turnover stated in another currency is not compared at a guessed rate.
   if (declaration.currency !== policy.currency) return 'BELOW_MINIMUM';
 
-  return isTurnoverAboveMinimum(declaration.amountMinor, policy.minimumMinor) ? 'ELIGIBLE' : 'BELOW_MINIMUM';
+  return meetsTurnoverMinimum(declaration.amountMinor, policy.minimumMinor) ? 'ELIGIBLE' : 'BELOW_MINIMUM';
 }

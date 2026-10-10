@@ -428,7 +428,70 @@ export const ModelName = {
   ComplianceEvent: 'ComplianceEvent',
   InspectionQuantityRecord: 'InspectionQuantityRecord',
   InspectionLabSample: 'InspectionLabSample',
-  InspectionSubLotRelease: 'InspectionSubLotRelease'
+  InspectionSubLotRelease: 'InspectionSubLotRelease',
+  SellerBadgeChange: 'SellerBadgeChange',
+  ShipmentAssessmentPolicy: 'ShipmentAssessmentPolicy',
+  ShipmentAssessment: 'ShipmentAssessment',
+  ShipmentAssessmentRound: 'ShipmentAssessmentRound',
+  ShipmentAssessmentCheck: 'ShipmentAssessmentCheck',
+  ShipmentAssessmentEvidence: 'ShipmentAssessmentEvidence',
+  ShipmentAssessmentEvent: 'ShipmentAssessmentEvent',
+  ShipmentWaiverDecision: 'ShipmentWaiverDecision',
+  ShipmentReleaseAuthorization: 'ShipmentReleaseAuthorization',
+  ShipmentAssessmentException: 'ShipmentAssessmentException',
+  AuditDocument: 'AuditDocument',
+  SellerAssessmentPolicy: 'SellerAssessmentPolicy',
+  SellerAssessment: 'SellerAssessment',
+  SellerAssessmentGate: 'SellerAssessmentGate',
+  SellerAssessmentChecklistItem: 'SellerAssessmentChecklistItem',
+  SellerAssessmentScore: 'SellerAssessmentScore',
+  SellerAssessmentEvidence: 'SellerAssessmentEvidence',
+  SellerAssessmentScopeItem: 'SellerAssessmentScopeItem',
+  SellerAssessmentFinding: 'SellerAssessmentFinding',
+  SellerAssessmentWorkpaper: 'SellerAssessmentWorkpaper',
+  SellerExternalCertification: 'SellerExternalCertification',
+  SellerTradingApproval: 'SellerTradingApproval',
+  SellerTradingApprovalScope: 'SellerTradingApprovalScope',
+  SellerAssessmentEvent: 'SellerAssessmentEvent',
+  SellerAssessmentNotice: 'SellerAssessmentNotice',
+  SellerAssessmentAppeal: 'SellerAssessmentAppeal',
+  SellerAssessmentChangeRequest: 'SellerAssessmentChangeRequest',
+  SellerIncidentReport: 'SellerIncidentReport',
+  SellerOrderDisposition: 'SellerOrderDisposition',
+  SellerBankChangeRequest: 'SellerBankChangeRequest',
+  SellerSurveillanceTask: 'SellerSurveillanceTask',
+  CommercialSchedule: 'CommercialSchedule',
+  CommercialScheduleEvent: 'CommercialScheduleEvent',
+  OrderLineCommercialSnapshot: 'OrderLineCommercialSnapshot',
+  ImportRoute: 'ImportRoute',
+  DisputeCaseProfile: 'DisputeCaseProfile',
+  DisputeEvidenceRequest: 'DisputeEvidenceRequest',
+  DisputeRemedyAction: 'DisputeRemedyAction',
+  DisputeTestingRecord: 'DisputeTestingRecord',
+  LossRecovery: 'LossRecovery',
+  CommissionAdjustment: 'CommissionAdjustment',
+  CertificationProgramme: 'CertificationProgramme',
+  CertificationCostEntry: 'CertificationCostEntry',
+  CertificationRecoveryAllocation: 'CertificationRecoveryAllocation',
+  SellerSecuritySchedule: 'SellerSecuritySchedule',
+  SecurityReview: 'SecurityReview',
+  InsurancePolicyRecord: 'InsurancePolicyRecord',
+  ProductComplianceEvidence: 'ProductComplianceEvidence',
+  SafetyCase: 'SafetyCase',
+  SafetyCaseScope: 'SafetyCaseScope',
+  SafetyCaseAction: 'SafetyCaseAction',
+  RecallRehearsal: 'RecallRehearsal',
+  LaunchReadinessItem: 'LaunchReadinessItem',
+  CountryLaunch: 'CountryLaunch',
+  FreightBooking: 'FreightBooking',
+  FreightQuoteOption: 'FreightQuoteOption',
+  LogisticsProviderReview: 'LogisticsProviderReview',
+  HandlingRequirement: 'HandlingRequirement',
+  DispatchEvidence: 'DispatchEvidence',
+  CustodyHandover: 'CustodyHandover',
+  PartialShipmentApproval: 'PartialShipmentApproval',
+  ReturnAuthorization: 'ReturnAuthorization',
+  OrderPaymentPlan: 'OrderPaymentPlan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -3412,6 +3475,9 @@ export const SellerAccountScalarFieldEnum = {
   commissionBasisPoints: 'commissionBasisPoints',
   feeTier: 'feeTier',
   qualityScore: 'qualityScore',
+  auditBadge: 'auditBadge',
+  auditBadgeSetAt: 'auditBadgeSetAt',
+  auditBadgeVersion: 'auditBadgeVersion',
   submittedAt: 'submittedAt',
   reviewedAt: 'reviewedAt',
   approvedAt: 'approvedAt',
@@ -4954,6 +5020,7 @@ export const LogisticsProofOfDeliveryScalarFieldEnum = {
   signatureDocumentId: 'signatureDocumentId',
   photoDocumentId: 'photoDocumentId',
   exceptionNote: 'exceptionNote',
+  quantitiesJson: 'quantitiesJson',
   capturedByPartnerUserId: 'capturedByPartnerUserId',
   capturedBySource: 'capturedBySource',
   createdAt: 'createdAt',
@@ -6999,6 +7066,8 @@ export const ConsentRecordScalarFieldEnum = {
   scope: 'scope',
   activeDocumentId: 'activeDocumentId',
   clearedAt: 'clearedAt',
+  sellerAccountId: 'sellerAccountId',
+  activeCompanyKey: 'activeCompanyKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -9061,6 +9130,7 @@ export const AuditStaffMemberScalarFieldEnum = {
   fullName: 'fullName',
   jobTitle: 'jobTitle',
   competenceCategoryIdsJson: 'competenceCategoryIdsJson',
+  assessmentCapabilitiesJson: 'assessmentCapabilitiesJson',
   invitedByUserId: 'invitedByUserId',
   activatedAt: 'activatedAt',
   disabledAt: 'disabledAt',
@@ -9262,6 +9332,1524 @@ export const InspectionSubLotReleaseScalarFieldEnum = {
 } as const
 
 export type InspectionSubLotReleaseScalarFieldEnum = (typeof InspectionSubLotReleaseScalarFieldEnum)[keyof typeof InspectionSubLotReleaseScalarFieldEnum]
+
+
+export const SellerBadgeChangeScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  fromTier: 'fromTier',
+  toTier: 'toTier',
+  reason: 'reason',
+  changedByUserId: 'changedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerBadgeChangeScalarFieldEnum = (typeof SellerBadgeChangeScalarFieldEnum)[keyof typeof SellerBadgeChangeScalarFieldEnum]
+
+
+export const ShipmentAssessmentPolicyScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  platinumRule: 'platinumRule',
+  goldRule: 'goldRule',
+  silverRule: 'silverRule',
+  bronzeRule: 'bronzeRule',
+  unbadgedRule: 'unbadgedRule',
+  defaultDispatchDays: 'defaultDispatchDays',
+  maxDispatchDays: 'maxDispatchDays',
+  sellerCertificateMonths: 'sellerCertificateMonths',
+  note: 'note',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentPolicyScalarFieldEnum = (typeof ShipmentAssessmentPolicyScalarFieldEnum)[keyof typeof ShipmentAssessmentPolicyScalarFieldEnum]
+
+
+export const ShipmentAssessmentScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  status: 'status',
+  requirement: 'requirement',
+  requirementReason: 'requirementReason',
+  mandatoryInspection: 'mandatoryInspection',
+  mandatoryReason: 'mandatoryReason',
+  applicabilityKnown: 'applicabilityKnown',
+  badgeAtEvaluation: 'badgeAtEvaluation',
+  policyVersion: 'policyVersion',
+  evaluatedAt: 'evaluatedAt',
+  currentRound: 'currentRound',
+  assessorUserId: 'assessorUserId',
+  qaReviewerUserId: 'qaReviewerUserId',
+  l1LegId: 'l1LegId',
+  l2LegId: 'l2LegId',
+  l1CompletedAt: 'l1CompletedAt',
+  l1Location: 'l1Location',
+  plannedL2At: 'plannedL2At',
+  scopeFingerprint: 'scopeFingerprint',
+  existingAtRollout: 'existingAtRollout',
+  readinessNote: 'readinessNote',
+  readinessSubmittedAt: 'readinessSubmittedAt',
+  sellerResponse: 'sellerResponse',
+  sellerRespondedAt: 'sellerRespondedAt',
+  holdReason: 'holdReason',
+  loadingChecksCompletedAt: 'loadingChecksCompletedAt',
+  dispatchedAt: 'dispatchedAt',
+  cancelledAt: 'cancelledAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentScalarFieldEnum = (typeof ShipmentAssessmentScalarFieldEnum)[keyof typeof ShipmentAssessmentScalarFieldEnum]
+
+
+export const ShipmentAssessmentRoundScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  round: 'round',
+  kind: 'kind',
+  checklistVersion: 'checklistVersion',
+  categoryPlanId: 'categoryPlanId',
+  categoryPlanVersion: 'categoryPlanVersion',
+  checklistJson: 'checklistJson',
+  assessorUserId: 'assessorUserId',
+  startedAt: 'startedAt',
+  submittedAt: 'submittedAt',
+  inspectionLocation: 'inspectionLocation',
+  orderedQuantity: 'orderedQuantity',
+  declaredQuantity: 'declaredQuantity',
+  presentedQuantity: 'presentedQuantity',
+  countedQuantity: 'countedQuantity',
+  sampledQuantity: 'sampledQuantity',
+  approvedQuantity: 'approvedQuantity',
+  sellingUnit: 'sellingUnit',
+  unitsPerPackage: 'unitsPerPackage',
+  packagesDeclared: 'packagesDeclared',
+  packagesCounted: 'packagesCounted',
+  grossWeightDeclaredGrams: 'grossWeightDeclaredGrams',
+  grossWeightMeasuredGrams: 'grossWeightMeasuredGrams',
+  countingMethod: 'countingMethod',
+  samplingMethod: 'samplingMethod',
+  sampleCoverageNote: 'sampleCoverageNote',
+  outcome: 'outcome',
+  findingsSummary: 'findingsSummary',
+  qaReviewerUserId: 'qaReviewerUserId',
+  qaDecision: 'qaDecision',
+  qaNote: 'qaNote',
+  qaDecidedAt: 'qaDecidedAt',
+  correctiveAction: 'correctiveAction',
+  correctiveActionAt: 'correctiveActionAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentRoundScalarFieldEnum = (typeof ShipmentAssessmentRoundScalarFieldEnum)[keyof typeof ShipmentAssessmentRoundScalarFieldEnum]
+
+
+export const ShipmentAssessmentCheckScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  round: 'round',
+  itemCode: 'itemCode',
+  section: 'section',
+  phase: 'phase',
+  outcome: 'outcome',
+  note: 'note',
+  measuredValue: 'measuredValue',
+  sampled: 'sampled',
+  recordedByUserId: 'recordedByUserId',
+  recordedByRole: 'recordedByRole',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentCheckScalarFieldEnum = (typeof ShipmentAssessmentCheckScalarFieldEnum)[keyof typeof ShipmentAssessmentCheckScalarFieldEnum]
+
+
+export const ShipmentAssessmentEvidenceScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  round: 'round',
+  itemCode: 'itemCode',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByRole: 'uploadedByRole',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentEvidenceScalarFieldEnum = (typeof ShipmentAssessmentEvidenceScalarFieldEnum)[keyof typeof ShipmentAssessmentEvidenceScalarFieldEnum]
+
+
+export const ShipmentAssessmentEventScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorRole: 'actorRole',
+  actorUserId: 'actorUserId',
+  note: 'note',
+  dataJson: 'dataJson',
+  occurredAt: 'occurredAt',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentEventScalarFieldEnum = (typeof ShipmentAssessmentEventScalarFieldEnum)[keyof typeof ShipmentAssessmentEventScalarFieldEnum]
+
+
+export const ShipmentWaiverDecisionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  decision: 'decision',
+  badgeAtDecision: 'badgeAtDecision',
+  badgeVersion: 'badgeVersion',
+  policyVersion: 'policyVersion',
+  historyReviewNote: 'historyReviewNote',
+  historySnapshotJson: 'historySnapshotJson',
+  reason: 'reason',
+  evidenceRefsJson: 'evidenceRefsJson',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  invalidatedAt: 'invalidatedAt',
+  invalidationReason: 'invalidationReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentWaiverDecisionScalarFieldEnum = (typeof ShipmentWaiverDecisionScalarFieldEnum)[keyof typeof ShipmentWaiverDecisionScalarFieldEnum]
+
+
+export const ShipmentReleaseAuthorizationScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  round: 'round',
+  waiverDecisionId: 'waiverDecisionId',
+  status: 'status',
+  activeSlot: 'activeSlot',
+  scopeFingerprint: 'scopeFingerprint',
+  badgeAtIssue: 'badgeAtIssue',
+  badgeVersion: 'badgeVersion',
+  policyVersion: 'policyVersion',
+  dispatchDeadline: 'dispatchDeadline',
+  deadlineJustification: 'deadlineJustification',
+  loadingChecksRequired: 'loadingChecksRequired',
+  issuedByUserId: 'issuedByUserId',
+  issuedAt: 'issuedAt',
+  consumedAt: 'consumedAt',
+  consumedLegId: 'consumedLegId',
+  invalidatedAt: 'invalidatedAt',
+  invalidationReason: 'invalidationReason',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentReleaseAuthorizationScalarFieldEnum = (typeof ShipmentReleaseAuthorizationScalarFieldEnum)[keyof typeof ShipmentReleaseAuthorizationScalarFieldEnum]
+
+
+export const ShipmentAssessmentExceptionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  logisticsShipmentId: 'logisticsShipmentId',
+  shipmentEventId: 'shipmentEventId',
+  detail: 'detail',
+  occurredAt: 'occurredAt',
+  resolvedAt: 'resolvedAt',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionNote: 'resolutionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentAssessmentExceptionScalarFieldEnum = (typeof ShipmentAssessmentExceptionScalarFieldEnum)[keyof typeof ShipmentAssessmentExceptionScalarFieldEnum]
+
+
+export const AuditDocumentScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  kind: 'kind',
+  version: 'version',
+  supersedesId: 'supersedesId',
+  status: 'status',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  round: 'round',
+  releaseId: 'releaseId',
+  scopeJson: 'scopeJson',
+  detailJson: 'detailJson',
+  issuedAt: 'issuedAt',
+  validUntil: 'validUntil',
+  dispatchBy: 'dispatchBy',
+  signedByUserId: 'signedByUserId',
+  signedByName: 'signedByName',
+  signedByRole: 'signedByRole',
+  signingMechanism: 'signingMechanism',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  byteSize: 'byteSize',
+  pageCount: 'pageCount',
+  statusChangedAt: 'statusChangedAt',
+  revokedByUserId: 'revokedByUserId',
+  revokedReason: 'revokedReason',
+  reminderSentAt: 'reminderSentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuditDocumentScalarFieldEnum = (typeof AuditDocumentScalarFieldEnum)[keyof typeof AuditDocumentScalarFieldEnum]
+
+
+export const SellerAssessmentPolicyScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  status: 'status',
+  configJson: 'configJson',
+  sourceDocument: 'sourceDocument',
+  note: 'note',
+  createdByUserId: 'createdByUserId',
+  effectiveFrom: 'effectiveFrom',
+  adoptedByUserId: 'adoptedByUserId',
+  adoptedAt: 'adoptedAt',
+  adoptionReference: 'adoptionReference',
+  disclosedAt: 'disclosedAt',
+  disclosureReference: 'disclosureReference',
+  retiredAt: 'retiredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentPolicyScalarFieldEnum = (typeof SellerAssessmentPolicyScalarFieldEnum)[keyof typeof SellerAssessmentPolicyScalarFieldEnum]
+
+
+export const SellerAssessmentScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  status: 'status',
+  policyVersion: 'policyVersion',
+  applicationJson: 'applicationJson',
+  applicationRevision: 'applicationRevision',
+  ownerUserId: 'ownerUserId',
+  riskLevel: 'riskLevel',
+  submittedAt: 'submittedAt',
+  fileCompleteAt: 'fileCompleteAt',
+  reviewTargetAt: 'reviewTargetAt',
+  correctionNote: 'correctionNote',
+  scoreTimesFive: 'scoreTimesFive',
+  scoreBand: 'scoreBand',
+  hardStopsJson: 'hardStopsJson',
+  decision: 'decision',
+  decisionReason: 'decisionReason',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  baseApprovalId: 'baseApprovalId',
+  legacyNote: 'legacyNote',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentScalarFieldEnum = (typeof SellerAssessmentScalarFieldEnum)[keyof typeof SellerAssessmentScalarFieldEnum]
+
+
+export const SellerAssessmentGateScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  gate: 'gate',
+  status: 'status',
+  assignedUserId: 'assignedUserId',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  reason: 'reason',
+  policyVersion: 'policyVersion',
+  evidenceIdsJson: 'evidenceIdsJson',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerAssessmentGateScalarFieldEnum = (typeof SellerAssessmentGateScalarFieldEnum)[keyof typeof SellerAssessmentGateScalarFieldEnum]
+
+
+export const SellerAssessmentChecklistItemScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  code: 'code',
+  outcome: 'outcome',
+  evidenceRef: 'evidenceRef',
+  reviewerUserId: 'reviewerUserId',
+  reviewedAt: 'reviewedAt',
+  expiresOn: 'expiresOn',
+  comment: 'comment',
+  naReason: 'naReason',
+  naApprovedByUserId: 'naApprovedByUserId',
+  naApprovedAt: 'naApprovedAt',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerAssessmentChecklistItemScalarFieldEnum = (typeof SellerAssessmentChecklistItemScalarFieldEnum)[keyof typeof SellerAssessmentChecklistItemScalarFieldEnum]
+
+
+export const SellerAssessmentScoreScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  dimension: 'dimension',
+  rating: 'rating',
+  evidenceRef: 'evidenceRef',
+  reasoning: 'reasoning',
+  ratedByUserId: 'ratedByUserId',
+  ratedAt: 'ratedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentScoreScalarFieldEnum = (typeof SellerAssessmentScoreScalarFieldEnum)[keyof typeof SellerAssessmentScoreScalarFieldEnum]
+
+
+export const SellerAssessmentEvidenceScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  category: 'category',
+  evidenceKey: 'evidenceKey',
+  label: 'label',
+  evidenceVersion: 'evidenceVersion',
+  supersedesId: 'supersedesId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByRole: 'uploadedByRole',
+  retentionCategory: 'retentionCategory',
+  legalHold: 'legalHold',
+  legalHoldReason: 'legalHoldReason',
+  legalHoldByUserId: 'legalHoldByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentEvidenceScalarFieldEnum = (typeof SellerAssessmentEvidenceScalarFieldEnum)[keyof typeof SellerAssessmentEvidenceScalarFieldEnum]
+
+
+export const SellerAssessmentScopeItemScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  productKey: 'productKey',
+  offerId: 'offerId',
+  productName: 'productName',
+  productVersion: 'productVersion',
+  intendedUse: 'intendedUse',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  channel: 'channel',
+  catalogueCategory: 'catalogueCategory',
+  hsProposal: 'hsProposal',
+  regulatoryClass: 'regulatoryClass',
+  requiredTests: 'requiredTests',
+  authorisations: 'authorisations',
+  authorisationExpiresOn: 'authorisationExpiresOn',
+  localResponsible: 'localResponsible',
+  importerLicence: 'importerLicence',
+  labelsLanguages: 'labelsLanguages',
+  warnings: 'warnings',
+  restrictions: 'restrictions',
+  recallObligations: 'recallObligations',
+  shippingInsurance: 'shippingInsurance',
+  decision: 'decision',
+  decisionReason: 'decisionReason',
+  classifiedByUserId: 'classifiedByUserId',
+  classifiedAt: 'classifiedAt',
+  nextReviewAt: 'nextReviewAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentScopeItemScalarFieldEnum = (typeof SellerAssessmentScopeItemScalarFieldEnum)[keyof typeof SellerAssessmentScopeItemScalarFieldEnum]
+
+
+export const SellerAssessmentFindingScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  classification: 'classification',
+  requirement: 'requirement',
+  evidence: 'evidence',
+  containment: 'containment',
+  rootCause: 'rootCause',
+  correctiveAction: 'correctiveAction',
+  preventiveAction: 'preventiveAction',
+  ownerName: 'ownerName',
+  raisedAt: 'raisedAt',
+  containmentDueAt: 'containmentDueAt',
+  planDueAt: 'planDueAt',
+  closureDueAt: 'closureDueAt',
+  status: 'status',
+  closureEvidenceIdsJson: 'closureEvidenceIdsJson',
+  effectivenessVerification: 'effectivenessVerification',
+  raisedByUserId: 'raisedByUserId',
+  closedByUserId: 'closedByUserId',
+  closedAt: 'closedAt',
+  version: 'version',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerAssessmentFindingScalarFieldEnum = (typeof SellerAssessmentFindingScalarFieldEnum)[keyof typeof SellerAssessmentFindingScalarFieldEnum]
+
+
+export const SellerAssessmentWorkpaperScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  subjectRef: 'subjectRef',
+  mode: 'mode',
+  payloadJson: 'payloadJson',
+  revision: 'revision',
+  supersedesId: 'supersedesId',
+  recordedByUserId: 'recordedByUserId',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentWorkpaperScalarFieldEnum = (typeof SellerAssessmentWorkpaperScalarFieldEnum)[keyof typeof SellerAssessmentWorkpaperScalarFieldEnum]
+
+
+export const SellerExternalCertificationScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  bodyName: 'bodyName',
+  scheme: 'scheme',
+  appointedByUserId: 'appointedByUserId',
+  appointedAt: 'appointedAt',
+  procurementRef: 'procurementRef',
+  paymentRef: 'paymentRef',
+  accreditationBody: 'accreditationBody',
+  accreditationNumber: 'accreditationNumber',
+  accreditationVerified: 'accreditationVerified',
+  sectorScope: 'sectorScope',
+  legalRecognition: 'legalRecognition',
+  conflictCheck: 'conflictCheck',
+  independenceVerified: 'independenceVerified',
+  facilityRefsJson: 'facilityRefsJson',
+  productKeysJson: 'productKeysJson',
+  certificateNumber: 'certificateNumber',
+  issuer: 'issuer',
+  authenticityMethod: 'authenticityMethod',
+  authenticityReference: 'authenticityReference',
+  authenticatedByUserId: 'authenticatedByUserId',
+  authenticatedAt: 'authenticatedAt',
+  issuedOn: 'issuedOn',
+  expiresOn: 'expiresOn',
+  surveillanceConditions: 'surveillanceConditions',
+  status: 'status',
+  statusReason: 'statusReason',
+  version: 'version',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerExternalCertificationScalarFieldEnum = (typeof SellerExternalCertificationScalarFieldEnum)[keyof typeof SellerExternalCertificationScalarFieldEnum]
+
+
+export const SellerTradingApprovalScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  version: 'version',
+  supersedesId: 'supersedesId',
+  status: 'status',
+  policyVersion: 'policyVersion',
+  policyStatusAtRelease: 'policyStatusAtRelease',
+  externalCertificationId: 'externalCertificationId',
+  recordJson: 'recordJson',
+  scoreTimesFive: 'scoreTimesFive',
+  issuedAt: 'issuedAt',
+  validUntil: 'validUntil',
+  nextReviewAt: 'nextReviewAt',
+  releaseApproverUserId: 'releaseApproverUserId',
+  auditDocumentId: 'auditDocumentId',
+  statusReason: 'statusReason',
+  statusChangedAt: 'statusChangedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerTradingApprovalScalarFieldEnum = (typeof SellerTradingApprovalScalarFieldEnum)[keyof typeof SellerTradingApprovalScalarFieldEnum]
+
+
+export const SellerTradingApprovalScopeScalarFieldEnum = {
+  id: 'id',
+  approvalId: 'approvalId',
+  sellerAccountId: 'sellerAccountId',
+  scopeItemId: 'scopeItemId',
+  offerId: 'offerId',
+  productKey: 'productKey',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  channel: 'channel',
+  status: 'status',
+  validUntil: 'validUntil',
+  scheduleJson: 'scheduleJson',
+  blockedReason: 'blockedReason',
+  blockedAt: 'blockedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerTradingApprovalScopeScalarFieldEnum = (typeof SellerTradingApprovalScopeScalarFieldEnum)[keyof typeof SellerTradingApprovalScopeScalarFieldEnum]
+
+
+export const SellerAssessmentEventScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  kind: 'kind',
+  actorUserId: 'actorUserId',
+  actorRole: 'actorRole',
+  capability: 'capability',
+  reason: 'reason',
+  policyVersion: 'policyVersion',
+  evidenceRefsJson: 'evidenceRefsJson',
+  dataJson: 'dataJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentEventScalarFieldEnum = (typeof SellerAssessmentEventScalarFieldEnum)[keyof typeof SellerAssessmentEventScalarFieldEnum]
+
+
+export const SellerAssessmentNoticeScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  hardStop: 'hardStop',
+  scopeIdsJson: 'scopeIdsJson',
+  wholeSeller: 'wholeSeller',
+  reason: 'reason',
+  shareableEvidence: 'shareableEvidence',
+  affectedOrdersJson: 'affectedOrdersJson',
+  settlementTreatment: 'settlementTreatment',
+  correctiveActions: 'correctiveActions',
+  reviewRoute: 'reviewRoute',
+  issuedByUserId: 'issuedByUserId',
+  issuedAt: 'issuedAt',
+  appealDeadline: 'appealDeadline',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentNoticeScalarFieldEnum = (typeof SellerAssessmentNoticeScalarFieldEnum)[keyof typeof SellerAssessmentNoticeScalarFieldEnum]
+
+
+export const SellerAssessmentAppealScalarFieldEnum = {
+  id: 'id',
+  noticeId: 'noticeId',
+  sellerAccountId: 'sellerAccountId',
+  grounds: 'grounds',
+  evidenceRef: 'evidenceRef',
+  submittedByProfileId: 'submittedByProfileId',
+  submittedAt: 'submittedAt',
+  targetBy: 'targetBy',
+  reviewerUserId: 'reviewerUserId',
+  status: 'status',
+  outcomeReason: 'outcomeReason',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentAppealScalarFieldEnum = (typeof SellerAssessmentAppealScalarFieldEnum)[keyof typeof SellerAssessmentAppealScalarFieldEnum]
+
+
+export const SellerAssessmentChangeRequestScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  kind: 'kind',
+  description: 'description',
+  plannedFrom: 'plannedFrom',
+  undisclosed: 'undisclosed',
+  submittedByProfileId: 'submittedByProfileId',
+  recordedByUserId: 'recordedByUserId',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  decisionReason: 'decisionReason',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerAssessmentChangeRequestScalarFieldEnum = (typeof SellerAssessmentChangeRequestScalarFieldEnum)[keyof typeof SellerAssessmentChangeRequestScalarFieldEnum]
+
+
+export const SellerIncidentReportScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  severity: 'severity',
+  description: 'description',
+  affectedProducts: 'affectedProducts',
+  awareAt: 'awareAt',
+  reportedAt: 'reportedAt',
+  deadlineHours: 'deadlineHours',
+  statutoryDeadlineHours: 'statutoryDeadlineHours',
+  late: 'late',
+  submittedByProfileId: 'submittedByProfileId',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  reviewNote: 'reviewNote',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerIncidentReportScalarFieldEnum = (typeof SellerIncidentReportScalarFieldEnum)[keyof typeof SellerIncidentReportScalarFieldEnum]
+
+
+export const SellerOrderDispositionScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  noticeId: 'noticeId',
+  trigger: 'trigger',
+  triggerKey: 'triggerKey',
+  reason: 'reason',
+  status: 'status',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerOrderDispositionScalarFieldEnum = (typeof SellerOrderDispositionScalarFieldEnum)[keyof typeof SellerOrderDispositionScalarFieldEnum]
+
+
+export const SellerBankChangeRequestScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  beneficiaryName: 'beneficiaryName',
+  accountLast4: 'accountLast4',
+  bankCode: 'bankCode',
+  evidenceRef: 'evidenceRef',
+  requestedByProfileId: 'requestedByProfileId',
+  requestedAt: 'requestedAt',
+  knownContactName: 'knownContactName',
+  knownContactSource: 'knownContactSource',
+  contactConfirmedByUserId: 'contactConfirmedByUserId',
+  contactConfirmedAt: 'contactConfirmedAt',
+  firstApproverUserId: 'firstApproverUserId',
+  firstApprovedAt: 'firstApprovedAt',
+  secondApproverUserId: 'secondApproverUserId',
+  secondApprovedAt: 'secondApprovedAt',
+  status: 'status',
+  reason: 'reason',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerBankChangeRequestScalarFieldEnum = (typeof SellerBankChangeRequestScalarFieldEnum)[keyof typeof SellerBankChangeRequestScalarFieldEnum]
+
+
+export const SellerSurveillanceTaskScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  kind: 'kind',
+  subjectRef: 'subjectRef',
+  dueAt: 'dueAt',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  outcome: 'outcome',
+  note: 'note',
+  completedByUserId: 'completedByUserId',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerSurveillanceTaskScalarFieldEnum = (typeof SellerSurveillanceTaskScalarFieldEnum)[keyof typeof SellerSurveillanceTaskScalarFieldEnum]
+
+
+export const CommercialScheduleScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  version: 'version',
+  status: 'status',
+  title: 'title',
+  sourceDocument: 'sourceDocument',
+  scopeJson: 'scopeJson',
+  bodyJson: 'bodyJson',
+  effectiveFrom: 'effectiveFrom',
+  effectiveUntil: 'effectiveUntil',
+  scheduleReference: 'scheduleReference',
+  preparedById: 'preparedById',
+  submittedAt: 'submittedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  approvalEvidence: 'approvalEvidence',
+  providerConfirmationRef: 'providerConfirmationRef',
+  providerConfirmedAt: 'providerConfirmedAt',
+  activatedById: 'activatedById',
+  activatedAt: 'activatedAt',
+  retiredAt: 'retiredAt',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommercialScheduleScalarFieldEnum = (typeof CommercialScheduleScalarFieldEnum)[keyof typeof CommercialScheduleScalarFieldEnum]
+
+
+export const CommercialScheduleEventScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  kind: 'kind',
+  actorUserId: 'actorUserId',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommercialScheduleEventScalarFieldEnum = (typeof CommercialScheduleEventScalarFieldEnum)[keyof typeof CommercialScheduleEventScalarFieldEnum]
+
+
+export const OrderLineCommercialSnapshotScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  manufacturerName: 'manufacturerName',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  approvalScopeId: 'approvalScopeId',
+  sellerCountry: 'sellerCountry',
+  destinationCountry: 'destinationCountry',
+  channel: 'channel',
+  departmentSlug: 'departmentSlug',
+  deliveryTerm: 'deliveryTerm',
+  namedPlace: 'namedPlace',
+  importerOfRecord: 'importerOfRecord',
+  importRouteId: 'importRouteId',
+  localActorsJson: 'localActorsJson',
+  titleTransferPoint: 'titleTransferPoint',
+  riskTransferPoint: 'riskTransferPoint',
+  promisedDeliveryFrom: 'promisedDeliveryFrom',
+  promisedDeliveryTo: 'promisedDeliveryTo',
+  technicalAcceptanceDays: 'technicalAcceptanceDays',
+  leadTimeDays: 'leadTimeDays',
+  returnRoute: 'returnRoute',
+  packagingNote: 'packagingNote',
+  transportRestrictionsJson: 'transportRestrictionsJson',
+  insuranceJson: 'insuranceJson',
+  paymentMilestonesJson: 'paymentMilestonesJson',
+  goodsMinor: 'goodsMinor',
+  sellerFundedDiscountMinor: 'sellerFundedDiscountMinor',
+  platformFundedDiscountMinor: 'platformFundedDiscountMinor',
+  taxMinor: 'taxMinor',
+  chargesJson: 'chargesJson',
+  currency: 'currency',
+  commissionBaseMinor: 'commissionBaseMinor',
+  commissionBps: 'commissionBps',
+  commissionMinor: 'commissionMinor',
+  commissionSource: 'commissionSource',
+  commissionRuleVersion: 'commissionRuleVersion',
+  rounding: 'rounding',
+  certificationAllocationId: 'certificationAllocationId',
+  certificationChargeMinor: 'certificationChargeMinor',
+  policyVersionsJson: 'policyVersionsJson',
+  controlGapsJson: 'controlGapsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderLineCommercialSnapshotScalarFieldEnum = (typeof OrderLineCommercialSnapshotScalarFieldEnum)[keyof typeof OrderLineCommercialSnapshotScalarFieldEnum]
+
+
+export const ImportRouteScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  categoryId: 'categoryId',
+  categoryKey: 'categoryKey',
+  channel: 'channel',
+  importerParty: 'importerParty',
+  importerName: 'importerName',
+  localActorsJson: 'localActorsJson',
+  regulatedCategory: 'regulatedCategory',
+  status: 'status',
+  evidence: 'evidence',
+  preparedById: 'preparedById',
+  reviewerUserId: 'reviewerUserId',
+  reviewedAt: 'reviewedAt',
+  validUntil: 'validUntil',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ImportRouteScalarFieldEnum = (typeof ImportRouteScalarFieldEnum)[keyof typeof ImportRouteScalarFieldEnum]
+
+
+export const DisputeCaseProfileScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  category: 'category',
+  urgency: 'urgency',
+  market: 'market',
+  channel: 'channel',
+  affectedQuantity: 'affectedQuantity',
+  lotsOrSerialsJson: 'lotsOrSerialsJson',
+  shipmentId: 'shipmentId',
+  paymentTransactionId: 'paymentTransactionId',
+  lateIntake: 'lateIntake',
+  lateIntakeReason: 'lateIntakeReason',
+  lateExplanation: 'lateExplanation',
+  statutoryBasis: 'statutoryBasis',
+  calendarTimeZone: 'calendarTimeZone',
+  acknowledgementDueAt: 'acknowledgementDueAt',
+  acknowledgedAt: 'acknowledgedAt',
+  acknowledgedById: 'acknowledgedById',
+  evidenceSufficientAt: 'evidenceSufficientAt',
+  evidenceSufficientById: 'evidenceSufficientById',
+  evidenceSufficientReason: 'evidenceSufficientReason',
+  initialDecisionDueAt: 'initialDecisionDueAt',
+  appealReviewDueAt: 'appealReviewDueAt',
+  appealReviewerId: 'appealReviewerId',
+  decisionParticipantsJson: 'decisionParticipantsJson',
+  reasonedDecisionJson: 'reasonedDecisionJson',
+  safetyCaseId: 'safetyCaseId',
+  escalatedOverdueAt: 'escalatedOverdueAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisputeCaseProfileScalarFieldEnum = (typeof DisputeCaseProfileScalarFieldEnum)[keyof typeof DisputeCaseProfileScalarFieldEnum]
+
+
+export const DisputeEvidenceRequestScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  requestedFrom: 'requestedFrom',
+  purpose: 'purpose',
+  description: 'description',
+  proportionalityNote: 'proportionalityNote',
+  dueAt: 'dueAt',
+  status: 'status',
+  responseNote: 'responseNote',
+  respondedAt: 'respondedAt',
+  requestedById: 'requestedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisputeEvidenceRequestScalarFieldEnum = (typeof DisputeEvidenceRequestScalarFieldEnum)[keyof typeof DisputeEvidenceRequestScalarFieldEnum]
+
+
+export const DisputeRemedyActionScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  kind: 'kind',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  payer: 'payer',
+  returnFreightPayer: 'returnFreightPayer',
+  quantity: 'quantity',
+  expectedCompletionAt: 'expectedCompletionAt',
+  status: 'status',
+  completedAt: 'completedAt',
+  refundId: 'refundId',
+  note: 'note',
+  decidedById: 'decidedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisputeRemedyActionScalarFieldEnum = (typeof DisputeRemedyActionScalarFieldEnum)[keyof typeof DisputeRemedyActionScalarFieldEnum]
+
+
+export const DisputeTestingRecordScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  laboratory: 'laboratory',
+  protocol: 'protocol',
+  agreedByBuyer: 'agreedByBuyer',
+  agreedBySeller: 'agreedBySeller',
+  interimPayer: 'interimPayer',
+  costMinor: 'costMinor',
+  currency: 'currency',
+  sampleCustody: 'sampleCustody',
+  resultSummary: 'resultSummary',
+  finalPayer: 'finalPayer',
+  finalAllocationReason: 'finalAllocationReason',
+  status: 'status',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisputeTestingRecordScalarFieldEnum = (typeof DisputeTestingRecordScalarFieldEnum)[keyof typeof DisputeTestingRecordScalarFieldEnum]
+
+
+export const LossRecoveryScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  disputeId: 'disputeId',
+  lossKey: 'lossKey',
+  lossMinor: 'lossMinor',
+  source: 'source',
+  sourceReference: 'sourceReference',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  status: 'status',
+  overlapNote: 'overlapNote',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LossRecoveryScalarFieldEnum = (typeof LossRecoveryScalarFieldEnum)[keyof typeof LossRecoveryScalarFieldEnum]
+
+
+export const CommissionAdjustmentScalarFieldEnum = {
+  id: 'id',
+  refundId: 'refundId',
+  orderItemId: 'orderItemId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  refundedGoodsMinor: 'refundedGoodsMinor',
+  reversedMinor: 'reversedMinor',
+  currency: 'currency',
+  basis: 'basis',
+  fault: 'fault',
+  status: 'status',
+  appliedById: 'appliedById',
+  appliedAt: 'appliedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommissionAdjustmentScalarFieldEnum = (typeof CommissionAdjustmentScalarFieldEnum)[keyof typeof CommissionAdjustmentScalarFieldEnum]
+
+
+export const CertificationProgrammeScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  sellerAccountId: 'sellerAccountId',
+  title: 'title',
+  currency: 'currency',
+  capBps: 'capBps',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  fxPolicy: 'fxPolicy',
+  scheduleId: 'scheduleId',
+  eligibleCostMinor: 'eligibleCostMinor',
+  reservedMinor: 'reservedMinor',
+  confirmedMinor: 'confirmedMinor',
+  refundedMinor: 'refundedMinor',
+  creditedMinor: 'creditedMinor',
+  version: 'version',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CertificationProgrammeScalarFieldEnum = (typeof CertificationProgrammeScalarFieldEnum)[keyof typeof CertificationProgrammeScalarFieldEnum]
+
+
+export const CertificationCostEntryScalarFieldEnum = {
+  id: 'id',
+  programmeId: 'programmeId',
+  kind: 'kind',
+  externalReference: 'externalReference',
+  supplierName: 'supplierName',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  originalAmountMinor: 'originalAmountMinor',
+  originalCurrency: 'originalCurrency',
+  fxRate: 'fxRate',
+  eligible: 'eligible',
+  verifiedById: 'verifiedById',
+  verifiedAt: 'verifiedAt',
+  evidence: 'evidence',
+  fundedBy: 'fundedBy',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CertificationCostEntryScalarFieldEnum = (typeof CertificationCostEntryScalarFieldEnum)[keyof typeof CertificationCostEntryScalarFieldEnum]
+
+
+export const CertificationRecoveryAllocationScalarFieldEnum = {
+  id: 'id',
+  programmeId: 'programmeId',
+  quoteKey: 'quoteKey',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  netGoodsMinor: 'netGoodsMinor',
+  amountMinor: 'amountMinor',
+  refundedMinor: 'refundedMinor',
+  currency: 'currency',
+  status: 'status',
+  reservedUntil: 'reservedUntil',
+  confirmedAt: 'confirmedAt',
+  releasedAt: 'releasedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CertificationRecoveryAllocationScalarFieldEnum = (typeof CertificationRecoveryAllocationScalarFieldEnum)[keyof typeof CertificationRecoveryAllocationScalarFieldEnum]
+
+
+export const SellerSecurityScheduleScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  tier: 'tier',
+  form: 'form',
+  reserveBps: 'reserveBps',
+  holdDays: 'holdDays',
+  guaranteeMinor: 'guaranteeMinor',
+  depositMinor: 'depositMinor',
+  capMinor: 'capMinor',
+  currency: 'currency',
+  exposureBasis: 'exposureBasis',
+  documentedExposureMinor: 'documentedExposureMinor',
+  permittedUsesJson: 'permittedUsesJson',
+  noticeTerms: 'noticeTerms',
+  disputeRoute: 'disputeRoute',
+  providerPermissionRef: 'providerPermissionRef',
+  scheduleReference: 'scheduleReference',
+  status: 'status',
+  preparedById: 'preparedById',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  activatedAt: 'activatedAt',
+  endedAt: 'endedAt',
+  nextMonthlyReviewAt: 'nextMonthlyReviewAt',
+  nextQuarterlyReviewAt: 'nextQuarterlyReviewAt',
+  satisfactorySince: 'satisfactorySince',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerSecurityScheduleScalarFieldEnum = (typeof SellerSecurityScheduleScalarFieldEnum)[keyof typeof SellerSecurityScheduleScalarFieldEnum]
+
+
+export const SecurityReviewScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  kind: 'kind',
+  periodKey: 'periodKey',
+  heldMinor: 'heldMinor',
+  exposureMinor: 'exposureMinor',
+  excessMinor: 'excessMinor',
+  outcome: 'outcome',
+  note: 'note',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  dueAt: 'dueAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SecurityReviewScalarFieldEnum = (typeof SecurityReviewScalarFieldEnum)[keyof typeof SecurityReviewScalarFieldEnum]
+
+
+export const InsurancePolicyRecordScalarFieldEnum = {
+  id: 'id',
+  holderType: 'holderType',
+  sellerAccountId: 'sellerAccountId',
+  coverType: 'coverType',
+  riskGroup: 'riskGroup',
+  insurer: 'insurer',
+  policyNumber: 'policyNumber',
+  insuredEntity: 'insuredEntity',
+  additionalInsured: 'additionalInsured',
+  sitesJson: 'sitesJson',
+  productsJson: 'productsJson',
+  territoriesJson: 'territoriesJson',
+  currency: 'currency',
+  perOccurrenceMinor: 'perOccurrenceMinor',
+  aggregateMinor: 'aggregateMinor',
+  deductibleMinor: 'deductibleMinor',
+  exclusions: 'exclusions',
+  claimsMadeRetroDate: 'claimsMadeRetroDate',
+  effectiveFrom: 'effectiveFrom',
+  expiresAt: 'expiresAt',
+  cancellationNoticeDays: 'cancellationNoticeDays',
+  brokerName: 'brokerName',
+  brokerReviewedAt: 'brokerReviewedAt',
+  brokerReviewRef: 'brokerReviewRef',
+  verificationStatus: 'verificationStatus',
+  verificationMethod: 'verificationMethod',
+  verifiedById: 'verifiedById',
+  verifiedAt: 'verifiedAt',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InsurancePolicyRecordScalarFieldEnum = (typeof InsurancePolicyRecordScalarFieldEnum)[keyof typeof InsurancePolicyRecordScalarFieldEnum]
+
+
+export const ProductComplianceEvidenceScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  productKey: 'productKey',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  departmentSlug: 'departmentSlug',
+  kind: 'kind',
+  scheme: 'scheme',
+  issuer: 'issuer',
+  accreditation: 'accreditation',
+  scope: 'scope',
+  certificateNumber: 'certificateNumber',
+  issuedOn: 'issuedOn',
+  expiresOn: 'expiresOn',
+  changeConditions: 'changeConditions',
+  surveillanceDueAt: 'surveillanceDueAt',
+  requiredForTrading: 'requiredForTrading',
+  existingAccepted: 'existingAccepted',
+  gapAssessment: 'gapAssessment',
+  verificationMethod: 'verificationMethod',
+  verificationEvidence: 'verificationEvidence',
+  verifiedById: 'verifiedById',
+  verifiedAt: 'verifiedAt',
+  status: 'status',
+  statusReason: 'statusReason',
+  remindersSentJson: 'remindersSentJson',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductComplianceEvidenceScalarFieldEnum = (typeof ProductComplianceEvidenceScalarFieldEnum)[keyof typeof ProductComplianceEvidenceScalarFieldEnum]
+
+
+export const SafetyCaseScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  title: 'title',
+  description: 'description',
+  severity: 'severity',
+  status: 'status',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  sellerAccountId: 'sellerAccountId',
+  triagedById: 'triagedById',
+  triagedAt: 'triagedAt',
+  containmentJson: 'containmentJson',
+  rootCause: 'rootCause',
+  correctionEvidence: 'correctionEvidence',
+  verificationTests: 'verificationTests',
+  currentCertificates: 'currentCertificates',
+  releaseApprovedById: 'releaseApprovedById',
+  releasedAt: 'releasedAt',
+  openedById: 'openedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SafetyCaseScalarFieldEnum = (typeof SafetyCaseScalarFieldEnum)[keyof typeof SafetyCaseScalarFieldEnum]
+
+
+export const SafetyCaseScopeScalarFieldEnum = {
+  id: 'id',
+  safetyCaseId: 'safetyCaseId',
+  kind: 'kind',
+  ref: 'ref',
+  label: 'label',
+  contained: 'contained',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SafetyCaseScopeScalarFieldEnum = (typeof SafetyCaseScopeScalarFieldEnum)[keyof typeof SafetyCaseScopeScalarFieldEnum]
+
+
+export const SafetyCaseActionScalarFieldEnum = {
+  id: 'id',
+  safetyCaseId: 'safetyCaseId',
+  kind: 'kind',
+  authority: 'authority',
+  decision: 'decision',
+  deadlineAt: 'deadlineAt',
+  qualifiedRole: 'qualifiedRole',
+  quantity: 'quantity',
+  effectivenessPercentBp: 'effectivenessPercentBp',
+  detail: 'detail',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SafetyCaseActionScalarFieldEnum = (typeof SafetyCaseActionScalarFieldEnum)[keyof typeof SafetyCaseActionScalarFieldEnum]
+
+
+export const RecallRehearsalScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  scenario: 'scenario',
+  scopeTraced: 'scopeTraced',
+  minutesToTrace: 'minutesToTrace',
+  findings: 'findings',
+  outcome: 'outcome',
+  performedAt: 'performedAt',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecallRehearsalScalarFieldEnum = (typeof RecallRehearsalScalarFieldEnum)[keyof typeof RecallRehearsalScalarFieldEnum]
+
+
+export const LaunchReadinessItemScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  key: 'key',
+  status: 'status',
+  ownerName: 'ownerName',
+  ownerUserId: 'ownerUserId',
+  scope: 'scope',
+  evidence: 'evidence',
+  reviewerUserId: 'reviewerUserId',
+  reviewedAt: 'reviewedAt',
+  expiresAt: 'expiresAt',
+  blockingReason: 'blockingReason',
+  sourceCheckedOn: 'sourceCheckedOn',
+  sourceNote: 'sourceNote',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LaunchReadinessItemScalarFieldEnum = (typeof LaunchReadinessItemScalarFieldEnum)[keyof typeof LaunchReadinessItemScalarFieldEnum]
+
+
+export const CountryLaunchScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  status: 'status',
+  enabledById: 'enabledById',
+  enabledAt: 'enabledAt',
+  disabledById: 'disabledById',
+  disabledAt: 'disabledAt',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CountryLaunchScalarFieldEnum = (typeof CountryLaunchScalarFieldEnum)[keyof typeof CountryLaunchScalarFieldEnum]
+
+
+export const FreightBookingScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  lane: 'lane',
+  grossWeightGrams: 'grossWeightGrams',
+  dimensionsJson: 'dimensionsJson',
+  packaging: 'packaging',
+  hazardClass: 'hazardClass',
+  cargoCoverJson: 'cargoCoverJson',
+  custodyJson: 'custodyJson',
+  returnCapability: 'returnCapability',
+  materialCommitment: 'materialCommitment',
+  selectedQuoteId: 'selectedQuoteId',
+  singleSourceReason: 'singleSourceReason',
+  externalCostMinor: 'externalCostMinor',
+  coordinationMinor: 'coordinationMinor',
+  currency: 'currency',
+  status: 'status',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FreightBookingScalarFieldEnum = (typeof FreightBookingScalarFieldEnum)[keyof typeof FreightBookingScalarFieldEnum]
+
+
+export const FreightQuoteOptionScalarFieldEnum = {
+  id: 'id',
+  bookingId: 'bookingId',
+  providerName: 'providerName',
+  logisticsPartnerId: 'logisticsPartnerId',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  transitDaysMin: 'transitDaysMin',
+  transitDaysMax: 'transitDaysMax',
+  cargoCover: 'cargoCover',
+  comparable: 'comparable',
+  validUntil: 'validUntil',
+  reference: 'reference',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FreightQuoteOptionScalarFieldEnum = (typeof FreightQuoteOptionScalarFieldEnum)[keyof typeof FreightQuoteOptionScalarFieldEnum]
+
+
+export const LogisticsProviderReviewScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  logisticsPartnerId: 'logisticsPartnerId',
+  itemsJson: 'itemsJson',
+  integrationStatus: 'integrationStatus',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  reviewedAt: 'reviewedAt',
+  nextReviewAt: 'nextReviewAt',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsProviderReviewScalarFieldEnum = (typeof LogisticsProviderReviewScalarFieldEnum)[keyof typeof LogisticsProviderReviewScalarFieldEnum]
+
+
+export const HandlingRequirementScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  categoryId: 'categoryId',
+  destinationCountry: 'destinationCountry',
+  requiredEvidence: 'requiredEvidence',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HandlingRequirementScalarFieldEnum = (typeof HandlingRequirementScalarFieldEnum)[keyof typeof HandlingRequirementScalarFieldEnum]
+
+
+export const DispatchEvidenceScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  quantitiesJson: 'quantitiesJson',
+  lotsJson: 'lotsJson',
+  sealsJson: 'sealsJson',
+  packingPhotoRefsJson: 'packingPhotoRefsJson',
+  temperatureLogRef: 'temperatureLogRef',
+  handlingEvidenceJson: 'handlingEvidenceJson',
+  recordedById: 'recordedById',
+  recordedByRole: 'recordedByRole',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DispatchEvidenceScalarFieldEnum = (typeof DispatchEvidenceScalarFieldEnum)[keyof typeof DispatchEvidenceScalarFieldEnum]
+
+
+export const CustodyHandoverScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  shipmentLegId: 'shipmentLegId',
+  fromParty: 'fromParty',
+  toParty: 'toParty',
+  place: 'place',
+  handedOverAt: 'handedOverAt',
+  packages: 'packages',
+  sealsIntact: 'sealsIntact',
+  exceptionNote: 'exceptionNote',
+  recordedById: 'recordedById',
+  recordedByRole: 'recordedByRole',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustodyHandoverScalarFieldEnum = (typeof CustodyHandoverScalarFieldEnum)[keyof typeof CustodyHandoverScalarFieldEnum]
+
+
+export const PartialShipmentApprovalScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderApprovalRef: 'orderApprovalRef',
+  approvedByParty: 'approvedByParty',
+  quantitiesJson: 'quantitiesJson',
+  billedMinor: 'billedMinor',
+  currency: 'currency',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PartialShipmentApprovalScalarFieldEnum = (typeof PartialShipmentApprovalScalarFieldEnum)[keyof typeof PartialShipmentApprovalScalarFieldEnum]
+
+
+export const ReturnAuthorizationScalarFieldEnum = {
+  id: 'id',
+  returnRequestId: 'returnRequestId',
+  rmaNumber: 'rmaNumber',
+  returnRoute: 'returnRoute',
+  freightPayer: 'freightPayer',
+  payerReason: 'payerReason',
+  carrier: 'carrier',
+  trackingNumber: 'trackingNumber',
+  returnBy: 'returnBy',
+  receivedEvidence: 'receivedEvidence',
+  inspectionEvidence: 'inspectionEvidence',
+  deductionMinor: 'deductionMinor',
+  deductionBasis: 'deductionBasis',
+  issuedById: 'issuedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReturnAuthorizationScalarFieldEnum = (typeof ReturnAuthorizationScalarFieldEnum)[keyof typeof ReturnAuthorizationScalarFieldEnum]
+
+
+export const OrderPaymentPlanScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  scheduleId: 'scheduleId',
+  milestonesJson: 'milestonesJson',
+  sellerAgreedAt: 'sellerAgreedAt',
+  buyerAgreedAt: 'buyerAgreedAt',
+  providerConfirmationRef: 'providerConfirmationRef',
+  status: 'status',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderPaymentPlanScalarFieldEnum = (typeof OrderPaymentPlanScalarFieldEnum)[keyof typeof OrderPaymentPlanScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -13307,7 +14895,9 @@ export const ConsentRecordOrderByRelevanceFieldEnum = {
   legalDocumentId: 'legalDocumentId',
   locale: 'locale',
   acceptanceSource: 'acceptanceSource',
-  activeDocumentId: 'activeDocumentId'
+  activeDocumentId: 'activeDocumentId',
+  sellerAccountId: 'sellerAccountId',
+  activeCompanyKey: 'activeCompanyKey'
 } as const
 
 export type ConsentRecordOrderByRelevanceFieldEnum = (typeof ConsentRecordOrderByRelevanceFieldEnum)[keyof typeof ConsentRecordOrderByRelevanceFieldEnum]
@@ -14773,4 +16363,1058 @@ export const InspectionSubLotReleaseOrderByRelevanceFieldEnum = {
 } as const
 
 export type InspectionSubLotReleaseOrderByRelevanceFieldEnum = (typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum)[keyof typeof InspectionSubLotReleaseOrderByRelevanceFieldEnum]
+
+
+export const SellerBadgeChangeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  reason: 'reason',
+  changedByUserId: 'changedByUserId'
+} as const
+
+export type SellerBadgeChangeOrderByRelevanceFieldEnum = (typeof SellerBadgeChangeOrderByRelevanceFieldEnum)[keyof typeof SellerBadgeChangeOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  note: 'note',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type ShipmentAssessmentPolicyOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentPolicyOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentPolicyOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  requirementReason: 'requirementReason',
+  mandatoryReason: 'mandatoryReason',
+  assessorUserId: 'assessorUserId',
+  qaReviewerUserId: 'qaReviewerUserId',
+  l1LegId: 'l1LegId',
+  l2LegId: 'l2LegId',
+  l1Location: 'l1Location',
+  scopeFingerprint: 'scopeFingerprint',
+  readinessNote: 'readinessNote',
+  sellerResponse: 'sellerResponse',
+  holdReason: 'holdReason'
+} as const
+
+export type ShipmentAssessmentOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentRoundOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  checklistVersion: 'checklistVersion',
+  categoryPlanId: 'categoryPlanId',
+  assessorUserId: 'assessorUserId',
+  inspectionLocation: 'inspectionLocation',
+  sellingUnit: 'sellingUnit',
+  countingMethod: 'countingMethod',
+  samplingMethod: 'samplingMethod',
+  sampleCoverageNote: 'sampleCoverageNote',
+  findingsSummary: 'findingsSummary',
+  qaReviewerUserId: 'qaReviewerUserId',
+  qaDecision: 'qaDecision',
+  qaNote: 'qaNote',
+  correctiveAction: 'correctiveAction'
+} as const
+
+export type ShipmentAssessmentRoundOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentRoundOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentRoundOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentCheckOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  itemCode: 'itemCode',
+  section: 'section',
+  phase: 'phase',
+  note: 'note',
+  measuredValue: 'measuredValue',
+  recordedByUserId: 'recordedByUserId',
+  recordedByRole: 'recordedByRole'
+} as const
+
+export type ShipmentAssessmentCheckOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentCheckOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentCheckOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentEvidenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  itemCode: 'itemCode',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByRole: 'uploadedByRole',
+  note: 'note'
+} as const
+
+export type ShipmentAssessmentEvidenceOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentEvidenceOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentEvidenceOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  actorRole: 'actorRole',
+  actorUserId: 'actorUserId',
+  note: 'note',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type ShipmentAssessmentEventOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentEventOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentEventOrderByRelevanceFieldEnum]
+
+
+export const ShipmentWaiverDecisionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  historyReviewNote: 'historyReviewNote',
+  reason: 'reason',
+  decidedByUserId: 'decidedByUserId',
+  invalidationReason: 'invalidationReason'
+} as const
+
+export type ShipmentWaiverDecisionOrderByRelevanceFieldEnum = (typeof ShipmentWaiverDecisionOrderByRelevanceFieldEnum)[keyof typeof ShipmentWaiverDecisionOrderByRelevanceFieldEnum]
+
+
+export const ShipmentReleaseAuthorizationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  waiverDecisionId: 'waiverDecisionId',
+  activeSlot: 'activeSlot',
+  scopeFingerprint: 'scopeFingerprint',
+  deadlineJustification: 'deadlineJustification',
+  issuedByUserId: 'issuedByUserId',
+  consumedLegId: 'consumedLegId',
+  invalidationReason: 'invalidationReason'
+} as const
+
+export type ShipmentReleaseAuthorizationOrderByRelevanceFieldEnum = (typeof ShipmentReleaseAuthorizationOrderByRelevanceFieldEnum)[keyof typeof ShipmentReleaseAuthorizationOrderByRelevanceFieldEnum]
+
+
+export const ShipmentAssessmentExceptionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  logisticsShipmentId: 'logisticsShipmentId',
+  shipmentEventId: 'shipmentEventId',
+  detail: 'detail',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionNote: 'resolutionNote'
+} as const
+
+export type ShipmentAssessmentExceptionOrderByRelevanceFieldEnum = (typeof ShipmentAssessmentExceptionOrderByRelevanceFieldEnum)[keyof typeof ShipmentAssessmentExceptionOrderByRelevanceFieldEnum]
+
+
+export const AuditDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  supersedesId: 'supersedesId',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  releaseId: 'releaseId',
+  signedByUserId: 'signedByUserId',
+  signedByName: 'signedByName',
+  signedByRole: 'signedByRole',
+  signingMechanism: 'signingMechanism',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  revokedByUserId: 'revokedByUserId',
+  revokedReason: 'revokedReason'
+} as const
+
+export type AuditDocumentOrderByRelevanceFieldEnum = (typeof AuditDocumentOrderByRelevanceFieldEnum)[keyof typeof AuditDocumentOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  version: 'version',
+  status: 'status',
+  sourceDocument: 'sourceDocument',
+  note: 'note',
+  createdByUserId: 'createdByUserId',
+  adoptedByUserId: 'adoptedByUserId',
+  adoptionReference: 'adoptionReference',
+  disclosureReference: 'disclosureReference'
+} as const
+
+export type SellerAssessmentPolicyOrderByRelevanceFieldEnum = (typeof SellerAssessmentPolicyOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentPolicyOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  status: 'status',
+  policyVersion: 'policyVersion',
+  ownerUserId: 'ownerUserId',
+  riskLevel: 'riskLevel',
+  correctionNote: 'correctionNote',
+  scoreBand: 'scoreBand',
+  decision: 'decision',
+  decisionReason: 'decisionReason',
+  decidedByUserId: 'decidedByUserId',
+  baseApprovalId: 'baseApprovalId',
+  legacyNote: 'legacyNote'
+} as const
+
+export type SellerAssessmentOrderByRelevanceFieldEnum = (typeof SellerAssessmentOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentGateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  status: 'status',
+  assignedUserId: 'assignedUserId',
+  decidedByUserId: 'decidedByUserId',
+  reason: 'reason',
+  policyVersion: 'policyVersion'
+} as const
+
+export type SellerAssessmentGateOrderByRelevanceFieldEnum = (typeof SellerAssessmentGateOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentGateOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentChecklistItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  code: 'code',
+  outcome: 'outcome',
+  evidenceRef: 'evidenceRef',
+  reviewerUserId: 'reviewerUserId',
+  comment: 'comment',
+  naReason: 'naReason',
+  naApprovedByUserId: 'naApprovedByUserId'
+} as const
+
+export type SellerAssessmentChecklistItemOrderByRelevanceFieldEnum = (typeof SellerAssessmentChecklistItemOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentChecklistItemOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentScoreOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  dimension: 'dimension',
+  evidenceRef: 'evidenceRef',
+  reasoning: 'reasoning',
+  ratedByUserId: 'ratedByUserId'
+} as const
+
+export type SellerAssessmentScoreOrderByRelevanceFieldEnum = (typeof SellerAssessmentScoreOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentScoreOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentEvidenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  category: 'category',
+  evidenceKey: 'evidenceKey',
+  label: 'label',
+  supersedesId: 'supersedesId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByRole: 'uploadedByRole',
+  retentionCategory: 'retentionCategory',
+  legalHoldReason: 'legalHoldReason',
+  legalHoldByUserId: 'legalHoldByUserId'
+} as const
+
+export type SellerAssessmentEvidenceOrderByRelevanceFieldEnum = (typeof SellerAssessmentEvidenceOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentEvidenceOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentScopeItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  productKey: 'productKey',
+  offerId: 'offerId',
+  productName: 'productName',
+  productVersion: 'productVersion',
+  intendedUse: 'intendedUse',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  channel: 'channel',
+  catalogueCategory: 'catalogueCategory',
+  hsProposal: 'hsProposal',
+  regulatoryClass: 'regulatoryClass',
+  requiredTests: 'requiredTests',
+  authorisations: 'authorisations',
+  localResponsible: 'localResponsible',
+  importerLicence: 'importerLicence',
+  labelsLanguages: 'labelsLanguages',
+  warnings: 'warnings',
+  restrictions: 'restrictions',
+  recallObligations: 'recallObligations',
+  shippingInsurance: 'shippingInsurance',
+  decision: 'decision',
+  decisionReason: 'decisionReason',
+  classifiedByUserId: 'classifiedByUserId'
+} as const
+
+export type SellerAssessmentScopeItemOrderByRelevanceFieldEnum = (typeof SellerAssessmentScopeItemOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentScopeItemOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentFindingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  classification: 'classification',
+  requirement: 'requirement',
+  evidence: 'evidence',
+  containment: 'containment',
+  rootCause: 'rootCause',
+  correctiveAction: 'correctiveAction',
+  preventiveAction: 'preventiveAction',
+  ownerName: 'ownerName',
+  status: 'status',
+  effectivenessVerification: 'effectivenessVerification',
+  raisedByUserId: 'raisedByUserId',
+  closedByUserId: 'closedByUserId'
+} as const
+
+export type SellerAssessmentFindingOrderByRelevanceFieldEnum = (typeof SellerAssessmentFindingOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentFindingOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentWorkpaperOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  subjectRef: 'subjectRef',
+  mode: 'mode',
+  supersedesId: 'supersedesId',
+  recordedByUserId: 'recordedByUserId'
+} as const
+
+export type SellerAssessmentWorkpaperOrderByRelevanceFieldEnum = (typeof SellerAssessmentWorkpaperOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentWorkpaperOrderByRelevanceFieldEnum]
+
+
+export const SellerExternalCertificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  sellerAccountId: 'sellerAccountId',
+  bodyName: 'bodyName',
+  scheme: 'scheme',
+  appointedByUserId: 'appointedByUserId',
+  procurementRef: 'procurementRef',
+  paymentRef: 'paymentRef',
+  accreditationBody: 'accreditationBody',
+  accreditationNumber: 'accreditationNumber',
+  sectorScope: 'sectorScope',
+  legalRecognition: 'legalRecognition',
+  conflictCheck: 'conflictCheck',
+  certificateNumber: 'certificateNumber',
+  issuer: 'issuer',
+  authenticityMethod: 'authenticityMethod',
+  authenticityReference: 'authenticityReference',
+  authenticatedByUserId: 'authenticatedByUserId',
+  surveillanceConditions: 'surveillanceConditions',
+  status: 'status',
+  statusReason: 'statusReason'
+} as const
+
+export type SellerExternalCertificationOrderByRelevanceFieldEnum = (typeof SellerExternalCertificationOrderByRelevanceFieldEnum)[keyof typeof SellerExternalCertificationOrderByRelevanceFieldEnum]
+
+
+export const SellerTradingApprovalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  supersedesId: 'supersedesId',
+  status: 'status',
+  policyVersion: 'policyVersion',
+  policyStatusAtRelease: 'policyStatusAtRelease',
+  externalCertificationId: 'externalCertificationId',
+  releaseApproverUserId: 'releaseApproverUserId',
+  auditDocumentId: 'auditDocumentId',
+  statusReason: 'statusReason'
+} as const
+
+export type SellerTradingApprovalOrderByRelevanceFieldEnum = (typeof SellerTradingApprovalOrderByRelevanceFieldEnum)[keyof typeof SellerTradingApprovalOrderByRelevanceFieldEnum]
+
+
+export const SellerTradingApprovalScopeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  approvalId: 'approvalId',
+  sellerAccountId: 'sellerAccountId',
+  scopeItemId: 'scopeItemId',
+  offerId: 'offerId',
+  productKey: 'productKey',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  channel: 'channel',
+  status: 'status',
+  blockedReason: 'blockedReason'
+} as const
+
+export type SellerTradingApprovalScopeOrderByRelevanceFieldEnum = (typeof SellerTradingApprovalScopeOrderByRelevanceFieldEnum)[keyof typeof SellerTradingApprovalScopeOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  assessmentId: 'assessmentId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  kind: 'kind',
+  actorUserId: 'actorUserId',
+  actorRole: 'actorRole',
+  capability: 'capability',
+  reason: 'reason',
+  policyVersion: 'policyVersion'
+} as const
+
+export type SellerAssessmentEventOrderByRelevanceFieldEnum = (typeof SellerAssessmentEventOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentEventOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentNoticeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  assessmentId: 'assessmentId',
+  kind: 'kind',
+  hardStop: 'hardStop',
+  reason: 'reason',
+  shareableEvidence: 'shareableEvidence',
+  settlementTreatment: 'settlementTreatment',
+  correctiveActions: 'correctiveActions',
+  reviewRoute: 'reviewRoute',
+  issuedByUserId: 'issuedByUserId'
+} as const
+
+export type SellerAssessmentNoticeOrderByRelevanceFieldEnum = (typeof SellerAssessmentNoticeOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentNoticeOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentAppealOrderByRelevanceFieldEnum = {
+  id: 'id',
+  noticeId: 'noticeId',
+  sellerAccountId: 'sellerAccountId',
+  grounds: 'grounds',
+  evidenceRef: 'evidenceRef',
+  submittedByProfileId: 'submittedByProfileId',
+  reviewerUserId: 'reviewerUserId',
+  status: 'status',
+  outcomeReason: 'outcomeReason'
+} as const
+
+export type SellerAssessmentAppealOrderByRelevanceFieldEnum = (typeof SellerAssessmentAppealOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentAppealOrderByRelevanceFieldEnum]
+
+
+export const SellerAssessmentChangeRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  kind: 'kind',
+  description: 'description',
+  submittedByProfileId: 'submittedByProfileId',
+  recordedByUserId: 'recordedByUserId',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  decisionReason: 'decisionReason'
+} as const
+
+export type SellerAssessmentChangeRequestOrderByRelevanceFieldEnum = (typeof SellerAssessmentChangeRequestOrderByRelevanceFieldEnum)[keyof typeof SellerAssessmentChangeRequestOrderByRelevanceFieldEnum]
+
+
+export const SellerIncidentReportOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  severity: 'severity',
+  description: 'description',
+  affectedProducts: 'affectedProducts',
+  submittedByProfileId: 'submittedByProfileId',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  reviewNote: 'reviewNote'
+} as const
+
+export type SellerIncidentReportOrderByRelevanceFieldEnum = (typeof SellerIncidentReportOrderByRelevanceFieldEnum)[keyof typeof SellerIncidentReportOrderByRelevanceFieldEnum]
+
+
+export const SellerOrderDispositionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  noticeId: 'noticeId',
+  trigger: 'trigger',
+  triggerKey: 'triggerKey',
+  reason: 'reason',
+  status: 'status',
+  decidedByUserId: 'decidedByUserId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type SellerOrderDispositionOrderByRelevanceFieldEnum = (typeof SellerOrderDispositionOrderByRelevanceFieldEnum)[keyof typeof SellerOrderDispositionOrderByRelevanceFieldEnum]
+
+
+export const SellerBankChangeRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  beneficiaryName: 'beneficiaryName',
+  accountLast4: 'accountLast4',
+  bankCode: 'bankCode',
+  evidenceRef: 'evidenceRef',
+  requestedByProfileId: 'requestedByProfileId',
+  knownContactName: 'knownContactName',
+  knownContactSource: 'knownContactSource',
+  contactConfirmedByUserId: 'contactConfirmedByUserId',
+  firstApproverUserId: 'firstApproverUserId',
+  secondApproverUserId: 'secondApproverUserId',
+  status: 'status',
+  reason: 'reason'
+} as const
+
+export type SellerBankChangeRequestOrderByRelevanceFieldEnum = (typeof SellerBankChangeRequestOrderByRelevanceFieldEnum)[keyof typeof SellerBankChangeRequestOrderByRelevanceFieldEnum]
+
+
+export const SellerSurveillanceTaskOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  approvalId: 'approvalId',
+  kind: 'kind',
+  subjectRef: 'subjectRef',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  outcome: 'outcome',
+  note: 'note',
+  completedByUserId: 'completedByUserId'
+} as const
+
+export type SellerSurveillanceTaskOrderByRelevanceFieldEnum = (typeof SellerSurveillanceTaskOrderByRelevanceFieldEnum)[keyof typeof SellerSurveillanceTaskOrderByRelevanceFieldEnum]
+
+
+export const CommercialScheduleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  status: 'status',
+  title: 'title',
+  sourceDocument: 'sourceDocument',
+  scheduleReference: 'scheduleReference',
+  preparedById: 'preparedById',
+  approvedById: 'approvedById',
+  approvalEvidence: 'approvalEvidence',
+  providerConfirmationRef: 'providerConfirmationRef',
+  activatedById: 'activatedById',
+  note: 'note'
+} as const
+
+export type CommercialScheduleOrderByRelevanceFieldEnum = (typeof CommercialScheduleOrderByRelevanceFieldEnum)[keyof typeof CommercialScheduleOrderByRelevanceFieldEnum]
+
+
+export const CommercialScheduleEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  kind: 'kind',
+  actorUserId: 'actorUserId',
+  note: 'note'
+} as const
+
+export type CommercialScheduleEventOrderByRelevanceFieldEnum = (typeof CommercialScheduleEventOrderByRelevanceFieldEnum)[keyof typeof CommercialScheduleEventOrderByRelevanceFieldEnum]
+
+
+export const OrderLineCommercialSnapshotOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  manufacturerName: 'manufacturerName',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  approvalScopeId: 'approvalScopeId',
+  sellerCountry: 'sellerCountry',
+  destinationCountry: 'destinationCountry',
+  channel: 'channel',
+  departmentSlug: 'departmentSlug',
+  deliveryTerm: 'deliveryTerm',
+  namedPlace: 'namedPlace',
+  importerOfRecord: 'importerOfRecord',
+  importRouteId: 'importRouteId',
+  titleTransferPoint: 'titleTransferPoint',
+  riskTransferPoint: 'riskTransferPoint',
+  returnRoute: 'returnRoute',
+  packagingNote: 'packagingNote',
+  currency: 'currency',
+  commissionSource: 'commissionSource',
+  commissionRuleVersion: 'commissionRuleVersion',
+  rounding: 'rounding',
+  certificationAllocationId: 'certificationAllocationId'
+} as const
+
+export type OrderLineCommercialSnapshotOrderByRelevanceFieldEnum = (typeof OrderLineCommercialSnapshotOrderByRelevanceFieldEnum)[keyof typeof OrderLineCommercialSnapshotOrderByRelevanceFieldEnum]
+
+
+export const ImportRouteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  categoryId: 'categoryId',
+  categoryKey: 'categoryKey',
+  channel: 'channel',
+  importerParty: 'importerParty',
+  importerName: 'importerName',
+  status: 'status',
+  evidence: 'evidence',
+  preparedById: 'preparedById',
+  reviewerUserId: 'reviewerUserId',
+  note: 'note'
+} as const
+
+export type ImportRouteOrderByRelevanceFieldEnum = (typeof ImportRouteOrderByRelevanceFieldEnum)[keyof typeof ImportRouteOrderByRelevanceFieldEnum]
+
+
+export const DisputeCaseProfileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  category: 'category',
+  urgency: 'urgency',
+  market: 'market',
+  channel: 'channel',
+  shipmentId: 'shipmentId',
+  paymentTransactionId: 'paymentTransactionId',
+  lateIntakeReason: 'lateIntakeReason',
+  lateExplanation: 'lateExplanation',
+  calendarTimeZone: 'calendarTimeZone',
+  acknowledgedById: 'acknowledgedById',
+  evidenceSufficientById: 'evidenceSufficientById',
+  evidenceSufficientReason: 'evidenceSufficientReason',
+  appealReviewerId: 'appealReviewerId',
+  safetyCaseId: 'safetyCaseId'
+} as const
+
+export type DisputeCaseProfileOrderByRelevanceFieldEnum = (typeof DisputeCaseProfileOrderByRelevanceFieldEnum)[keyof typeof DisputeCaseProfileOrderByRelevanceFieldEnum]
+
+
+export const DisputeEvidenceRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  requestedFrom: 'requestedFrom',
+  purpose: 'purpose',
+  description: 'description',
+  proportionalityNote: 'proportionalityNote',
+  status: 'status',
+  responseNote: 'responseNote',
+  requestedById: 'requestedById'
+} as const
+
+export type DisputeEvidenceRequestOrderByRelevanceFieldEnum = (typeof DisputeEvidenceRequestOrderByRelevanceFieldEnum)[keyof typeof DisputeEvidenceRequestOrderByRelevanceFieldEnum]
+
+
+export const DisputeRemedyActionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  kind: 'kind',
+  currency: 'currency',
+  payer: 'payer',
+  returnFreightPayer: 'returnFreightPayer',
+  status: 'status',
+  refundId: 'refundId',
+  note: 'note',
+  decidedById: 'decidedById'
+} as const
+
+export type DisputeRemedyActionOrderByRelevanceFieldEnum = (typeof DisputeRemedyActionOrderByRelevanceFieldEnum)[keyof typeof DisputeRemedyActionOrderByRelevanceFieldEnum]
+
+
+export const DisputeTestingRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  laboratory: 'laboratory',
+  protocol: 'protocol',
+  interimPayer: 'interimPayer',
+  currency: 'currency',
+  sampleCustody: 'sampleCustody',
+  resultSummary: 'resultSummary',
+  finalPayer: 'finalPayer',
+  finalAllocationReason: 'finalAllocationReason',
+  status: 'status',
+  recordedById: 'recordedById'
+} as const
+
+export type DisputeTestingRecordOrderByRelevanceFieldEnum = (typeof DisputeTestingRecordOrderByRelevanceFieldEnum)[keyof typeof DisputeTestingRecordOrderByRelevanceFieldEnum]
+
+
+export const LossRecoveryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  disputeId: 'disputeId',
+  lossKey: 'lossKey',
+  source: 'source',
+  sourceReference: 'sourceReference',
+  currency: 'currency',
+  status: 'status',
+  overlapNote: 'overlapNote',
+  recordedById: 'recordedById'
+} as const
+
+export type LossRecoveryOrderByRelevanceFieldEnum = (typeof LossRecoveryOrderByRelevanceFieldEnum)[keyof typeof LossRecoveryOrderByRelevanceFieldEnum]
+
+
+export const CommissionAdjustmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  refundId: 'refundId',
+  orderItemId: 'orderItemId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  currency: 'currency',
+  basis: 'basis',
+  fault: 'fault',
+  status: 'status',
+  appliedById: 'appliedById'
+} as const
+
+export type CommissionAdjustmentOrderByRelevanceFieldEnum = (typeof CommissionAdjustmentOrderByRelevanceFieldEnum)[keyof typeof CommissionAdjustmentOrderByRelevanceFieldEnum]
+
+
+export const CertificationProgrammeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  sellerAccountId: 'sellerAccountId',
+  title: 'title',
+  currency: 'currency',
+  status: 'status',
+  fxPolicy: 'fxPolicy',
+  scheduleId: 'scheduleId',
+  createdById: 'createdById'
+} as const
+
+export type CertificationProgrammeOrderByRelevanceFieldEnum = (typeof CertificationProgrammeOrderByRelevanceFieldEnum)[keyof typeof CertificationProgrammeOrderByRelevanceFieldEnum]
+
+
+export const CertificationCostEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  programmeId: 'programmeId',
+  kind: 'kind',
+  externalReference: 'externalReference',
+  supplierName: 'supplierName',
+  currency: 'currency',
+  originalCurrency: 'originalCurrency',
+  fxRate: 'fxRate',
+  verifiedById: 'verifiedById',
+  evidence: 'evidence',
+  fundedBy: 'fundedBy',
+  recordedById: 'recordedById'
+} as const
+
+export type CertificationCostEntryOrderByRelevanceFieldEnum = (typeof CertificationCostEntryOrderByRelevanceFieldEnum)[keyof typeof CertificationCostEntryOrderByRelevanceFieldEnum]
+
+
+export const CertificationRecoveryAllocationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  programmeId: 'programmeId',
+  quoteKey: 'quoteKey',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  currency: 'currency',
+  status: 'status'
+} as const
+
+export type CertificationRecoveryAllocationOrderByRelevanceFieldEnum = (typeof CertificationRecoveryAllocationOrderByRelevanceFieldEnum)[keyof typeof CertificationRecoveryAllocationOrderByRelevanceFieldEnum]
+
+
+export const SellerSecurityScheduleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  tier: 'tier',
+  form: 'form',
+  currency: 'currency',
+  exposureBasis: 'exposureBasis',
+  noticeTerms: 'noticeTerms',
+  disputeRoute: 'disputeRoute',
+  providerPermissionRef: 'providerPermissionRef',
+  scheduleReference: 'scheduleReference',
+  status: 'status',
+  preparedById: 'preparedById',
+  approvedById: 'approvedById'
+} as const
+
+export type SellerSecurityScheduleOrderByRelevanceFieldEnum = (typeof SellerSecurityScheduleOrderByRelevanceFieldEnum)[keyof typeof SellerSecurityScheduleOrderByRelevanceFieldEnum]
+
+
+export const SecurityReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  kind: 'kind',
+  periodKey: 'periodKey',
+  outcome: 'outcome',
+  note: 'note',
+  reviewedById: 'reviewedById'
+} as const
+
+export type SecurityReviewOrderByRelevanceFieldEnum = (typeof SecurityReviewOrderByRelevanceFieldEnum)[keyof typeof SecurityReviewOrderByRelevanceFieldEnum]
+
+
+export const InsurancePolicyRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  holderType: 'holderType',
+  sellerAccountId: 'sellerAccountId',
+  coverType: 'coverType',
+  riskGroup: 'riskGroup',
+  insurer: 'insurer',
+  policyNumber: 'policyNumber',
+  insuredEntity: 'insuredEntity',
+  additionalInsured: 'additionalInsured',
+  currency: 'currency',
+  exclusions: 'exclusions',
+  brokerName: 'brokerName',
+  brokerReviewRef: 'brokerReviewRef',
+  verificationStatus: 'verificationStatus',
+  verificationMethod: 'verificationMethod',
+  verifiedById: 'verifiedById',
+  recordedById: 'recordedById'
+} as const
+
+export type InsurancePolicyRecordOrderByRelevanceFieldEnum = (typeof InsurancePolicyRecordOrderByRelevanceFieldEnum)[keyof typeof InsurancePolicyRecordOrderByRelevanceFieldEnum]
+
+
+export const ProductComplianceEvidenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  productKey: 'productKey',
+  productVersion: 'productVersion',
+  facilityRef: 'facilityRef',
+  countryCode: 'countryCode',
+  departmentSlug: 'departmentSlug',
+  kind: 'kind',
+  scheme: 'scheme',
+  issuer: 'issuer',
+  accreditation: 'accreditation',
+  scope: 'scope',
+  certificateNumber: 'certificateNumber',
+  changeConditions: 'changeConditions',
+  gapAssessment: 'gapAssessment',
+  verificationMethod: 'verificationMethod',
+  verificationEvidence: 'verificationEvidence',
+  verifiedById: 'verifiedById',
+  status: 'status',
+  statusReason: 'statusReason',
+  recordedById: 'recordedById'
+} as const
+
+export type ProductComplianceEvidenceOrderByRelevanceFieldEnum = (typeof ProductComplianceEvidenceOrderByRelevanceFieldEnum)[keyof typeof ProductComplianceEvidenceOrderByRelevanceFieldEnum]
+
+
+export const SafetyCaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  title: 'title',
+  description: 'description',
+  severity: 'severity',
+  status: 'status',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  sellerAccountId: 'sellerAccountId',
+  triagedById: 'triagedById',
+  rootCause: 'rootCause',
+  correctionEvidence: 'correctionEvidence',
+  verificationTests: 'verificationTests',
+  currentCertificates: 'currentCertificates',
+  releaseApprovedById: 'releaseApprovedById',
+  openedById: 'openedById'
+} as const
+
+export type SafetyCaseOrderByRelevanceFieldEnum = (typeof SafetyCaseOrderByRelevanceFieldEnum)[keyof typeof SafetyCaseOrderByRelevanceFieldEnum]
+
+
+export const SafetyCaseScopeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  safetyCaseId: 'safetyCaseId',
+  kind: 'kind',
+  ref: 'ref',
+  label: 'label'
+} as const
+
+export type SafetyCaseScopeOrderByRelevanceFieldEnum = (typeof SafetyCaseScopeOrderByRelevanceFieldEnum)[keyof typeof SafetyCaseScopeOrderByRelevanceFieldEnum]
+
+
+export const SafetyCaseActionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  safetyCaseId: 'safetyCaseId',
+  kind: 'kind',
+  authority: 'authority',
+  decision: 'decision',
+  qualifiedRole: 'qualifiedRole',
+  detail: 'detail',
+  actorUserId: 'actorUserId'
+} as const
+
+export type SafetyCaseActionOrderByRelevanceFieldEnum = (typeof SafetyCaseActionOrderByRelevanceFieldEnum)[keyof typeof SafetyCaseActionOrderByRelevanceFieldEnum]
+
+
+export const RecallRehearsalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  scenario: 'scenario',
+  scopeTraced: 'scopeTraced',
+  findings: 'findings',
+  outcome: 'outcome',
+  recordedById: 'recordedById'
+} as const
+
+export type RecallRehearsalOrderByRelevanceFieldEnum = (typeof RecallRehearsalOrderByRelevanceFieldEnum)[keyof typeof RecallRehearsalOrderByRelevanceFieldEnum]
+
+
+export const LaunchReadinessItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  key: 'key',
+  status: 'status',
+  ownerName: 'ownerName',
+  ownerUserId: 'ownerUserId',
+  scope: 'scope',
+  evidence: 'evidence',
+  reviewerUserId: 'reviewerUserId',
+  blockingReason: 'blockingReason',
+  sourceNote: 'sourceNote',
+  updatedById: 'updatedById'
+} as const
+
+export type LaunchReadinessItemOrderByRelevanceFieldEnum = (typeof LaunchReadinessItemOrderByRelevanceFieldEnum)[keyof typeof LaunchReadinessItemOrderByRelevanceFieldEnum]
+
+
+export const CountryLaunchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  status: 'status',
+  enabledById: 'enabledById',
+  disabledById: 'disabledById',
+  note: 'note'
+} as const
+
+export type CountryLaunchOrderByRelevanceFieldEnum = (typeof CountryLaunchOrderByRelevanceFieldEnum)[keyof typeof CountryLaunchOrderByRelevanceFieldEnum]
+
+
+export const FreightBookingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  lane: 'lane',
+  packaging: 'packaging',
+  hazardClass: 'hazardClass',
+  returnCapability: 'returnCapability',
+  selectedQuoteId: 'selectedQuoteId',
+  singleSourceReason: 'singleSourceReason',
+  currency: 'currency',
+  status: 'status',
+  recordedById: 'recordedById'
+} as const
+
+export type FreightBookingOrderByRelevanceFieldEnum = (typeof FreightBookingOrderByRelevanceFieldEnum)[keyof typeof FreightBookingOrderByRelevanceFieldEnum]
+
+
+export const FreightQuoteOptionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  bookingId: 'bookingId',
+  providerName: 'providerName',
+  logisticsPartnerId: 'logisticsPartnerId',
+  currency: 'currency',
+  cargoCover: 'cargoCover',
+  reference: 'reference'
+} as const
+
+export type FreightQuoteOptionOrderByRelevanceFieldEnum = (typeof FreightQuoteOptionOrderByRelevanceFieldEnum)[keyof typeof FreightQuoteOptionOrderByRelevanceFieldEnum]
+
+
+export const LogisticsProviderReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  logisticsPartnerId: 'logisticsPartnerId',
+  integrationStatus: 'integrationStatus',
+  status: 'status',
+  reviewerUserId: 'reviewerUserId',
+  recordedById: 'recordedById'
+} as const
+
+export type LogisticsProviderReviewOrderByRelevanceFieldEnum = (typeof LogisticsProviderReviewOrderByRelevanceFieldEnum)[keyof typeof LogisticsProviderReviewOrderByRelevanceFieldEnum]
+
+
+export const HandlingRequirementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  categoryId: 'categoryId',
+  destinationCountry: 'destinationCountry',
+  requiredEvidence: 'requiredEvidence',
+  createdById: 'createdById'
+} as const
+
+export type HandlingRequirementOrderByRelevanceFieldEnum = (typeof HandlingRequirementOrderByRelevanceFieldEnum)[keyof typeof HandlingRequirementOrderByRelevanceFieldEnum]
+
+
+export const DispatchEvidenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  temperatureLogRef: 'temperatureLogRef',
+  recordedById: 'recordedById',
+  recordedByRole: 'recordedByRole'
+} as const
+
+export type DispatchEvidenceOrderByRelevanceFieldEnum = (typeof DispatchEvidenceOrderByRelevanceFieldEnum)[keyof typeof DispatchEvidenceOrderByRelevanceFieldEnum]
+
+
+export const CustodyHandoverOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  shipmentLegId: 'shipmentLegId',
+  fromParty: 'fromParty',
+  toParty: 'toParty',
+  place: 'place',
+  exceptionNote: 'exceptionNote',
+  recordedById: 'recordedById',
+  recordedByRole: 'recordedByRole'
+} as const
+
+export type CustodyHandoverOrderByRelevanceFieldEnum = (typeof CustodyHandoverOrderByRelevanceFieldEnum)[keyof typeof CustodyHandoverOrderByRelevanceFieldEnum]
+
+
+export const PartialShipmentApprovalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderApprovalRef: 'orderApprovalRef',
+  approvedByParty: 'approvedByParty',
+  currency: 'currency',
+  recordedById: 'recordedById'
+} as const
+
+export type PartialShipmentApprovalOrderByRelevanceFieldEnum = (typeof PartialShipmentApprovalOrderByRelevanceFieldEnum)[keyof typeof PartialShipmentApprovalOrderByRelevanceFieldEnum]
+
+
+export const ReturnAuthorizationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  returnRequestId: 'returnRequestId',
+  rmaNumber: 'rmaNumber',
+  returnRoute: 'returnRoute',
+  freightPayer: 'freightPayer',
+  payerReason: 'payerReason',
+  carrier: 'carrier',
+  trackingNumber: 'trackingNumber',
+  receivedEvidence: 'receivedEvidence',
+  inspectionEvidence: 'inspectionEvidence',
+  deductionBasis: 'deductionBasis',
+  issuedById: 'issuedById'
+} as const
+
+export type ReturnAuthorizationOrderByRelevanceFieldEnum = (typeof ReturnAuthorizationOrderByRelevanceFieldEnum)[keyof typeof ReturnAuthorizationOrderByRelevanceFieldEnum]
+
+
+export const OrderPaymentPlanOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  scheduleId: 'scheduleId',
+  providerConfirmationRef: 'providerConfirmationRef',
+  status: 'status',
+  recordedById: 'recordedById'
+} as const
+
+export type OrderPaymentPlanOrderByRelevanceFieldEnum = (typeof OrderPaymentPlanOrderByRelevanceFieldEnum)[keyof typeof OrderPaymentPlanOrderByRelevanceFieldEnum]
 

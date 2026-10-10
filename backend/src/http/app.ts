@@ -132,6 +132,15 @@ import {
   registerCustomerOrderBreakdownRoutes,
   registerLogisticsPortalLegRoutes,
 } from './routes/logistics-levels.admin.js';
+import {
+  registerAdminShipmentAssessmentRoutes,
+  registerAuditShipmentAssessmentRoutes,
+  registerBuyerShipmentAssessmentRoutes,
+  registerLogisticsShipmentAssessmentRoutes,
+  registerSellerShipmentAssessmentRoutes,
+} from './routes/shipment-assessment.js';
+import { registerAdminSellerAssessmentRoutes, registerAuditSellerAssessmentRoutes, registerSellerAssessmentRoutes } from './routes/seller-assessment.js';
+import { registerAdminCommercialPolicyRoutes, registerAuditCommercialPolicyRoutes, registerCustomerCommercialPolicyRoutes, registerLogisticsCommercialPolicyRoutes, registerSellerCommercialPolicyRoutes } from './routes/commercial-policy.js';
 import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
 import { registerAdminPlatformFeeRuleRoutes } from './routes/platform-fee-rules.admin.js';
 import { registerAdminMarketRuleRoutes, registerPublicLabelRuleRoutes } from './routes/market-rules.admin.js';
@@ -712,6 +721,23 @@ export async function buildApp() {
   await app.register(registerSellerComplianceRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerBuyerInspectionRoutes, { prefix: `${API_PREFIX}/inspection/buyer` });
   await app.register(registerSellerInspectionRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Shipment Assessment between L1 and L2: Audit decides, admin reads, the seller
+  // contributes, the L2 carrier records loading checks, the buyer sees released documents.
+  await app.register(registerAuditShipmentAssessmentRoutes, { prefix: `${API_PREFIX}/audit` });
+  await app.register(registerAdminShipmentAssessmentRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerSellerShipmentAssessmentRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerLogisticsShipmentAssessmentRoutes, { prefix: `${API_PREFIX}/logistics` });
+  // Seller Assessment and Onboarding: Audit assesses and releases, admin reads, the seller applies and appeals.
+  await app.register(registerAuditSellerAssessmentRoutes, { prefix: `${API_PREFIX}/audit` });
+  await app.register(registerAdminSellerAssessmentRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerSellerAssessmentRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Doc 07 / Doc 08: delivery, cases, commercial schedules, recovery, security, insurance, evidence, safety, launch.
+  await app.register(registerAdminCommercialPolicyRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAuditCommercialPolicyRoutes, { prefix: `${API_PREFIX}/audit` });
+  await app.register(registerSellerCommercialPolicyRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerCustomerCommercialPolicyRoutes, { prefix: API_PREFIX });
+  await app.register(registerLogisticsCommercialPolicyRoutes, { prefix: `${API_PREFIX}/logistics` });
+  await app.register(registerBuyerShipmentAssessmentRoutes, { prefix: API_PREFIX });
   await app.register(registerAdminInspectionRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerSellerDisputeRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerAdminDisputeRoutes, { prefix: `${API_PREFIX}/admin` });

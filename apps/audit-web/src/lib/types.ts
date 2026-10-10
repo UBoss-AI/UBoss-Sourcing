@@ -64,6 +64,8 @@ export interface ConsoleSession {
     agency: AgencyRef | null;
     /** The exact keys this person holds. The nav and every button reads them. */
     permissions: string[];
+    /** Seller Assessment capabilities (staff only). The server re-checks every one. */
+    assessmentCapabilities?: string[];
   };
   mfa: MfaState;
 }

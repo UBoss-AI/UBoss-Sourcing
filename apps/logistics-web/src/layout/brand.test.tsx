@@ -30,6 +30,9 @@ import type { PortalSession } from '@/lib/types';
 import { BrandLockup } from './BrandLockup';
 import { LoginPage } from '@/pages/LoginPage';
 
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
+
 /**
  * The innermost element whose whole text is `text`. The wordmark is two spans
  * now — "Gloviaa" and "Mart" in different faces — so the name is no longer

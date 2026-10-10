@@ -5,10 +5,11 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { readBuyerOrderMilestones } from '../../modules/orders/order-milestones.service.js';
-import { orderScopeWhere, requireCustomer } from '../plugins/auth.js';
+import { orderScopeWhere, requireCustomerForRemedies } from '../plugins/auth.js';
 
 export function registerCustomerOrderMilestoneRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireCustomer);
+  // Existing orders and their remedies stay reachable before new Terms are accepted.
+  app.addHook('preHandler', requireCustomerForRemedies);
 
   // Production milestones and exceptions, inspection status, shipments, buyer-visible documents and payment status of one of the buyer's orders.
   app.get('/:id/milestones', async (request, reply) => {

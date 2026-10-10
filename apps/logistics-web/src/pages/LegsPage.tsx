@@ -20,6 +20,7 @@ import { ApiError, api } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
 import { fetchDrivers } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
+import { LegAssessmentPanel } from './LegAssessmentPanel';
 
 type LegStatus = 'PENDING' | 'AWAITING_ASSIGNMENT' | 'ASSIGNED' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
@@ -178,6 +179,8 @@ function LegCard({ leg }: { leg: PartnerLeg }): React.JSX.Element {
             )}
           </div>
         )}
+
+        {leg.level === 'L2' && <LegAssessmentPanel legId={leg.id} />}
 
         {leg.events.length > 0 && (
           <ul className="space-y-1 border-t border-border-subtle pt-3 text-xs text-ink-muted">

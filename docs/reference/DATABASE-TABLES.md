@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**378 tables · 365 enums · 863 extra indexes and unique keys**, in 57 groups. The groups follow the section banners in the schema file.
+**441 tables · 377 enums · 949 extra indexes and unique keys**, in 60 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -82,6 +82,9 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 13 | 16 |
 | [Master data (master row 75)](#group-master-data-master-row-75) | 4 | 3 |
 | [Audit console](#group-audit-console) | 8 | 18 |
+| [/ the seller's audit badge. set by an audit supervisor only.](#group-the-seller-s-audit-badge-set-by-an-audit-supervisor-only) | 11 | 12 |
+| [Statuses are varchar checked by domain/seller-assessment-state.ts, the only place that decides which move is legal. money is bigint minor units.](#group-statuses-are-varchar-checked-by-domain-seller-assessment-state-ts-the-only-place-that-decides-which-move-is-legal-money-is-bigint-minor-units) | 20 | 0 |
+| [Delivery, returns, disputes, commercial schedules, certification recovery, security, insurance, product evidence, safety and country launch.](#group-delivery-returns-disputes-commercial-schedules-certification-recovery-security-insurance-product-evidence-safety-and-country-launch) | 32 | 0 |
 
 <a id="group-identity-access"></a>
 
@@ -7989,6 +7992,9 @@ A seller business, as a tenant.
 | `commissionBasisPoints` | Int · SmallInt | yes |  |  | The commission the operator takes, in basis points (250 = 2.50%). A SETTING with a null default meaning "use the platform rate", never a hard-coded percentage: what a marketplace charges is a business decision each deployment makes for itself. |
 | `feeTier` | String · VarChar(32) | yes |  |  | The fee tier finance placed this seller in, e.g. `GOLD`. Matched by SELLER_TIER fee rules; null is "no tier". A label the operator chooses, never a list in code. |
 | `qualityScore` | Decimal · Decimal(5, 2) | yes |  |  | Rolled-up performance, recomputed by the worker. Nullable because a seller with no orders has no score, which is different from a score of zero. |
+| `auditBadge` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  | The seller's Audit badge (Platinum, Gold, Silver, Bronze). Set only by an Audit supervisor, with a reason, and never by the seller. Null is "no badge", which always means a shipment needs a physical assessment. See `domain/shipment-assessment.ts`. |
+| `auditBadgeSetAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `auditBadgeVersion` | Int |  |  | 0 | Bumped on every badge change, so a waiver can tell it is stale. |
 | `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
@@ -8071,6 +8077,12 @@ A seller business, as a tenant.
 - `profileChangeRequests` ← [SellerProfileChangeRequest](#model-sellerprofilechangerequest) - has many
 - `listingTrust` ← [SellerListingTrust](#model-sellerlistingtrust) - has many
 - `productReviews` ← [ProductReview](#model-productreview) - has many
+- `badgeChanges` ← [SellerBadgeChange](#model-sellerbadgechange) - has many
+- `shipmentAssessments` ← [ShipmentAssessment](#model-shipmentassessment) - has many
+- `auditDocuments` ← [AuditDocument](#model-auditdocument) - has many
+- `assessments` ← [SellerAssessment](#model-sellerassessment) - has many
+- `tradingApprovals` ← [SellerTradingApproval](#model-sellertradingapproval) - has many
+- `consentRecords` ← [ConsentRecord](#model-consentrecord) - has many
 
 **Indexes and keys**
 
@@ -9030,6 +9042,7 @@ One seller's part of one buyer order.
 - `buyerUpdates` ← [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) - has many
 - `tradeDocuments` ← [OrderTradeDocument](#model-ordertradedocument) - has many
 - `complianceOverride` ← [TradeComplianceOverride](#model-tradecomplianceoverride) - has zero or one
+- `shipmentAssessment` ← [ShipmentAssessment](#model-shipmentassessment) - has zero or one
 - `messages` ← [OrderMessage](#model-ordermessage) - has many
 
 **Indexes and keys**
@@ -9740,6 +9753,8 @@ What a seller is being told about.
 | Value | Meaning |
 |---|---|
 | `APPLICATION_STATUS` |  |
+| `SELLER_ASSESSMENT` | Seller Assessment and Onboarding: corrections, findings, release, notices, appeals, renewals. |
+| `SHIPMENT_ASSESSMENT` | Shipment Assessment between L1 and L2: readiness, findings, approvals, waivers. |
 | `LISTING_DECISION` |  |
 | `NEW_ORDER` |  |
 | `DISPATCH_SLA_WARNING` |  |
@@ -11605,6 +11620,7 @@ Evidence that a consignment was handed over.
 | `signatureDocumentId` | String · Char(26) | yes |  |  |  |
 | `photoDocumentId` | String · Char(26) | yes |  |  |  |
 | `exceptionNote` | String · VarChar(512) | yes |  |  | Anything the driver had to write down: left with security, signed by a colleague, one carton refused. |
+| `quantitiesJson` | Json | yes |  |  | Doc 07 s5: quantities delivered per line, as the recipient confirmed them. Proof of delivery is not proof of technical conformity. |
 | `capturedByPartnerUserId` | String · Char(26) | yes |  |  |  |
 | `capturedBySource` | [enum LogisticsEventSource](#enum-logisticseventsource) |  |  | DRIVER_APP |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -16067,6 +16083,7 @@ erDiagram
     User ||--o{ ConsentRecord : "user"
     BuyerCompany |o--o{ ConsentRecord : "company"
     LegalDocument |o--o{ ConsentRecord : "legalDocument"
+    SellerAccount |o--o{ ConsentRecord : "sellerAccount"
     BuyerCompany {
         String id PK
         BuyerCompanyStatus status
@@ -16153,6 +16170,7 @@ erDiagram
         String userId FK
         String companyId FK
         String legalDocumentId FK
+        String sellerAccountId FK
     }
 ```
 
@@ -16754,6 +16772,8 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 | `scope` | [enum AgreementScope](#enum-agreementscope) | yes |  |  | The kind of account the person was acting as. Null where nobody knows - the declarations, and nothing else. |
 | `activeDocumentId` | String · Char(26) | yes |  |  | `legalDocumentId` while this record is in force, null once cleared. Exists for the unique index: one active record per person per document, any number of cleared ones. The CHECK constraint keeps it honest. |
 | `clearedAt` | DateTime · DateTime(3) | yes |  |  | When the person unticked this on the agreement screen, before pressing Continue. Not a withdrawal: `withdrawnAt` is for that, and clearing one box withdraws no consent to anything else. |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | For a SELLER-scope record: the seller the person was acting for, resolved by the server from their membership - never taken from the request. Null for every other scope, and for seller records written before it existed (none is back-filled: nobody knows for certain which seller they were). (on delete: SetNull) |
+| `activeCompanyKey` | String · VarChar(26) |  |  | "" | The company an active COMPANY_BUYER record is for, or '' for every other record. Part of the one-active-record unique index, so a member of two companies can hold one record per company. Never NULL: MariaDB treats every NULL in a UNIQUE index as distinct. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -16762,14 +16782,16 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 - `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 - `legalDocument` → [LegalDocument](#model-legaldocument) via `legalDocumentId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 
 **Indexes and keys**
 
 - `@@index([userId, purpose], map: "ix_consent_record_user")`
 - `@@index([companyId], map: "ix_consent_record_company")`
-- `@@unique([userId, activeDocumentId], map: "uq_consent_record_user_active_document")`
+- `@@unique([userId, activeDocumentId, activeCompanyKey], map: "uq_consent_record_user_active_document")`
 - `@@index([userId, legalDocumentId], map: "ix_consent_record_user_document")`
 - `@@index([legalDocumentId], map: "ix_consent_record_legal_document")`
+- `@@index([sellerAccountId, legalDocumentId], map: "ix_consent_record_seller_document")`
 
 ### Enums in  / which buyer the session is acting as. null on a session row means individual.
 
@@ -16989,9 +17011,14 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `AUTHORITY_TO_ACT` | "I am authorised to act for this company." |
 | `PLATFORM_TERMS` | The marketplace's Terms and Conditions, accepted when a buyer account is created. The row points at the exact `LegalDocument` that was shown. |
 | `LOGISTICS_PARTNER_TERMS` | The terms a carrier's staff accept when they activate a logistics portal account. The row points at the exact `LegalDocument` that was shown. |
-| `SELLER_TERMS` | The Seller Addendum, accepted on the Seller Hub's agreement screen. |
+| `SELLER_TERMS` | The Seller Terms and Conditions, accepted on the Seller Hub's agreement screen. |
+| `SELLER_SERVICES_AGREEMENT` | The Seller Platform Services Agreement, accepted on the Seller Hub's agreement screen under its own box. A click-through record of one published version: not a countersignature, and not agreement to the seller-specific schedules, which are signed separately. |
 | `STAFF_TERMS` | The operator's staff terms, accepted on the console's agreement screen. |
 | `AUDIT_CONSOLE_TERMS` | The Audit Console's terms, accepted on that console's agreement screen. |
+| `B2B_BUYER_TERMS` | The B2B Buyer Terms and Conditions, accepted on the storefront's agreement screen by a member acting for a buyer company. The row names the company. |
+| `B2B_BUYER_SERVICES_AGREEMENT` | The B2B Buyer Platform Services Agreement, accepted once for a company by a member with authority to bind it (owner or company admin). A record of one published version: not Gloviaa's signature and not the completed Schedules A-C, which are executed separately. |
+| `B2C_CONSUMER_TERMS` | The B2C Consumer Terms and Conditions, accepted on the storefront's screen by somebody shopping for themselves (scope CONSUMER). |
+| `B2C_PLATFORM_SERVICES_AGREEMENT` | The B2C Platform Services Agreement, accepted under its own box on the same consumer screen. Never the seller's or the B2B one. |
 
 <a id="enum-consentaction"></a>
 
@@ -17017,6 +17044,8 @@ Which kind of account the agreement screen was asking for. One person can be a b
 | `LOGISTICS` |  |
 | `STAFF` |  |
 | `AUDIT` |  |
+| `COMPANY_BUYER` | The storefront's screen for somebody acting for a buyer company. |
+| `CONSUMER` | The storefront's screen for somebody shopping for themselves, once the B2C Consumer Terms, the B2C Platform Services Agreement and the Privacy Policy are all in force. Until then an individual is asked as BUYER. |
 
 <a id="enum-staffaccessdecision"></a>
 
@@ -17159,6 +17188,11 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 | `RETURNS_POLICY` | How returns work: the window, what can be returned, refunds or replacements. |
 | `STAFF_TERMS` | Terms for the operator's own staff, accepted on the admin console's agreement screen after sign-in and recorded like every other kind. |
 | `AUDIT_CONSOLE_TERMS` | Terms for Audit Console users - inspection agencies and auditors - accepted on that console's agreement screen. |
+| `SELLER_SERVICES_AGREEMENT` | The Seller Platform Services Agreement, accepted by a seller on the Seller Hub's agreement screen under its own box, beside the Seller Terms. |
+| `B2B_BUYER_TERMS` | The B2B Buyer Terms and Conditions: accepted by each member acting for a buyer company, on the storefront's company agreement screen. |
+| `B2B_BUYER_SERVICES_AGREEMENT` | The B2B Buyer Platform Services Agreement: accepted once for a company by a member with authority to bind it. Its Schedules A-C are executed separately; accepting the published text is not full execution. |
+| `B2C_CONSUMER_TERMS` | The B2C Consumer Terms and Conditions, for somebody shopping for themselves. Mandatory consumer rights apply whatever it says. |
+| `B2C_PLATFORM_SERVICES_AGREEMENT` | The B2C Platform Services Agreement, the consumer screen's own box. No approved text has been supplied yet; until one is published the consumer screen stays off. |
 
 <a id="enum-legaldocumentstatus"></a>
 
@@ -22004,6 +22038,7 @@ A member of the marketplace's own audit team. Agency people are `InspectionAgenc
 | `fullName` | String · VarChar(160) |  |  |  |  |
 | `jobTitle` | String · VarChar(120) | yes |  |  |  |
 | `competenceCategoryIdsJson` | Json | yes |  |  | Categories this reviewer is competent to decide. Null is none. |
+| `assessmentCapabilitiesJson` | Json | yes |  |  | Seller Assessment capabilities on top of the role (HEAD_OF_ASSURANCE, ASSESS, REGULATORY, FINANCE, OPERATIONS, LEGAL, RELEASE, APPEAL_REVIEW). One person may hold several. |
 | `invitedByUserId` | String · Char(26) | yes |  |  |  |
 | `activatedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `disabledAt` | DateTime · DateTime(3) | yes |  |  |  |
@@ -22509,4 +22544,2649 @@ The part a seller plays for the goods, per case - a seller can manufacture one c
 | `APPROVED` |  |
 | `REJECTED` |  |
 | `CANCELLED` |  |
+
+<a id="group-the-seller-s-audit-badge-set-by-an-audit-supervisor-only"></a>
+
+##  / the seller's audit badge. set by an audit supervisor only.
+
+[SellerBadgeChange](#model-sellerbadgechange) · [ShipmentAssessmentPolicy](#model-shipmentassessmentpolicy) · [ShipmentAssessment](#model-shipmentassessment) · [ShipmentAssessmentRound](#model-shipmentassessmentround) · [ShipmentAssessmentCheck](#model-shipmentassessmentcheck) · [ShipmentAssessmentEvidence](#model-shipmentassessmentevidence) · [ShipmentAssessmentEvent](#model-shipmentassessmentevent) · [ShipmentWaiverDecision](#model-shipmentwaiverdecision) · [ShipmentReleaseAuthorization](#model-shipmentreleaseauthorization) · [ShipmentAssessmentException](#model-shipmentassessmentexception) · [AuditDocument](#model-auditdocument)
+
+```mermaid
+erDiagram
+    SellerAccount ||--o{ SellerBadgeChange : "sellerAccount"
+    SellerOrderGroup ||--o| ShipmentAssessment : "sellerOrderGroup"
+    SellerAccount ||--o{ ShipmentAssessment : "sellerAccount"
+    ShipmentAssessment ||--o{ ShipmentAssessmentRound : "assessment"
+    ShipmentAssessment ||--o{ ShipmentAssessmentCheck : "assessment"
+    ShipmentAssessment ||--o{ ShipmentAssessmentEvidence : "assessment"
+    ShipmentAssessment ||--o{ ShipmentAssessmentEvent : "assessment"
+    ShipmentAssessment ||--o{ ShipmentWaiverDecision : "assessment"
+    ShipmentAssessment ||--o{ ShipmentReleaseAuthorization : "assessment"
+    ShipmentAssessment ||--o{ ShipmentAssessmentException : "assessment"
+    SellerAccount ||--o{ AuditDocument : "sellerAccount"
+    ShipmentAssessment |o--o{ AuditDocument : "assessment"
+    SellerBadgeChange {
+        String id PK
+        String sellerAccountId FK
+    }
+    ShipmentAssessmentPolicy {
+        String id PK
+    }
+    ShipmentAssessment {
+        String id PK
+        String sellerOrderGroupId FK
+        String sellerAccountId FK
+        ShipmentAssessmentStatus status
+    }
+    ShipmentAssessmentRound {
+        String id PK
+        String assessmentId FK
+    }
+    ShipmentAssessmentCheck {
+        String id PK
+        String assessmentId FK
+    }
+    ShipmentAssessmentEvidence {
+        String id PK
+        String assessmentId FK
+    }
+    ShipmentAssessmentEvent {
+        String id PK
+        String assessmentId FK
+        ShipmentAssessmentStatus fromStatus
+        ShipmentAssessmentStatus toStatus
+    }
+    ShipmentWaiverDecision {
+        String id PK
+        String assessmentId FK
+    }
+    ShipmentReleaseAuthorization {
+        String id PK
+        String assessmentId FK
+        ShipmentReleaseStatus status
+    }
+    ShipmentAssessmentException {
+        String id PK
+        String assessmentId FK
+    }
+    AuditDocument {
+        String id PK
+        AuditDocumentStatus status
+        String sellerAccountId FK
+        String assessmentId FK
+    }
+```
+
+<a id="model-sellerbadgechange"></a>
+
+### SellerBadgeChange
+
+Table `seller_badge_changes`
+
+Every change of a seller's Audit badge, append-only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `fromTier` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  |  |
+| `toTier` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  |  |
+| `reason` | String · VarChar(2000) |  |  |  |  |
+| `changedByUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, createdAt], map: "ix_seller_badge_change_seller")`
+
+<a id="model-shipmentassessmentpolicy"></a>
+
+### ShipmentAssessmentPolicy
+
+Table `shipment_assessment_policies`
+
+The badge policy, one row per version. The highest version is in force; a decision records the version it was made under. Never updated.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `version` | Int |  | UNIQUE |  |  |
+| `platinumRule` | [enum ShipmentAssessmentBadgeRule](#enum-shipmentassessmentbadgerule) |  |  |  |  |
+| `goldRule` | [enum ShipmentAssessmentBadgeRule](#enum-shipmentassessmentbadgerule) |  |  |  |  |
+| `silverRule` | [enum ShipmentAssessmentBadgeRule](#enum-shipmentassessmentbadgerule) |  |  |  |  |
+| `bronzeRule` | [enum ShipmentAssessmentBadgeRule](#enum-shipmentassessmentbadgerule) |  |  |  |  |
+| `unbadgedRule` | [enum ShipmentAssessmentBadgeRule](#enum-shipmentassessmentbadgerule) |  |  |  | A seller with no badge. Always ASSESSMENT_REQUIRED (checked in code). |
+| `defaultDispatchDays` | Int · SmallInt | yes |  |  | An approved dispatch window, in days, when the marketplace has one. Null: the approving reviewer sets a justified deadline each time. |
+| `maxDispatchDays` | Int · SmallInt | yes |  |  | The furthest a reviewer may set a dispatch deadline. Null: no cap beyond product and evidence limits. |
+| `sellerCertificateMonths` | Int · SmallInt |  |  | 12 | When a Seller Verification Certificate is due for review. A platform policy, not a legal or ISO rule. |
+| `note` | String · Text | yes |  |  |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+<a id="model-shipmentassessment"></a>
+
+### ShipmentAssessment
+
+Table `shipment_assessments`
+
+One seller order's assessment between L1 and L2.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(24) |  | UNIQUE |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | UNIQUE, FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `status` | [enum ShipmentAssessmentStatus](#enum-shipmentassessmentstatus) |  |  | AWAITING_L1 |  |
+| `requirement` | [enum ShipmentAssessmentRequirement](#enum-shipmentassessmentrequirement) |  |  | ASSESSMENT_REQUIRED | What the policy said at the last evaluation, and why, in words. |
+| `requirementReason` | String · VarChar(512) |  |  |  |  |
+| `mandatoryInspection` | Boolean |  |  | false | A regulatory, contractual or buyer-requested inspection applies. A waiver is then impossible. |
+| `mandatoryReason` | String · VarChar(512) | yes |  |  |  |
+| `applicabilityKnown` | Boolean |  |  | true | False when the facts a waiver needs could not be read. No waiver then. |
+| `badgeAtEvaluation` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  |  |
+| `policyVersion` | Int |  |  |  |  |
+| `evaluatedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `currentRound` | Int |  |  | 0 |  |
+| `assessorUserId` | String · Char(26) | yes |  |  |  |
+| `qaReviewerUserId` | String · Char(26) | yes |  |  |  |
+| `l1LegId` | String · Char(26) | yes |  |  |  |
+| `l2LegId` | String · Char(26) | yes |  |  |  |
+| `l1CompletedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `l1Location` | String · VarChar(160) | yes |  |  |  |
+| `plannedL2At` | DateTime · DateTime(3) | yes |  |  |  |
+| `scopeFingerprint` | String · Char(64) | yes |  |  | SHA-256 of what the shipment is: lines, quantities, packing list, destination. A release is only good for the fingerprint it was given on. |
+| `existingAtRollout` | Boolean |  |  | false | Awaiting L2 when this feature was switched on. Shown in its own queue. |
+| `readinessNote` | String · Text | yes |  |  |  |
+| `readinessSubmittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerResponse` | String · Text | yes |  |  |  |
+| `sellerRespondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `holdReason` | String · VarChar(1000) | yes |  |  |  |
+| `loadingChecksCompletedAt` | DateTime · DateTime(3) | yes |  |  | Final loading checks (section K) recorded by the assessor or the carrier holding L2. Required before departure. |
+| `dispatchedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `cancelledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `rounds` ← [ShipmentAssessmentRound](#model-shipmentassessmentround) - has many
+- `checks` ← [ShipmentAssessmentCheck](#model-shipmentassessmentcheck) - has many
+- `evidence` ← [ShipmentAssessmentEvidence](#model-shipmentassessmentevidence) - has many
+- `events` ← [ShipmentAssessmentEvent](#model-shipmentassessmentevent) - has many
+- `waivers` ← [ShipmentWaiverDecision](#model-shipmentwaiverdecision) - has many
+- `releases` ← [ShipmentReleaseAuthorization](#model-shipmentreleaseauthorization) - has many
+- `exceptions` ← [ShipmentAssessmentException](#model-shipmentassessmentexception) - has many
+- `documents` ← [AuditDocument](#model-auditdocument) - has many
+
+**Indexes and keys**
+
+- `@@index([status, updatedAt], map: "ix_shipment_assessment_status")`
+- `@@index([sellerAccountId, status], map: "ix_shipment_assessment_seller")`
+- `@@index([orderId], map: "ix_shipment_assessment_order")`
+
+<a id="model-shipmentassessmentround"></a>
+
+### ShipmentAssessmentRound
+
+Table `shipment_assessment_rounds`
+
+One round of an assessment. A reassessment is a new round; the earlier rounds, their checks and their report are never changed.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `round` | Int |  |  |  |  |
+| `kind` | [enum ShipmentAssessmentRoundKind](#enum-shipmentassessmentroundkind) |  |  |  |  |
+| `checklistVersion` | String · VarChar(48) |  |  |  | `common-v1` plus the category plan it copied, if any. |
+| `categoryPlanId` | String · Char(26) | yes |  |  |  |
+| `categoryPlanVersion` | Int | yes |  |  |  |
+| `checklistJson` | Json |  |  |  | The items as they stood when the round began. |
+| `assessorUserId` | String · Char(26) | yes |  |  |  |
+| `startedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `inspectionLocation` | String · VarChar(255) | yes |  |  |  |
+| `orderedQuantity` | Int | yes |  |  |  |
+| `declaredQuantity` | Int | yes |  |  |  |
+| `presentedQuantity` | Int | yes |  |  |  |
+| `countedQuantity` | Int | yes |  |  |  |
+| `sampledQuantity` | Int | yes |  |  |  |
+| `approvedQuantity` | Int | yes |  |  |  |
+| `sellingUnit` | String · VarChar(32) | yes |  |  |  |
+| `unitsPerPackage` | Int | yes |  |  |  |
+| `packagesDeclared` | Int | yes |  |  |  |
+| `packagesCounted` | Int | yes |  |  |  |
+| `grossWeightDeclaredGrams` | BigInt | yes |  |  |  |
+| `grossWeightMeasuredGrams` | BigInt | yes |  |  |  |
+| `countingMethod` | String · VarChar(255) | yes |  |  |  |
+| `samplingMethod` | String · VarChar(255) | yes |  |  | The approved sampling method used, as named by the plan. |
+| `sampleCoverageNote` | String · VarChar(1000) | yes |  |  |  |
+| `outcome` | [enum ShipmentRoundOutcome](#enum-shipmentroundoutcome) | yes |  |  |  |
+| `findingsSummary` | String · Text | yes |  |  |  |
+| `qaReviewerUserId` | String · Char(26) | yes |  |  |  |
+| `qaDecision` | String · VarChar(16) | yes |  |  | APPROVED or RETURNED. |
+| `qaNote` | String · Text | yes |  |  |  |
+| `qaDecidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `correctiveAction` | String · Text | yes |  |  |  |
+| `correctiveActionAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, round], map: "uq_shipment_assessment_round")`
+
+<a id="model-shipmentassessmentcheck"></a>
+
+### ShipmentAssessmentCheck
+
+Table `shipment_assessment_checks`
+
+One checklist item's result in one round.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `round` | Int |  |  |  |  |
+| `itemCode` | String · VarChar(48) |  |  |  |  |
+| `section` | String · VarChar(4) |  |  |  |  |
+| `phase` | String · VarChar(16) |  |  |  | PRE_LOADING or LOADING. |
+| `outcome` | [enum ShipmentCheckOutcome](#enum-shipmentcheckoutcome) |  |  |  |  |
+| `note` | String · VarChar(2000) | yes |  |  |  |
+| `measuredValue` | String · VarChar(255) | yes |  |  |  |
+| `sampled` | Boolean |  |  | false | True when the result is from a sample, not every unit. |
+| `recordedByUserId` | String · Char(26) |  |  |  |  |
+| `recordedByRole` | String · VarChar(16) |  |  |  | AUDIT or LOGISTICS. |
+| `recordedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, round, itemCode], map: "uq_shipment_assessment_check")`
+
+<a id="model-shipmentassessmentevidence"></a>
+
+### ShipmentAssessmentEvidence
+
+Table `shipment_assessment_evidence`
+
+A photo or document attached to an assessment. Private storage only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `round` | Int |  |  |  |  |
+| `itemCode` | String · VarChar(48) | yes |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `uploadedByRole` | String · VarChar(16) |  |  |  | AUDIT, SELLER or LOGISTICS. |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([assessmentId, round], map: "ix_shipment_assessment_evidence")`
+
+<a id="model-shipmentassessmentevent"></a>
+
+### ShipmentAssessmentEvent
+
+Table `shipment_assessment_events`
+
+Everything that happened to an assessment, append-only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(48) |  |  |  |  |
+| `fromStatus` | [enum ShipmentAssessmentStatus](#enum-shipmentassessmentstatus) | yes |  |  |  |
+| `toStatus` | [enum ShipmentAssessmentStatus](#enum-shipmentassessmentstatus) | yes |  |  |  |
+| `actorRole` | String · VarChar(16) |  |  |  | AUDIT, SELLER, LOGISTICS or SYSTEM. |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `dataJson` | Json | yes |  |  |  |
+| `occurredAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `idempotencyKey` | String · VarChar(80) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([idempotencyKey], map: "uq_shipment_assessment_event_idem")`
+- `@@index([assessmentId, occurredAt], map: "ix_shipment_assessment_event")`
+
+<a id="model-shipmentwaiverdecision"></a>
+
+### ShipmentWaiverDecision
+
+Table `shipment_waiver_decisions`
+
+An auditor's decision on a badge-based waiver.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `decision` | [enum ShipmentWaiverDecisionKind](#enum-shipmentwaiverdecisionkind) |  |  |  |  |
+| `badgeAtDecision` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  |  |
+| `badgeVersion` | Int |  |  |  |  |
+| `policyVersion` | Int |  |  |  |  |
+| `historyReviewNote` | String · Text | yes |  |  | Gold: what the reviewer found in the seller's recent history. |
+| `historySnapshotJson` | Json |  |  |  | The history the reviewer was shown, exactly as shown. |
+| `reason` | String · Text |  |  |  |  |
+| `evidenceRefsJson` | Json | yes |  |  | Evidence ids or document references the decision relied on. |
+| `decidedByUserId` | String · Char(26) |  |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `invalidatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `invalidationReason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([assessmentId, decidedAt], map: "ix_shipment_waiver_assessment")`
+
+<a id="model-shipmentreleaseauthorization"></a>
+
+### ShipmentReleaseAuthorization
+
+Table `shipment_release_authorizations`
+
+Permission for L2 to start. One ACTIVE row per assessment at most.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `kind` | [enum ShipmentReleaseKind](#enum-shipmentreleasekind) |  |  |  |  |
+| `round` | Int |  |  |  |  |
+| `waiverDecisionId` | String · Char(26) | yes |  |  |  |
+| `status` | [enum ShipmentReleaseStatus](#enum-shipmentreleasestatus) |  |  | ACTIVE |  |
+| `activeSlot` | String · Char(26) | yes | UNIQUE |  | The assessment id while ACTIVE, NULL otherwise: a UNIQUE index that allows exactly one active authorization (NULLs are distinct). |
+| `scopeFingerprint` | String · Char(64) |  |  |  |  |
+| `badgeAtIssue` | [enum SellerBadgeTier](#enum-sellerbadgetier) | yes |  |  |  |
+| `badgeVersion` | Int |  |  |  |  |
+| `policyVersion` | Int |  |  |  |  |
+| `dispatchDeadline` | DateTime · DateTime(3) |  |  |  |  |
+| `deadlineJustification` | String · VarChar(1000) |  |  |  |  |
+| `loadingChecksRequired` | Boolean |  |  | true |  |
+| `issuedByUserId` | String · Char(26) |  |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `consumedLegId` | String · Char(26) | yes |  |  |  |
+| `invalidatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `invalidationReason` | String · VarChar(1000) | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([status, dispatchDeadline], map: "ix_shipment_release_status")`
+- `@@index([assessmentId], map: "ix_shipment_release_assessment")`
+
+<a id="model-shipmentassessmentexception"></a>
+
+### ShipmentAssessmentException
+
+Table `shipment_assessment_exceptions`
+
+Reality that broke a rule: a carrier reported the goods leaving while the shipment was not released. Recorded, never discarded, never approved.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(48) |  |  |  |  |
+| `logisticsShipmentId` | String · Char(26) | yes |  |  |  |
+| `shipmentEventId` | String · Char(26) | yes |  |  |  |
+| `detail` | String · Text |  |  |  |  |
+| `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
+| `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `resolvedByUserId` | String · Char(26) | yes |  |  |  |
+| `resolutionNote` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([shipmentEventId], map: "uq_shipment_assessment_exception_event")`
+- `@@index([assessmentId, resolvedAt], map: "ix_shipment_assessment_exception")`
+
+<a id="model-auditdocument"></a>
+
+### AuditDocument
+
+Table `audit_documents`
+
+A certificate, waiver authorization or findings report the Audit Team issued. The PDF is never overwritten: a correction is a new row with `supersedesId` set and the old one SUPERSEDED.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(32) |  | UNIQUE |  |  |
+| `kind` | [enum AuditDocumentKind](#enum-auditdocumentkind) |  |  |  |  |
+| `version` | Int |  |  | 1 |  |
+| `supersedesId` | String · Char(26) | yes | UNIQUE |  |  |
+| `status` | [enum AuditDocumentStatus](#enum-auditdocumentstatus) |  |  | ACTIVE |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `assessmentId` | String · Char(26) | yes | FK → [ShipmentAssessment](#model-shipmentassessment) |  | (on delete: Cascade) |
+| `round` | Int | yes |  |  |  |
+| `releaseId` | String · Char(26) | yes |  |  |  |
+| `scopeJson` | Json |  |  |  | What the public verification page may show. Nothing private. |
+| `detailJson` | Json |  |  |  | What was printed, for the record. Never shown publicly. |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `validUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `dispatchBy` | DateTime · DateTime(3) | yes |  |  |  |
+| `signedByUserId` | String · Char(26) |  |  |  |  |
+| `signedByName` | String · VarChar(160) |  |  |  |  |
+| `signedByRole` | String · VarChar(48) |  |  |  |  |
+| `signingMechanism` | String · VarChar(255) |  |  |  | Said plainly: an authorised sign-off record, not a cryptographic signature. |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `pageCount` | Int |  |  |  |  |
+| `statusChangedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `revokedByUserId` | String · Char(26) | yes |  |  |  |
+| `revokedReason` | String · VarChar(1000) | yes |  |  |  |
+| `reminderSentAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `assessment` → [ShipmentAssessment](#model-shipmentassessment) via `assessmentId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, kind], map: "ix_audit_document_seller")`
+- `@@index([assessmentId], map: "ix_audit_document_assessment")`
+- `@@index([status, validUntil], map: "ix_audit_document_status")`
+
+### Enums in  / the seller's audit badge. set by an audit supervisor only.
+
+<a id="enum-sellerbadgetier"></a>
+
+#### enum SellerBadgeTier
+
+| Value | Meaning |
+|---|---|
+| `PLATINUM` |  |
+| `GOLD` |  |
+| `SILVER` |  |
+| `BRONZE` |  |
+
+<a id="enum-shipmentassessmentstatus"></a>
+
+#### enum ShipmentAssessmentStatus
+
+Where one seller order stands between L1 and L2.
+
+| Value | Meaning |
+|---|---|
+| `AWAITING_L1` | L1 has not been handed over yet. |
+| `READY_FOR_ASSESSMENT` | L1 is complete. Waiting for an assessor, or for the waiver question. |
+| `IN_PROGRESS` | An assessor is recording the checklist. |
+| `AWAITING_QA` | The assessor submitted a passing round. A second person must approve it. |
+| `WAIVER_REVIEW` | The badge makes the seller waiver-eligible; an auditor must decide. |
+| `APPROVED_FOR_L2` | A release authorization is active. L2 may start once loading checks pass. |
+| `FAILED` | The round failed. The whole shipment is blocked. |
+| `ON_HOLD` | A check is on hold, or the shipment was put on hold. Blocked. |
+| `REASSESSMENT_REQUIRED` | Something changed after approval, or corrections were made. A new round. |
+| `DISPATCHED` | L2 started on a valid authorization. Historical. |
+| `CANCELLED` | The seller order was cancelled. |
+
+<a id="enum-shipmentassessmentrequirement"></a>
+
+#### enum ShipmentAssessmentRequirement
+
+What the badge policy says about one shipment.
+
+| Value | Meaning |
+|---|---|
+| `ASSESSMENT_REQUIRED` |  |
+| `WAIVER_ELIGIBLE` |  |
+| `WAIVER_ELIGIBLE_WITH_REVIEW` |  |
+
+<a id="enum-shipmentassessmentbadgerule"></a>
+
+#### enum ShipmentAssessmentBadgeRule
+
+One badge's rule in the policy.
+
+| Value | Meaning |
+|---|---|
+| `WAIVER_ELIGIBLE` |  |
+| `WAIVER_ELIGIBLE_WITH_REVIEW` |  |
+| `ASSESSMENT_REQUIRED` |  |
+
+<a id="enum-shipmentcheckoutcome"></a>
+
+#### enum ShipmentCheckOutcome
+
+| Value | Meaning |
+|---|---|
+| `PASS` |  |
+| `FAIL` |  |
+| `HOLD` | Hold, or not verified yet. Blocks release like a failure does. |
+| `NOT_APPLICABLE` | Needs a written justification. |
+
+<a id="enum-shipmentassessmentroundkind"></a>
+
+#### enum ShipmentAssessmentRoundKind
+
+| Value | Meaning |
+|---|---|
+| `ASSESSMENT` |  |
+| `WAIVER` |  |
+
+<a id="enum-shipmentroundoutcome"></a>
+
+#### enum ShipmentRoundOutcome
+
+| Value | Meaning |
+|---|---|
+| `PASSED` |  |
+| `FAILED` |  |
+| `HELD` |  |
+
+<a id="enum-shipmentwaiverdecisionkind"></a>
+
+#### enum ShipmentWaiverDecisionKind
+
+| Value | Meaning |
+|---|---|
+| `APPROVED` |  |
+| `REJECTED` |  |
+
+<a id="enum-shipmentreleasekind"></a>
+
+#### enum ShipmentReleaseKind
+
+| Value | Meaning |
+|---|---|
+| `ASSESSMENT` |  |
+| `WAIVER` |  |
+
+<a id="enum-shipmentreleasestatus"></a>
+
+#### enum ShipmentReleaseStatus
+
+| Value | Meaning |
+|---|---|
+| `ACTIVE` |  |
+| `CONSUMED` |  |
+| `INVALIDATED` |  |
+| `EXPIRED` |  |
+
+<a id="enum-auditdocumentkind"></a>
+
+#### enum AuditDocumentKind
+
+| Value | Meaning |
+|---|---|
+| `SELLER_VERIFICATION_CERTIFICATE` |  |
+| `SELLER_TRADING_APPROVAL` | The internal Seller Trading Approval record (Gate 8). Not an external certificate. |
+| `SHIPMENT_ASSESSMENT_CERTIFICATE` |  |
+| `SHIPMENT_WAIVER_AUTHORIZATION` |  |
+| `SHIPMENT_FINDINGS_REPORT` |  |
+
+<a id="enum-auditdocumentstatus"></a>
+
+#### enum AuditDocumentStatus
+
+| Value | Meaning |
+|---|---|
+| `ACTIVE` |  |
+| `EXPIRED` |  |
+| `REVOKED` |  |
+| `SUPERSEDED` |  |
+| `USED` | A shipment document whose shipment has left on it. Kept as evidence; it cannot release anything again. |
+
+<a id="group-statuses-are-varchar-checked-by-domain-seller-assessment-state-ts-the-only-place-that-decides-which-move-is-legal-money-is-bigint-minor-units"></a>
+
+## Statuses are varchar checked by domain/seller-assessment-state.ts, the only place that decides which move is legal. money is bigint minor units.
+
+[SellerAssessmentPolicy](#model-sellerassessmentpolicy) · [SellerAssessment](#model-sellerassessment) · [SellerAssessmentGate](#model-sellerassessmentgate) · [SellerAssessmentChecklistItem](#model-sellerassessmentchecklistitem) · [SellerAssessmentScore](#model-sellerassessmentscore) · [SellerAssessmentEvidence](#model-sellerassessmentevidence) · [SellerAssessmentScopeItem](#model-sellerassessmentscopeitem) · [SellerAssessmentFinding](#model-sellerassessmentfinding) · [SellerAssessmentWorkpaper](#model-sellerassessmentworkpaper) · [SellerExternalCertification](#model-sellerexternalcertification) · [SellerTradingApproval](#model-sellertradingapproval) · [SellerTradingApprovalScope](#model-sellertradingapprovalscope) · [SellerAssessmentEvent](#model-sellerassessmentevent) · [SellerAssessmentNotice](#model-sellerassessmentnotice) · [SellerAssessmentAppeal](#model-sellerassessmentappeal) · [SellerAssessmentChangeRequest](#model-sellerassessmentchangerequest) · [SellerIncidentReport](#model-sellerincidentreport) · [SellerOrderDisposition](#model-sellerorderdisposition) · [SellerBankChangeRequest](#model-sellerbankchangerequest) · [SellerSurveillanceTask](#model-sellersurveillancetask)
+
+```mermaid
+erDiagram
+    SellerAccount ||--o{ SellerAssessment : "sellerAccount"
+    SellerAssessment ||--o{ SellerAssessmentGate : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentChecklistItem : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentScore : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentEvidence : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentScopeItem : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentFinding : "assessment"
+    SellerAssessment ||--o{ SellerAssessmentWorkpaper : "assessment"
+    SellerAssessment ||--o{ SellerExternalCertification : "assessment"
+    SellerAccount ||--o{ SellerTradingApproval : "sellerAccount"
+    SellerTradingApproval ||--o{ SellerTradingApprovalScope : "approval"
+    SellerAssessmentNotice ||--o{ SellerAssessmentAppeal : "notice"
+    SellerAssessmentPolicy {
+        String id PK
+        String status
+    }
+    SellerAssessment {
+        String id PK
+        String sellerAccountId FK
+        String status
+    }
+    SellerAssessmentGate {
+        String id PK
+        String assessmentId FK
+        String status
+    }
+    SellerAssessmentChecklistItem {
+        String id PK
+        String assessmentId FK
+    }
+    SellerAssessmentScore {
+        String id PK
+        String assessmentId FK
+    }
+    SellerAssessmentEvidence {
+        String id PK
+        String assessmentId FK
+    }
+    SellerAssessmentScopeItem {
+        String id PK
+        String assessmentId FK
+    }
+    SellerAssessmentFinding {
+        String id PK
+        String assessmentId FK
+        String status
+    }
+    SellerAssessmentWorkpaper {
+        String id PK
+        String assessmentId FK
+    }
+    SellerExternalCertification {
+        String id PK
+        String assessmentId FK
+        String status
+    }
+    SellerTradingApproval {
+        String id PK
+        String sellerAccountId FK
+        String status
+    }
+    SellerTradingApprovalScope {
+        String id PK
+        String approvalId FK
+        String status
+    }
+    SellerAssessmentEvent {
+        String id PK
+    }
+    SellerAssessmentNotice {
+        String id PK
+    }
+    SellerAssessmentAppeal {
+        String id PK
+        String noticeId FK
+        String status
+    }
+    SellerAssessmentChangeRequest {
+        String id PK
+        String status
+    }
+    SellerIncidentReport {
+        String id PK
+        String status
+    }
+    SellerOrderDisposition {
+        String id PK
+        String status
+    }
+    SellerBankChangeRequest {
+        String id PK
+        String status
+    }
+    SellerSurveillanceTask {
+        String id PK
+        String status
+    }
+```
+
+<a id="model-sellerassessmentpolicy"></a>
+
+### SellerAssessmentPolicy
+
+Table `seller_assessment_policies`
+
+A versioned policy. v1.0 is seeded as DRAFT: its proposed commercial defaults bind only after somebody records adoption, an effective date and disclosure. Never edited in place - a change is a new version.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `version` | String · VarChar(16) |  | UNIQUE |  |  |
+| `status` | String · VarChar(16) |  |  | "DRAFT" |  |
+| `configJson` | Json |  |  |  |  |
+| `sourceDocument` | String · VarChar(255) |  |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `effectiveFrom` | DateTime · DateTime(3) | yes |  |  |  |
+| `adoptedByUserId` | String · Char(26) | yes |  |  |  |
+| `adoptedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `adoptionReference` | String · VarChar(255) | yes |  |  |  |
+| `disclosedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `disclosureReference` | String · VarChar(255) | yes |  |  |  |
+| `retiredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-sellerassessment"></a>
+
+### SellerAssessment
+
+Table `seller_assessments`
+
+One assessment cycle for one seller: initial onboarding, an extension of scope, a renewal, a reassessment, or the reassessment of a legacy seller.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(32) |  | UNIQUE |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(24) |  |  |  |  |
+| `status` | String · VarChar(24) |  |  | "DRAFT" |  |
+| `policyVersion` | String · VarChar(16) |  |  |  |  |
+| `applicationJson` | Json |  |  |  | Application form as the seller saved it (save and resume). Validated per section. |
+| `applicationRevision` | Int |  |  | 0 |  |
+| `ownerUserId` | String · Char(26) | yes |  |  |  |
+| `riskLevel` | String · VarChar(8) |  |  | "MEDIUM" |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `fileCompleteAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewTargetAt` | DateTime · DateTime(3) | yes |  |  | Service target only (5 business days from a complete file). Never a promise of approval. |
+| `correctionNote` | String · Text | yes |  |  |  |
+| `scoreTimesFive` | Int | yes |  |  |  |
+| `scoreBand` | String · VarChar(20) | yes |  |  |  |
+| `hardStopsJson` | Json | yes |  |  |  |
+| `decision` | String · VarChar(24) | yes |  |  |  |
+| `decisionReason` | String · Text | yes |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `baseApprovalId` | String · Char(26) | yes |  |  | The approval this cycle extends or renews. |
+| `legacyNote` | String · Text | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `gates` ← [SellerAssessmentGate](#model-sellerassessmentgate) - has many
+- `checklist` ← [SellerAssessmentChecklistItem](#model-sellerassessmentchecklistitem) - has many
+- `scores` ← [SellerAssessmentScore](#model-sellerassessmentscore) - has many
+- `evidence` ← [SellerAssessmentEvidence](#model-sellerassessmentevidence) - has many
+- `scopeItems` ← [SellerAssessmentScopeItem](#model-sellerassessmentscopeitem) - has many
+- `findings` ← [SellerAssessmentFinding](#model-sellerassessmentfinding) - has many
+- `workpapers` ← [SellerAssessmentWorkpaper](#model-sellerassessmentworkpaper) - has many
+- `certifications` ← [SellerExternalCertification](#model-sellerexternalcertification) - has many
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sa_seller")`
+- `@@index([status, reviewTargetAt], map: "ix_sa_status")`
+
+<a id="model-sellerassessmentgate"></a>
+
+### SellerAssessmentGate
+
+Table `seller_assessment_gates`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `gate` | Int · TinyInt |  |  |  |  |
+| `status` | String · VarChar(24) |  |  | "NOT_STARTED" |  |
+| `assignedUserId` | String · Char(26) | yes |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reason` | String · Text | yes |  |  |  |
+| `policyVersion` | String · VarChar(16) | yes |  |  |  |
+| `evidenceIdsJson` | Json | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, gate], map: "uq_sa_gate")`
+
+<a id="model-sellerassessmentchecklistitem"></a>
+
+### SellerAssessmentChecklistItem
+
+Table `seller_assessment_checklist_items`
+
+Section 8: the 23 applicant checklist items. Untouched stays UNREVIEWED.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `code` | String · VarChar(8) |  |  |  |  |
+| `outcome` | String · VarChar(16) |  |  | "UNREVIEWED" |  |
+| `evidenceRef` | String · VarChar(255) | yes |  |  |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `expiresOn` | DateTime · Date | yes |  |  |  |
+| `comment` | String · Text | yes |  |  |  |
+| `naReason` | String · Text | yes |  |  |  |
+| `naApprovedByUserId` | String · Char(26) | yes |  |  |  |
+| `naApprovedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, code], map: "uq_sa_check")`
+
+<a id="model-sellerassessmentscore"></a>
+
+### SellerAssessmentScore
+
+Table `seller_assessment_scores`
+
+Section 4: one rating 0-5 per dimension, with its evidence and reasoning.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `dimension` | String · VarChar(32) |  |  |  |  |
+| `rating` | Int · TinyInt |  |  |  |  |
+| `evidenceRef` | String · VarChar(255) |  |  |  |  |
+| `reasoning` | String · Text |  |  |  |  |
+| `ratedByUserId` | String · Char(26) |  |  |  |  |
+| `ratedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, dimension], map: "uq_sa_score")`
+
+<a id="model-sellerassessmentevidence"></a>
+
+### SellerAssessmentEvidence
+
+Table `seller_assessment_evidence`
+
+A private evidence file. A replacement is a new version; the old one stays.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `category` | String · VarChar(24) |  |  |  |  |
+| `evidenceKey` | String · VarChar(64) |  |  |  |  |
+| `label` | String · VarChar(255) |  |  |  |  |
+| `evidenceVersion` | Int |  |  | 1 |  |
+| `supersedesId` | String · Char(26) | yes |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(64) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | String · VarChar(24) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `uploadedByRole` | String · VarChar(16) |  |  |  |  |
+| `retentionCategory` | String · VarChar(24) |  |  |  |  |
+| `legalHold` | Boolean |  |  | false |  |
+| `legalHoldReason` | String · VarChar(1000) | yes |  |  |  |
+| `legalHoldByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([assessmentId, evidenceKey], map: "ix_sa_evidence_key")`
+- `@@index([sellerAccountId], map: "ix_sa_evidence_seller")`
+
+<a id="model-sellerassessmentscopeitem"></a>
+
+### SellerAssessmentScopeItem
+
+Table `seller_assessment_scope_items`
+
+Gate 3 and Section 11: one material combination - product version x site x single country x channel. No regional row: a country is one ISO code.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `productKey` | String · VarChar(64) |  |  |  |  |
+| `offerId` | String · Char(26) | yes |  |  |  |
+| `productName` | String · VarChar(255) |  |  |  |  |
+| `productVersion` | String · VarChar(64) |  |  |  |  |
+| `intendedUse` | String · Text |  |  |  |  |
+| `facilityRef` | String · VarChar(64) |  |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `channel` | String · VarChar(4) |  |  |  |  |
+| `catalogueCategory` | String · VarChar(160) | yes |  |  |  |
+| `hsProposal` | String · VarChar(16) | yes |  |  |  |
+| `regulatoryClass` | String · VarChar(255) | yes |  |  |  |
+| `requiredTests` | String · Text | yes |  |  |  |
+| `authorisations` | String · Text | yes |  |  |  |
+| `authorisationExpiresOn` | DateTime · Date | yes |  |  |  |
+| `localResponsible` | String · VarChar(512) | yes |  |  |  |
+| `importerLicence` | String · VarChar(512) | yes |  |  |  |
+| `labelsLanguages` | String · VarChar(512) | yes |  |  |  |
+| `warnings` | String · Text | yes |  |  |  |
+| `restrictions` | String · Text | yes |  |  |  |
+| `recallObligations` | String · Text | yes |  |  |  |
+| `shippingInsurance` | String · Text | yes |  |  |  |
+| `decision` | String · VarChar(12) |  |  | "PENDING" |  |
+| `decisionReason` | String · Text | yes |  |  |  |
+| `classifiedByUserId` | String · Char(26) | yes |  |  |  |
+| `classifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `nextReviewAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([assessmentId, productKey, facilityRef, countryCode, channel], map: "uq_sa_scope")`
+
+<a id="model-sellerassessmentfinding"></a>
+
+### SellerAssessmentFinding
+
+Table `seller_assessment_findings`
+
+Gate 6 and Section 10: a finding and its corrective / preventive action.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(32) |  | UNIQUE |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `classification` | String · VarChar(12) |  |  |  |  |
+| `requirement` | String · Text |  |  |  |  |
+| `evidence` | String · Text |  |  |  |  |
+| `containment` | String · Text | yes |  |  |  |
+| `rootCause` | String · Text | yes |  |  |  |
+| `correctiveAction` | String · Text | yes |  |  |  |
+| `preventiveAction` | String · Text | yes |  |  |  |
+| `ownerName` | String · VarChar(160) | yes |  |  |  |
+| `raisedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `containmentDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `planDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `closureDueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `status` | String · VarChar(20) |  |  | "OPEN" |  |
+| `closureEvidenceIdsJson` | Json | yes |  |  |  |
+| `effectivenessVerification` | String · Text | yes |  |  |  |
+| `raisedByUserId` | String · Char(26) |  |  |  |  |
+| `closedByUserId` | String · Char(26) | yes |  |  |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([assessmentId, status], map: "ix_sa_finding")`
+
+<a id="model-sellerassessmentworkpaper"></a>
+
+### SellerAssessmentWorkpaper
+
+Table `seller_assessment_workpapers`
+
+Typed records of human work: site audits, sample plans and custody, lab competence, contracts, mock-order steps, identity checks, specialist reviews, AI outputs. Append-only; a correction is a new revision. `mode` says plainly whether a step was SIMULATED or really VERIFIED.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(24) |  |  |  |  |
+| `subjectRef` | String · VarChar(64) | yes |  |  |  |
+| `mode` | String · VarChar(16) |  |  |  |  |
+| `payloadJson` | Json |  |  |  |  |
+| `revision` | Int |  |  | 1 |  |
+| `supersedesId` | String · Char(26) | yes |  |  |  |
+| `recordedByUserId` | String · Char(26) |  |  |  |  |
+| `recordedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([assessmentId, kind], map: "ix_sa_workpaper")`
+
+<a id="model-sellerexternalcertification"></a>
+
+### SellerExternalCertification
+
+Table `seller_external_certifications`
+
+Gate 5: the independent body the marketplace appointed and paid, and the certificate it issued. A seller upload never authenticates anything.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `assessmentId` | String · Char(26) |  | FK → [SellerAssessment](#model-sellerassessment) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `bodyName` | String · VarChar(255) |  |  |  |  |
+| `scheme` | String · VarChar(255) |  |  |  |  |
+| `appointedByUserId` | String · Char(26) |  |  |  |  |
+| `appointedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `procurementRef` | String · VarChar(128) | yes |  |  |  |
+| `paymentRef` | String · VarChar(128) | yes |  |  |  |
+| `accreditationBody` | String · VarChar(255) | yes |  |  |  |
+| `accreditationNumber` | String · VarChar(128) | yes |  |  |  |
+| `accreditationVerified` | Boolean |  |  | false |  |
+| `sectorScope` | String · Text | yes |  |  |  |
+| `legalRecognition` | String · Text | yes |  |  |  |
+| `conflictCheck` | String · Text | yes |  |  |  |
+| `independenceVerified` | Boolean |  |  | false |  |
+| `facilityRefsJson` | Json | yes |  |  |  |
+| `productKeysJson` | Json | yes |  |  |  |
+| `certificateNumber` | String · VarChar(128) | yes |  |  |  |
+| `issuer` | String · VarChar(255) | yes |  |  |  |
+| `authenticityMethod` | String · VarChar(255) | yes |  |  |  |
+| `authenticityReference` | String · VarChar(512) | yes |  |  |  |
+| `authenticatedByUserId` | String · Char(26) | yes |  |  |  |
+| `authenticatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `issuedOn` | DateTime · Date | yes |  |  |  |
+| `expiresOn` | DateTime · Date | yes |  |  |  |
+| `surveillanceConditions` | String · Text | yes |  |  |  |
+| `status` | String · VarChar(20) |  |  | "APPOINTED" |  |
+| `statusReason` | String · Text | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `assessment` → [SellerAssessment](#model-sellerassessment) via `assessmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sa_cert_seller")`
+
+<a id="model-sellertradingapproval"></a>
+
+### SellerTradingApproval
+
+Table `seller_trading_approvals`
+
+Gate 8 and Section 9: the marketplace's INTERNAL trading approval. Not the external certificate and not a government or accredited approval.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(32) |  | UNIQUE |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `assessmentId` | String · Char(26) |  |  |  |  |
+| `version` | Int |  |  | 1 |  |
+| `supersedesId` | String · Char(26) | yes |  |  |  |
+| `status` | String · VarChar(16) |  |  | "ACTIVE" |  |
+| `policyVersion` | String · VarChar(16) |  |  |  |  |
+| `policyStatusAtRelease` | String · VarChar(16) |  |  |  |  |
+| `externalCertificationId` | String · Char(26) |  |  |  |  |
+| `recordJson` | Json |  |  |  | Every Section 9 field as released, for the record. |
+| `scoreTimesFive` | Int |  |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `validUntil` | DateTime · DateTime(3) |  |  |  |  |
+| `nextReviewAt` | DateTime · DateTime(3) |  |  |  |  |
+| `releaseApproverUserId` | String · Char(26) |  |  |  |  |
+| `auditDocumentId` | String · Char(26) | yes |  |  |  |
+| `statusReason` | String · Text | yes |  |  |  |
+| `statusChangedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `scopes` ← [SellerTradingApprovalScope](#model-sellertradingapprovalscope) - has many
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sta_seller")`
+- `@@index([status, validUntil], map: "ix_sta_status")`
+
+<a id="model-sellertradingapprovalscope"></a>
+
+### SellerTradingApprovalScope
+
+Table `seller_trading_approval_scopes`
+
+One approved (or blocked) combination. The purchase gate reads this.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `approvalId` | String · Char(26) |  | FK → [SellerTradingApproval](#model-sellertradingapproval) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `scopeItemId` | String · Char(26) |  |  |  |  |
+| `offerId` | String · Char(26) | yes |  |  |  |
+| `productKey` | String · VarChar(64) |  |  |  |  |
+| `productVersion` | String · VarChar(64) |  |  |  |  |
+| `facilityRef` | String · VarChar(64) |  |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `channel` | String · VarChar(4) |  |  |  |  |
+| `status` | String · VarChar(12) |  |  | "ACTIVE" |  |
+| `validUntil` | DateTime · DateTime(3) |  |  |  |  |
+| `scheduleJson` | Json |  |  |  |  |
+| `blockedReason` | String · Text | yes |  |  |  |
+| `blockedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `approval` → [SellerTradingApproval](#model-sellertradingapproval) via `approvalId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, offerId, countryCode, channel, status], map: "ix_stas_lookup")`
+- `@@index([approvalId], map: "ix_stas_approval")`
+
+<a id="model-sellerassessmentevent"></a>
+
+### SellerAssessmentEvent
+
+Table `seller_assessment_events`
+
+Append-only history of every decision and change: actor, capability, reason, policy version and evidence versions.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `assessmentId` | String · Char(26) | yes |  |  |  |
+| `subjectType` | String · VarChar(24) |  |  |  |  |
+| `subjectId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(40) |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `actorRole` | String · VarChar(16) |  |  |  |  |
+| `capability` | String · VarChar(24) | yes |  |  |  |
+| `reason` | String · Text | yes |  |  |  |
+| `policyVersion` | String · VarChar(16) | yes |  |  |  |
+| `evidenceRefsJson` | Json | yes |  |  |  |
+| `dataJson` | Json | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([assessmentId, createdAt], map: "ix_sae_assessment")`
+- `@@index([sellerAccountId, createdAt], map: "ix_sae_seller")`
+
+<a id="model-sellerassessmentnotice"></a>
+
+### SellerAssessmentNotice
+
+Table `seller_assessment_notices`
+
+Section 12: a suspension, rejection or restriction notice.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `number` | String · VarChar(32) |  | UNIQUE |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `approvalId` | String · Char(26) | yes |  |  |  |
+| `assessmentId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(16) |  |  |  |  |
+| `hardStop` | String · VarChar(40) | yes |  |  |  |
+| `scopeIdsJson` | Json | yes |  |  |  |
+| `wholeSeller` | Boolean |  |  | false |  |
+| `reason` | String · Text |  |  |  |  |
+| `shareableEvidence` | String · Text |  |  |  |  |
+| `affectedOrdersJson` | Json | yes |  |  |  |
+| `settlementTreatment` | String · Text |  |  |  |  |
+| `correctiveActions` | String · Text |  |  |  |  |
+| `reviewRoute` | String · Text |  |  |  |  |
+| `issuedByUserId` | String · Char(26) |  |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `appealDeadline` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `appeals` ← [SellerAssessmentAppeal](#model-sellerassessmentappeal) - has many
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, issuedAt], map: "ix_san_seller")`
+
+<a id="model-sellerassessmentappeal"></a>
+
+### SellerAssessmentAppeal
+
+Table `seller_assessment_appeals`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `noticeId` | String · Char(26) |  | FK → [SellerAssessmentNotice](#model-sellerassessmentnotice) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `grounds` | String · Text |  |  |  |  |
+| `evidenceRef` | String · VarChar(512) | yes |  |  |  |
+| `submittedByProfileId` | String · Char(26) |  |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `targetBy` | DateTime · DateTime(3) |  |  |  |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `status` | String · VarChar(16) |  |  | "SUBMITTED" |  |
+| `outcomeReason` | String · Text | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `notice` → [SellerAssessmentNotice](#model-sellerassessmentnotice) via `noticeId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([status, targetBy], map: "ix_saa_status")`
+
+<a id="model-sellerassessmentchangerequest"></a>
+
+### SellerAssessmentChangeRequest
+
+Table `seller_assessment_change_requests`
+
+Section 6: an advance change notification, or one the audit team found undisclosed.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `approvalId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(24) |  |  |  |  |
+| `description` | String · Text |  |  |  |  |
+| `plannedFrom` | DateTime · Date | yes |  |  |  |
+| `undisclosed` | Boolean |  |  | false |  |
+| `submittedByProfileId` | String · Char(26) | yes |  |  |  |
+| `recordedByUserId` | String · Char(26) | yes |  |  |  |
+| `status` | String · VarChar(20) |  |  | "SUBMITTED" |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `decisionReason` | String · Text | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sacr_seller")`
+
+<a id="model-sellerincidentreport"></a>
+
+### SellerIncidentReport
+
+Table `seller_incident_reports`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `severity` | String · VarChar(12) |  |  |  |  |
+| `description` | String · Text |  |  |  |  |
+| `affectedProducts` | String · Text | yes |  |  |  |
+| `awareAt` | DateTime · DateTime(3) |  |  |  |  |
+| `reportedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `deadlineHours` | Int |  |  |  |  |
+| `statutoryDeadlineHours` | Int | yes |  |  |  |
+| `late` | Boolean |  |  |  |  |
+| `submittedByProfileId` | String · Char(26) |  |  |  |  |
+| `status` | String · VarChar(16) |  |  | "OPEN" |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewNote` | String · Text | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, reportedAt], map: "ix_sir_seller")`
+
+<a id="model-sellerorderdisposition"></a>
+
+### SellerOrderDisposition
+
+Table `seller_order_dispositions`
+
+A placed seller order caught by a suspension or a lapsed scope. Nothing ships, cancels or refunds by itself: a person records the disposition.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  |  |  |  |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `noticeId` | String · Char(26) | yes |  |  |  |
+| `trigger` | String · VarChar(24) |  |  |  |  |
+| `triggerKey` | String · VarChar(64) |  |  |  |  |
+| `reason` | String · Text |  |  |  |  |
+| `status` | String · VarChar(20) |  |  | "PENDING_REVIEW" |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([sellerOrderGroupId, triggerKey], map: "uq_sod_trigger")`
+- `@@index([status, createdAt], map: "ix_sod_status")`
+
+<a id="model-sellerbankchangerequest"></a>
+
+### SellerBankChangeRequest
+
+Table `seller_bank_change_requests`
+
+A bank beneficiary change: confirmed through a known independent contact and approved by two different people.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `beneficiaryName` | String · VarChar(255) |  |  |  |  |
+| `accountLast4` | String · VarChar(4) |  |  |  |  |
+| `bankCode` | String · VarChar(16) |  |  |  |  |
+| `evidenceRef` | String · VarChar(512) | yes |  |  |  |
+| `requestedByProfileId` | String · Char(26) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `knownContactName` | String · VarChar(160) | yes |  |  |  |
+| `knownContactSource` | String · VarChar(255) | yes |  |  |  |
+| `contactConfirmedByUserId` | String · Char(26) | yes |  |  |  |
+| `contactConfirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `firstApproverUserId` | String · Char(26) | yes |  |  |  |
+| `firstApprovedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `secondApproverUserId` | String · Char(26) | yes |  |  |  |
+| `secondApprovedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `status` | String · VarChar(20) |  |  | "SUBMITTED" |  |
+| `reason` | String · Text | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sbcr_seller")`
+
+<a id="model-sellersurveillancetask"></a>
+
+### SellerSurveillanceTask
+
+Table `seller_surveillance_tasks`
+
+Surveillance, revalidation and expiry reminders. `dedupeKey` makes every sweep idempotent: a task or reminder is created once, whatever retries.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `approvalId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(32) |  |  |  |  |
+| `subjectRef` | String · VarChar(64) | yes |  |  |  |
+| `dueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `dedupeKey` | String · VarChar(160) |  | UNIQUE |  |  |
+| `status` | String · VarChar(12) |  |  | "OPEN" |  |
+| `outcome` | String · VarChar(24) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `completedByUserId` | String · Char(26) | yes |  |  |  |
+| `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([status, dueAt], map: "ix_sst_status")`
+- `@@index([sellerAccountId], map: "ix_sst_seller")`
+
+<a id="group-delivery-returns-disputes-commercial-schedules-certification-recovery-security-insurance-product-evidence-safety-and-country-launch"></a>
+
+## Delivery, returns, disputes, commercial schedules, certification recovery, security, insurance, product evidence, safety and country launch.
+
+[CommercialSchedule](#model-commercialschedule) · [CommercialScheduleEvent](#model-commercialscheduleevent) · [OrderLineCommercialSnapshot](#model-orderlinecommercialsnapshot) · [ImportRoute](#model-importroute) · [DisputeCaseProfile](#model-disputecaseprofile) · [DisputeEvidenceRequest](#model-disputeevidencerequest) · [DisputeRemedyAction](#model-disputeremedyaction) · [DisputeTestingRecord](#model-disputetestingrecord) · [LossRecovery](#model-lossrecovery) · [CommissionAdjustment](#model-commissionadjustment) · [CertificationProgramme](#model-certificationprogramme) · [CertificationCostEntry](#model-certificationcostentry) · [CertificationRecoveryAllocation](#model-certificationrecoveryallocation) · [SellerSecuritySchedule](#model-sellersecurityschedule) · [SecurityReview](#model-securityreview) · [InsurancePolicyRecord](#model-insurancepolicyrecord) · [ProductComplianceEvidence](#model-productcomplianceevidence) · [SafetyCase](#model-safetycase) · [SafetyCaseScope](#model-safetycasescope) · [SafetyCaseAction](#model-safetycaseaction) · [RecallRehearsal](#model-recallrehearsal) · [LaunchReadinessItem](#model-launchreadinessitem) · [CountryLaunch](#model-countrylaunch) · [FreightBooking](#model-freightbooking) · [FreightQuoteOption](#model-freightquoteoption) · [LogisticsProviderReview](#model-logisticsproviderreview) · [HandlingRequirement](#model-handlingrequirement) · [DispatchEvidence](#model-dispatchevidence) · [CustodyHandover](#model-custodyhandover) · [PartialShipmentApproval](#model-partialshipmentapproval) · [ReturnAuthorization](#model-returnauthorization) · [OrderPaymentPlan](#model-orderpaymentplan)
+
+```mermaid
+erDiagram
+    CommercialSchedule {
+        String id PK
+        String status
+    }
+    CommercialScheduleEvent {
+        String id PK
+    }
+    OrderLineCommercialSnapshot {
+        String id PK
+        BigInt goodsMinor
+        BigInt sellerFundedDiscountMinor
+        BigInt platformFundedDiscountMinor
+        BigInt taxMinor
+        BigInt commissionBaseMinor
+        BigInt commissionMinor
+        BigInt certificationChargeMinor
+    }
+    ImportRoute {
+        String id PK
+        String status
+    }
+    DisputeCaseProfile {
+        String id PK
+    }
+    DisputeEvidenceRequest {
+        String id PK
+        String status
+    }
+    DisputeRemedyAction {
+        String id PK
+        BigInt amountMinor
+        String status
+    }
+    DisputeTestingRecord {
+        String id PK
+        BigInt costMinor
+        String status
+    }
+    LossRecovery {
+        String id PK
+        BigInt lossMinor
+        BigInt amountMinor
+        String status
+    }
+    CommissionAdjustment {
+        String id PK
+        BigInt refundedGoodsMinor
+        BigInt reversedMinor
+        String status
+    }
+    CertificationProgramme {
+        String id PK
+        String status
+        BigInt eligibleCostMinor
+        BigInt reservedMinor
+        BigInt confirmedMinor
+        BigInt refundedMinor
+        BigInt creditedMinor
+    }
+    CertificationCostEntry {
+        String id PK
+        BigInt amountMinor
+        BigInt originalAmountMinor
+    }
+    CertificationRecoveryAllocation {
+        String id PK
+        BigInt netGoodsMinor
+        BigInt amountMinor
+        BigInt refundedMinor
+        String status
+    }
+    SellerSecuritySchedule {
+        String id PK
+        BigInt guaranteeMinor
+        BigInt depositMinor
+        BigInt capMinor
+        BigInt documentedExposureMinor
+        String status
+    }
+    SecurityReview {
+        String id PK
+        BigInt heldMinor
+        BigInt exposureMinor
+        BigInt excessMinor
+    }
+    InsurancePolicyRecord {
+        String id PK
+        BigInt perOccurrenceMinor
+        BigInt aggregateMinor
+        BigInt deductibleMinor
+        String verificationStatus
+    }
+    ProductComplianceEvidence {
+        String id PK
+        String status
+    }
+    SafetyCase {
+        String id PK
+        String status
+    }
+    SafetyCaseScope {
+        String id PK
+    }
+    SafetyCaseAction {
+        String id PK
+    }
+    RecallRehearsal {
+        String id PK
+    }
+    LaunchReadinessItem {
+        String id PK
+        String status
+    }
+    CountryLaunch {
+        String id PK
+        String status
+    }
+    FreightBooking {
+        String id PK
+        BigInt externalCostMinor
+        BigInt coordinationMinor
+        String status
+    }
+    FreightQuoteOption {
+        String id PK
+        BigInt amountMinor
+    }
+    LogisticsProviderReview {
+        String id PK
+        String integrationStatus
+        String status
+    }
+    HandlingRequirement {
+        String id PK
+    }
+    DispatchEvidence {
+        String id PK
+    }
+    CustodyHandover {
+        String id PK
+    }
+    PartialShipmentApproval {
+        String id PK
+        BigInt billedMinor
+    }
+    ReturnAuthorization {
+        String id PK
+        BigInt deductionMinor
+    }
+    OrderPaymentPlan {
+        String id PK
+        String status
+    }
+```
+
+<a id="model-commercialschedule"></a>
+
+### CommercialSchedule
+
+Table `commercial_schedules`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | String · VarChar(32) |  |  |  |  |
+| `version` | Int |  |  |  |  |
+| `status` | String · VarChar(20) |  |  | "DRAFT" |  |
+| `title` | String · VarChar(200) |  |  |  |  |
+| `sourceDocument` | String · VarChar(200) |  |  |  | "Doc 08 s3" etc. The source document is never edited to match the code. |
+| `scopeJson` | Json |  |  |  | { countries?: string[], channels?: ("B2B"\|"B2C")[], sellerAccountIds?: string[] } - empty means all. |
+| `bodyJson` | Json |  |  |  |  |
+| `effectiveFrom` | DateTime · DateTime(3) | yes |  |  |  |
+| `effectiveUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `scheduleReference` | String · VarChar(200) | yes |  |  | The signed seller / buyer schedule this version is part of. |
+| `preparedById` | String · Char(26) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `approvedById` | String · Char(26) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `approvalEvidence` | String · Text | yes |  |  |  |
+| `providerConfirmationRef` | String · VarChar(200) | yes |  |  |  |
+| `providerConfirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `activatedById` | String · Char(26) | yes |  |  |  |
+| `activatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `retiredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([kind, version], map: "uq_cs_kind_version")`
+- `@@index([kind, status], map: "ix_cs_kind_status")`
+
+<a id="model-commercialscheduleevent"></a>
+
+### CommercialScheduleEvent
+
+Table `commercial_schedule_events`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `scheduleId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(32) |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([scheduleId, createdAt], map: "ix_cse_schedule")`
+
+<a id="model-orderlinecommercialsnapshot"></a>
+
+### OrderLineCommercialSnapshot
+
+Table `order_line_commercial_snapshots`
+
+Doc 07 s1: what was agreed for one order line, frozen once. A later rule change never rewrites it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `orderItemId` | String · Char(26) |  | UNIQUE |  |  |
+| `sellerOrderGroupId` | String · Char(26) | yes |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `offerId` | String · Char(26) | yes |  |  |  |
+| `manufacturerName` | String · VarChar(200) | yes |  |  |  |
+| `productVersion` | String · VarChar(64) | yes |  |  |  |
+| `facilityRef` | String · VarChar(64) | yes |  |  |  |
+| `approvalScopeId` | String · Char(26) | yes |  |  |  |
+| `sellerCountry` | String · Char(2) | yes |  |  |  |
+| `destinationCountry` | String · Char(2) |  |  |  |  |
+| `channel` | String · VarChar(4) |  |  |  |  |
+| `departmentSlug` | String · VarChar(120) | yes |  |  |  |
+| `deliveryTerm` | String · VarChar(12) |  |  |  |  |
+| `namedPlace` | String · VarChar(400) | yes |  |  |  |
+| `importerOfRecord` | String · VarChar(24) |  |  |  |  |
+| `importRouteId` | String · Char(26) | yes |  |  |  |
+| `localActorsJson` | Json | yes |  |  |  |
+| `titleTransferPoint` | String · VarChar(200) | yes |  |  | Title transfer, transit risk, delivery date and technical acceptance are distinct things. |
+| `riskTransferPoint` | String · VarChar(200) | yes |  |  |  |
+| `promisedDeliveryFrom` | DateTime · DateTime(3) | yes |  |  |  |
+| `promisedDeliveryTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `technicalAcceptanceDays` | Int | yes |  |  |  |
+| `leadTimeDays` | Int | yes |  |  |  |
+| `returnRoute` | String · VarChar(400) | yes |  |  |  |
+| `packagingNote` | String · VarChar(400) | yes |  |  |  |
+| `transportRestrictionsJson` | Json | yes |  |  |  |
+| `insuranceJson` | Json | yes |  |  |  |
+| `paymentMilestonesJson` | Json | yes |  |  |  |
+| `goodsMinor` | BigInt |  |  |  |  |
+| `sellerFundedDiscountMinor` | BigInt |  |  | 0 |  |
+| `platformFundedDiscountMinor` | BigInt |  |  | 0 |  |
+| `taxMinor` | BigInt |  |  |  |  |
+| `chargesJson` | Json | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `commissionBaseMinor` | BigInt |  |  |  |  |
+| `commissionBps` | Int |  |  |  |  |
+| `commissionMinor` | BigInt |  |  |  |  |
+| `commissionSource` | String · VarChar(40) |  |  |  |  |
+| `commissionRuleVersion` | String · VarChar(64) | yes |  |  |  |
+| `rounding` | String · VarChar(24) |  |  | "HALF_UP_PER_LINE" |  |
+| `certificationAllocationId` | String · Char(26) | yes |  |  |  |
+| `certificationChargeMinor` | BigInt |  |  | 0 |  |
+| `policyVersionsJson` | Json |  |  |  |  |
+| `controlGapsJson` | Json |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([orderId], map: "ix_olcs_order")`
+- `@@index([sellerOrderGroupId], map: "ix_olcs_group")`
+
+<a id="model-importroute"></a>
+
+### ImportRoute
+
+Table `import_routes`
+
+Doc 07 s4 / Doc 08 s1: a reviewed lawful import route. B2C checkout of a covered category is refused without an approved one.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `categoryId` | String · Char(26) | yes |  |  | Null = every category in this country. |
+| `categoryKey` | String · VarChar(26) |  |  | "" | categoryId or '' - a UNIQUE index treats NULLs as distinct. |
+| `channel` | String · VarChar(4) |  |  |  |  |
+| `importerParty` | String · VarChar(24) |  |  |  |  |
+| `importerName` | String · VarChar(200) | yes |  |  |  |
+| `localActorsJson` | Json |  |  |  | [{ role, name, evidence, verified }] |
+| `regulatedCategory` | Boolean |  |  | true |  |
+| `status` | String · VarChar(16) |  |  | "DRAFT" |  |
+| `evidence` | String · Text | yes |  |  |  |
+| `preparedById` | String · Char(26) | yes |  |  |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `validUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([countryCode, categoryKey, channel], map: "uq_import_route")`
+- `@@index([countryCode, status], map: "ix_import_route_country")`
+
+<a id="model-disputecaseprofile"></a>
+
+### DisputeCaseProfile
+
+Table `dispute_case_profiles`
+
+Doc 07 s6-s8: the case-management facts a dispute carries beyond the published dispute contract.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  | UNIQUE |  |  |
+| `category` | String · VarChar(24) |  |  |  |  |
+| `urgency` | String · VarChar(12) |  |  | "NORMAL" |  |
+| `market` | String · Char(2) | yes |  |  |  |
+| `channel` | String · VarChar(4) | yes |  |  |  |
+| `affectedQuantity` | Int | yes |  |  |  |
+| `lotsOrSerialsJson` | Json | yes |  |  |  |
+| `shipmentId` | String · Char(26) | yes |  |  |  |
+| `paymentTransactionId` | String · Char(26) | yes |  |  |  |
+| `lateIntake` | Boolean |  |  | false |  |
+| `lateIntakeReason` | String · VarChar(32) | yes |  |  |  |
+| `lateExplanation` | String · Text | yes |  |  |  |
+| `statutoryBasis` | Boolean |  |  | false |  |
+| `calendarTimeZone` | String · VarChar(64) |  |  |  |  |
+| `acknowledgementDueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `acknowledgedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `acknowledgedById` | String · Char(26) | yes |  |  |  |
+| `evidenceSufficientAt` | DateTime · DateTime(3) | yes |  |  | Why the evidence is sufficient - the initial-decision clock starts here and is never silently reset. |
+| `evidenceSufficientById` | String · Char(26) | yes |  |  |  |
+| `evidenceSufficientReason` | String · Text | yes |  |  |  |
+| `initialDecisionDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `appealReviewDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `appealReviewerId` | String · Char(26) | yes |  |  |  |
+| `decisionParticipantsJson` | Json | yes |  |  |  |
+| `reasonedDecisionJson` | Json | yes |  |  |  |
+| `safetyCaseId` | String · Char(26) | yes |  |  |  |
+| `escalatedOverdueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([category], map: "ix_dcp_category")`
+- `@@index([acknowledgedAt, acknowledgementDueAt], map: "ix_dcp_ack")`
+
+<a id="model-disputeevidencerequest"></a>
+
+### DisputeEvidenceRequest
+
+Table `dispute_evidence_requests`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  |  |  |  |
+| `requestedFrom` | String · VarChar(12) |  |  |  |  |
+| `purpose` | String · VarChar(32) |  |  |  | MATERIAL_CONTRARY_EVIDENCE lets the buyer answer what the seller produced. |
+| `description` | String · Text |  |  |  |  |
+| `proportionalityNote` | String · Text |  |  |  |  |
+| `dueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `status` | String · VarChar(12) |  |  | "OPEN" |  |
+| `responseNote` | String · Text | yes |  |  |  |
+| `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `requestedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([disputeId], map: "ix_der_dispute")`
+- `@@index([status, dueAt], map: "ix_der_due")`
+
+<a id="model-disputeremedyaction"></a>
+
+### DisputeRemedyAction
+
+Table `dispute_remedy_actions`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(32) |  |  |  |  |
+| `amountMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `payer` | String · VarChar(16) |  |  |  |  |
+| `returnFreightPayer` | String · VarChar(16) | yes |  |  |  |
+| `quantity` | Int | yes |  |  |  |
+| `expectedCompletionAt` | DateTime · DateTime(3) |  |  |  |  |
+| `status` | String · VarChar(16) |  |  | "PLANNED" |  |
+| `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `refundId` | String · Char(26) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `decidedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([disputeId], map: "ix_dra_dispute")`
+
+<a id="model-disputetestingrecord"></a>
+
+### DisputeTestingRecord
+
+Table `dispute_testing_records`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  |  |  |  |
+| `laboratory` | String · VarChar(200) |  |  |  |  |
+| `protocol` | String · Text |  |  |  |  |
+| `agreedByBuyer` | Boolean |  |  | false |  |
+| `agreedBySeller` | Boolean |  |  | false |  |
+| `interimPayer` | String · VarChar(16) |  |  |  |  |
+| `costMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `sampleCustody` | String · Text | yes |  |  |  |
+| `resultSummary` | String · Text | yes |  |  |  |
+| `finalPayer` | String · VarChar(16) | yes |  |  |  |
+| `finalAllocationReason` | String · Text | yes |  |  |  |
+| `status` | String · VarChar(16) |  |  | "PLANNED" |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([disputeId], map: "ix_dtr_dispute")`
+
+<a id="model-lossrecovery"></a>
+
+### LossRecovery
+
+Table `loss_recoveries`
+
+Doc 07 s10: every recovery of one loss, so carrier, insurer, chargeback and refund are never counted twice.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `sellerOrderGroupId` | String · Char(26) | yes |  |  |  |
+| `disputeId` | String · Char(26) | yes |  |  |  |
+| `lossKey` | String · VarChar(64) |  |  |  |  |
+| `lossMinor` | BigInt |  |  |  |  |
+| `source` | String · VarChar(16) |  |  |  |  |
+| `sourceReference` | String · VarChar(128) |  |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `status` | String · VarChar(16) |  |  | "RECORDED" |  |
+| `overlapNote` | String · Text | yes |  |  |  |
+| `recordedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([source, sourceReference], map: "uq_loss_recovery_source")`
+- `@@index([orderId, lossKey], map: "ix_loss_recovery_loss")`
+
+<a id="model-commissionadjustment"></a>
+
+### CommissionAdjustment
+
+Table `commission_adjustments`
+
+Commission reversed for a refund (Doc 08 s2: commission follows refunds proportionately). Proposed, then applied by finance.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `refundId` | String · Char(26) |  |  |  |  |
+| `orderItemId` | String · Char(26) |  |  |  |  |
+| `sellerOrderGroupId` | String · Char(26) | yes |  |  |  |
+| `refundedGoodsMinor` | BigInt |  |  |  |  |
+| `reversedMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `basis` | String · VarChar(40) |  |  |  |  |
+| `fault` | String · VarChar(16) |  |  |  |  |
+| `status` | String · VarChar(12) |  |  | "PROPOSED" |  |
+| `appliedById` | String · Char(26) | yes |  |  |  |
+| `appliedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([refundId, orderItemId], map: "uq_commission_adjustment")`
+- `@@index([sellerOrderGroupId], map: "ix_commission_adjustment_group")`
+
+<a id="model-certificationprogramme"></a>
+
+### CertificationProgramme
+
+Table `certification_programmes`
+
+Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(40) |  | UNIQUE |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `title` | String · VarChar(200) |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `capBps` | Int |  |  | 100 |  |
+| `periodStart` | DateTime · DateTime(3) |  |  |  |  |
+| `periodEnd` | DateTime · DateTime(3) |  |  |  |  |
+| `status` | String · VarChar(16) |  |  | "DRAFT" |  |
+| `fxPolicy` | String · VarChar(400) | yes |  |  |  |
+| `scheduleId` | String · Char(26) | yes |  |  |  |
+| `eligibleCostMinor` | BigInt |  |  | 0 | Running totals, kept in step under a row lock so concurrent checkouts can never exceed the cap. |
+| `reservedMinor` | BigInt |  |  | 0 |  |
+| `confirmedMinor` | BigInt |  |  | 0 |  |
+| `refundedMinor` | BigInt |  |  | 0 |  |
+| `creditedMinor` | BigInt |  |  | 0 |  |
+| `version` | Int |  |  | 0 |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_cert_programme_seller")`
+
+<a id="model-certificationcostentry"></a>
+
+### CertificationCostEntry
+
+Table `certification_cost_entries`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `programmeId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(16) |  |  |  |  |
+| `externalReference` | String · VarChar(128) |  | UNIQUE |  | The third-party invoice or credit reference; unique across ALL programmes so one cost is never recovered twice. |
+| `supplierName` | String · VarChar(200) |  |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `originalAmountMinor` | BigInt | yes |  |  |  |
+| `originalCurrency` | String · Char(3) | yes |  |  |  |
+| `fxRate` | String · VarChar(32) | yes |  |  |  |
+| `eligible` | Boolean |  |  | false |  |
+| `verifiedById` | String · Char(26) | yes |  |  |  |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `evidence` | String · Text |  |  |  |  |
+| `fundedBy` | String · VarChar(16) |  |  | "MARKETPLACE" |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([programmeId], map: "ix_cert_cost_programme")`
+
+<a id="model-certificationrecoveryallocation"></a>
+
+### CertificationRecoveryAllocation
+
+Table `certification_recovery_allocations`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `programmeId` | String · Char(26) |  |  |  |  |
+| `quoteKey` | String · VarChar(80) |  |  |  | A quote key (cart) before the order exists; the order line after. |
+| `orderId` | String · Char(26) | yes |  |  |  |
+| `orderItemId` | String · Char(26) | yes |  |  |  |
+| `netGoodsMinor` | BigInt |  |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `refundedMinor` | BigInt |  |  | 0 |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `status` | String · VarChar(12) |  |  | "RESERVED" |  |
+| `reservedUntil` | DateTime · DateTime(3) |  |  |  |  |
+| `confirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([programmeId, quoteKey], map: "uq_cert_alloc_quote")`
+- `@@index([orderId], map: "ix_cert_alloc_order")`
+- `@@index([status, reservedUntil], map: "ix_cert_alloc_status")`
+
+<a id="model-sellersecurityschedule"></a>
+
+### SellerSecuritySchedule
+
+Table `seller_security_schedules`
+
+Doc 07 s10 / Doc 08 s6: a seller's security schedule. Proposed until approved with provider permission.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `tier` | String · VarChar(12) |  |  |  |  |
+| `form` | String · VarChar(16) |  |  |  |  |
+| `reserveBps` | Int |  |  | 0 |  |
+| `holdDays` | Int |  |  | 0 |  |
+| `guaranteeMinor` | BigInt |  |  | 0 |  |
+| `depositMinor` | BigInt |  |  | 0 |  |
+| `capMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `exposureBasis` | String · Text |  |  |  |  |
+| `documentedExposureMinor` | BigInt | yes |  |  |  |
+| `permittedUsesJson` | Json |  |  |  |  |
+| `noticeTerms` | String · Text | yes |  |  |  |
+| `disputeRoute` | String · Text | yes |  |  |  |
+| `providerPermissionRef` | String · VarChar(200) | yes |  |  |  |
+| `scheduleReference` | String · VarChar(200) | yes |  |  |  |
+| `status` | String · VarChar(16) |  |  | "PROPOSED" |  |
+| `preparedById` | String · Char(26) | yes |  |  |  |
+| `approvedById` | String · Char(26) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `activatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `endedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `nextMonthlyReviewAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `nextQuarterlyReviewAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `satisfactorySince` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_sss_seller")`
+- `@@index([status, nextMonthlyReviewAt], map: "ix_sss_review")`
+
+<a id="model-securityreview"></a>
+
+### SecurityReview
+
+Table `security_reviews`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `scheduleId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(12) |  |  |  |  |
+| `periodKey` | String · VarChar(16) |  |  |  |  |
+| `heldMinor` | BigInt | yes |  |  |  |
+| `exposureMinor` | BigInt | yes |  |  |  |
+| `excessMinor` | BigInt | yes |  |  |  |
+| `outcome` | String · VarChar(20) |  |  | "DUE" |  |
+| `note` | String · Text | yes |  |  |  |
+| `reviewedById` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `dueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([scheduleId, kind, periodKey], map: "uq_security_review_period")`
+- `@@index([outcome, dueAt], map: "ix_security_review_due")`
+
+<a id="model-insurancepolicyrecord"></a>
+
+### InsurancePolicyRecord
+
+Table `insurance_policy_records`
+
+Doc 08 s6: insurance verified per policy. Buying a limit never approves a category.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `holderType` | String · VarChar(12) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `coverType` | String · VarChar(32) |  |  |  |  |
+| `riskGroup` | String · VarChar(12) | yes |  |  |  |
+| `insurer` | String · VarChar(200) |  |  |  |  |
+| `policyNumber` | String · VarChar(120) |  |  |  |  |
+| `insuredEntity` | String · VarChar(200) |  |  |  |  |
+| `additionalInsured` | String · VarChar(400) | yes |  |  |  |
+| `sitesJson` | Json |  |  |  |  |
+| `productsJson` | Json |  |  |  |  |
+| `territoriesJson` | Json |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `perOccurrenceMinor` | BigInt | yes |  |  |  |
+| `aggregateMinor` | BigInt | yes |  |  |  |
+| `deductibleMinor` | BigInt | yes |  |  |  |
+| `exclusions` | String · Text | yes |  |  |  |
+| `claimsMadeRetroDate` | DateTime · DateTime(3) | yes |  |  |  |
+| `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `cancellationNoticeDays` | Int | yes |  |  |  |
+| `brokerName` | String · VarChar(200) | yes |  |  |  |
+| `brokerReviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `brokerReviewRef` | String · VarChar(200) | yes |  |  |  |
+| `verificationStatus` | String · VarChar(12) |  |  | "PENDING" |  |
+| `verificationMethod` | String · VarChar(200) | yes |  |  |  |
+| `verifiedById` | String · Char(26) | yes |  |  |  |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([holderType, sellerAccountId], map: "ix_insurance_holder")`
+- `@@index([expiresAt], map: "ix_insurance_expiry")`
+
+<a id="model-productcomplianceevidence"></a>
+
+### ProductComplianceEvidence
+
+Table `product_compliance_evidence`
+
+Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `offerId` | String · Char(26) | yes |  |  |  |
+| `productKey` | String · VarChar(64) |  |  |  |  |
+| `productVersion` | String · VarChar(64) |  |  |  |  |
+| `facilityRef` | String · VarChar(64) |  |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `departmentSlug` | String · VarChar(120) | yes |  |  |  |
+| `kind` | String · VarChar(32) |  |  |  |  |
+| `scheme` | String · VarChar(200) |  |  |  |  |
+| `issuer` | String · VarChar(200) |  |  |  |  |
+| `accreditation` | String · VarChar(200) | yes |  |  |  |
+| `scope` | String · Text |  |  |  |  |
+| `certificateNumber` | String · VarChar(120) | yes |  |  |  |
+| `issuedOn` | DateTime · DateTime(3) | yes |  |  |  |
+| `expiresOn` | DateTime · DateTime(3) | yes |  |  | Only an expiry the issuer or the law actually sets. Never an invented annual one. |
+| `changeConditions` | String · Text | yes |  |  |  |
+| `surveillanceDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `requiredForTrading` | Boolean |  |  | true |  |
+| `existingAccepted` | Boolean |  |  | false |  |
+| `gapAssessment` | String · Text | yes |  |  |  |
+| `verificationMethod` | String · VarChar(200) | yes |  |  |  |
+| `verificationEvidence` | String · Text | yes |  |  |  |
+| `verifiedById` | String · Char(26) | yes |  |  |  |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `status` | String · VarChar(12) |  |  | "UNVERIFIED" |  |
+| `statusReason` | String · Text | yes |  |  |  |
+| `remindersSentJson` | Json | yes |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, countryCode], map: "ix_pce_seller_country")`
+- `@@index([offerId], map: "ix_pce_offer")`
+- `@@index([expiresOn], map: "ix_pce_expiry")`
+
+<a id="model-safetycase"></a>
+
+### SafetyCase
+
+Table `safety_cases`
+
+Doc 07 s11 / Doc 08 s9: a product safety case and recall.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(20) |  | UNIQUE |  |  |
+| `title` | String · VarChar(200) |  |  |  |  |
+| `description` | String · Text |  |  |  |  |
+| `severity` | String · VarChar(12) |  |  |  |  |
+| `status` | String · VarChar(20) |  |  | "TRIAGE" |  |
+| `sourceType` | String · VarChar(16) |  |  |  |  |
+| `sourceId` | String · Char(26) | yes |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `triagedById` | String · Char(26) | yes |  |  |  |
+| `triagedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `containmentJson` | Json | yes |  |  |  |
+| `rootCause` | String · Text | yes |  |  |  |
+| `correctionEvidence` | String · Text | yes |  |  |  |
+| `verificationTests` | String · Text | yes |  |  |  |
+| `currentCertificates` | String · Text | yes |  |  |  |
+| `releaseApprovedById` | String · Char(26) | yes |  |  |  |
+| `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `openedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([status], map: "ix_safety_case_status")`
+
+<a id="model-safetycasescope"></a>
+
+### SafetyCaseScope
+
+Table `safety_case_scope`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `safetyCaseId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(16) |  |  |  |  |
+| `ref` | String · VarChar(128) |  |  |  |  |
+| `label` | String · VarChar(200) | yes |  |  |  |
+| `contained` | Boolean |  |  | false |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([safetyCaseId, kind, ref], map: "uq_safety_scope")`
+- `@@index([kind, ref, contained], map: "ix_safety_scope_ref")`
+
+<a id="model-safetycaseaction"></a>
+
+### SafetyCaseAction
+
+Table `safety_case_actions`
+
+Reporting decisions, notices, recall actions and effectiveness checks. Reporting decisions are a qualified person's, never an AI's.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `safetyCaseId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(24) |  |  |  |  |
+| `authority` | String · VarChar(200) | yes |  |  |  |
+| `decision` | String · VarChar(24) | yes |  |  |  |
+| `deadlineAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `qualifiedRole` | String · VarChar(120) | yes |  |  |  |
+| `quantity` | Int | yes |  |  |  |
+| `effectivenessPercentBp` | Int | yes |  |  |  |
+| `detail` | String · Text |  |  |  |  |
+| `actorUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([safetyCaseId, createdAt], map: "ix_safety_action_case")`
+
+<a id="model-recallrehearsal"></a>
+
+### RecallRehearsal
+
+Table `recall_rehearsals`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `year` | Int |  |  |  |  |
+| `scenario` | String · Text |  |  |  |  |
+| `scopeTraced` | String · Text |  |  |  |  |
+| `minutesToTrace` | Int | yes |  |  |  |
+| `findings` | String · Text | yes |  |  |  |
+| `outcome` | String · VarChar(16) |  |  |  |  |
+| `performedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([year], map: "ix_recall_rehearsal_year")`
+
+<a id="model-launchreadinessitem"></a>
+
+### LaunchReadinessItem
+
+Table `launch_readiness_items`
+
+Doc 08 s11: one decision for one country. A country is enabled only when every applicable decision is approved.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `key` | String · VarChar(48) |  |  |  |  |
+| `status` | String · VarChar(16) |  |  | "NOT_STARTED" |  |
+| `ownerName` | String · VarChar(120) | yes |  |  |  |
+| `ownerUserId` | String · Char(26) | yes |  |  |  |
+| `scope` | String · Text | yes |  |  |  |
+| `evidence` | String · Text | yes |  |  |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `expiresAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `blockingReason` | String · Text | yes |  |  |  |
+| `sourceCheckedOn` | DateTime · DateTime(3) | yes |  |  |  |
+| `sourceNote` | String · Text | yes |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([countryCode, key], map: "uq_launch_item")`
+
+<a id="model-countrylaunch"></a>
+
+### CountryLaunch
+
+Table `country_launches`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `countryCode` | String · Char(2) |  | UNIQUE |  |  |
+| `status` | String · VarChar(12) |  |  | "DISABLED" |  |
+| `enabledById` | String · Char(26) | yes |  |  |  |
+| `enabledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `disabledById` | String · Char(26) | yes |  |  |  |
+| `disabledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-freightbooking"></a>
+
+### FreightBooking
+
+Table `freight_bookings`
+
+Doc 07 s3: a freight booking for one seller order, with the quotes compared.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | UNIQUE |  |  |
+| `lane` | String · VarChar(200) |  |  |  |  |
+| `grossWeightGrams` | Int |  |  |  |  |
+| `dimensionsJson` | Json |  |  |  |  |
+| `packaging` | String · VarChar(400) |  |  |  |  |
+| `hazardClass` | String · VarChar(32) | yes |  |  |  |
+| `cargoCoverJson` | Json | yes |  |  |  |
+| `custodyJson` | Json |  |  |  |  |
+| `returnCapability` | String · VarChar(400) | yes |  |  |  |
+| `materialCommitment` | Boolean |  |  | false |  |
+| `selectedQuoteId` | String · Char(26) | yes |  |  |  |
+| `singleSourceReason` | String · Text | yes |  |  |  |
+| `externalCostMinor` | BigInt | yes |  |  |  |
+| `coordinationMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `status` | String · VarChar(12) |  |  | "DRAFT" |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-freightquoteoption"></a>
+
+### FreightQuoteOption
+
+Table `freight_quote_options`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `bookingId` | String · Char(26) |  |  |  |  |
+| `providerName` | String · VarChar(200) |  |  |  |  |
+| `logisticsPartnerId` | String · Char(26) | yes |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `transitDaysMin` | Int | yes |  |  |  |
+| `transitDaysMax` | Int | yes |  |  |  |
+| `cargoCover` | String · VarChar(400) | yes |  |  |  |
+| `comparable` | Boolean |  |  | true |  |
+| `validUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `reference` | String · VarChar(120) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([bookingId], map: "ix_freight_quote_booking")`
+
+<a id="model-logisticsproviderreview"></a>
+
+### LogisticsProviderReview
+
+Table `logistics_provider_reviews`
+
+Doc 07 s3: provider screening. A missing integration is shown as "Credentials required", never as a pass.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `providerName` | String · VarChar(200) |  |  |  |  |
+| `logisticsPartnerId` | String · Char(26) | yes |  |  |  |
+| `itemsJson` | Json |  |  |  |  |
+| `integrationStatus` | String · VarChar(24) |  |  | "CREDENTIALS_REQUIRED" |  |
+| `status` | String · VarChar(12) |  |  | "IN_REVIEW" |  |
+| `reviewerUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `nextReviewAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([logisticsPartnerId], map: "ix_lpr_partner")`
+
+<a id="model-handlingrequirement"></a>
+
+### HandlingRequirement
+
+Table `handling_requirements`
+
+Doc 07 s4: dangerous goods, batteries, timber packaging and temperature, configured per product category and route.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | String · VarChar(24) |  |  |  |  |
+| `categoryId` | String · Char(26) | yes |  |  |  |
+| `destinationCountry` | String · Char(2) | yes |  |  |  |
+| `requiredEvidence` | String · Text |  |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([kind, isActive], map: "ix_handling_req_kind")`
+
+<a id="model-dispatchevidence"></a>
+
+### DispatchEvidence
+
+Table `dispatch_evidence`
+
+Doc 07 s5: what was packed, sealed, photographed and handed over.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | UNIQUE |  |  |
+| `quantitiesJson` | Json |  |  |  |  |
+| `lotsJson` | Json | yes |  |  |  |
+| `sealsJson` | Json | yes |  |  |  |
+| `packingPhotoRefsJson` | Json | yes |  |  |  |
+| `temperatureLogRef` | String · VarChar(400) | yes |  |  |  |
+| `handlingEvidenceJson` | Json | yes |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `recordedByRole` | String · VarChar(12) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-custodyhandover"></a>
+
+### CustodyHandover
+
+Table `custody_handovers`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  |  |  |  |
+| `shipmentLegId` | String · Char(26) | yes |  |  |  |
+| `fromParty` | String · VarChar(200) |  |  |  |  |
+| `toParty` | String · VarChar(200) |  |  |  |  |
+| `place` | String · VarChar(400) |  |  |  |  |
+| `handedOverAt` | DateTime · DateTime(3) |  |  |  |  |
+| `packages` | Int |  |  |  |  |
+| `sealsIntact` | Boolean |  |  |  |  |
+| `exceptionNote` | String · Text | yes |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `recordedByRole` | String · VarChar(12) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerOrderGroupId, handedOverAt], map: "ix_custody_group")`
+
+<a id="model-partialshipmentapproval"></a>
+
+### PartialShipmentApproval
+
+Table `partial_shipment_approvals`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  |  |  |  |
+| `orderApprovalRef` | String · VarChar(200) |  |  |  |  |
+| `approvedByParty` | String · VarChar(12) |  |  |  |  |
+| `quantitiesJson` | Json |  |  |  |  |
+| `billedMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([sellerOrderGroupId], map: "ix_partial_shipment_group")`
+
+<a id="model-returnauthorization"></a>
+
+### ReturnAuthorization
+
+Table `return_authorizations`
+
+Doc 07 s9: a return authorisation - who pays, which route, what was received and inspected.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `returnRequestId` | String · Char(26) |  | UNIQUE |  |  |
+| `rmaNumber` | String · VarChar(24) |  | UNIQUE |  |  |
+| `returnRoute` | String · VarChar(400) |  |  |  |  |
+| `freightPayer` | String · VarChar(16) |  |  |  |  |
+| `payerReason` | String · Text |  |  |  |  |
+| `carrier` | String · VarChar(120) | yes |  |  |  |
+| `trackingNumber` | String · VarChar(120) | yes |  |  |  |
+| `returnBy` | DateTime · DateTime(3) | yes |  |  |  |
+| `receivedEvidence` | String · Text | yes |  |  |  |
+| `inspectionEvidence` | String · Text | yes |  |  |  |
+| `deductionMinor` | BigInt | yes |  |  |  |
+| `deductionBasis` | String · Text | yes |  |  |  |
+| `issuedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-orderpaymentplan"></a>
+
+### OrderPaymentPlan
+
+Table `order_payment_plans`
+
+Doc 08 s5: an approved bespoke payment plan for one order. Never a default.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderId` | String · Char(26) |  | UNIQUE |  |  |
+| `scheduleId` | String · Char(26) | yes |  |  |  |
+| `milestonesJson` | Json |  |  |  |  |
+| `sellerAgreedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `buyerAgreedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `providerConfirmationRef` | String · VarChar(200) | yes |  |  |  |
+| `status` | String · VarChar(12) |  |  | "PROPOSED" |  |
+| `recordedById` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 

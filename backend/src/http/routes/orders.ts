@@ -26,7 +26,7 @@ import {
   decideApproval,
   transitionOrder,
 } from '../../modules/orders/order.service.js';
-import { currentUser, orderScopeWhere, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { currentUser, orderScopeWhere, requireAdmin, requireCustomerForRemedies } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -226,7 +226,8 @@ function serialiseSummary(order: OrderRow & { _count?: { items: number } }): Rec
 // --- Customer routes -------------------------------------------------------
 
 export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireCustomer);
+  // Existing orders and their remedies stay reachable before new Terms are accepted.
+  app.addHook('preHandler', requireCustomerForRemedies);
 
   // Your orders, newest first, each with its pre-shipment inspection status.
   app.get('/', async (request, reply) => {

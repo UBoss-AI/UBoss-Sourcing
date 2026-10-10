@@ -33,6 +33,8 @@ import {
   type DisputeView,
 } from '@/lib/disputes';
 import { EvidenceTimeline, InspectionCard } from './DisputeShared';
+import { CaseProgressCard, ClaimCaseFields } from './CaseControls';
+import { EMPTY_CASE_DRAFT, caseFromDraft, type CaseDraft } from '@/lib/commercial-policy';
 
 const statusLabel = (t: (key: TranslationKey) => string, status: string): string =>
   t(`disputes.status.${status}` as TranslationKey);
@@ -59,11 +61,14 @@ export function ClaimRequestPage(): React.JSX.Element {
   const [description, setDescription] = useState('');
   const [outcome, setOutcome] = useState<DisputeRemedy>('REFUND_FULL');
   const [amount, setAmount] = useState('');
+  const [caseDraft, setCaseDraft] = useState<CaseDraft>(EMPTY_CASE_DRAFT);
   const [error, setError] = useState<string | null>(null);
   const key = useRef(newIdempotencyKey());
 
   const currency = order.data?.order.currency ?? 'EUR';
   const amountMinor = outcome === 'REFUND_PARTIAL' ? majorToMinor(amount, currencyExponent(currency)) : null;
+
+  const caseFacts = caseFromDraft(caseDraft);
 
   const submit = useMutation({
     mutationFn: () =>
@@ -75,6 +80,7 @@ export function ClaimRequestPage(): React.JSX.Element {
           description: description.trim(),
           desiredOutcome: outcome,
           requestedAmountMinor: amountMinor,
+          ...(caseFacts === undefined ? {} : { case: caseFacts }),
         },
         key.current,
       ),
@@ -167,6 +173,7 @@ export function ClaimRequestPage(): React.JSX.Element {
             )}
           </Field>
         )}
+        <ClaimCaseFields draft={caseDraft} onChange={setCaseDraft} />
         <p className="text-xs text-ink-muted">{t('disputes.evidenceLater')}</p>
         {error !== null && (
           <p role="alert" className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger">
@@ -349,6 +356,7 @@ export function DisputeDetailPage(): React.JSX.Element {
         </Card>
         <InspectionCard dispute={dispute} />
       </div>
+      <CaseProgressCard reference={dispute.reference} />
 
       <Card title={t('disputes.threadTitle')} className="mt-4" bodyClassName="space-y-3 px-5 py-4">
         <ol className="space-y-3 text-sm">

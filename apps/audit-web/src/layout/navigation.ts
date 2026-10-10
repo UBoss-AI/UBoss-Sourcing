@@ -69,6 +69,34 @@ export const NAVIGATION: readonly NavSection[] = [
         icon: ListingReviewIcon,
         anyOf: [Permission.SELLER_READ],
       },
+      {
+        // Seller Assessment and Onboarding: eight gates, scope, certification, release.
+        to: '/seller-assessments',
+        labelKey: 'nav.sellerAssessment',
+        icon: ListingReviewIcon,
+        anyOf: [Permission.ASSESSMENT_READ],
+      },
+      {
+        // Between L1 and L2: assess, waive by badge, release or hold.
+        to: '/shipment-assessment',
+        labelKey: 'nav.shipmentAssessment',
+        icon: OrdersIcon,
+        anyOf: [Permission.SHIPMENT_READ],
+      },
+      {
+        // Doc 08: product evidence per SKU/version, site and country.
+        to: '/product-evidence',
+        labelKey: 'nav.productEvidence',
+        icon: ProductsIcon,
+        anyOf: [Permission.ASSESSMENT_READ],
+      },
+      {
+        // Doc 07: product safety cases, containment, recall and release.
+        to: '/safety-cases',
+        labelKey: 'nav.safetyCases',
+        icon: AlertTriangleIcon,
+        anyOf: [Permission.ASSESSMENT_READ],
+      },
       { to: '/sellers', labelKey: 'nav.sellers', icon: SellerIcon, anyOf: [Permission.SELLER_READ] },
       { to: '/products', labelKey: 'nav.products', icon: ProductsIcon, anyOf: [Permission.SELLER_READ] },
       {

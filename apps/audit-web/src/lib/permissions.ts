@@ -24,6 +24,15 @@ export const Permission = {
   JOB_OVERSEE: 'audit.job.oversee',
   RELEASE_REQUEST: 'audit.release.request',
   TEAM_READ: 'audit.team.read',
+  SHIPMENT_READ: 'audit.shipment.read',
+  SHIPMENT_ASSESS: 'audit.shipment.assess',
+  SHIPMENT_QA: 'audit.shipment.qa',
+  SHIPMENT_WAIVE: 'audit.shipment.waive',
+  SHIPMENT_POLICY: 'audit.shipment.policy',
+  SELLER_BADGE: 'audit.seller.badge',
+  CERTIFICATE_ISSUE: 'audit.certificate.issue',
+  ASSESSMENT_READ: 'audit.assessment.read',
+  ASSESSMENT_WORK: 'audit.assessment.work',
 
   // --- Inspection agencies -------------------------------------------------
   JOB_READ: 'inspection.job.read',

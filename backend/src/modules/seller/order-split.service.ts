@@ -42,6 +42,8 @@ import { prisma } from '../../infra/prisma.js';
 import { notifySeller } from './notification.service.js';
 import { enqueueIfConnected } from '../seller-erp/job.service.js';
 import { calculateSettlement } from '../settings/platform-fee.service.js';
+import { snapshotOrderLines } from '../commercial-policy/order-controls.service.js';
+import { scheduledCommissionBps } from '../commercial-policy/schedules.service.js';
 import { serialiseMoney, sumMinor } from '../../domain/money.js';
 
 type Tx = Prisma.TransactionClient;
@@ -154,7 +156,11 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
     },
   });
 
-  if (items.length === 0) return { groups: 0, lines: 0 };
+  if (items.length === 0) {
+    // An order of the operator's own goods still has its lines' terms frozen.
+    await snapshotOrderLines(tx, orderId);
+    return { groups: 0, lines: 0 };
+  }
 
   const order = await tx.order.findUniqueOrThrow({
     where: { id: orderId },
@@ -164,6 +170,7 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
       shippingAddressJson: true,
       source: true,
       shippingMinor: true,
+      buyerContextKind: true,
     },
   });
 
@@ -255,11 +262,24 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
       sellerAccountId,
       currency: order.currency,
       marketCountry,
-      lines: sellerItems.map((item) => ({
-        orderItemId: item.id,
-        categoryId: item.product.categoryId,
-        goodsMinor: item.lineSubtotalMinor,
-      })),
+      // The rate an ACTIVATED Doc 08 commission schedule sets, per line. Null
+      // everywhere until a person activates one, so this changes nothing before.
+      lines: await Promise.all(
+        sellerItems.map(async (item) => ({
+          orderItemId: item.id,
+          categoryId: item.product.categoryId,
+          goodsMinor: item.lineSubtotalMinor,
+          scheduleBps:
+            (
+              await scheduledCommissionBps(tx, {
+                categoryId: item.product.categoryId,
+                country: marketCountry,
+                channel: order.buyerContextKind === 'COMPANY' ? 'B2B' : 'B2C',
+                sellerAccountId,
+              })
+            )?.bps ?? null,
+        })),
+      ),
       sellerDeliveryMinor,
       ubossDeliveryMinor,
     });
@@ -442,6 +462,9 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
     groups += 1;
     lines += lineRows.length;
   }
+
+  // Doc 07 s1: freeze what was agreed for every line, operator lines included.
+  await snapshotOrderLines(tx, orderId);
 
   return { groups, lines };
 }

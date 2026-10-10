@@ -9825,6 +9825,15 @@ model SellerAccount {
   /// zero.
   qualityScore Decimal? @db.Decimal(5, 2)
 
+  /// The seller's Audit badge (Platinum, Gold, Silver, Bronze). Set only by an
+  /// Audit supervisor, with a reason, and never by the seller. Null is "no
+  /// badge", which always means a shipment needs a physical assessment.
+  /// See `domain/shipment-assessment.ts`.
+  auditBadge        SellerBadgeTier?
+  auditBadgeSetAt   DateTime?        @db.DateTime(3)
+  /// Bumped on every badge change, so a waiver can tell it is stale.
+  auditBadgeVersion Int              @default(0)
+
   submittedAt DateTime? @db.DateTime(3)
   reviewedAt  DateTime? @db.DateTime(3)
   approvedAt  DateTime? @db.DateTime(3)
@@ -9935,6 +9944,14 @@ model SellerAccount {
   listingTrust          SellerListingTrust[]
   /// Reviews of goods this seller sold - the source of its seller score.
   productReviews        ProductReview[]
+  /// Audit badge history and the shipment assessments of this seller.
+  badgeChanges          SellerBadgeChange[]
+  shipmentAssessments   ShipmentAssessment[]
+  auditDocuments        AuditDocument[]
+  assessments           SellerAssessment[]
+  tradingApprovals      SellerTradingApproval[]
+  /// What this seller's people accepted on the Seller Hub's agreement screen.
+  consentRecords ConsentRecord[]
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
   @@map("seller_accounts")
@@ -11812,6 +11829,8 @@ model SellerOrderGroup {
   /// The export and trade documents for this part of the order.
   tradeDocuments       OrderTradeDocument[]
   complianceOverride   TradeComplianceOverride?
+  /// The Audit Team's check between L1 and L2. See ShipmentAssessment.
+  shipmentAssessment   ShipmentAssessment?
   /// The buyer's and this seller's messages about this part of the order.
   messages             OrderMessage[]
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
@@ -12144,6 +12163,10 @@ model SellerPayout {
 /// What a seller is being told about.
 enum SellerNotificationKind {
   APPLICATION_STATUS
+  /// Seller Assessment and Onboarding: corrections, findings, release, notices, appeals, renewals.
+  SELLER_ASSESSMENT
+  /// Shipment Assessment between L1 and L2: readiness, findings, approvals, waivers.
+  SHIPMENT_ASSESSMENT
   LISTING_DECISION
   NEW_ORDER
   DISPATCH_SLA_WARNING
@@ -15416,6 +15439,8 @@ model LogisticsProofOfDelivery {
   /// Anything the driver had to write down: left with security, signed by a
   /// colleague, one carton refused.
   exceptionNote String? @db.VarChar(512)
+  /// Doc 07 s5: quantities delivered per line, as the recipient confirmed them. Proof of delivery is not proof of technical conformity.
+  quantitiesJson Json?
 
   capturedByPartnerUserId String?              @db.Char(26)
   capturedBySource        LogisticsEventSource @default(DRIVER_APP)
@@ -20498,12 +20523,31 @@ enum ConsentPurpose {
   /// The terms a carrier's staff accept when they activate a logistics portal
   /// account. The row points at the exact `LegalDocument` that was shown.
   LOGISTICS_PARTNER_TERMS
-  /// The Seller Addendum, accepted on the Seller Hub's agreement screen.
+  /// The Seller Terms and Conditions, accepted on the Seller Hub's agreement screen.
   SELLER_TERMS
+  /// The Seller Platform Services Agreement, accepted on the Seller Hub's
+  /// agreement screen under its own box. A click-through record of one
+  /// published version: not a countersignature, and not agreement to the
+  /// seller-specific schedules, which are signed separately.
+  SELLER_SERVICES_AGREEMENT
   /// The operator's staff terms, accepted on the console's agreement screen.
   STAFF_TERMS
   /// The Audit Console's terms, accepted on that console's agreement screen.
   AUDIT_CONSOLE_TERMS
+  /// The B2B Buyer Terms and Conditions, accepted on the storefront's agreement
+  /// screen by a member acting for a buyer company. The row names the company.
+  B2B_BUYER_TERMS
+  /// The B2B Buyer Platform Services Agreement, accepted once for a company by
+  /// a member with authority to bind it (owner or company admin). A record of
+  /// one published version: not Gloviaa's signature and not the completed
+  /// Schedules A-C, which are executed separately.
+  B2B_BUYER_SERVICES_AGREEMENT
+  /// The B2C Consumer Terms and Conditions, accepted on the storefront's
+  /// screen by somebody shopping for themselves (scope CONSUMER).
+  B2C_CONSUMER_TERMS
+  /// The B2C Platform Services Agreement, accepted under its own box on the
+  /// same consumer screen. Never the seller's or the B2B one.
+  B2C_PLATFORM_SERVICES_AGREEMENT
 }
 
 /// What a person did on the agreement screen. Kept apart from the purpose so a
@@ -20521,6 +20565,12 @@ enum AgreementScope {
   LOGISTICS
   STAFF
   AUDIT
+  /// The storefront's screen for somebody acting for a buyer company.
+  COMPANY_BUYER
+  /// The storefront's screen for somebody shopping for themselves, once the
+  /// B2C Consumer Terms, the B2C Platform Services Agreement and the Privacy
+  /// Policy are all in force. Until then an individual is asked as BUYER.
+  CONSUMER
 }
 
 model BuyerCompany {
@@ -21189,11 +21239,23 @@ model ConsentRecord {
   /// Continue. Not a withdrawal: `withdrawnAt` is for that, and clearing one
   /// box withdraws no consent to anything else.
   clearedAt        DateTime? @db.DateTime(3)
+  /// For a SELLER-scope record: the seller the person was acting for, resolved
+  /// by the server from their membership - never taken from the request. Null
+  /// for every other scope, and for seller records written before it existed
+  /// (none is back-filled: nobody knows for certain which seller they were).
+  sellerAccountId  String?   @db.Char(26)
+  /// The company an active COMPANY_BUYER record is for, or '' for every other
+  /// record. Part of the one-active-record unique index, so a member of two
+  /// companies can hold one record per company. Never NULL: MariaDB treats
+  /// every NULL in a UNIQUE index as distinct.
+  activeCompanyKey String    @default("") @db.VarChar(26)
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_consent_record_user")
   company       BuyerCompany?  @relation(fields: [companyId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_consent_record_company")
   /// RESTRICT: a document somebody has agreed to can never be deleted.
   legalDocument LegalDocument? @relation(fields: [legalDocumentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_consent_record_legal_document")
+  /// SET NULL: removing a seller never removes what its people accepted.
+  sellerAccount SellerAccount? @relation(fields: [sellerAccountId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_consent_record_seller_account")
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
@@ -21203,9 +21265,10 @@ model ConsentRecord {
   /// request cannot write a second one. NULL - a cleared record, or a company
   /// declaration - is distinct in a MariaDB UNIQUE index, so those rows are
   /// not affected and a cleared acceptance can be given again.
-  @@unique([userId, activeDocumentId], map: "uq_consent_record_user_active_document")
+  @@unique([userId, activeDocumentId, activeCompanyKey], map: "uq_consent_record_user_active_document")
   @@index([userId, legalDocumentId], map: "ix_consent_record_user_document")
   @@index([legalDocumentId], map: "ix_consent_record_legal_document")
+  @@index([sellerAccountId, legalDocumentId], map: "ix_consent_record_seller_document")
   @@map("consent_records")
 }
 
@@ -21238,6 +21301,23 @@ enum LegalDocumentKind {
   /// Terms for Audit Console users - inspection agencies and auditors -
   /// accepted on that console's agreement screen.
   AUDIT_CONSOLE_TERMS
+  /// The Seller Platform Services Agreement, accepted by a seller on the Seller
+  /// Hub's agreement screen under its own box, beside the Seller Terms.
+  SELLER_SERVICES_AGREEMENT
+  /// The B2B Buyer Terms and Conditions: accepted by each member acting for a
+  /// buyer company, on the storefront's company agreement screen.
+  B2B_BUYER_TERMS
+  /// The B2B Buyer Platform Services Agreement: accepted once for a company by
+  /// a member with authority to bind it. Its Schedules A-C are executed
+  /// separately; accepting the published text is not full execution.
+  B2B_BUYER_SERVICES_AGREEMENT
+  /// The B2C Consumer Terms and Conditions, for somebody shopping for
+  /// themselves. Mandatory consumer rights apply whatever it says.
+  B2C_CONSUMER_TERMS
+  /// The B2C Platform Services Agreement, the consumer screen's own box. No
+  /// approved text has been supplied yet; until one is published the
+  /// consumer screen stays off.
+  B2C_PLATFORM_SERVICES_AGREEMENT
 }
 
 enum LegalDocumentStatus {
@@ -25629,6 +25709,9 @@ model AuditStaffMember {
 
   /// Categories this reviewer is competent to decide. Null is none.
   competenceCategoryIdsJson Json?
+  /// Seller Assessment capabilities on top of the role (HEAD_OF_ASSURANCE, ASSESS,
+  /// REGULATORY, FINANCE, OPERATIONS, LEGAL, RELEASE, APPEAL_REVIEW). One person may hold several.
+  assessmentCapabilitiesJson Json?
 
   invitedByUserId String?   @db.Char(26)
   activatedAt     DateTime? @db.DateTime(3)
@@ -25921,4 +26004,1895 @@ model InspectionSubLotRelease {
   @@unique([requirementId, subLotCode], map: "uq_insp_sublot_code")
   @@index([state], map: "ix_insp_sublot_state")
   @@map("inspection_sublot_releases")
+}
+
+// ===========================================================================
+// Shipment Assessment - the Audit Team's check between L1 and L2
+//
+// After L1 (plant -> port or airport of loading) is handed over and before L2
+// (port of loading -> destination port) may start, the goods are either
+// physically assessed by the Audit Team, or - for a seller whose Audit badge
+// the active policy makes eligible - an authorised auditor approves a waiver.
+// Either way the result is ONE release authorization, and the L2 departure
+// consumes it. The rules are in `domain/shipment-assessment.ts`; the gate is
+// `modules/shipment-assessment/release-gate.service.ts`.
+// ===========================================================================
+
+/// The seller's Audit badge. Set by an Audit supervisor only.
+enum SellerBadgeTier {
+  PLATINUM
+  GOLD
+  SILVER
+  BRONZE
+}
+
+/// Where one seller order stands between L1 and L2.
+enum ShipmentAssessmentStatus {
+  /// L1 has not been handed over yet.
+  AWAITING_L1
+  /// L1 is complete. Waiting for an assessor, or for the waiver question.
+  READY_FOR_ASSESSMENT
+  /// An assessor is recording the checklist.
+  IN_PROGRESS
+  /// The assessor submitted a passing round. A second person must approve it.
+  AWAITING_QA
+  /// The badge makes the seller waiver-eligible; an auditor must decide.
+  WAIVER_REVIEW
+  /// A release authorization is active. L2 may start once loading checks pass.
+  APPROVED_FOR_L2
+  /// The round failed. The whole shipment is blocked.
+  FAILED
+  /// A check is on hold, or the shipment was put on hold. Blocked.
+  ON_HOLD
+  /// Something changed after approval, or corrections were made. A new round.
+  REASSESSMENT_REQUIRED
+  /// L2 started on a valid authorization. Historical.
+  DISPATCHED
+  /// The seller order was cancelled.
+  CANCELLED
+}
+
+/// What the badge policy says about one shipment.
+enum ShipmentAssessmentRequirement {
+  ASSESSMENT_REQUIRED
+  WAIVER_ELIGIBLE
+  WAIVER_ELIGIBLE_WITH_REVIEW
+}
+
+/// One badge's rule in the policy.
+enum ShipmentAssessmentBadgeRule {
+  WAIVER_ELIGIBLE
+  WAIVER_ELIGIBLE_WITH_REVIEW
+  ASSESSMENT_REQUIRED
+}
+
+enum ShipmentCheckOutcome {
+  PASS
+  FAIL
+  /// Hold, or not verified yet. Blocks release like a failure does.
+  HOLD
+  /// Needs a written justification.
+  NOT_APPLICABLE
+}
+
+enum ShipmentAssessmentRoundKind {
+  ASSESSMENT
+  WAIVER
+}
+
+enum ShipmentRoundOutcome {
+  PASSED
+  FAILED
+  HELD
+}
+
+enum ShipmentWaiverDecisionKind {
+  APPROVED
+  REJECTED
+}
+
+enum ShipmentReleaseKind {
+  ASSESSMENT
+  WAIVER
+}
+
+enum ShipmentReleaseStatus {
+  ACTIVE
+  CONSUMED
+  INVALIDATED
+  EXPIRED
+}
+
+enum AuditDocumentKind {
+  SELLER_VERIFICATION_CERTIFICATE
+  /// The internal Seller Trading Approval record (Gate 8). Not an external certificate.
+  SELLER_TRADING_APPROVAL
+  SHIPMENT_ASSESSMENT_CERTIFICATE
+  SHIPMENT_WAIVER_AUTHORIZATION
+  SHIPMENT_FINDINGS_REPORT
+}
+
+enum AuditDocumentStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  SUPERSEDED
+  /// A shipment document whose shipment has left on it. Kept as evidence; it
+  /// cannot release anything again.
+  USED
+}
+
+/// Every change of a seller's Audit badge, append-only.
+model SellerBadgeChange {
+  id              String           @id @db.Char(26)
+  sellerAccountId String           @db.Char(26)
+  fromTier        SellerBadgeTier?
+  toTier          SellerBadgeTier?
+  reason          String           @db.VarChar(2000)
+  changedByUserId String           @db.Char(26)
+  createdAt       DateTime         @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_badge_change_seller")
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_badge_change_seller")
+  @@map("seller_badge_changes")
+}
+
+/// The badge policy, one row per version. The highest version is in force;
+/// a decision records the version it was made under. Never updated.
+model ShipmentAssessmentPolicy {
+  id      String @id @db.Char(26)
+  version Int    @unique(map: "uq_shipment_assessment_policy_version")
+
+  platinumRule ShipmentAssessmentBadgeRule
+  goldRule     ShipmentAssessmentBadgeRule
+  silverRule   ShipmentAssessmentBadgeRule
+  bronzeRule   ShipmentAssessmentBadgeRule
+  /// A seller with no badge. Always ASSESSMENT_REQUIRED (checked in code).
+  unbadgedRule ShipmentAssessmentBadgeRule
+
+  /// An approved dispatch window, in days, when the marketplace has one.
+  /// Null: the approving reviewer sets a justified deadline each time.
+  defaultDispatchDays Int? @db.SmallInt
+  /// The furthest a reviewer may set a dispatch deadline. Null: no cap
+  /// beyond product and evidence limits.
+  maxDispatchDays     Int? @db.SmallInt
+  /// When a Seller Verification Certificate is due for review. A platform
+  /// policy, not a legal or ISO rule.
+  sellerCertificateMonths Int @default(12) @db.SmallInt
+
+  note            String?  @db.Text
+  createdByUserId String?  @db.Char(26)
+  createdAt       DateTime @default(now()) @db.DateTime(3)
+
+  @@map("shipment_assessment_policies")
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+}
+
+/// One seller order's assessment between L1 and L2.
+model ShipmentAssessment {
+  id                 String @id @db.Char(26)
+  number             String @unique(map: "uq_shipment_assessment_number") @db.VarChar(24)
+  sellerOrderGroupId String @unique(map: "uq_shipment_assessment_group") @db.Char(26)
+  orderId            String @db.Char(26)
+  sellerAccountId    String @db.Char(26)
+
+  status ShipmentAssessmentStatus @default(AWAITING_L1)
+
+  /// What the policy said at the last evaluation, and why, in words.
+  requirement         ShipmentAssessmentRequirement @default(ASSESSMENT_REQUIRED)
+  requirementReason   String                        @db.VarChar(512)
+  /// A regulatory, contractual or buyer-requested inspection applies. A
+  /// waiver is then impossible.
+  mandatoryInspection Boolean                       @default(false)
+  mandatoryReason     String?                       @db.VarChar(512)
+  /// False when the facts a waiver needs could not be read. No waiver then.
+  applicabilityKnown  Boolean                       @default(true)
+  badgeAtEvaluation   SellerBadgeTier?
+  policyVersion       Int
+  evaluatedAt         DateTime                      @db.DateTime(3)
+
+  currentRound     Int     @default(0)
+  assessorUserId   String? @db.Char(26)
+  qaReviewerUserId String? @db.Char(26)
+
+  l1LegId       String?   @db.Char(26)
+  l2LegId       String?   @db.Char(26)
+  l1CompletedAt DateTime? @db.DateTime(3)
+  l1Location    String?   @db.VarChar(160)
+  plannedL2At   DateTime? @db.DateTime(3)
+
+  /// SHA-256 of what the shipment is: lines, quantities, packing list,
+  /// destination. A release is only good for the fingerprint it was given on.
+  scopeFingerprint String? @db.Char(64)
+
+  /// Awaiting L2 when this feature was switched on. Shown in its own queue.
+  existingAtRollout Boolean @default(false)
+
+  readinessNote        String?   @db.Text
+  readinessSubmittedAt DateTime? @db.DateTime(3)
+  sellerResponse       String?   @db.Text
+  sellerRespondedAt    DateTime? @db.DateTime(3)
+  holdReason           String?   @db.VarChar(1000)
+
+  /// Final loading checks (section K) recorded by the assessor or the
+  /// carrier holding L2. Required before departure.
+  loadingChecksCompletedAt DateTime? @db.DateTime(3)
+
+  dispatchedAt DateTime? @db.DateTime(3)
+  cancelledAt  DateTime? @db.DateTime(3)
+
+  version   Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerOrderGroup SellerOrderGroup @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_group")
+  sellerAccount    SellerAccount    @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_seller")
+  rounds           ShipmentAssessmentRound[]
+  checks           ShipmentAssessmentCheck[]
+  evidence         ShipmentAssessmentEvidence[]
+  events           ShipmentAssessmentEvent[]
+  waivers          ShipmentWaiverDecision[]
+  releases         ShipmentReleaseAuthorization[]
+  exceptions       ShipmentAssessmentException[]
+  documents        AuditDocument[]
+
+  @@index([status, updatedAt], map: "ix_shipment_assessment_status")
+  @@index([sellerAccountId, status], map: "ix_shipment_assessment_seller")
+  @@index([orderId], map: "ix_shipment_assessment_order")
+  @@map("shipment_assessments")
+}
+
+/// One round of an assessment. A reassessment is a new round; the earlier
+/// rounds, their checks and their report are never changed.
+model ShipmentAssessmentRound {
+  id           String                      @id @db.Char(26)
+  assessmentId String                      @db.Char(26)
+  round        Int
+  kind         ShipmentAssessmentRoundKind
+
+  /// `common-v1` plus the category plan it copied, if any.
+  checklistVersion    String  @db.VarChar(48)
+  categoryPlanId      String? @db.Char(26)
+  categoryPlanVersion Int?
+  /// The items as they stood when the round began.
+  checklistJson       Json
+
+  assessorUserId     String?   @db.Char(26)
+  startedAt          DateTime? @db.DateTime(3)
+  submittedAt        DateTime? @db.DateTime(3)
+  inspectionLocation String?   @db.VarChar(255)
+
+  // --- Quantity (section B). Each a separate fact, never one netted number.
+  orderedQuantity          Int?
+  declaredQuantity         Int?
+  presentedQuantity        Int?
+  countedQuantity          Int?
+  sampledQuantity          Int?
+  approvedQuantity         Int?
+  sellingUnit              String? @db.VarChar(32)
+  unitsPerPackage          Int?
+  packagesDeclared         Int?
+  packagesCounted          Int?
+  grossWeightDeclaredGrams BigInt?
+  grossWeightMeasuredGrams BigInt?
+  countingMethod           String? @db.VarChar(255)
+  /// The approved sampling method used, as named by the plan.
+  samplingMethod           String? @db.VarChar(255)
+  sampleCoverageNote       String? @db.VarChar(1000)
+
+  outcome         ShipmentRoundOutcome?
+  findingsSummary String?               @db.Text
+
+  qaReviewerUserId String?   @db.Char(26)
+  /// APPROVED or RETURNED.
+  qaDecision       String?   @db.VarChar(16)
+  qaNote           String?   @db.Text
+  qaDecidedAt      DateTime? @db.DateTime(3)
+
+  correctiveAction   String?   @db.Text
+  correctiveActionAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_round_assessment")
+
+  @@unique([assessmentId, round], map: "uq_shipment_assessment_round")
+  @@map("shipment_assessment_rounds")
+}
+
+/// One checklist item's result in one round.
+model ShipmentAssessmentCheck {
+  id           String               @id @db.Char(26)
+  assessmentId String               @db.Char(26)
+  round        Int
+  itemCode     String               @db.VarChar(48)
+  section      String               @db.VarChar(4)
+  /// PRE_LOADING or LOADING.
+  phase        String               @db.VarChar(16)
+  outcome      ShipmentCheckOutcome
+  note         String?              @db.VarChar(2000)
+  measuredValue String?             @db.VarChar(255)
+  /// True when the result is from a sample, not every unit.
+  sampled      Boolean              @default(false)
+
+  recordedByUserId String   @db.Char(26)
+  /// AUDIT or LOGISTICS.
+  recordedByRole   String   @db.VarChar(16)
+  recordedAt       DateTime @db.DateTime(3)
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+  updatedAt        DateTime @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_check_assessment")
+
+  @@unique([assessmentId, round, itemCode], map: "uq_shipment_assessment_check")
+  @@map("shipment_assessment_checks")
+}
+
+/// A photo or document attached to an assessment. Private storage only.
+model ShipmentAssessmentEvidence {
+  id               String   @id @db.Char(26)
+  assessmentId     String   @db.Char(26)
+  round            Int
+  itemCode         String?  @db.VarChar(48)
+  storageKey       String   @db.VarChar(512)
+  fileName         String   @db.VarChar(255)
+  contentType      String   @db.VarChar(128)
+  byteSize         Int
+  contentHash      String   @db.Char(64)
+  uploadedByUserId String   @db.Char(26)
+  /// AUDIT, SELLER or LOGISTICS.
+  uploadedByRole   String   @db.VarChar(16)
+  note             String?  @db.VarChar(1000)
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_evidence_assessment")
+
+  @@index([assessmentId, round], map: "ix_shipment_assessment_evidence")
+  @@map("shipment_assessment_evidence")
+}
+
+/// Everything that happened to an assessment, append-only.
+model ShipmentAssessmentEvent {
+  id             String                    @id @db.Char(26)
+  assessmentId   String                    @db.Char(26)
+  kind           String                    @db.VarChar(48)
+  fromStatus     ShipmentAssessmentStatus?
+  toStatus       ShipmentAssessmentStatus?
+  /// AUDIT, SELLER, LOGISTICS or SYSTEM.
+  actorRole      String                    @db.VarChar(16)
+  actorUserId    String?                   @db.Char(26)
+  note           String?                   @db.Text
+  dataJson       Json?
+  occurredAt     DateTime                  @default(now()) @db.DateTime(3)
+  idempotencyKey String?                   @db.VarChar(80)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_event_assessment")
+
+  @@unique([idempotencyKey], map: "uq_shipment_assessment_event_idem")
+  @@index([assessmentId, occurredAt], map: "ix_shipment_assessment_event")
+  @@map("shipment_assessment_events")
+}
+
+/// An auditor's decision on a badge-based waiver.
+model ShipmentWaiverDecision {
+  id                  String                     @id @db.Char(26)
+  assessmentId        String                     @db.Char(26)
+  decision            ShipmentWaiverDecisionKind
+  badgeAtDecision     SellerBadgeTier?
+  badgeVersion        Int
+  policyVersion       Int
+  /// Gold: what the reviewer found in the seller's recent history.
+  historyReviewNote   String?                    @db.Text
+  /// The history the reviewer was shown, exactly as shown.
+  historySnapshotJson Json
+  reason              String                     @db.Text
+  /// Evidence ids or document references the decision relied on.
+  evidenceRefsJson    Json?
+  decidedByUserId     String                     @db.Char(26)
+  decidedAt           DateTime                   @db.DateTime(3)
+  invalidatedAt       DateTime?                  @db.DateTime(3)
+  invalidationReason  String?                    @db.VarChar(1000)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_waiver_assessment")
+
+  @@index([assessmentId, decidedAt], map: "ix_shipment_waiver_assessment")
+  @@map("shipment_waiver_decisions")
+}
+
+/// Permission for L2 to start. One ACTIVE row per assessment at most.
+model ShipmentReleaseAuthorization {
+  id               String                @id @db.Char(26)
+  assessmentId     String                @db.Char(26)
+  kind             ShipmentReleaseKind
+  round            Int
+  waiverDecisionId String?               @db.Char(26)
+  status           ShipmentReleaseStatus @default(ACTIVE)
+  /// The assessment id while ACTIVE, NULL otherwise: a UNIQUE index that
+  /// allows exactly one active authorization (NULLs are distinct).
+  activeSlot       String?               @unique(map: "uq_shipment_release_active") @db.Char(26)
+
+  scopeFingerprint      String           @db.Char(64)
+  badgeAtIssue          SellerBadgeTier?
+  badgeVersion          Int
+  policyVersion         Int
+  dispatchDeadline      DateTime         @db.DateTime(3)
+  deadlineJustification String           @db.VarChar(1000)
+  loadingChecksRequired Boolean          @default(true)
+
+  issuedByUserId String   @db.Char(26)
+  issuedAt       DateTime @db.DateTime(3)
+
+  consumedAt         DateTime? @db.DateTime(3)
+  consumedLegId      String?   @db.Char(26)
+  invalidatedAt      DateTime? @db.DateTime(3)
+  invalidationReason String?   @db.VarChar(1000)
+
+  version   Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_release_assessment")
+
+  @@index([status, dispatchDeadline], map: "ix_shipment_release_status")
+  @@index([assessmentId], map: "ix_shipment_release_assessment")
+  @@map("shipment_release_authorizations")
+}
+
+/// Reality that broke a rule: a carrier reported the goods leaving while the
+/// shipment was not released. Recorded, never discarded, never approved.
+model ShipmentAssessmentException {
+  id                  String    @id @db.Char(26)
+  assessmentId        String    @db.Char(26)
+  kind                String    @db.VarChar(48)
+  logisticsShipmentId String?   @db.Char(26)
+  shipmentEventId     String?   @db.Char(26)
+  detail              String    @db.Text
+  occurredAt          DateTime  @db.DateTime(3)
+  resolvedAt          DateTime? @db.DateTime(3)
+  resolvedByUserId    String?   @db.Char(26)
+  resolutionNote      String?   @db.Text
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  assessment ShipmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_assessment_exception_assessment")
+
+  @@unique([shipmentEventId], map: "uq_shipment_assessment_exception_event")
+  @@index([assessmentId, resolvedAt], map: "ix_shipment_assessment_exception")
+  @@map("shipment_assessment_exceptions")
+}
+
+/// A certificate, waiver authorization or findings report the Audit Team
+/// issued. The PDF is never overwritten: a correction is a new row with
+/// `supersedesId` set and the old one SUPERSEDED.
+model AuditDocument {
+  id              String              @id @db.Char(26)
+  number          String              @unique(map: "uq_audit_document_number") @db.VarChar(32)
+  kind            AuditDocumentKind
+  version         Int                 @default(1)
+  supersedesId    String?             @unique(map: "uq_audit_document_supersedes") @db.Char(26)
+  status          AuditDocumentStatus @default(ACTIVE)
+  sellerAccountId String              @db.Char(26)
+  assessmentId    String?             @db.Char(26)
+  round           Int?
+  releaseId       String?             @db.Char(26)
+
+  /// What the public verification page may show. Nothing private.
+  scopeJson  Json
+  /// What was printed, for the record. Never shown publicly.
+  detailJson Json
+
+  issuedAt    DateTime  @db.DateTime(3)
+  validUntil  DateTime? @db.DateTime(3)
+  dispatchBy  DateTime? @db.DateTime(3)
+
+  signedByUserId   String @db.Char(26)
+  signedByName     String @db.VarChar(160)
+  signedByRole     String @db.VarChar(48)
+  /// Said plainly: an authorised sign-off record, not a cryptographic signature.
+  signingMechanism String @db.VarChar(255)
+
+  storageKey  String @db.VarChar(512)
+  contentHash String @db.Char(64)
+  byteSize    Int
+  pageCount   Int
+
+  statusChangedAt DateTime? @db.DateTime(3)
+  revokedByUserId String?   @db.Char(26)
+  revokedReason   String?   @db.VarChar(1000)
+  reminderSentAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount       @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_audit_document_seller")
+  assessment    ShipmentAssessment? @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_audit_document_assessment")
+
+  @@index([sellerAccountId, kind], map: "ix_audit_document_seller")
+  @@index([assessmentId], map: "ix_audit_document_assessment")
+  @@index([status, validUntil], map: "ix_audit_document_status")
+  @@map("audit_documents")
+}
+
+// =============================================================================
+// Seller Assessment and Onboarding (policy document v1.0, 9 October 2026)
+// =============================================================================
+// Statuses are VARCHAR checked by domain/seller-assessment-state.ts, the only
+// place that decides which move is legal. Money is BIGINT minor units.
+
+/// A versioned policy. v1.0 is seeded as DRAFT: its proposed commercial
+/// defaults bind only after somebody records adoption, an effective date and
+/// disclosure. Never edited in place - a change is a new version.
+model SellerAssessmentPolicy {
+  id                  String    @id @db.Char(26)
+  version             String    @unique(map: "uq_sa_policy_version") @db.VarChar(16)
+  status              String    @default("DRAFT") @db.VarChar(16)
+  configJson          Json
+  sourceDocument      String    @db.VarChar(255)
+  note                String?   @db.Text
+  createdByUserId     String?   @db.Char(26)
+  effectiveFrom       DateTime? @db.DateTime(3)
+  adoptedByUserId     String?   @db.Char(26)
+  adoptedAt           DateTime? @db.DateTime(3)
+  adoptionReference   String?   @db.VarChar(255)
+  disclosedAt         DateTime? @db.DateTime(3)
+  disclosureReference String?   @db.VarChar(255)
+  retiredAt           DateTime? @db.DateTime(3)
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt           DateTime  @updatedAt @db.DateTime(3)
+
+  @@map("seller_assessment_policies")
+}
+
+/// One assessment cycle for one seller: initial onboarding, an extension of
+/// scope, a renewal, a reassessment, or the reassessment of a legacy seller.
+model SellerAssessment {
+  id                 String    @id @db.Char(26)
+  number             String    @unique(map: "uq_sa_number") @db.VarChar(32)
+  sellerAccountId    String    @db.Char(26)
+  kind               String    @db.VarChar(24)
+  status             String    @default("DRAFT") @db.VarChar(24)
+  policyVersion      String    @db.VarChar(16)
+  /// Application form as the seller saved it (save and resume). Validated per section.
+  applicationJson    Json
+  applicationRevision Int      @default(0)
+  ownerUserId        String?   @db.Char(26)
+  riskLevel          String    @default("MEDIUM") @db.VarChar(8)
+  submittedAt        DateTime? @db.DateTime(3)
+  fileCompleteAt     DateTime? @db.DateTime(3)
+  /// Service target only (5 business days from a complete file). Never a promise of approval.
+  reviewTargetAt     DateTime? @db.DateTime(3)
+  correctionNote     String?   @db.Text
+  scoreTimesFive     Int?
+  scoreBand          String?   @db.VarChar(20)
+  hardStopsJson      Json?
+  decision           String?   @db.VarChar(24)
+  decisionReason     String?   @db.Text
+  decidedByUserId    String?   @db.Char(26)
+  decidedAt          DateTime? @db.DateTime(3)
+  /// The approval this cycle extends or renews.
+  baseApprovalId     String?   @db.Char(26)
+  legacyNote         String?   @db.Text
+  version            Int       @default(0)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount                   @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_seller")
+  gates         SellerAssessmentGate[]
+  checklist     SellerAssessmentChecklistItem[]
+  scores        SellerAssessmentScore[]
+  evidence      SellerAssessmentEvidence[]
+  scopeItems    SellerAssessmentScopeItem[]
+  findings      SellerAssessmentFinding[]
+  workpapers    SellerAssessmentWorkpaper[]
+  certifications SellerExternalCertification[]
+
+  @@index([sellerAccountId, status], map: "ix_sa_seller")
+  @@index([status, reviewTargetAt], map: "ix_sa_status")
+  @@map("seller_assessments")
+}
+
+model SellerAssessmentGate {
+  id              String    @id @db.Char(26)
+  assessmentId    String    @db.Char(26)
+  gate            Int       @db.TinyInt
+  status          String    @default("NOT_STARTED") @db.VarChar(24)
+  assignedUserId  String?   @db.Char(26)
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+  reason          String?   @db.Text
+  policyVersion   String?   @db.VarChar(16)
+  evidenceIdsJson Json?
+  updatedAt       DateTime  @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_gate_assessment")
+
+  @@unique([assessmentId, gate], map: "uq_sa_gate")
+  @@map("seller_assessment_gates")
+}
+
+/// Section 8: the 23 applicant checklist items. Untouched stays UNREVIEWED.
+model SellerAssessmentChecklistItem {
+  id                 String    @id @db.Char(26)
+  assessmentId       String    @db.Char(26)
+  code               String    @db.VarChar(8)
+  outcome            String    @default("UNREVIEWED") @db.VarChar(16)
+  evidenceRef        String?   @db.VarChar(255)
+  reviewerUserId     String?   @db.Char(26)
+  reviewedAt         DateTime? @db.DateTime(3)
+  expiresOn          DateTime? @db.Date
+  comment            String?   @db.Text
+  naReason           String?   @db.Text
+  naApprovedByUserId String?   @db.Char(26)
+  naApprovedAt       DateTime? @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_check_assessment")
+
+  @@unique([assessmentId, code], map: "uq_sa_check")
+  @@map("seller_assessment_checklist_items")
+}
+
+/// Section 4: one rating 0-5 per dimension, with its evidence and reasoning.
+model SellerAssessmentScore {
+  id             String   @id @db.Char(26)
+  assessmentId   String   @db.Char(26)
+  dimension      String   @db.VarChar(32)
+  rating         Int      @db.TinyInt
+  evidenceRef    String   @db.VarChar(255)
+  reasoning      String   @db.Text
+  ratedByUserId  String   @db.Char(26)
+  ratedAt        DateTime @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_score_assessment")
+
+  @@unique([assessmentId, dimension], map: "uq_sa_score")
+  @@map("seller_assessment_scores")
+}
+
+/// A private evidence file. A replacement is a new version; the old one stays.
+model SellerAssessmentEvidence {
+  id                String    @id @db.Char(26)
+  assessmentId      String    @db.Char(26)
+  sellerAccountId   String    @db.Char(26)
+  category          String    @db.VarChar(24)
+  evidenceKey       String    @db.VarChar(64)
+  label             String    @db.VarChar(255)
+  evidenceVersion   Int       @default(1)
+  supersedesId      String?   @db.Char(26)
+  storageKey        String    @db.VarChar(512)
+  fileName          String    @db.VarChar(255)
+  contentType       String    @db.VarChar(64)
+  byteSize          Int
+  contentHash       String    @db.Char(64)
+  scanState         String    @db.VarChar(24)
+  uploadedByUserId  String    @db.Char(26)
+  uploadedByRole    String    @db.VarChar(16)
+  retentionCategory String    @db.VarChar(24)
+  legalHold         Boolean   @default(false)
+  legalHoldReason   String?   @db.VarChar(1000)
+  legalHoldByUserId String?   @db.Char(26)
+  createdAt         DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_evidence_assessment")
+
+  @@index([assessmentId, evidenceKey], map: "ix_sa_evidence_key")
+  @@index([sellerAccountId], map: "ix_sa_evidence_seller")
+  @@map("seller_assessment_evidence")
+}
+
+/// Gate 3 and Section 11: one material combination - product version x site x
+/// single country x channel. No regional row: a country is one ISO code.
+model SellerAssessmentScopeItem {
+  id                   String    @id @db.Char(26)
+  assessmentId         String    @db.Char(26)
+  productKey           String    @db.VarChar(64)
+  offerId              String?   @db.Char(26)
+  productName          String    @db.VarChar(255)
+  productVersion       String    @db.VarChar(64)
+  intendedUse          String    @db.Text
+  facilityRef          String    @db.VarChar(64)
+  countryCode          String    @db.Char(2)
+  channel              String    @db.VarChar(4)
+  catalogueCategory    String?   @db.VarChar(160)
+  hsProposal           String?   @db.VarChar(16)
+  regulatoryClass      String?   @db.VarChar(255)
+  requiredTests        String?   @db.Text
+  authorisations       String?   @db.Text
+  authorisationExpiresOn DateTime? @db.Date
+  localResponsible     String?   @db.VarChar(512)
+  importerLicence      String?   @db.VarChar(512)
+  labelsLanguages      String?   @db.VarChar(512)
+  warnings             String?   @db.Text
+  restrictions         String?   @db.Text
+  recallObligations    String?   @db.Text
+  shippingInsurance    String?   @db.Text
+  decision             String    @default("PENDING") @db.VarChar(12)
+  decisionReason       String?   @db.Text
+  classifiedByUserId   String?   @db.Char(26)
+  classifiedAt         DateTime? @db.DateTime(3)
+  nextReviewAt         DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_scope_assessment")
+
+  @@unique([assessmentId, productKey, facilityRef, countryCode, channel], map: "uq_sa_scope")
+  @@map("seller_assessment_scope_items")
+}
+
+/// Gate 6 and Section 10: a finding and its corrective / preventive action.
+model SellerAssessmentFinding {
+  id                     String    @id @db.Char(26)
+  number                 String    @unique(map: "uq_sa_finding_number") @db.VarChar(32)
+  assessmentId           String    @db.Char(26)
+  sellerAccountId        String    @db.Char(26)
+  classification         String    @db.VarChar(12)
+  requirement            String    @db.Text
+  evidence               String    @db.Text
+  containment            String?   @db.Text
+  rootCause              String?   @db.Text
+  correctiveAction       String?   @db.Text
+  preventiveAction       String?   @db.Text
+  ownerName              String?   @db.VarChar(160)
+  raisedAt               DateTime  @db.DateTime(3)
+  containmentDueAt       DateTime? @db.DateTime(3)
+  planDueAt              DateTime? @db.DateTime(3)
+  closureDueAt           DateTime  @db.DateTime(3)
+  status                 String    @default("OPEN") @db.VarChar(20)
+  closureEvidenceIdsJson Json?
+  effectivenessVerification String? @db.Text
+  raisedByUserId         String    @db.Char(26)
+  closedByUserId         String?   @db.Char(26)
+  closedAt               DateTime? @db.DateTime(3)
+  version                Int       @default(0)
+  updatedAt              DateTime  @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_finding_assessment")
+
+  @@index([assessmentId, status], map: "ix_sa_finding")
+  @@map("seller_assessment_findings")
+}
+
+/// Typed records of human work: site audits, sample plans and custody, lab
+/// competence, contracts, mock-order steps, identity checks, specialist
+/// reviews, AI outputs. Append-only; a correction is a new revision.
+/// `mode` says plainly whether a step was SIMULATED or really VERIFIED.
+model SellerAssessmentWorkpaper {
+  id               String   @id @db.Char(26)
+  assessmentId     String   @db.Char(26)
+  kind             String   @db.VarChar(24)
+  subjectRef       String?  @db.VarChar(64)
+  mode             String   @db.VarChar(16)
+  payloadJson      Json
+  revision         Int      @default(1)
+  supersedesId     String?  @db.Char(26)
+  recordedByUserId String   @db.Char(26)
+  recordedAt       DateTime @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_workpaper_assessment")
+
+  @@index([assessmentId, kind], map: "ix_sa_workpaper")
+  @@map("seller_assessment_workpapers")
+}
+
+/// Gate 5: the independent body the marketplace appointed and paid, and the
+/// certificate it issued. A seller upload never authenticates anything.
+model SellerExternalCertification {
+  id                    String    @id @db.Char(26)
+  assessmentId          String    @db.Char(26)
+  sellerAccountId       String    @db.Char(26)
+  bodyName              String    @db.VarChar(255)
+  scheme                String    @db.VarChar(255)
+  appointedByUserId     String    @db.Char(26)
+  appointedAt           DateTime  @db.DateTime(3)
+  procurementRef        String?   @db.VarChar(128)
+  paymentRef            String?   @db.VarChar(128)
+  accreditationBody     String?   @db.VarChar(255)
+  accreditationNumber   String?   @db.VarChar(128)
+  accreditationVerified Boolean   @default(false)
+  sectorScope           String?   @db.Text
+  legalRecognition      String?   @db.Text
+  conflictCheck         String?   @db.Text
+  independenceVerified  Boolean   @default(false)
+  facilityRefsJson      Json?
+  productKeysJson       Json?
+  certificateNumber     String?   @db.VarChar(128)
+  issuer                String?   @db.VarChar(255)
+  authenticityMethod    String?   @db.VarChar(255)
+  authenticityReference String?   @db.VarChar(512)
+  authenticatedByUserId String?   @db.Char(26)
+  authenticatedAt       DateTime? @db.DateTime(3)
+  issuedOn              DateTime? @db.Date
+  expiresOn             DateTime? @db.Date
+  surveillanceConditions String?  @db.Text
+  status                String    @default("APPOINTED") @db.VarChar(20)
+  statusReason          String?   @db.Text
+  version               Int       @default(0)
+  updatedAt             DateTime  @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  assessment SellerAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sa_cert_assessment")
+
+  @@index([sellerAccountId, status], map: "ix_sa_cert_seller")
+  @@map("seller_external_certifications")
+}
+
+/// Gate 8 and Section 9: the marketplace's INTERNAL trading approval. Not the
+/// external certificate and not a government or accredited approval.
+model SellerTradingApproval {
+  id                      String    @id @db.Char(26)
+  number                  String    @unique(map: "uq_sta_number") @db.VarChar(32)
+  sellerAccountId         String    @db.Char(26)
+  assessmentId            String    @db.Char(26)
+  version                 Int       @default(1)
+  supersedesId            String?   @db.Char(26)
+  status                  String    @default("ACTIVE") @db.VarChar(16)
+  policyVersion           String    @db.VarChar(16)
+  policyStatusAtRelease   String    @db.VarChar(16)
+  externalCertificationId String    @db.Char(26)
+  /// Every Section 9 field as released, for the record.
+  recordJson              Json
+  scoreTimesFive          Int
+  issuedAt                DateTime  @db.DateTime(3)
+  validUntil              DateTime  @db.DateTime(3)
+  nextReviewAt            DateTime  @db.DateTime(3)
+  releaseApproverUserId   String    @db.Char(26)
+  auditDocumentId         String?   @db.Char(26)
+  statusReason            String?   @db.Text
+  statusChangedAt         DateTime? @db.DateTime(3)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount               @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_sta_seller")
+  scopes        SellerTradingApprovalScope[]
+
+  @@index([sellerAccountId, status], map: "ix_sta_seller")
+  @@index([status, validUntil], map: "ix_sta_status")
+  @@map("seller_trading_approvals")
+}
+
+/// One approved (or blocked) combination. The purchase gate reads this.
+model SellerTradingApprovalScope {
+  id              String    @id @db.Char(26)
+  approvalId      String    @db.Char(26)
+  sellerAccountId String    @db.Char(26)
+  scopeItemId     String    @db.Char(26)
+  offerId         String?   @db.Char(26)
+  productKey      String    @db.VarChar(64)
+  productVersion  String    @db.VarChar(64)
+  facilityRef     String    @db.VarChar(64)
+  countryCode     String    @db.Char(2)
+  channel         String    @db.VarChar(4)
+  status          String    @default("ACTIVE") @db.VarChar(12)
+  validUntil      DateTime  @db.DateTime(3)
+  scheduleJson    Json
+  blockedReason   String?   @db.Text
+  blockedAt       DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  approval SellerTradingApproval @relation(fields: [approvalId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_stas_approval")
+
+  @@index([sellerAccountId, offerId, countryCode, channel, status], map: "ix_stas_lookup")
+  @@index([approvalId], map: "ix_stas_approval")
+  @@map("seller_trading_approval_scopes")
+}
+
+/// Append-only history of every decision and change: actor, capability,
+/// reason, policy version and evidence versions.
+model SellerAssessmentEvent {
+  id               String   @id @db.Char(26)
+  sellerAccountId  String   @db.Char(26)
+  assessmentId     String?  @db.Char(26)
+  subjectType      String   @db.VarChar(24)
+  subjectId        String?  @db.Char(26)
+  kind             String   @db.VarChar(40)
+  actorUserId      String?  @db.Char(26)
+  actorRole        String   @db.VarChar(16)
+  capability       String?  @db.VarChar(24)
+  reason           String?  @db.Text
+  policyVersion    String?  @db.VarChar(16)
+  evidenceRefsJson Json?
+  dataJson         Json?
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([assessmentId, createdAt], map: "ix_sae_assessment")
+  @@index([sellerAccountId, createdAt], map: "ix_sae_seller")
+  @@map("seller_assessment_events")
+}
+
+/// Section 12: a suspension, rejection or restriction notice.
+model SellerAssessmentNotice {
+  id                  String    @id @db.Char(26)
+  number              String    @unique(map: "uq_san_number") @db.VarChar(32)
+  sellerAccountId     String    @db.Char(26)
+  approvalId          String?   @db.Char(26)
+  assessmentId        String?   @db.Char(26)
+  kind                String    @db.VarChar(16)
+  hardStop            String?   @db.VarChar(40)
+  scopeIdsJson        Json?
+  wholeSeller         Boolean   @default(false)
+  reason              String    @db.Text
+  shareableEvidence   String    @db.Text
+  affectedOrdersJson  Json?
+  settlementTreatment String    @db.Text
+  correctiveActions   String    @db.Text
+  reviewRoute         String    @db.Text
+  issuedByUserId      String    @db.Char(26)
+  issuedAt            DateTime  @db.DateTime(3)
+  appealDeadline      DateTime  @db.DateTime(3)
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  appeals SellerAssessmentAppeal[]
+
+  @@index([sellerAccountId, issuedAt], map: "ix_san_seller")
+  @@map("seller_assessment_notices")
+}
+
+model SellerAssessmentAppeal {
+  id                   String    @id @db.Char(26)
+  noticeId             String    @db.Char(26)
+  sellerAccountId      String    @db.Char(26)
+  grounds              String    @db.Text
+  evidenceRef          String?   @db.VarChar(512)
+  submittedByProfileId String    @db.Char(26)
+  submittedAt          DateTime  @db.DateTime(3)
+  targetBy             DateTime  @db.DateTime(3)
+  reviewerUserId       String?   @db.Char(26)
+  status               String    @default("SUBMITTED") @db.VarChar(16)
+  outcomeReason        String?   @db.Text
+  decidedAt            DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  notice SellerAssessmentNotice @relation(fields: [noticeId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_saa_notice")
+
+  @@index([status, targetBy], map: "ix_saa_status")
+  @@map("seller_assessment_appeals")
+}
+
+/// Section 6: an advance change notification, or one the audit team found undisclosed.
+model SellerAssessmentChangeRequest {
+  id                   String    @id @db.Char(26)
+  sellerAccountId      String    @db.Char(26)
+  approvalId           String?   @db.Char(26)
+  kind                 String    @db.VarChar(24)
+  description          String    @db.Text
+  plannedFrom          DateTime? @db.Date
+  undisclosed          Boolean   @default(false)
+  submittedByProfileId String?   @db.Char(26)
+  recordedByUserId     String?   @db.Char(26)
+  status               String    @default("SUBMITTED") @db.VarChar(20)
+  reviewerUserId       String?   @db.Char(26)
+  decisionReason       String?   @db.Text
+  decidedAt            DateTime? @db.DateTime(3)
+  createdAt            DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, status], map: "ix_sacr_seller")
+  @@map("seller_assessment_change_requests")
+}
+
+model SellerIncidentReport {
+  id                     String    @id @db.Char(26)
+  sellerAccountId        String    @db.Char(26)
+  severity               String    @db.VarChar(12)
+  description            String    @db.Text
+  affectedProducts       String?   @db.Text
+  awareAt                DateTime  @db.DateTime(3)
+  reportedAt             DateTime  @db.DateTime(3)
+  deadlineHours          Int
+  statutoryDeadlineHours Int?
+  late                   Boolean
+  submittedByProfileId   String    @db.Char(26)
+  status                 String    @default("OPEN") @db.VarChar(16)
+  reviewerUserId         String?   @db.Char(26)
+  reviewNote             String?   @db.Text
+  reviewedAt             DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, reportedAt], map: "ix_sir_seller")
+  @@map("seller_incident_reports")
+}
+
+/// A placed seller order caught by a suspension or a lapsed scope. Nothing
+/// ships, cancels or refunds by itself: a person records the disposition.
+model SellerOrderDisposition {
+  id                 String    @id @db.Char(26)
+  sellerOrderGroupId String    @db.Char(26)
+  orderId            String    @db.Char(26)
+  sellerAccountId    String    @db.Char(26)
+  noticeId           String?   @db.Char(26)
+  trigger            String    @db.VarChar(24)
+  triggerKey         String    @db.VarChar(64)
+  reason             String    @db.Text
+  status             String    @default("PENDING_REVIEW") @db.VarChar(20)
+  decidedByUserId    String?   @db.Char(26)
+  decidedAt          DateTime? @db.DateTime(3)
+  decisionNote       String?   @db.Text
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([sellerOrderGroupId, triggerKey], map: "uq_sod_trigger")
+  @@index([status, createdAt], map: "ix_sod_status")
+  @@map("seller_order_dispositions")
+}
+
+/// A bank beneficiary change: confirmed through a known independent contact
+/// and approved by two different people.
+model SellerBankChangeRequest {
+  id                    String    @id @db.Char(26)
+  sellerAccountId       String    @db.Char(26)
+  beneficiaryName       String    @db.VarChar(255)
+  accountLast4          String    @db.VarChar(4)
+  bankCode              String    @db.VarChar(16)
+  evidenceRef           String?   @db.VarChar(512)
+  requestedByProfileId  String    @db.Char(26)
+  requestedAt           DateTime  @db.DateTime(3)
+  knownContactName      String?   @db.VarChar(160)
+  knownContactSource    String?   @db.VarChar(255)
+  contactConfirmedByUserId String? @db.Char(26)
+  contactConfirmedAt    DateTime? @db.DateTime(3)
+  firstApproverUserId   String?   @db.Char(26)
+  firstApprovedAt       DateTime? @db.DateTime(3)
+  secondApproverUserId  String?   @db.Char(26)
+  secondApprovedAt      DateTime? @db.DateTime(3)
+  status                String    @default("SUBMITTED") @db.VarChar(20)
+  reason                String?   @db.Text
+  version               Int       @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, status], map: "ix_sbcr_seller")
+  @@map("seller_bank_change_requests")
+}
+
+/// Surveillance, revalidation and expiry reminders. `dedupeKey` makes every
+/// sweep idempotent: a task or reminder is created once, whatever retries.
+model SellerSurveillanceTask {
+  id               String    @id @db.Char(26)
+  sellerAccountId  String    @db.Char(26)
+  approvalId       String?   @db.Char(26)
+  kind             String    @db.VarChar(32)
+  subjectRef       String?   @db.VarChar(64)
+  dueAt            DateTime  @db.DateTime(3)
+  dedupeKey        String    @unique(map: "uq_sst_dedupe") @db.VarChar(160)
+  status           String    @default("OPEN") @db.VarChar(12)
+  outcome          String?   @db.VarChar(24)
+  note             String?   @db.Text
+  completedByUserId String?  @db.Char(26)
+  completedAt      DateTime? @db.DateTime(3)
+  createdAt        DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([status, dueAt], map: "ix_sst_status")
+  @@index([sellerAccountId], map: "ix_sst_seller")
+  @@map("seller_surveillance_tasks")
+}
+
+// ===========================================================================
+// Delivery, returns, disputes, commercial schedules, certification recovery,
+// security, insurance, product evidence, safety and country launch.
+//
+// Sources: Doc 07 "Delivery Returns Refunds and Dispute Administration Policy"
+// v1.0 and Doc 08 "Commercial Certification and Launch Approval Guide" v1.0,
+// both prepared 9 October 2026 and both approval drafts. The pure rules and
+// every imported table live in src/domain/commercial-policy.ts.
+//
+// Every proposed number is held in a CommercialSchedule that starts DRAFT.
+// Nothing here activates itself: activation is a person's act with a second
+// approver, evidence, a signed-schedule reference and - for money held or
+// split - the payment provider's written confirmation.
+//
+// Plain Char(26) references, string statuses: additive tables, no change to
+// any existing model's shape except LogisticsProofOfDelivery.quantitiesJson.
+// ===========================================================================
+
+model CommercialSchedule {
+  id                      String    @id @db.Char(26)
+  kind                    String    @db.VarChar(32)
+  version                 Int
+  status                  String    @default("DRAFT") @db.VarChar(20)
+  title                   String    @db.VarChar(200)
+  /// "Doc 08 s3" etc. The source document is never edited to match the code.
+  sourceDocument          String    @db.VarChar(200)
+  /// { countries?: string[], channels?: ("B2B"|"B2C")[], sellerAccountIds?: string[] } - empty means all.
+  scopeJson               Json
+  bodyJson                Json
+  effectiveFrom           DateTime? @db.DateTime(3)
+  effectiveUntil          DateTime? @db.DateTime(3)
+  /// The signed seller / buyer schedule this version is part of.
+  scheduleReference       String?   @db.VarChar(200)
+  preparedById            String?   @db.Char(26)
+  submittedAt             DateTime? @db.DateTime(3)
+  approvedById            String?   @db.Char(26)
+  approvedAt              DateTime? @db.DateTime(3)
+  approvalEvidence        String?   @db.Text
+  providerConfirmationRef String?   @db.VarChar(200)
+  providerConfirmedAt     DateTime? @db.DateTime(3)
+  activatedById           String?   @db.Char(26)
+  activatedAt             DateTime? @db.DateTime(3)
+  retiredAt               DateTime? @db.DateTime(3)
+  note                    String?   @db.Text
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt               DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([kind, version], map: "uq_cs_kind_version")
+  @@index([kind, status], map: "ix_cs_kind_status")
+  @@map("commercial_schedules")
+}
+
+model CommercialScheduleEvent {
+  id          String   @id @db.Char(26)
+  scheduleId  String   @db.Char(26)
+  kind        String   @db.VarChar(32)
+  actorUserId String?  @db.Char(26)
+  note        String?  @db.Text
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  @@index([scheduleId, createdAt], map: "ix_cse_schedule")
+  @@map("commercial_schedule_events")
+}
+
+/// Doc 07 s1: what was agreed for one order line, frozen once. A later rule change never rewrites it.
+model OrderLineCommercialSnapshot {
+  id                          String    @id @db.Char(26)
+  orderId                     String    @db.Char(26)
+  orderItemId                 String    @unique(map: "uq_olcs_item") @db.Char(26)
+  sellerOrderGroupId          String?   @db.Char(26)
+  sellerAccountId             String?   @db.Char(26)
+  offerId                     String?   @db.Char(26)
+  manufacturerName            String?   @db.VarChar(200)
+  productVersion              String?   @db.VarChar(64)
+  facilityRef                 String?   @db.VarChar(64)
+  approvalScopeId             String?   @db.Char(26)
+  sellerCountry               String?   @db.Char(2)
+  destinationCountry          String    @db.Char(2)
+  channel                     String    @db.VarChar(4)
+  departmentSlug              String?   @db.VarChar(120)
+  deliveryTerm                String    @db.VarChar(12)
+  namedPlace                  String?   @db.VarChar(400)
+  importerOfRecord            String    @db.VarChar(24)
+  importRouteId               String?   @db.Char(26)
+  localActorsJson             Json?
+  /// Title transfer, transit risk, delivery date and technical acceptance are distinct things.
+  titleTransferPoint          String?   @db.VarChar(200)
+  riskTransferPoint           String?   @db.VarChar(200)
+  promisedDeliveryFrom        DateTime? @db.DateTime(3)
+  promisedDeliveryTo          DateTime? @db.DateTime(3)
+  technicalAcceptanceDays     Int?
+  leadTimeDays                Int?
+  returnRoute                 String?   @db.VarChar(400)
+  packagingNote               String?   @db.VarChar(400)
+  transportRestrictionsJson   Json?
+  insuranceJson               Json?
+  paymentMilestonesJson       Json?
+  goodsMinor                  BigInt
+  sellerFundedDiscountMinor   BigInt    @default(0)
+  platformFundedDiscountMinor BigInt    @default(0)
+  taxMinor                    BigInt
+  chargesJson                 Json?
+  currency                    String    @db.Char(3)
+  commissionBaseMinor         BigInt
+  commissionBps               Int
+  commissionMinor             BigInt
+  commissionSource            String    @db.VarChar(40)
+  commissionRuleVersion       String?   @db.VarChar(64)
+  rounding                    String    @default("HALF_UP_PER_LINE") @db.VarChar(24)
+  certificationAllocationId   String?   @db.Char(26)
+  certificationChargeMinor    BigInt    @default(0)
+  policyVersionsJson          Json
+  controlGapsJson             Json
+  createdAt                   DateTime  @default(now()) @db.DateTime(3)
+  updatedAt                   DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([orderId], map: "ix_olcs_order")
+  @@index([sellerOrderGroupId], map: "ix_olcs_group")
+  @@map("order_line_commercial_snapshots")
+}
+
+/// Doc 07 s4 / Doc 08 s1: a reviewed lawful import route. B2C checkout of a covered category is refused without an approved one.
+model ImportRoute {
+  id                String    @id @db.Char(26)
+  countryCode       String    @db.Char(2)
+  /// Null = every category in this country.
+  categoryId        String?   @db.Char(26)
+  /// categoryId or '' - a UNIQUE index treats NULLs as distinct.
+  categoryKey       String    @default("") @db.VarChar(26)
+  channel           String    @db.VarChar(4)
+  importerParty     String    @db.VarChar(24)
+  importerName      String?   @db.VarChar(200)
+  /// [{ role, name, evidence, verified }]
+  localActorsJson   Json
+  regulatedCategory Boolean   @default(true)
+  status            String    @default("DRAFT") @db.VarChar(16)
+  evidence          String?   @db.Text
+  preparedById      String?   @db.Char(26)
+  reviewerUserId    String?   @db.Char(26)
+  reviewedAt        DateTime? @db.DateTime(3)
+  validUntil        DateTime? @db.DateTime(3)
+  note              String?   @db.Text
+  createdAt         DateTime  @default(now()) @db.DateTime(3)
+  updatedAt         DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([countryCode, categoryKey, channel], map: "uq_import_route")
+  @@index([countryCode, status], map: "ix_import_route_country")
+  @@map("import_routes")
+}
+
+/// Doc 07 s6-s8: the case-management facts a dispute carries beyond the published dispute contract.
+model DisputeCaseProfile {
+  id                       String    @id @db.Char(26)
+  disputeId                String    @unique(map: "uq_dcp_dispute") @db.Char(26)
+  category                 String    @db.VarChar(24)
+  urgency                  String    @default("NORMAL") @db.VarChar(12)
+  market                   String?   @db.Char(2)
+  channel                  String?   @db.VarChar(4)
+  affectedQuantity         Int?
+  lotsOrSerialsJson        Json?
+  shipmentId               String?   @db.Char(26)
+  paymentTransactionId     String?   @db.Char(26)
+  lateIntake               Boolean   @default(false)
+  lateIntakeReason         String?   @db.VarChar(32)
+  lateExplanation          String?   @db.Text
+  statutoryBasis           Boolean   @default(false)
+  calendarTimeZone         String    @db.VarChar(64)
+  acknowledgementDueAt     DateTime  @db.DateTime(3)
+  acknowledgedAt           DateTime? @db.DateTime(3)
+  acknowledgedById         String?   @db.Char(26)
+  /// Why the evidence is sufficient - the initial-decision clock starts here and is never silently reset.
+  evidenceSufficientAt     DateTime? @db.DateTime(3)
+  evidenceSufficientById   String?   @db.Char(26)
+  evidenceSufficientReason String?   @db.Text
+  initialDecisionDueAt     DateTime? @db.DateTime(3)
+  appealReviewDueAt        DateTime? @db.DateTime(3)
+  appealReviewerId         String?   @db.Char(26)
+  decisionParticipantsJson Json?
+  reasonedDecisionJson     Json?
+  safetyCaseId             String?   @db.Char(26)
+  escalatedOverdueAt       DateTime? @db.DateTime(3)
+  createdAt                DateTime  @default(now()) @db.DateTime(3)
+  updatedAt                DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([category], map: "ix_dcp_category")
+  @@index([acknowledgedAt, acknowledgementDueAt], map: "ix_dcp_ack")
+  @@map("dispute_case_profiles")
+}
+
+model DisputeEvidenceRequest {
+  id                  String    @id @db.Char(26)
+  disputeId           String    @db.Char(26)
+  requestedFrom       String    @db.VarChar(12)
+  /// MATERIAL_CONTRARY_EVIDENCE lets the buyer answer what the seller produced.
+  purpose             String    @db.VarChar(32)
+  description         String    @db.Text
+  proportionalityNote String    @db.Text
+  dueAt               DateTime  @db.DateTime(3)
+  status              String    @default("OPEN") @db.VarChar(12)
+  responseNote        String?   @db.Text
+  respondedAt         DateTime? @db.DateTime(3)
+  requestedById       String    @db.Char(26)
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt           DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([disputeId], map: "ix_der_dispute")
+  @@index([status, dueAt], map: "ix_der_due")
+  @@map("dispute_evidence_requests")
+}
+
+model DisputeRemedyAction {
+  id                   String    @id @db.Char(26)
+  disputeId            String    @db.Char(26)
+  kind                 String    @db.VarChar(32)
+  amountMinor          BigInt?
+  currency             String?   @db.Char(3)
+  payer                String    @db.VarChar(16)
+  returnFreightPayer   String?   @db.VarChar(16)
+  quantity             Int?
+  expectedCompletionAt DateTime  @db.DateTime(3)
+  status               String    @default("PLANNED") @db.VarChar(16)
+  completedAt          DateTime? @db.DateTime(3)
+  refundId             String?   @db.Char(26)
+  note                 String?   @db.Text
+  decidedById          String    @db.Char(26)
+  createdAt            DateTime  @default(now()) @db.DateTime(3)
+  updatedAt            DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([disputeId], map: "ix_dra_dispute")
+  @@map("dispute_remedy_actions")
+}
+
+model DisputeTestingRecord {
+  id                    String   @id @db.Char(26)
+  disputeId             String   @db.Char(26)
+  laboratory            String   @db.VarChar(200)
+  protocol              String   @db.Text
+  agreedByBuyer         Boolean  @default(false)
+  agreedBySeller        Boolean  @default(false)
+  interimPayer          String   @db.VarChar(16)
+  costMinor             BigInt
+  currency              String   @db.Char(3)
+  sampleCustody         String?  @db.Text
+  resultSummary         String?  @db.Text
+  finalPayer            String?  @db.VarChar(16)
+  finalAllocationReason String?  @db.Text
+  status                String   @default("PLANNED") @db.VarChar(16)
+  recordedById          String   @db.Char(26)
+  createdAt             DateTime @default(now()) @db.DateTime(3)
+  updatedAt             DateTime @updatedAt @db.DateTime(3)
+
+  @@index([disputeId], map: "ix_dtr_dispute")
+  @@map("dispute_testing_records")
+}
+
+/// Doc 07 s10: every recovery of one loss, so carrier, insurer, chargeback and refund are never counted twice.
+model LossRecovery {
+  id                 String   @id @db.Char(26)
+  orderId            String   @db.Char(26)
+  sellerOrderGroupId String?  @db.Char(26)
+  disputeId          String?  @db.Char(26)
+  lossKey            String   @db.VarChar(64)
+  lossMinor          BigInt
+  source             String   @db.VarChar(16)
+  sourceReference    String   @db.VarChar(128)
+  amountMinor        BigInt
+  currency           String   @db.Char(3)
+  status             String   @default("RECORDED") @db.VarChar(16)
+  overlapNote        String?  @db.Text
+  recordedById       String?  @db.Char(26)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([source, sourceReference], map: "uq_loss_recovery_source")
+  @@index([orderId, lossKey], map: "ix_loss_recovery_loss")
+  @@map("loss_recoveries")
+}
+
+/// Commission reversed for a refund (Doc 08 s2: commission follows refunds proportionately). Proposed, then applied by finance.
+model CommissionAdjustment {
+  id                 String    @id @db.Char(26)
+  refundId           String    @db.Char(26)
+  orderItemId        String    @db.Char(26)
+  sellerOrderGroupId String?   @db.Char(26)
+  refundedGoodsMinor BigInt
+  reversedMinor      BigInt
+  currency           String    @db.Char(3)
+  basis              String    @db.VarChar(40)
+  fault              String    @db.VarChar(16)
+  status             String    @default("PROPOSED") @db.VarChar(12)
+  appliedById        String?   @db.Char(26)
+  appliedAt          DateTime? @db.DateTime(3)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([refundId, orderItemId], map: "uq_commission_adjustment")
+  @@index([sellerOrderGroupId], map: "ix_commission_adjustment_group")
+  @@map("commission_adjustments")
+}
+
+/// Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+model CertificationProgramme {
+  id                String   @id @db.Char(26)
+  reference         String   @unique(map: "uq_cert_programme_ref") @db.VarChar(40)
+  sellerAccountId   String   @db.Char(26)
+  title             String   @db.VarChar(200)
+  currency          String   @db.Char(3)
+  capBps            Int      @default(100)
+  periodStart       DateTime @db.DateTime(3)
+  periodEnd         DateTime @db.DateTime(3)
+  status            String   @default("DRAFT") @db.VarChar(16)
+  fxPolicy          String?  @db.VarChar(400)
+  scheduleId        String?  @db.Char(26)
+  /// Running totals, kept in step under a row lock so concurrent checkouts can never exceed the cap.
+  eligibleCostMinor BigInt   @default(0)
+  reservedMinor     BigInt   @default(0)
+  confirmedMinor    BigInt   @default(0)
+  refundedMinor     BigInt   @default(0)
+  creditedMinor     BigInt   @default(0)
+  version           Int      @default(0)
+  createdById       String?  @db.Char(26)
+  createdAt         DateTime @default(now()) @db.DateTime(3)
+  updatedAt         DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, status], map: "ix_cert_programme_seller")
+  @@map("certification_programmes")
+}
+
+model CertificationCostEntry {
+  id                  String    @id @db.Char(26)
+  programmeId         String    @db.Char(26)
+  kind                String    @db.VarChar(16)
+  /// The third-party invoice or credit reference; unique across ALL programmes so one cost is never recovered twice.
+  externalReference   String    @unique(map: "uq_cert_cost_ref") @db.VarChar(128)
+  supplierName        String    @db.VarChar(200)
+  amountMinor         BigInt
+  currency            String    @db.Char(3)
+  originalAmountMinor BigInt?
+  originalCurrency    String?   @db.Char(3)
+  fxRate              String?   @db.VarChar(32)
+  eligible            Boolean   @default(false)
+  verifiedById        String?   @db.Char(26)
+  verifiedAt          DateTime? @db.DateTime(3)
+  evidence            String    @db.Text
+  fundedBy            String    @default("MARKETPLACE") @db.VarChar(16)
+  recordedById        String    @db.Char(26)
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt           DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([programmeId], map: "ix_cert_cost_programme")
+  @@map("certification_cost_entries")
+}
+
+model CertificationRecoveryAllocation {
+  id            String    @id @db.Char(26)
+  programmeId   String    @db.Char(26)
+  /// A quote key (cart) before the order exists; the order line after.
+  quoteKey      String    @db.VarChar(80)
+  orderId       String?   @db.Char(26)
+  orderItemId   String?   @db.Char(26)
+  netGoodsMinor BigInt
+  amountMinor   BigInt
+  refundedMinor BigInt    @default(0)
+  currency      String    @db.Char(3)
+  status        String    @default("RESERVED") @db.VarChar(12)
+  reservedUntil DateTime  @db.DateTime(3)
+  confirmedAt   DateTime? @db.DateTime(3)
+  releasedAt    DateTime? @db.DateTime(3)
+  createdAt     DateTime  @default(now()) @db.DateTime(3)
+  updatedAt     DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([programmeId, quoteKey], map: "uq_cert_alloc_quote")
+  @@index([orderId], map: "ix_cert_alloc_order")
+  @@index([status, reservedUntil], map: "ix_cert_alloc_status")
+  @@map("certification_recovery_allocations")
+}
+
+/// Doc 07 s10 / Doc 08 s6: a seller's security schedule. Proposed until approved with provider permission.
+model SellerSecuritySchedule {
+  id                      String    @id @db.Char(26)
+  sellerAccountId         String    @db.Char(26)
+  tier                    String    @db.VarChar(12)
+  form                    String    @db.VarChar(16)
+  reserveBps              Int       @default(0)
+  holdDays                Int       @default(0)
+  guaranteeMinor          BigInt    @default(0)
+  depositMinor            BigInt    @default(0)
+  capMinor                BigInt?
+  currency                String    @db.Char(3)
+  exposureBasis           String    @db.Text
+  documentedExposureMinor BigInt?
+  permittedUsesJson       Json
+  noticeTerms             String?   @db.Text
+  disputeRoute            String?   @db.Text
+  providerPermissionRef   String?   @db.VarChar(200)
+  scheduleReference       String?   @db.VarChar(200)
+  status                  String    @default("PROPOSED") @db.VarChar(16)
+  preparedById            String?   @db.Char(26)
+  approvedById            String?   @db.Char(26)
+  approvedAt              DateTime? @db.DateTime(3)
+  activatedAt             DateTime? @db.DateTime(3)
+  endedAt                 DateTime? @db.DateTime(3)
+  nextMonthlyReviewAt     DateTime? @db.DateTime(3)
+  nextQuarterlyReviewAt   DateTime? @db.DateTime(3)
+  satisfactorySince       DateTime? @db.DateTime(3)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt               DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, status], map: "ix_sss_seller")
+  @@index([status, nextMonthlyReviewAt], map: "ix_sss_review")
+  @@map("seller_security_schedules")
+}
+
+model SecurityReview {
+  id            String    @id @db.Char(26)
+  scheduleId    String    @db.Char(26)
+  kind          String    @db.VarChar(12)
+  periodKey     String    @db.VarChar(16)
+  heldMinor     BigInt?
+  exposureMinor BigInt?
+  excessMinor   BigInt?
+  outcome       String    @default("DUE") @db.VarChar(20)
+  note          String?   @db.Text
+  reviewedById  String?   @db.Char(26)
+  reviewedAt    DateTime? @db.DateTime(3)
+  dueAt         DateTime  @db.DateTime(3)
+  createdAt     DateTime  @default(now()) @db.DateTime(3)
+  updatedAt     DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([scheduleId, kind, periodKey], map: "uq_security_review_period")
+  @@index([outcome, dueAt], map: "ix_security_review_due")
+  @@map("security_reviews")
+}
+
+/// Doc 08 s6: insurance verified per policy. Buying a limit never approves a category.
+model InsurancePolicyRecord {
+  id                     String    @id @db.Char(26)
+  holderType             String    @db.VarChar(12)
+  sellerAccountId        String?   @db.Char(26)
+  coverType              String    @db.VarChar(32)
+  riskGroup              String?   @db.VarChar(12)
+  insurer                String    @db.VarChar(200)
+  policyNumber           String    @db.VarChar(120)
+  insuredEntity          String    @db.VarChar(200)
+  additionalInsured      String?   @db.VarChar(400)
+  sitesJson              Json
+  productsJson           Json
+  territoriesJson        Json
+  currency               String    @db.Char(3)
+  perOccurrenceMinor     BigInt?
+  aggregateMinor         BigInt?
+  deductibleMinor        BigInt?
+  exclusions             String?   @db.Text
+  claimsMadeRetroDate    DateTime? @db.DateTime(3)
+  effectiveFrom          DateTime  @db.DateTime(3)
+  expiresAt              DateTime  @db.DateTime(3)
+  cancellationNoticeDays Int?
+  brokerName             String?   @db.VarChar(200)
+  brokerReviewedAt       DateTime? @db.DateTime(3)
+  brokerReviewRef        String?   @db.VarChar(200)
+  verificationStatus     String    @default("PENDING") @db.VarChar(12)
+  verificationMethod     String?   @db.VarChar(200)
+  verifiedById           String?   @db.Char(26)
+  verifiedAt             DateTime? @db.DateTime(3)
+  recordedById           String    @db.Char(26)
+  createdAt              DateTime  @default(now()) @db.DateTime(3)
+  updatedAt              DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([holderType, sellerAccountId], map: "ix_insurance_holder")
+  @@index([expiresAt], map: "ix_insurance_expiry")
+  @@map("insurance_policy_records")
+}
+
+/// Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+model ProductComplianceEvidence {
+  id                   String    @id @db.Char(26)
+  sellerAccountId      String    @db.Char(26)
+  offerId              String?   @db.Char(26)
+  productKey           String    @db.VarChar(64)
+  productVersion       String    @db.VarChar(64)
+  facilityRef          String    @db.VarChar(64)
+  countryCode          String    @db.Char(2)
+  departmentSlug       String?   @db.VarChar(120)
+  kind                 String    @db.VarChar(32)
+  scheme               String    @db.VarChar(200)
+  issuer               String    @db.VarChar(200)
+  accreditation        String?   @db.VarChar(200)
+  scope                String    @db.Text
+  certificateNumber    String?   @db.VarChar(120)
+  issuedOn             DateTime? @db.DateTime(3)
+  /// Only an expiry the issuer or the law actually sets. Never an invented annual one.
+  expiresOn            DateTime? @db.DateTime(3)
+  changeConditions     String?   @db.Text
+  surveillanceDueAt    DateTime? @db.DateTime(3)
+  requiredForTrading   Boolean   @default(true)
+  existingAccepted     Boolean   @default(false)
+  gapAssessment        String?   @db.Text
+  verificationMethod   String?   @db.VarChar(200)
+  verificationEvidence String?   @db.Text
+  verifiedById         String?   @db.Char(26)
+  verifiedAt           DateTime? @db.DateTime(3)
+  status               String    @default("UNVERIFIED") @db.VarChar(12)
+  statusReason         String?   @db.Text
+  remindersSentJson    Json?
+  recordedById         String    @db.Char(26)
+  createdAt            DateTime  @default(now()) @db.DateTime(3)
+  updatedAt            DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([sellerAccountId, countryCode], map: "ix_pce_seller_country")
+  @@index([offerId], map: "ix_pce_offer")
+  @@index([expiresOn], map: "ix_pce_expiry")
+  @@map("product_compliance_evidence")
+}
+
+/// Doc 07 s11 / Doc 08 s9: a product safety case and recall.
+model SafetyCase {
+  id                  String    @id @db.Char(26)
+  reference           String    @unique(map: "uq_safety_case_ref") @db.VarChar(20)
+  title               String    @db.VarChar(200)
+  description         String    @db.Text
+  severity            String    @db.VarChar(12)
+  status              String    @default("TRIAGE") @db.VarChar(20)
+  sourceType          String    @db.VarChar(16)
+  sourceId            String?   @db.Char(26)
+  sellerAccountId     String?   @db.Char(26)
+  triagedById         String?   @db.Char(26)
+  triagedAt           DateTime? @db.DateTime(3)
+  containmentJson     Json?
+  rootCause           String?   @db.Text
+  correctionEvidence  String?   @db.Text
+  verificationTests   String?   @db.Text
+  currentCertificates String?   @db.Text
+  releaseApprovedById String?   @db.Char(26)
+  releasedAt          DateTime? @db.DateTime(3)
+  openedById          String    @db.Char(26)
+  createdAt           DateTime  @default(now()) @db.DateTime(3)
+  updatedAt           DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([status], map: "ix_safety_case_status")
+  @@map("safety_cases")
+}
+
+model SafetyCaseScope {
+  id           String   @id @db.Char(26)
+  safetyCaseId String   @db.Char(26)
+  kind         String   @db.VarChar(16)
+  ref          String   @db.VarChar(128)
+  label        String?  @db.VarChar(200)
+  contained    Boolean  @default(false)
+  createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt    DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([safetyCaseId, kind, ref], map: "uq_safety_scope")
+  @@index([kind, ref, contained], map: "ix_safety_scope_ref")
+  @@map("safety_case_scope")
+}
+
+/// Reporting decisions, notices, recall actions and effectiveness checks. Reporting decisions are a qualified person's, never an AI's.
+model SafetyCaseAction {
+  id                     String    @id @db.Char(26)
+  safetyCaseId           String    @db.Char(26)
+  kind                   String    @db.VarChar(24)
+  authority              String?   @db.VarChar(200)
+  decision               String?   @db.VarChar(24)
+  deadlineAt             DateTime? @db.DateTime(3)
+  qualifiedRole          String?   @db.VarChar(120)
+  quantity               Int?
+  effectivenessPercentBp Int?
+  detail                 String    @db.Text
+  actorUserId            String    @db.Char(26)
+  createdAt              DateTime  @default(now()) @db.DateTime(3)
+  updatedAt              DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([safetyCaseId, createdAt], map: "ix_safety_action_case")
+  @@map("safety_case_actions")
+}
+
+model RecallRehearsal {
+  id             String   @id @db.Char(26)
+  year           Int
+  scenario       String   @db.Text
+  scopeTraced    String   @db.Text
+  minutesToTrace Int?
+  findings       String?  @db.Text
+  outcome        String   @db.VarChar(16)
+  performedAt    DateTime @db.DateTime(3)
+  recordedById   String   @db.Char(26)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+  updatedAt      DateTime @updatedAt @db.DateTime(3)
+
+  @@index([year], map: "ix_recall_rehearsal_year")
+  @@map("recall_rehearsals")
+}
+
+/// Doc 08 s11: one decision for one country. A country is enabled only when every applicable decision is approved.
+model LaunchReadinessItem {
+  id              String    @id @db.Char(26)
+  countryCode     String    @db.Char(2)
+  key             String    @db.VarChar(48)
+  status          String    @default("NOT_STARTED") @db.VarChar(16)
+  ownerName       String?   @db.VarChar(120)
+  ownerUserId     String?   @db.Char(26)
+  scope           String?   @db.Text
+  evidence        String?   @db.Text
+  reviewerUserId  String?   @db.Char(26)
+  reviewedAt      DateTime? @db.DateTime(3)
+  expiresAt       DateTime? @db.DateTime(3)
+  blockingReason  String?   @db.Text
+  sourceCheckedOn DateTime? @db.DateTime(3)
+  sourceNote      String?   @db.Text
+  updatedById     String?   @db.Char(26)
+  createdAt       DateTime  @default(now()) @db.DateTime(3)
+  updatedAt       DateTime  @updatedAt @db.DateTime(3)
+
+  @@unique([countryCode, key], map: "uq_launch_item")
+  @@map("launch_readiness_items")
+}
+
+model CountryLaunch {
+  id           String    @id @db.Char(26)
+  countryCode  String    @unique(map: "uq_country_launch") @db.Char(2)
+  status       String    @default("DISABLED") @db.VarChar(12)
+  enabledById  String?   @db.Char(26)
+  enabledAt    DateTime? @db.DateTime(3)
+  disabledById String?   @db.Char(26)
+  disabledAt   DateTime? @db.DateTime(3)
+  note         String?   @db.Text
+  createdAt    DateTime  @default(now()) @db.DateTime(3)
+  updatedAt    DateTime  @updatedAt @db.DateTime(3)
+
+  @@map("country_launches")
+}
+
+/// Doc 07 s3: a freight booking for one seller order, with the quotes compared.
+model FreightBooking {
+  id                 String   @id @db.Char(26)
+  sellerOrderGroupId String   @unique(map: "uq_freight_booking_group") @db.Char(26)
+  lane               String   @db.VarChar(200)
+  grossWeightGrams   Int
+  dimensionsJson     Json
+  packaging          String   @db.VarChar(400)
+  hazardClass        String?  @db.VarChar(32)
+  cargoCoverJson     Json?
+  custodyJson        Json
+  returnCapability   String?  @db.VarChar(400)
+  materialCommitment Boolean  @default(false)
+  selectedQuoteId    String?  @db.Char(26)
+  singleSourceReason String?  @db.Text
+  externalCostMinor  BigInt?
+  coordinationMinor  BigInt?
+  currency           String?  @db.Char(3)
+  status             String   @default("DRAFT") @db.VarChar(12)
+  recordedById       String   @db.Char(26)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  @@map("freight_bookings")
+}
+
+model FreightQuoteOption {
+  id                 String    @id @db.Char(26)
+  bookingId          String    @db.Char(26)
+  providerName       String    @db.VarChar(200)
+  logisticsPartnerId String?   @db.Char(26)
+  amountMinor        BigInt
+  currency           String    @db.Char(3)
+  transitDaysMin     Int?
+  transitDaysMax     Int?
+  cargoCover         String?   @db.VarChar(400)
+  comparable         Boolean   @default(true)
+  validUntil         DateTime? @db.DateTime(3)
+  reference          String?   @db.VarChar(120)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([bookingId], map: "ix_freight_quote_booking")
+  @@map("freight_quote_options")
+}
+
+/// Doc 07 s3: provider screening. A missing integration is shown as "Credentials required", never as a pass.
+model LogisticsProviderReview {
+  id                 String    @id @db.Char(26)
+  providerName       String    @db.VarChar(200)
+  logisticsPartnerId String?   @db.Char(26)
+  itemsJson          Json
+  integrationStatus  String    @default("CREDENTIALS_REQUIRED") @db.VarChar(24)
+  status             String    @default("IN_REVIEW") @db.VarChar(12)
+  reviewerUserId     String?   @db.Char(26)
+  reviewedAt         DateTime? @db.DateTime(3)
+  nextReviewAt       DateTime? @db.DateTime(3)
+  recordedById       String    @db.Char(26)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+
+  @@index([logisticsPartnerId], map: "ix_lpr_partner")
+  @@map("logistics_provider_reviews")
+}
+
+/// Doc 07 s4: dangerous goods, batteries, timber packaging and temperature, configured per product category and route.
+model HandlingRequirement {
+  id                 String   @id @db.Char(26)
+  kind               String   @db.VarChar(24)
+  categoryId         String?  @db.Char(26)
+  destinationCountry String?  @db.Char(2)
+  requiredEvidence   String   @db.Text
+  isActive           Boolean  @default(true)
+  createdById        String   @db.Char(26)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  @@index([kind, isActive], map: "ix_handling_req_kind")
+  @@map("handling_requirements")
+}
+
+/// Doc 07 s5: what was packed, sealed, photographed and handed over.
+model DispatchEvidence {
+  id                   String   @id @db.Char(26)
+  sellerOrderGroupId   String   @unique(map: "uq_dispatch_evidence_group") @db.Char(26)
+  quantitiesJson       Json
+  lotsJson             Json?
+  sealsJson            Json?
+  packingPhotoRefsJson Json?
+  temperatureLogRef    String?  @db.VarChar(400)
+  handlingEvidenceJson Json?
+  recordedById         String   @db.Char(26)
+  recordedByRole       String   @db.VarChar(12)
+  createdAt            DateTime @default(now()) @db.DateTime(3)
+  updatedAt            DateTime @updatedAt @db.DateTime(3)
+
+  @@map("dispatch_evidence")
+}
+
+model CustodyHandover {
+  id                 String   @id @db.Char(26)
+  sellerOrderGroupId String   @db.Char(26)
+  shipmentLegId      String?  @db.Char(26)
+  fromParty          String   @db.VarChar(200)
+  toParty            String   @db.VarChar(200)
+  place              String   @db.VarChar(400)
+  handedOverAt       DateTime @db.DateTime(3)
+  packages           Int
+  sealsIntact        Boolean
+  exceptionNote      String?  @db.Text
+  recordedById       String   @db.Char(26)
+  recordedByRole     String   @db.VarChar(12)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerOrderGroupId, handedOverAt], map: "ix_custody_group")
+  @@map("custody_handovers")
+}
+
+model PartialShipmentApproval {
+  id                 String   @id @db.Char(26)
+  sellerOrderGroupId String   @db.Char(26)
+  orderApprovalRef   String   @db.VarChar(200)
+  approvedByParty    String   @db.VarChar(12)
+  quantitiesJson     Json
+  billedMinor        BigInt
+  currency           String   @db.Char(3)
+  recordedById       String   @db.Char(26)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+  updatedAt          DateTime @updatedAt @db.DateTime(3)
+
+  @@index([sellerOrderGroupId], map: "ix_partial_shipment_group")
+  @@map("partial_shipment_approvals")
+}
+
+/// Doc 07 s9: a return authorisation - who pays, which route, what was received and inspected.
+model ReturnAuthorization {
+  id                 String    @id @db.Char(26)
+  returnRequestId    String    @unique(map: "uq_return_authorization") @db.Char(26)
+  rmaNumber          String    @unique(map: "uq_return_authorization_rma") @db.VarChar(24)
+  returnRoute        String    @db.VarChar(400)
+  freightPayer       String    @db.VarChar(16)
+  payerReason        String    @db.Text
+  carrier            String?   @db.VarChar(120)
+  trackingNumber     String?   @db.VarChar(120)
+  returnBy           DateTime? @db.DateTime(3)
+  receivedEvidence   String?   @db.Text
+  inspectionEvidence String?   @db.Text
+  deductionMinor     BigInt?
+  deductionBasis     String?   @db.Text
+  issuedById         String    @db.Char(26)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+
+  @@map("return_authorizations")
+}
+
+/// Doc 08 s5: an approved bespoke payment plan for one order. Never a default.
+model OrderPaymentPlan {
+  id                      String    @id @db.Char(26)
+  orderId                 String    @unique(map: "uq_order_payment_plan") @db.Char(26)
+  scheduleId              String?   @db.Char(26)
+  milestonesJson          Json
+  sellerAgreedAt          DateTime? @db.DateTime(3)
+  buyerAgreedAt           DateTime? @db.DateTime(3)
+  providerConfirmationRef String?   @db.VarChar(200)
+  status                  String    @default("PROPOSED") @db.VarChar(12)
+  recordedById            String    @db.Char(26)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt               DateTime  @updatedAt @db.DateTime(3)
+
+  @@map("order_payment_plans")
 }

@@ -1,11 +1,10 @@
 /**
  * The console's sign-in.
  *
- * There is no terms tick here any more, and these pin that: the staff terms
- * and the Privacy Policy are accepted on the agreement screen after signing
- * in, recorded against the account, and asked for again only when a new
- * version requires it. `login` is called with the email and the password and
- * nothing else.
+ * The staff terms and the Privacy Policy are ticked under the password
+ * (`SignInAgreements`, tested in the agreement kit and stood in for here), and
+ * recorded after sign-in. `login` is called with the email and the password
+ * and nothing else.
  *
  * Plain assertions throughout: this app's test setup has no jest-dom matchers.
  */
@@ -17,6 +16,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionContext, type SessionState } from '@/auth/session-context';
 import { i18n } from '@/i18n/config';
 import { LoginPage } from './LoginPage';
+
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
 
 // The turning earth is decoration and needs WebGL; the frame alone will do.
 vi.mock('@/components/ui/auth-split', () => ({
@@ -59,9 +61,9 @@ afterEach(() => {
 });
 
 describe('LoginPage', () => {
-  it('asks for no terms tick: the agreement screen after sign-in records that', () => {
+  it('shows the staff agreement boxes under the password', () => {
     renderLogin();
-    expect(screen.queryByRole('checkbox')).toBeNull();
+    expect(screen.getByText('Agreement boxes for STAFF')).toBeTruthy();
   });
 
   it('signs in with the email and password and nothing else', async () => {

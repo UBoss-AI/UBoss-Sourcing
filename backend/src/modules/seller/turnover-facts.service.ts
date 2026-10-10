@@ -125,7 +125,7 @@ export async function turnoverGapsFor(sellerAccountId: string): Promise<string[]
     case 'OUT_OF_DATE':
       return ['Annual turnover for your most recently completed financial year'];
     case 'BELOW_MINIMUM':
-      return ['Annual turnover above the seller minimum'];
+      return ['Annual turnover of at least the seller minimum'];
   }
 }
 
@@ -177,7 +177,7 @@ export async function turnoverApprovalGaps(sellerAccountId: string): Promise<Err
         message:
           facts.standing === 'OUT_OF_DATE'
             ? 'The declared turnover is not for the most recently completed financial year.'
-            : 'The declared turnover does not exceed the seller minimum.',
+            : 'The declared turnover is below the seller minimum.',
       },
     ];
   }

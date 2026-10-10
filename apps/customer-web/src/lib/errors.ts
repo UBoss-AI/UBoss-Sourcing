@@ -200,6 +200,17 @@ const TERMS_CODES = new Set([
   // The agreement screen after sign-in.
   'AGREEMENTS_REQUIRED',
   'AGREEMENT_DOCUMENT_NOT_APPLICABLE',
+  // Sending a seller application.
+  'SELLER_AGREEMENTS_REQUIRED',
+  // The company agreement screen.
+  'COMPANY_SIGNATORY_REQUIRED',
+]);
+
+/** Delivery-policy and launch refusals (Doc 07, Doc 08). Each has its own sentence under `errors.commercial.*`. */
+const COMMERCIAL_CODES = new Set([
+  'IMPORT_ROUTE_NOT_APPROVED',
+  'COUNTRY_NOT_LAUNCHED',
+  'PRODUCT_UNDER_SAFETY_HOLD',
 ]);
 
 export function isTermsError(code: string): boolean {
@@ -298,6 +309,7 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      */
     if (TERMS_CODES.has(error.code)) return t(`errors.terms.${error.code}` as TranslationKey);
     if (LOGISTICS_CODES.has(error.code)) return t(`errors.logistics.${error.code}` as TranslationKey);
+    if (COMMERCIAL_CODES.has(error.code)) return t(`errors.commercial.${error.code}` as TranslationKey);
 
     /*
      * Bulk preorders. Each refusal names its figure - the minimum, the step,

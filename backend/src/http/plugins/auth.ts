@@ -20,7 +20,7 @@ import {
   type UserKind,
 } from '../../modules/identity/auth.service.js';
 import { getSessionAuthState, verifyAccessToken } from '../../modules/identity/session.service.js';
-import { assertAgreementsSatisfied } from '../../modules/legal/agreement.service.js';
+import { assertAgreementsSatisfied, individualAgreementScope } from '../../modules/legal/agreement.service.js';
 import {
   companyCapabilityBlock,
   type BuyerCompanyCapability,
@@ -416,7 +416,43 @@ export async function requireCustomerBeforeAgreements(
   await authenticateCustomer(request, { agreements: false });
 }
 
-async function authenticateCustomer(request: FastifyRequest, options: { agreements: boolean }): Promise<void> {
+/**
+ * The Seller Hub's customer guard. A seller's own screen is the SELLER one,
+ * checked by the seller guard after this; the buyer screen under it is the
+ * individual one whatever the session's buyer context, so the company screen
+ * never stands in front of the Seller Hub and the two flows stay apart.
+ */
+export async function requireCustomerForSellerHub(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  await authenticateCustomer(request, { agreements: true, individualScreen: true });
+}
+
+/**
+ * The guard for a buyer's existing remedies: their orders, cancelling one,
+ * tracking it, its documents, returns and refunds, and claims and complaints.
+ *
+ * Somebody shopping for themselves reaches these without the agreement
+ * screen. New Terms are asked for prospectively; they never stand between a
+ * consumer and an order already placed, a cancellation, a refund or a
+ * complaint - the law gives those whatever the person has or has not
+ * accepted since. Buying anything new still needs the screen: checkout, the
+ * basket and every other route keep `requireCustomer`.
+ *
+ * Acting for a company is unchanged: the company screen still applies.
+ */
+export async function requireCustomerForRemedies(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  await authenticateCustomer(request, { agreements: true, remedies: true });
+}
+
+async function authenticateCustomer(
+  request: FastifyRequest,
+  options: { agreements: boolean; individualScreen?: boolean; remedies?: boolean },
+): Promise<void> {
   const auth = await authenticate(request, 'CUSTOMER');
 
   // An ACTIVE customer user without a profile cannot own anything, so no
@@ -429,9 +465,32 @@ async function authenticateCustomer(request: FastifyRequest, options: { agreemen
 
   // After the second factor: a session still owing its code is told that
   // first, and the agreement screen comes after signing in has finished.
-  if (options.agreements) await assertAgreementsSatisfied(auth.id, 'BUYER');
+  // Which screen depends on the CONFIRMED context - the membership, never the
+  // sign-in tab - so the context is resolved first.
+  const buyerContext = await confirmBuyerContext(auth);
+  if (options.agreements) {
+    if (options.individualScreen === true) {
+      // The Seller Hub's buyer check is the one it always was: the consumer
+      // screen is for shopping, and the seller's own screen comes after this.
+      await assertAgreementsSatisfied(auth.id, 'BUYER');
+    } else if (!(options.remedies === true && buyerContext.kind !== 'COMPANY')) {
+      await assertBuyerAgreements(auth.id, buyerContext);
+    }
+  }
 
-  request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
+  request.auth = { ...auth, buyerContext };
+}
+
+/**
+ * The agreement screen a storefront request answers to. Somebody acting for a
+ * company owes the company screen (B2B Buyer Terms, Privacy Policy, B2B Buyer
+ * Platform Services Agreement) for THAT company; somebody shopping for
+ * themselves the consumer screen once its documents are in force
+ * (`individualAgreementScope`), the buyer one until then.
+ */
+async function assertBuyerAgreements(userId: string, context: BuyerContext): Promise<void> {
+  if (context.kind === 'COMPANY') await assertAgreementsSatisfied(userId, 'COMPANY_BUYER', context.companyId);
+  else await assertAgreementsSatisfied(userId, await individualAgreementScope());
 }
 
 /**
@@ -622,9 +681,10 @@ export async function optionalCustomer(
   // has not finished proving it - nor one that has not been through the
   // agreement screen.
   assertCustomerSecondFactor(auth);
-  await assertAgreementsSatisfied(auth.id, 'BUYER');
+  const buyerContext = await confirmBuyerContext(auth);
+  await assertBuyerAgreements(auth.id, buyerContext);
 
-  request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
+  request.auth = { ...auth, buyerContext };
 }
 
 /** Any authenticated principal, either surface. For profile and logout routes. */

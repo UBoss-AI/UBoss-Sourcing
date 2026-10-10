@@ -20,13 +20,16 @@ import type { AuditActorType } from '../../modules/audit/audit.service.js';
 import {
   clearAgreement,
   getAgreementStatus,
+  individualAgreementScope,
   listAgreementHistory,
   recordAgreement,
+  type AgreementCompany,
   type AgreementRole,
 } from '../../modules/legal/agreement.service.js';
 import { resolveSellerMembership } from '../../modules/seller/account.service.js';
 import { requireAuditBeforeAgreements } from '../plugins/audit.js';
 import {
+  buyerContextOf,
   currentUser,
   requireAdminBeforeAgreements,
   requireCustomerBeforeAgreements,
@@ -49,26 +52,59 @@ const clearQuery = z.object({
   locale: z.string().trim().max(10).default('en'),
 });
 
-type FixedScope = Exclude<AgreementScopeName, 'BUYER' | 'SELLER'>;
+type FixedScope = Exclude<AgreementScopeName, 'BUYER' | 'SELLER' | 'COMPANY_BUYER'>;
 
-/** The storefront's two scopes. SELLER only for a member of a seller. */
-async function storefrontScope(request: FastifyRequest, asked: 'BUYER' | 'SELLER' | undefined): Promise<AgreementScopeName> {
-  if (asked !== 'SELLER') return 'BUYER';
+interface ResolvedScope {
+  scope: AgreementScopeName;
+  /** The seller the signed-in person is a member of; null outside the SELLER scope. */
+  sellerAccountId: string | null;
+  /** The company a COMPANY_BUYER screen is for; null on every other scope. */
+  company: AgreementCompany | null;
+}
+
+/**
+ * The storefront's two scopes. SELLER only for a member of a seller, and the
+ * seller is the one their membership names - a request can never say which.
+ */
+async function storefrontScope(request: FastifyRequest, asked: 'BUYER' | 'SELLER' | undefined): Promise<ResolvedScope> {
+  if (asked !== 'SELLER') {
+    // The buyer screen follows the session's CONFIRMED context: acting for a
+    // company is the company screen for that company, whatever tab the person
+    // signed in from and whatever the browser asks for. Shopping for yourself
+    // is the consumer screen once its three documents are in force.
+    const context = buyerContextOf(request);
+    return context.kind === 'COMPANY'
+      ? { scope: 'COMPANY_BUYER', sellerAccountId: null, company: { companyId: context.companyId, role: context.role } }
+      : { scope: await individualAgreementScope(), sellerAccountId: null, company: null };
+  }
   const profileId = currentUser(request).customerProfileId;
   if (profileId === null) {
     throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
   }
-  await resolveSellerMembership(profileId);
-  return 'SELLER';
+  const membership = await resolveSellerMembership(profileId);
+  return { scope: 'SELLER', sellerAccountId: membership.sellerAccountId, company: null };
 }
 
-function actorOf(request: FastifyRequest, actorType: AuditActorType) {
+function actorOf(request: FastifyRequest, actorType: AuditActorType, resolved: Partial<ResolvedScope> = {}) {
   const auth = currentUser(request);
-  return { userId: auth.id, email: auth.email, actorType, correlationId: request.correlationId };
+  return {
+    userId: auth.id,
+    email: auth.email,
+    actorType,
+    correlationId: request.correlationId,
+    sellerAccountId: resolved.sellerAccountId ?? null,
+    company: resolved.company ?? null,
+  };
 }
 
-async function sendStatus(request: FastifyRequest, reply: FastifyReply, scope: AgreementScopeName, locale: string) {
-  const status = await getAgreementStatus(currentUser(request).id, scope, locale);
+async function sendStatus(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  scope: AgreementScopeName,
+  locale: string,
+  company: AgreementCompany | null = null,
+) {
+  const status = await getAgreementStatus(currentUser(request).id, scope, locale, company);
   return reply.header('cache-control', 'no-store').send(status);
 }
 
@@ -80,9 +116,14 @@ async function record(
   fixed: FixedScope | null,
 ) {
   const body = recordBody.parse(request.body);
-  const scope = fixed ?? (await storefrontScope(request, body.scope));
-  await recordAgreement(actorOf(request, actorType), { scope, role, documentIds: body.documentIds });
-  return sendStatus(request, reply, scope, body.locale);
+  const resolved: ResolvedScope =
+    fixed === null ? await storefrontScope(request, body.scope) : { scope: fixed, sellerAccountId: null, company: null };
+  await recordAgreement(actorOf(request, actorType, resolved), {
+    scope: resolved.scope,
+    role,
+    documentIds: body.documentIds,
+  });
+  return sendStatus(request, reply, resolved.scope, body.locale, resolved.company);
 }
 
 async function clear(
@@ -93,9 +134,10 @@ async function clear(
   fixed: FixedScope | null,
 ) {
   const query = clearQuery.parse(request.query);
-  const scope = fixed ?? (await storefrontScope(request, query.scope));
-  await clearAgreement(actorOf(request, actorType), { scope, role });
-  return sendStatus(request, reply, scope, query.locale);
+  const resolved: ResolvedScope =
+    fixed === null ? await storefrontScope(request, query.scope) : { scope: fixed, sellerAccountId: null, company: null };
+  await clearAgreement(actorOf(request, actorType, resolved), { scope: resolved.scope, role });
+  return sendStatus(request, reply, resolved.scope, query.locale, resolved.company);
 }
 
 async function history(request: FastifyRequest, reply: FastifyReply) {
@@ -108,7 +150,8 @@ export function registerCustomerAgreementRoutes(app: FastifyInstance): Promise<v
   // Whether this buyer (or, with scope=SELLER, this seller) has accepted the Terms and acknowledged the Privacy Policy in force, with both documents to read.
   app.get('/agreements', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) => {
     const query = statusQuery.parse(request.query);
-    return sendStatus(request, reply, await storefrontScope(request, query.scope), query.locale);
+    const resolved = await storefrontScope(request, query.scope);
+    return sendStatus(request, reply, resolved.scope, query.locale, resolved.company);
   });
 
   // "I agree" in the Terms dialog: records acceptance of the named Terms in force. Never acknowledges the Privacy Policy.
@@ -124,6 +167,16 @@ export function registerCustomerAgreementRoutes(app: FastifyInstance): Promise<v
   // Untick the Terms box before Continue. The record is kept, marked cleared, and the screen asks again.
   app.delete('/agreements/terms', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) =>
     clear(request, reply, 'TERMS', 'CUSTOMER', null),
+  );
+
+  // Accept the Platform Services Agreement under its own box: the Seller Hub's (SELLER), the company screen's (COMPANY_BUYER) or the consumer screen's (CONSUMER).
+  app.post('/agreements/services', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) =>
+    record(request, reply, 'SERVICES', 'CUSTOMER', null),
+  );
+
+  // Untick the Platform Services Agreement box before Continue; the record is kept, marked cleared.
+  app.delete('/agreements/services', { preHandler: requireCustomerBeforeAgreements }, async (request, reply) =>
+    clear(request, reply, 'SERVICES', 'CUSTOMER', null),
   );
 
   // Untick the Privacy Policy box before Continue. Withdraws no consent; the record is kept, marked cleared.

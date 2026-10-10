@@ -6,6 +6,7 @@
  * buyer may do now, and these screens offer exactly that and nothing else.
  */
 import { BASE_URL, api, newIdempotencyKey, postFile } from '@/lib/api';
+import type { ClaimCaseFacts } from '@/lib/commercial-policy';
 import { track } from '@/lib/analytics';
 import type { Money } from '@/lib/format';
 
@@ -91,6 +92,8 @@ export interface ClaimInput {
   description: string;
   desiredOutcome: DisputeRemedy;
   requestedAmountMinor: string | null;
+  /** Doc 07 case facts. Optional: a claim without them is handled as before. */
+  case?: ClaimCaseFacts;
 }
 
 export const disputeKeys = {

@@ -2,7 +2,8 @@
  * The seller eligibility card.
  *
  * What it must never do is tell somebody they qualify when the server will
- * refuse them: exactly the minimum is "not met", one paisa more is "met", and
+ * refuse them: one paisa below the minimum is "not met", exactly the minimum
+ * is "met" (policy v1.0, "at least"), and
  * the tick alone makes nobody eligible. It also has to work from a keyboard
  * and read in every language the storefront ships.
  */
@@ -53,7 +54,7 @@ describe('the policy', () => {
   it('states the threshold, the equivalent and that it is a platform policy', () => {
     renderWithProviders(<Harness />);
     expect(screen.getByRole('heading', { name: 'Seller eligibility' })).toBeInTheDocument();
-    expect(screen.getByText(/Businesses with annual turnover exceeding ₹30 crore are eligible/)).toBeInTheDocument();
+    expect(screen.getByText(/Businesses with annual turnover of at least ₹30 crore are eligible/)).toBeInTheDocument();
     expect(screen.getByText(/Equivalent to INR 300 million/)).toBeInTheDocument();
     expect(screen.getByText('More than')).toBeInTheDocument();
     expect(screen.getByText(/not a government or legal requirement/)).toBeInTheDocument();
@@ -63,24 +64,24 @@ describe('the policy', () => {
 });
 
 describe('the answer', () => {
-  it('says "not met" at exactly the minimum and offers the way back to shopping', () => {
+  it('says "not met" one paisa below the minimum and offers the way back to shopping', () => {
     renderWithProviders(<Harness />);
-    fireEvent.change(amountInput(), { target: { value: '30' } });
+    fireEvent.change(amountInput(), { target: { value: '29.999999999' } });
     expect(screen.getByText(/does not currently meet our seller turnover requirement/)).toBeInTheDocument();
     expect(screen.queryByText('Turnover requirement met.')).toBeNull();
     expect(screen.getByRole('link', { name: 'Continue shopping' })).toHaveAttribute('href', '/');
   });
 
-  it('says "met" one paisa above it, and is still not sendable until the declaration is ticked', () => {
+  it('says "met" at exactly the minimum, and is still not sendable until the declaration is ticked', () => {
     renderWithProviders(<Harness />);
-    fireEvent.change(amountInput(), { target: { value: '30.000000001' } });
+    fireEvent.change(amountInput(), { target: { value: '30' } });
     expect(screen.getByText('Turnover requirement met.')).toBeInTheDocument();
     expect(screen.getByText(/Your application is still subject to verification/)).toBeInTheDocument();
     expect(turnoverInputFor(latest as TurnoverDraft, POLICY)).toBeNull();
 
     fireEvent.click(screen.getByRole('checkbox'));
     expect(turnoverInputFor(latest as TurnoverDraft, POLICY)).toEqual({
-      amountMinor: '30000000001',
+      amountMinor: '30000000000',
       currency: 'INR',
       financialYearStart: '2025-04-01',
       financialYearEnd: '2026-03-31',

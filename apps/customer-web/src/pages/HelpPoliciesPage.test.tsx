@@ -34,7 +34,7 @@ describe('HelpPoliciesPage', () => {
     expect(await screen.findByRole('link', { name: 'Terms and Conditions' })).toHaveAttribute('href', '/legal/documents/01TERMS0000000000000000000');
     expect(screen.getByRole('link', { name: 'Returns policy' })).toHaveAttribute('href', '/legal/documents/01RETURNS00000000000000000');
     expect(screen.getByText(/Not yet published in your language/)).toBeInTheDocument();
-    expect(screen.getByText(/Not published yet: Seller terms, Privacy policy, Buyer protection policy, Inspection policy, Prohibited products/)).toBeInTheDocument();
+    expect(screen.getByText(/Not published yet: Seller terms, Seller platform services agreement, B2B buyer terms and conditions, B2B buyer platform services agreement, Consumer terms and conditions, Consumer platform services agreement, Privacy policy, Buyer protection policy, Inspection policy, Prohibited products/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Contact support' })).toHaveAttribute('href', '/support');
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/legal/in-force');
   });

@@ -46,6 +46,7 @@ import { InvoicePanel } from '@/pages/order/InvoicePanel';
 import { SellerDocumentsPanel } from '@/pages/order/SellerDocumentsPanel';
 import { CompliancePanel } from '@/pages/order/CompliancePanel';
 import { CommissionInvoicePanel } from '@/pages/order/CommissionInvoicePanel';
+import { CommercialControlsPanel } from '@/pages/order/CommercialControlsPanel';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 
@@ -753,6 +754,8 @@ export function OrderDetailPage(): React.JSX.Element {
           <CompliancePanel orderId={order.id} />
           {/* The marketplace's own invoice to each seller, for its commission. */}
           <CommissionInvoicePanel orderId={order.id} />
+          {/* Frozen commercial terms per line, and refund states as the provider confirms them (Doc 07 / Doc 08). */}
+          <CommercialControlsPanel orderId={order.id} />
 
           <Card title={t('orderDetail.customer')}>
             <div className="px-5 py-4 text-sm">

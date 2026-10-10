@@ -25,7 +25,7 @@
  * a company id, a code, a name - is allowed to influence it, because the
  * company is the session's, not the address bar's.
  */
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,6 +37,9 @@ import { AuthDivider, BottomGradient, GRADIENT_CTA, GlowInput } from '@/componen
 import { DemoLoginPanel } from '@/components/DemoLoginPanel';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
+import { SignInAgreements } from '@/components/agreement-kit/SignInAgreements';
+import { setPendingSignInAgreements, type SignInAgreementValue } from '@/components/agreement-kit/sign-in-agreements';
+import { agreementsClient } from '@/lib/agreements';
 import { useSession } from '@/auth/session-context';
 import { AuthLayout } from './AuthLayout';
 
@@ -49,6 +52,12 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginPage(): React.JSX.Element {
   const { t } = useI18n();
+  // The agreement boxes under the password: the ids of each document agreed to.
+  const [agreements, setAgreements] = useState<SignInAgreementValue>({});
+  const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const onAgreementsComplete = useCallback((complete: boolean) => {
+    setAgreementsComplete(complete);
+  }, []);
   const { stage, session, notice, signIn, signOut } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -154,6 +163,9 @@ export function LoginPage(): React.JSX.Element {
     signedInHere.current = true;
 
     try {
+      // Recorded by the first agreement request after sign-in; the screen
+      // after sign-in still asks for anything that could not be recorded.
+      setPendingSignInAgreements('LOGISTICS', agreements);
       await signIn(values.email, values.password);
 
       void navigate(from ?? '/', { replace: true });
@@ -228,12 +240,20 @@ export function LoginPage(): React.JSX.Element {
             and everybody notices. Full width comes from a class rather than
             the storefront's `fullWidth` prop, which this app's `Button` does
             not carry. */}
+        <SignInAgreements
+          client={agreementsClient}
+          scope="LOGISTICS"
+          value={agreements}
+          onChange={setAgreements}
+          onCompleteChange={onAgreementsComplete}
+        />
+
         <Button
           type="submit"
           variant="primary"
           size="lg"
-          className={cx('w-full', GRADIENT_CTA)}
-          disabled={form.formState.isSubmitting}
+          className={cx('w-full', GRADIENT_CTA, 'disabled:cursor-not-allowed disabled:opacity-50')}
+          disabled={form.formState.isSubmitting || !agreementsComplete}
         >
           {form.formState.isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
           {/* Decoration, and hidden as such. In the accessible name this

@@ -71,6 +71,8 @@ import {
   type SellerDocumentKind,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { SellerAgreementsPanel } from './SellerAgreementsPanel';
+import { SELLER_AGREEMENTS_QUERY_KEY, sellerAgreementsReady, useSellerAgreements } from './seller-agreements';
 import { SellerOwnershipPanel } from './SellerOwnershipPanel';
 import { TurnoverStepPanel } from './TurnoverStepPanel';
 
@@ -98,6 +100,9 @@ export function SellerOnboardingPage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
 
   const query = useQuery({ queryKey: ['seller', 'onboarding'], queryFn: fetchOnboarding });
+  // Both seller agreements, accepted in the versions in force. The server
+  // checks again on submit; this only keeps the button honest.
+  const agreementsReady = sellerAgreementsReady(useSellerAgreements().data);
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
@@ -139,8 +144,10 @@ export function SellerOnboardingPage(): React.JSX.Element {
       await client.invalidateQueries({ queryKey: ['seller'] });
       toast.success('Your application has been sent. We will be in touch.');
     },
-    onError: (error: unknown) => {
+    onError: async (error: unknown) => {
       toast.error(errorMessage(t, error, 'Your application could not be sent.'));
+      // A version published since the seller read it: show the new state.
+      await client.invalidateQueries({ queryKey: SELLER_AGREEMENTS_QUERY_KEY });
     },
   });
 
@@ -296,7 +303,7 @@ export function SellerOnboardingPage(): React.JSX.Element {
                     fullWidth
                     variant="primary"
                     isLoading={submitMutation.isPending}
-                    disabled={!view.canSubmit}
+                    disabled={!view.canSubmit || !agreementsReady}
                     onClick={() => {
                       submitMutation.mutate();
                     }}
@@ -304,7 +311,9 @@ export function SellerOnboardingPage(): React.JSX.Element {
                     Send for review
                   </Button>
 
-                  {view.canSubmit ? (
+                  <SellerAgreementsPanel />
+
+                  {view.canSubmit && agreementsReady ? (
                     <p className="text-xxs leading-relaxed text-ink-muted">
                       Everything required is done. Most applications are decided within a few
                       working days.
@@ -313,6 +322,9 @@ export function SellerOnboardingPage(): React.JSX.Element {
                     <div>
                       <p className="text-xxs font-semibold text-ink">Still to do</p>
                       <ul className="mt-1.5 space-y-1">
+                        {!agreementsReady && (
+                          <li className="text-xxs text-ink-muted">{t('sellerOnboarding.agreements.missing')}</li>
+                        )}
                         {view.blockingSteps.map((step) => (
                           <li key={step.key}>
                             <button

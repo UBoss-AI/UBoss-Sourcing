@@ -10,6 +10,8 @@
  *      deleted record) must not be retried five times; only transient failures
  *      earn a retry.
  */
+import { sweepShipmentAssessments } from '../modules/shipment-assessment/assessment.service.js';
+import { sweepSurveillance } from '../modules/seller-assessment/lifecycle.service.js';
 import { email } from '../infra/email/index.js';
 import { sendSms } from '../infra/sms.js';
 import { env } from '../config/env.js';
@@ -488,6 +490,19 @@ const preorderRiskSweep: JobHandler = async () => {
 let chatBus: ChatBus | null = null;
 
 /** The dispute clock. See `sweepDisputeDeadlines`. */
+const commercialPolicySweep: JobHandler = async () => {
+  const { sweepCaseClocks } = await import('../modules/commercial-policy/cases.service.js');
+  const { sweepCertificationReservations, sweepSecurityReviews } = await import('../modules/commercial-policy/finance.service.js');
+  const { sweepEvidenceExpiry } = await import('../modules/commercial-policy/evidence-launch.service.js');
+  const result = {
+    cases: (await sweepCaseClocks()).escalated,
+    reservationsReleased: await sweepCertificationReservations(),
+    securityReviewsDue: await sweepSecurityReviews(),
+    evidenceReminders: await sweepEvidenceExpiry(),
+  };
+  if (Object.values(result).some((n) => n > 0)) logger.info(result, 'commercial policy sweep');
+};
+
 const disputeSlaSweep: JobHandler = async () => {
   const { sweepDisputeDeadlines } = await import('../modules/disputes/dispute.service.js');
   const result = await sweepDisputeDeadlines();
@@ -1050,6 +1065,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
   [JobType.PREORDER_CHAT_SWEEP]: preorderChatSweep,
   [JobType.DISPUTE_SLA_SWEEP]: disputeSlaSweep,
+  [JobType.COMMERCIAL_POLICY_SWEEP]: commercialPolicySweep,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,
@@ -1069,6 +1085,12 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.CARRIER_TRACKING_POLL]: async payload => { await pollCarrierTracking(requireString(payload, 'shipmentId')); },
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
   [JobType.SELLER_DOCUMENT_EXPIRY_SWEEP]: sellerDocumentExpirySweep,
+  [JobType.SHIPMENT_ASSESSMENT_SWEEP]: async () => {
+    await sweepShipmentAssessments();
+  },
+  [JobType.SELLER_ASSESSMENT_SURVEILLANCE]: async () => {
+    await sweepSurveillance();
+  },
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

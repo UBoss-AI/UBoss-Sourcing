@@ -482,6 +482,19 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        labelKey: 'nav.sellerAssessment',
+        to: '/seller-assessments',
+        icon: DataProtectionIcon,
+        permissions: [Permission.CUSTOMER_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.shipmentAssessment',
+        to: '/inspection/shipment-assessments',
+        icon: DataProtectionIcon,
+        permissions: [Permission.INSPECTION_READ],
+      },
+      {
         labelKey: 'nav.auditConsole',
         to: '/audit-console',
         icon: AuditIcon,
@@ -508,6 +521,57 @@ export const NAVIGATION: NavGroup[] = [
         to: '/risk',
         icon: DataProtectionIcon,
         permissions: [Permission.RISK_READ],
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
+    /*
+     * Doc 07 / Doc 08 commercial policy. Every number here is a draft until a
+     * second person approves and activates it; evidence and safety are read only.
+     */
+    labelKey: 'nav.group.commercial',
+    items: [
+      {
+        labelKey: 'nav.commercialSchedules',
+        to: '/commercial/schedules',
+        icon: LegalDocumentIcon,
+        permissions: [Permission.FINANCE_POLICY_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.commercialLaunch',
+        to: '/commercial/launch',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.commercialFinance',
+        to: '/commercial/finance',
+        icon: PaymentsIcon,
+        permissions: [Permission.FINANCE_POLICY_READ, Permission.COMMISSION_INVOICE_VIEW],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.commercialOperations',
+        to: '/commercial/operations',
+        icon: LogisticsIcon,
+        permissions: [Permission.SETTINGS_READ, Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.commercialProductEvidence',
+        to: '/commercial/product-evidence',
+        icon: ListingReviewIcon,
+        permissions: [Permission.INSPECTION_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.commercialSafety',
+        to: '/commercial/safety-cases',
+        icon: AlertTriangleIcon,
+        permissions: [Permission.INSPECTION_READ],
         matchPrefix: true,
       },
     ],

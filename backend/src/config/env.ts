@@ -1178,6 +1178,35 @@ const envSchema = z
     // nobody can be invited. Inspection itself - booking, the dispatch gate,
     // release - is unaffected either way; only the agencies' sign-in moves.
     FEATURE_AUDIT_CONSOLE: booleanFromString.default(false),
+    // Shipment Assessment: the Audit Team's check between L1 and L2. Off: L2
+    // starts as before. On: an L2 departure needs a valid release authorization
+    // (assessment or auditor-approved badge waiver), and shipments already
+    // awaiting L2 are put in a review queue - never waived silently. Needs the
+    // Audit Console on to be decided.
+    FEATURE_SHIPMENT_ASSESSMENT: booleanFromString.default(false),
+    // Seller Assessment purchase gate. 'off' (default): purchases behave as
+    // before and assessments can still be worked. 'report': nothing is
+    // blocked, every would-be block is logged and counted in the impact
+    // report. 'enforce': a product is purchasable only inside a seller's
+    // current trading approval scope (product, country, B2B/B2C, site) with a
+    // current independent certificate. Switching to 'enforce' blocks every
+    // seller without a trading approval - read the impact report first.
+    SELLER_ASSESSMENT_PURCHASE_GATE: z.enum(['off', 'report', 'enforce']).default('off'),
+    // Delivery, returns and dispute controls (Doc 07). 'off' (default): orders
+    // behave as before and the controls are recorded and shown. 'report': every
+    // would-be refusal is logged. 'enforce': a seller order is accepted only with
+    // its acceptance controls recorded, B2C checkout of a covered category needs an
+    // approved import route, and dispatch needs its evidence. Payment success
+    // never stands in for any of them.
+    DELIVERY_POLICY_GATES: z.enum(['off', 'report', 'enforce']).default('off'),
+    // Country launch gate (Doc 08 s11). 'off' (default): destinations follow the
+    // country list as before. 'enforce': checkout refuses any destination whose
+    // launch has not been enabled on approved evidence. Nothing is enabled by default.
+    COUNTRY_LAUNCH_GATE: z.enum(['off', 'enforce']).default('off'),
+    // Allow assessment decisions under a DRAFT policy version. For development
+    // and tests only; refused in production, where proposed commercial
+    // defaults bind only once adopted and disclosed.
+    SELLER_ASSESSMENT_ALLOW_DRAFT_POLICY: booleanFromString.default(false),
     // Two-step sign-in for EVERY console role: they read other companies'
     // certificates and sign findings that hold or release goods. On by default
     // and refused off in production, for the same test-suite reason as
@@ -1841,7 +1870,7 @@ const envSchema = z
     /// Stored with every declaration, so "which policy did this seller
     /// declare against" stays answerable after the threshold changes. Change
     /// it whenever the minimum or the wording changes.
-    SELLER_TURNOVER_POLICY_VERSION: z.string().trim().min(1).max(32).default('2026-10'),
+    SELLER_TURNOVER_POLICY_VERSION: z.string().trim().min(1).max(32).default('SAO-1.0'),
     /// The month (1-12) a financial year usually starts in here. Only the
     /// default the form offers - a business with another year-end picks it.
     /// 4 (April) for India.
@@ -2622,6 +2651,13 @@ const envSchema = z
           code: z.ZodIssueCode.custom,
           path: ['FEATURE_AUDIT_MFA'],
           message: 'must be true in production for every Audit Console session',
+        });
+      }
+      if (value.SELLER_ASSESSMENT_ALLOW_DRAFT_POLICY) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SELLER_ASSESSMENT_ALLOW_DRAFT_POLICY'],
+          message: 'must be false in production: draft seller-assessment policy defaults bind only once adopted',
         });
       }
       if (!value.SELLER_MFA_REQUIRED) {

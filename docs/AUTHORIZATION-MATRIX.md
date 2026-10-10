@@ -70,3 +70,34 @@ append-only audit log.
 | `backend/tests/integration/seller-team.test.ts` | Seller role changes, removal and the last-owner rule |
 | `backend/tests/integration/anonymous-access.test.ts` | Every non-public route refuses an anonymous caller |
 | `backend/tests/integration/inspection-http.test.ts` | Agency roles inside one job: only the named inspector records checks; QA signs |
+
+## Shipment Assessment (between L1 and L2)
+
+Audit decides; admin reads. Enforced on the server: Audit Console keys `audit.shipment.read`, `audit.shipment.assess`, `audit.shipment.qa`, `audit.shipment.waive`, `audit.shipment.policy`, `audit.seller.badge`, `audit.certificate.issue`; the admin panel has GET routes only; seller, carrier and buyer routes load the case through their own scope (seller account, the partner holding the L2 leg, the buyer's own order) and answer 404 outside it. QA approval by the assessor is refused (`SHIPMENT_ASSESSMENT_INDEPENDENCE_REQUIRED`).
+
+| Who | Can | Cannot |
+| --- | --- | --- |
+| Audit compliance reviewer | Assess, upload evidence, hold, require reassessment, decide waivers, issue/revoke documents | QA-approve, set badges, publish policy |
+| Audit supervisor | All of the above, plus QA approval, badges and policy | QA-approve a round they assessed |
+| Admin panel (`inspection.read`) | Read queues, cases, decisions, documents | Change anything |
+| Seller | Readiness note, evidence, corrective response, download own documents | Change a finding, approve, set a badge |
+| Carrier holding L2 | See release / hold, record loading checks and evidence | Lift a hold |
+| Buyer | See status and download the certificate or waiver of own order | See findings or evidence |
+
+Proved by `backend/tests/integration/shipment-assessment.test.ts` (admin and seller cannot reach decision routes; reviewer cannot QA; L2 refused by service and Seller Hub route) and `backend/tests/unit/shipment-assessment.test.ts`.
+
+## Seller Assessment and Onboarding
+
+Audit decides by capability; admin reads; the seller applies. Enforced on the server: route keys `audit.assessment.read` / `audit.assessment.work` (both Audit staff roles), plus a capability per step checked in `modules/seller-assessment`. Independence is checked against the assessment's event log, so one person holding several capabilities still cannot approve their own work.
+
+| Who | Can | Cannot |
+| --- | --- | --- |
+| Head of Seller Assurance | Owner and risk, gate assignment, N/A approval, policy drafts and adoption records, capabilities for others, body replacement, suspension, legacy reassessment, legal holds | Grant themself a capability; adopt a version they drafted; release or appeal-review an assessment they took part in |
+| Audit Team (`ASSESS`) | Accept / return files, checklist, ratings, findings and closure, site / sample / lab workpapers, certificate records, gates 1 and 4-6 | Approve N/A, release, decide appeals |
+| Regulatory / Finance / Operations / Legal | Their gate (3 / 2 / 7 / 7), specialist reviews, related workpapers; Finance bank-change steps | The other specialists' reviews; second-approve their own bank-change approval |
+| Release approver (`RELEASE`) | Gate 8 release of exact scope | Release anything they took part in |
+| Appeal reviewer (`APPEAL_REVIEW`) | Decide appeals | Decide an appeal on an assessment they took part in or a notice they issued |
+| Admin panel (`customer.read`) | Read list, summaries, permitted evidence, activation impact | Any write; identity, ownership or banking files |
+| Seller | Apply, upload, answer findings, appeal, notify changes and incidents, request bank change, download own approval | Read other sellers, reviewer notes or audit-uploaded evidence; close a finding; choose the certification body |
+
+Proved by `backend/tests/integration/seller-assessment.test.ts` (capabilities, independence, admin read-only, cross-seller 404, N/A approval, bank dual approval, appeal independence) and `backend/tests/unit/seller-assessment.test.ts`.

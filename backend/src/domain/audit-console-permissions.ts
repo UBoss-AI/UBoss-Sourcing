@@ -51,6 +51,29 @@ export const AuditPermission = {
   RELEASE_REQUEST: 'audit.release.request',
   /// Every agency and its people, read-only.
   TEAM_READ: 'audit.team.read',
+  /** Shipment Assessment: read the queues and cases. */
+  SHIPMENT_READ: 'audit.shipment.read',
+  /** Record a physical assessment's checks, quantities and evidence. */
+  SHIPMENT_ASSESS: 'audit.shipment.assess',
+  /** QA-approve or return another person's assessment round. */
+  SHIPMENT_QA: 'audit.shipment.qa',
+  /** Approve or reject a badge-based waiver. */
+  SHIPMENT_WAIVE: 'audit.shipment.waive',
+  /** Publish a new version of the badge policy. Supervisors only. */
+  SHIPMENT_POLICY: 'audit.shipment.policy',
+  /** Set a seller's Audit badge. Supervisors only. */
+  SELLER_BADGE: 'audit.seller.badge',
+  /** Issue and revoke Audit certificates and reports. */
+  CERTIFICATE_ISSUE: 'audit.certificate.issue',
+  /** Seller Assessment and Onboarding: read assessments, evidence and approvals. */
+  ASSESSMENT_READ: 'audit.assessment.read',
+  /**
+   * Work on a seller assessment. Never enough alone: each action also needs
+   * the matching assessment capability (ASSESS, REGULATORY, FINANCE,
+   * OPERATIONS, LEGAL, RELEASE, APPEAL_REVIEW, HEAD_OF_ASSURANCE), and the
+   * service checks independence against what the person already did.
+   */
+  ASSESSMENT_WORK: 'audit.assessment.work',
 } as const;
 
 export type AuditPermissionKey = (typeof AuditPermission)[keyof typeof AuditPermission];
@@ -83,6 +106,15 @@ export const AUDIT_STAFF_ROLES: Readonly<Record<AuditStaffRoleName, readonly Aud
     A.JOB_OVERSEE,
     A.RELEASE_REQUEST,
     A.TEAM_READ,
+    A.SHIPMENT_READ,
+    A.SHIPMENT_ASSESS,
+    A.SHIPMENT_QA,
+    A.SHIPMENT_WAIVE,
+    A.SHIPMENT_POLICY,
+    A.SELLER_BADGE,
+    A.CERTIFICATE_ISSUE,
+    A.ASSESSMENT_READ,
+    A.ASSESSMENT_WORK,
   ],
   COMPLIANCE_REVIEWER: [
     A.DASHBOARD_READ,
@@ -93,6 +125,12 @@ export const AUDIT_STAFF_ROLES: Readonly<Record<AuditStaffRoleName, readonly Aud
     A.RULE_READ,
     A.RULE_DRAFT,
     A.JOB_OVERSEE,
+    A.SHIPMENT_READ,
+    A.SHIPMENT_ASSESS,
+    A.SHIPMENT_WAIVE,
+    A.CERTIFICATE_ISSUE,
+    A.ASSESSMENT_READ,
+    A.ASSESSMENT_WORK,
   ],
 });
 

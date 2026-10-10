@@ -57,7 +57,7 @@ import {
   returnPolicyInput,
   updateReturnPolicy,
 } from '../../modules/returns/return-settings.service.js';
-import { currentUser, orderScopeWhere, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { currentUser, orderScopeWhere, requireAdmin, requireCustomerForRemedies } from '../plugins/auth.js';
 import { currentSeller, requireSeller } from '../plugins/seller.js';
 import { sendAttachment } from './preorder-chats.js';
 
@@ -195,7 +195,8 @@ function buyerActor(request: FastifyRequest, options: { placedByMe?: boolean } =
 }
 
 export function registerCustomerReturnRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireCustomer);
+  // Existing orders and their remedies stay reachable before new Terms are accepted.
+  app.addHook('preHandler', requireCustomerForRemedies);
 
   // What can be returned from one of your orders: the window, the reasons offered and each line's quantity left.
   app.get('/orders/:id/returns/eligibility', async (request, reply) => {

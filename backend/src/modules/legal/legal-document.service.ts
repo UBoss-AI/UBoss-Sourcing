@@ -849,15 +849,17 @@ export async function publishDraft(id: string, actor: LegalActor): Promise<Legal
     if (draft === null) throw notFound('Document');
     if (draft.status !== 'DRAFT') throw immutable();
 
-    // A blank left for a decision - "[[DECISION: registered legal name]]" -
-    // can never be published: nobody may be bound by a blank.
+    // A blank left for a decision - "[[DECISION: registered legal name]]", a
+    // "____" fill-in line, or a "For approval" notice - can never be
+    // published: nobody may be bound by a blank or by a text still awaiting
+    // approval.
     const placeholders = findLegalPlaceholders(`${draft.title}
 ${draft.body}
 ${draft.changeSummary ?? ''}`);
     if (placeholders.length > 0) {
       throw unprocessable(
         ErrorCode.LEGAL_DOCUMENT_HAS_PLACEHOLDERS,
-        'This document still has blanks to fill in, written [[...]]. Replace each one before publishing.',
+        'This document still has blanks to fill in ([[...]] or ____) or an approval notice. Resolve each one before publishing.',
         placeholders.slice(0, 50).map((placeholder) => ({
           field: 'body',
           code: 'LEGAL_DOCUMENT_HAS_PLACEHOLDERS',

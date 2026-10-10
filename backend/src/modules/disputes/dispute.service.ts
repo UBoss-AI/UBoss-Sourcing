@@ -47,6 +47,8 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { assertDecisionControls, classifyLateClaim, createCaseProfile, routeSafetyCase, type CaseIntake } from '../commercial-policy/cases.service.js';
+import type { IntakeOutcome } from '../../domain/commercial-policy.js';
 import {
   AdminNotificationKind,
   createAdminNotification,
@@ -485,6 +487,8 @@ export interface CreateClaimInput {
   description: string;
   desiredOutcome: DisputeRemedyName;
   requestedAmountMinor?: string | null | undefined;
+  /** Doc 07 s7 case facts. Optional: a claim without them behaves exactly as before. */
+  case?: CaseIntake | undefined;
 }
 
 export async function createClaim(actor: BuyerActor, input: CreateClaimInput): Promise<{ dispute: PartyDisputeView }> {
@@ -514,10 +518,14 @@ export async function createClaim(actor: BuyerActor, input: CreateClaimInput): P
       createdAt: true,
       customerProfileId: true,
       items: { select: { id: true, sellerOfferId: true, lineTotalMinor: true, sellerOffer: { select: { sellerAccountId: true } } } },
-      sellerOrderGroups: { select: { id: true, sellerAccountId: true } },
+      sellerOrderGroups: { select: { id: true, sellerAccountId: true, deliveredAt: true } },
+      shippingAddressJson: true,
+      buyerContextKind: true,
     },
   });
   if (order === null) throw notFound('Order');
+  const caseChannel = order.buyerContextKind === 'COMPANY' ? 'B2B' : 'B2C';
+  const caseMarket = (((order.shippingAddressJson ?? {}) as { country?: string }).country ?? null)?.toUpperCase() ?? null;
 
   if (order.paidMinor <= 0n) {
     throw new AppError({
@@ -529,7 +537,15 @@ export async function createClaim(actor: BuyerActor, input: CreateClaimInput): P
   }
   const since = order.placedAt ?? order.createdAt;
   const now = new Date();
+  let lateIntake: IntakeOutcome | null = null;
   if (now.getTime() > addHours(since, settings.claimWindowDays * 24).getTime()) {
+    // Doc 07 s6: the window is an administrative target. A late safety, defect,
+    // warranty or fraud report, or one resting on a statutory right, is taken in
+    // for review - never refused automatically.
+    const delivered = order.sellerOrderGroups.map((g) => g.deliveredAt).filter((d): d is Date => d !== null).sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
+    lateIntake = await classifyLateClaim(prisma, { intake: input.case, deliveredAt: delivered ?? since, channel: caseChannel, now });
+  }
+  if (now.getTime() > addHours(since, settings.claimWindowDays * 24).getTime() && lateIntake?.kind !== 'LATE_ACCEPTED_FOR_REVIEW') {
     throw new AppError({
       statusCode: 422,
       code: ErrorCode.DISPUTE_WINDOW_CLOSED,
@@ -658,6 +674,9 @@ export async function createClaim(actor: BuyerActor, input: CreateClaimInput): P
           },
           tx,
         );
+        if (input.case !== undefined) {
+          await createCaseProfile(tx, { disputeId: id, intake: input.case, market: caseMarket, channel: caseChannel, late: lateIntake, now });
+        }
         const row = await loadDispute(tx, id);
         await enqueueNotification(
           {
@@ -686,6 +705,8 @@ export async function createClaim(actor: BuyerActor, input: CreateClaimInput): P
         return row;
       });
       await dispatchPendingNotifications().catch(() => undefined);
+      // Doc 07 s7: a safety report goes to the safety officer at once.
+      if (input.case?.category === 'SAFETY') await routeSafetyCase(id, actor.userId);
       return { dispute: await partyDetail(created, actor) };
     } catch (error) {
       const candidate = error as { code?: unknown; meta?: { target?: unknown } };
@@ -1340,6 +1361,8 @@ export async function decideDispute(actor: StaffActor, id: string, input: Decisi
     assertDisputeTransition('CLAIM', row.status, statusForDecision(input.resolution));
     throw conflict(ErrorCode.DISPUTE_TRANSITION_NOT_ALLOWED, 'This claim is not waiting for a decision.');
   }
+  // Doc 07 s8: an independent appeal reviewer; a reasoned decision on file when enforced.
+  await assertDecisionControls(prisma, row, actor.userId);
   const amount = decisionAmount(row, input.resolution, input.amountMinor);
   if (isRefund(input.resolution)) await assertNoOpenChargeback(row.orderId);
 

@@ -38,6 +38,7 @@
  * which `startJob` requires before any finding can be recorded.
  */
 import { env } from '../../config/env.js';
+import { ASSESSMENT_CAPABILITIES, type AssessmentCapability } from '../../domain/seller-assessment.js';
 import {
   agencyConsoleKeys,
   staffConsoleKeys,
@@ -73,6 +74,14 @@ export interface AuditMember {
   staffMemberId: string | null;
   /** Present for AGENCY: the existing inspection membership the job services take. */
   inspection: InspectionMembership | null;
+  /** Seller Assessment capabilities (STAFF only; agency members never hold one). */
+  capabilities: readonly AssessmentCapability[];
+}
+
+/** Known capability names only; anything else in the column is ignored, never trusted. */
+export function parseCapabilities(value: unknown): AssessmentCapability[] {
+  if (!Array.isArray(value)) return [];
+  return ASSESSMENT_CAPABILITIES.filter((cap) => value.includes(cap));
 }
 
 function notAMember(): never {
@@ -107,6 +116,7 @@ export async function resolveAuditMember(userId: string): Promise<AuditMember> {
       agency: null,
       staffMemberId: staff.id,
       inspection: null,
+      capabilities: parseCapabilities(staff.assessmentCapabilitiesJson),
     };
   }
 
@@ -124,6 +134,7 @@ export async function resolveAuditMember(userId: string): Promise<AuditMember> {
     permissions: agencyConsoleKeys(inspection.role),
     agency: { id: agencyMember.agency.id, name: agencyMember.agency.name, kind: agencyMember.agency.kind },
     staffMemberId: null,
+    capabilities: [],
     inspection,
   };
 }

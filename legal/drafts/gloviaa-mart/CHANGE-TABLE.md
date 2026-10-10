@@ -20,7 +20,12 @@ Drafts (version `2026-10-draft-1`, English):
 | File | Kind | Who agrees / acknowledges |
 |---|---|---|
 | `platform-terms.en.txt` | `PLATFORM_TERMS` | Every buyer (Part A common + Part B buyer) |
-| `seller-terms.en.txt` | `SELLER_TERMS` | Sellers, in addition to the Terms of Use |
+| `seller-terms.en.txt` | `SELLER_TERMS` | Sellers, in addition to the Terms of Use. **Replaced 2026-10-09** by the operator's own text - see (z) below |
+| `seller-services-agreement.en.txt` | `SELLER_SERVICES_AGREEMENT` | Sellers, in its own box. Operator's own text - see (z) below |
+| `b2b-buyer-terms.en.txt` | `B2B_BUYER_TERMS` | Each member acting for a buyer company, for that company. Operator's own text, word for word |
+| `b2b-buyer-services-agreement.en.txt` | `B2B_BUYER_SERVICES_AGREEMENT` | A buyer company, once, through its owner or a company admin. Operator's own text, word for word |
+| `b2c-consumer-terms.en.txt` | `B2C_CONSUMER_TERMS` | Each person shopping for themselves, on the consumer screen. Operator's own text, word for word |
+| *(not supplied)* | `B2C_PLATFORM_SERVICES_AGREEMENT` | Each person shopping for themselves, in its own box. **No text has been supplied**; nothing is drafted for it here |
 | `privacy-policy.en.txt` | `PRIVACY_POLICY` | Everyone — acknowledged, not consented to |
 | `logistics-partner-terms.en.txt` | `LOGISTICS_PARTNER_TERMS` | Carrier staff (Part A + Part L) |
 | `staff-terms.en.txt` | `STAFF_TERMS` | Operator staff (Part A + Part S) |
@@ -251,3 +256,80 @@ These drafts were produced by automated drafting from competitor source text.
 They have not been reviewed by a lawyer. They must not be published, shown to
 users as live policies, or relied on, until the operator's legal counsel has
 reviewed and approved them and every decision above has been made.
+
+## (z) Seller documents supplied by the operator (2026-10-09)
+
+Two documents were supplied by the operator as Word files. They were **not
+adapted**: each draft is the Word text **word for word**, with only the layout
+changed (a numbered heading or schedule title becomes a `## ` line, every other
+Word paragraph becomes one paragraph). The adapted Seller Addendum (version
+`2026-10-draft-1`, rows S1-S22 in the tables above) is **superseded** as the
+file in this folder; a DRAFT row already imported into a database is left as it
+is and simply never published. `backend/tests/unit/seller-legal-drafts.test.ts`
+pins every heading and a SHA-256 of the words, and re-reads the Word files when
+they are present in `legal/source/` (gitignored).
+
+| Source (in `legal/source/`) | SHA-256 | Draft | Kind | Version |
+|---|---|---|---|---|
+| `02_Seller_Terms_and_Conditions.docx` | `70375caf83c205bca663c80461367ddb68be2090c71910f7558fcfe59074a830` | `seller-terms.en.txt` (15 sections) | `SELLER_TERMS` | `1.0` |
+| `04_Seller_Platform_Services_Agreement.docx` | `55db59eaefe24c58778d70878823e07c08b5b9b4627c6df302e7c22312e3dbc9` | `seller-services-agreement.en.txt` (12 sections, Schedules A-F) | `SELLER_SERVICES_AGREEMENT` | `1.0` |
+| `03_B2B_Buyer_Terms_and_Conditions.docx` | `ba56768db33e3b9bf6223445b7dc508ffeedb4f298f0224736627966387c57f2` | `b2b-buyer-terms.en.txt` (14 sections) | `B2B_BUYER_TERMS` | `1.0` |
+| `05_B2B_Buyer_Platform_Services_Agreement.docx` | `e60e177d0302a06c7eea0e2aac2ba894ec634d680e2b5833ea4c9c7d368904da` | `b2b-buyer-services-agreement.en.txt` (12 sections, Schedules A-C, final completion requirement) | `B2B_BUYER_SERVICES_AGREEMENT` | `1.0` |
+
+**The two B2B documents - inputs still needed before publication or execution.**
+Both carry the approval notice and these blanks, which the software will not fill
+in: effective date; Uboss AI Private Limited's registered address, corporate and
+tax registration and notices email; the approved arbitration seat; the buyer's
+legal name, address, registration, tax and importer numbers, signatory and
+authority, and signature or electronic acceptance record (T&C section 14). The
+services agreement also needs: agreement date; the appointed Payment Partner and
+its agreement and account structure; the initial term start date; notice
+addresses; and every line of Schedules A (service and authority record), B
+(commercial and order controls) and C (signatures of both parties and any
+witnesses) - completed or expressly marked not applicable before execution or
+trading. A buyer's click-through acceptance is not Gloviaa's signature and does
+not complete the schedules.
+
+**The B2C Consumer Terms (2026-10-09).** `06_B2C_Consumer_Terms.docx`
+(SHA-256 `d3769c672b7e278af276f813bfcc985156a4a8cd783ce453331c2b8acc66b1f3`) is
+stored word for word as `b2c-consumer-terms.en.txt`, version `1.0`: title,
+company line, version line, approval notice, introduction, sections 1-11 and
+the whole model withdrawal notice, one paragraph per line. Nothing was
+summarised, reordered or reworded. Inputs still needed before publication:
+the effective date (it appears twice); Uboss AI Private Limited's registered
+address and corporate registration; the support contact; the complaints
+contact; the appointed grievance officer's name, address and contact (s. 7);
+the privacy contact (s. 8); the seller name and address and the Gloviaa
+cancellation contact in the model withdrawal notice (s. 11); market-specific
+contact, ADR and language disclosures before each country is enabled (s. 10);
+and approval - removing the approval notice is the approver's act. The
+notice's own consumer fill-in lines (goods or services, order number, ordered
+on, received on, consumer name and address, signature, date) are blanks to
+the publishing check too, so the approved version must decide how that form
+is presented. Also not supplied: a **B2C Platform Services Agreement**, and an
+**approved** consumer Privacy Policy (`privacy-policy.en.txt` is an adapted
+draft). The consumer screen stays off until all three are published.
+
+**What must happen before either can be published.** Both say "For approval
+before implementation or signature", and publishing refuses a document that
+still says so or still holds a `____` fill-in line. Before publishing, the
+operator and its counsel must:
+
+- Approve the text, and remove the approval notice as part of that approval.
+- Fill the company details: registered address, corporate registration number,
+  tax registration and notice email (both documents), and the effective date.
+- Decide the arbitration seat ("Insert the approved seat ... before adoption" in
+  T&C 14; "approved seat ____" in PSA 12) and confirm the proposed liability cap
+  after local legal review (T&C 11, PSA 10).
+- Decide how the per-seller blanks read in a click-through version: the T&C 15
+  acceptance fields (seller legal name, signatory, signature, date, Gloviaa
+  signatory), the PSA party details (date entered, seller name, registered
+  office, company registration, PAN, GST, IEC), the payment partner details in
+  PSA 5, the notice addresses in PSA 12, and **every field of Schedules A-F**.
+  These are seller-specific: they are completed and signed per seller (the
+  executed contract is the Audit Console's CONTRACT workpaper), and the
+  click-through acceptance never fills or agrees them.
+- Decide whether a seller still accepts the Terms of Use beside the Seller T&C.
+  The software asks for both today under one box (`termsKindsForScope`).
+- Provide approved translations, if any. Only English exists; nothing has been
+  machine-translated as contract text.

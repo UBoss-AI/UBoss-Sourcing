@@ -67,6 +67,7 @@ import {
   vehiclesKey,
 } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
+import { CustodyPanel } from './CustodyPanel';
 import { useSession } from '@/auth/session-context';
 import { formatDuration, formatWeight, slaTone, statusTone } from '@/lib/shipment-display';
 import type { ShipmentDetail, ShipmentStatus, TimelineEntry } from '@/lib/types';
@@ -159,6 +160,7 @@ export function ShipmentDetailPage(): React.JSX.Element {
           <FactsCard shipment={data} />
           <ContactsCard shipment={data} />
           <DocumentsCard shipmentId={id} />
+          <CustodyPanel shipmentId={id} />
         </div>
       </div>
     </>

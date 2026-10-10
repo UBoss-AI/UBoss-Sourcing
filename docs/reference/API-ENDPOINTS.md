@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1498 endpoints** in 137 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1698 endpoints** in 150 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -28,12 +28,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 580 |
-| [Logistics partner portal](#logistics-partner-portal) | 95 |
-| [Audit Console](#audit-console) | 91 |
-| [Seller Hub](#seller-hub) | 354 |
+| [Admin panel (staff)](#admin-panel-staff) | 655 |
+| [Logistics partner portal](#logistics-partner-portal) | 100 |
+| [Audit Console](#audit-console) | 172 |
+| [Seller Hub](#seller-hub) | 386 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 309 |
+| [Customer account](#customer-account) | 316 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -175,6 +175,56 @@ Defined in `backend/src/http/routes/catalog.admin.ts`, `backend/src/http/routes/
 | PUT | `/api/v1/admin/categories/:id/translations/:language` | Staff | Admin(CATEGORY_WRITE) | Save a category's name, description and search-engine text in one language other than English. A save from the panel is marked as reviewed by a person unless the caller says otherwise. |
 | DELETE | `/api/v1/admin/categories/:id/translations/:language` | Staff | Admin(CATEGORY_WRITE) | Remove a category's copy in one language, so shoppers in that language see the English text again. |
 
+### `admin/commercial`
+
+Defined in `backend/src/http/routes/commercial-policy.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/commercial/reference` | Staff | Admin(FINANCE_POLICY_READ) | The source tables imported from Doc 07 / Doc 08, and the catalogue reconciliation. |
+| GET | `/api/v1/admin/commercial/schedules` | Staff | Admin(FINANCE_POLICY_READ) | Every versioned commercial schedule, newest first per kind. |
+| GET | `/api/v1/admin/commercial/schedules/:id` | Staff | Admin(FINANCE_POLICY_READ) | One schedule with its history and what still stops its activation. |
+| GET | `/api/v1/admin/commercial/schedules/:id/preview` | Staff | Admin(FINANCE_POLICY_READ) | The financial effect of a schedule on sample figures, before approval. |
+| POST | `/api/v1/admin/commercial/schedules` | Staff | Admin(FINANCE_POLICY_WRITE) | Draft a new version of a schedule kind, copied from the latest. |
+| PATCH | `/api/v1/admin/commercial/schedules/:id` | Staff | Admin(FINANCE_POLICY_WRITE) | Edit a DRAFT schedule's scope, body, dates and signed-schedule reference. |
+| POST | `/api/v1/admin/commercial/schedules/:id/submit` | Staff | Admin(FINANCE_POLICY_WRITE) | Submit a draft for approval. |
+| POST | `/api/v1/admin/commercial/schedules/:id/decision` | Staff | Admin(FINANCE_POLICY_WRITE) | Approve or return a submitted schedule, with the adoption evidence. Not by its preparer. |
+| POST | `/api/v1/admin/commercial/schedules/:id/provider-confirmation` | Staff | Admin(FINANCE_POLICY_WRITE) | Record the payment provider's written confirmation. |
+| POST | `/api/v1/admin/commercial/schedules/:id/activate` | Staff | Admin(FINANCE_POLICY_WRITE) | Activate an approved schedule. A person's act; refused with each missing item. |
+| POST | `/api/v1/admin/commercial/schedules/:id/retire` | Staff | Admin(FINANCE_POLICY_WRITE) | Retire a schedule. |
+| GET | `/api/v1/admin/commercial/import-routes` | Staff | Admin(SETTINGS_READ) | Import routes: importer and local actors per destination, category and channel. |
+| PUT | `/api/v1/admin/commercial/import-routes` | Staff | Admin(SETTINGS_WRITE) | Draft or replace an import route (returns it to DRAFT for review). |
+| POST | `/api/v1/admin/commercial/import-routes/:id/decision` | Staff | Admin(SETTINGS_WRITE) | Approve or reject an import route. Not by its preparer. |
+| GET | `/api/v1/admin/commercial/provider-reviews` | Staff | Admin(LOGISTICS_READ) | Logistics provider screening records. |
+| PUT | `/api/v1/admin/commercial/provider-reviews` | Staff | Admin(LOGISTICS_WRITE) | Record or update a provider review. |
+| POST | `/api/v1/admin/commercial/provider-reviews/:id/decision` | Staff | Admin(LOGISTICS_WRITE) | Approve or reject a provider review. Not by its recorder. |
+| GET | `/api/v1/admin/commercial/handling-requirements` | Staff | Admin(LOGISTICS_READ) | Dangerous goods, battery, timber packaging and temperature requirements. |
+| PUT | `/api/v1/admin/commercial/handling-requirements` | Staff | Admin(LOGISTICS_WRITE) | Create or update a handling requirement. |
+| GET | `/api/v1/admin/commercial/commission-adjustments` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Commission reversals proposed by refunds. |
+| POST | `/api/v1/admin/commercial/commission-adjustments/:id/apply` | Staff | Admin(COMMISSION_CREDIT_NOTE_CREATE) | Apply a proposed reversal against an issued credit note. |
+| GET | `/api/v1/admin/commercial/certification-programmes` | Staff | Admin(FINANCE_POLICY_READ) | Certification-recovery programmes. |
+| GET | `/api/v1/admin/commercial/certification-programmes/:id` | Staff | Admin(FINANCE_POLICY_READ) | One programme's ledger: costs, allocations and the unrecovered balance. |
+| POST | `/api/v1/admin/commercial/certification-programmes` | Staff | Admin(FINANCE_POLICY_WRITE) | Create a programme (Gloviaa funds first). |
+| POST | `/api/v1/admin/commercial/certification-programmes/:id/costs` | Staff | Admin(FINANCE_POLICY_WRITE) | Record a third-party cost, credit or seller deduction. |
+| POST | `/api/v1/admin/commercial/certification-costs/:id/verify` | Staff | Admin(FINANCE_TAX_VERIFY) | Verify a cost as eligible (not by its recorder). |
+| POST | `/api/v1/admin/commercial/certification-programmes/:id/status` | Staff | Admin(FINANCE_POLICY_WRITE) | Activate, pause or close a programme (activation needs the adopted schedule). |
+| GET | `/api/v1/admin/commercial/security` | Staff | Admin(FINANCE_POLICY_READ) | Security schedules and their reviews. |
+| POST | `/api/v1/admin/commercial/security` | Staff | Admin(FINANCE_POLICY_WRITE) | Propose a seller's security (no stacking without a documented exposure). |
+| POST | `/api/v1/admin/commercial/security/:id/activate` | Staff | Admin(FINANCE_POLICY_WRITE) | Activate a proposed security with the provider's permission (not by its proposer). |
+| POST | `/api/v1/admin/commercial/security-reviews/:id` | Staff | Admin(FINANCE_POLICY_WRITE) | Complete a monthly or quarterly security review. |
+| GET | `/api/v1/admin/commercial/insurance` | Staff | Admin(FINANCE_POLICY_READ) | The insurance register, with the proposed groups and each policy's gaps. |
+| PUT | `/api/v1/admin/commercial/insurance` | Staff | Admin(FINANCE_POLICY_WRITE) | Record or update an insurance policy (returns it to PENDING verification). |
+| POST | `/api/v1/admin/commercial/insurance/:id/verify` | Staff | Admin(FINANCE_TAX_VERIFY) | Verify an insurance policy with the insurer (not by its recorder). |
+| GET | `/api/v1/admin/commercial/launch` | Staff | Admin(SETTINGS_READ) | Country launch overview. |
+| GET | `/api/v1/admin/commercial/launch/:countryCode` | Staff | Admin(SETTINGS_READ) | One country's launch decisions and blockers. |
+| PUT | `/api/v1/admin/commercial/launch/:countryCode/:key` | Staff | Admin(SETTINGS_WRITE) | Update a launch decision's owner, scope, evidence and expiry. |
+| POST | `/api/v1/admin/commercial/launch/:countryCode/:key/review` | Staff | Admin(FEATURE_FLAG_WRITE) | Approve or reject a launch decision (not by its owner). |
+| POST | `/api/v1/admin/commercial/launch/:countryCode/enable` | Staff | Admin(FEATURE_FLAG_WRITE) | Enable a country (refused while any decision is open). |
+| POST | `/api/v1/admin/commercial/launch/:countryCode/disable` | Staff | Admin(FEATURE_FLAG_WRITE) | Disable a country. |
+| GET | `/api/v1/admin/commercial/product-evidence` | Staff | Admin(INSPECTION_READ) | Product evidence, read only (the Audit Console verifies it). |
+| GET | `/api/v1/admin/commercial/safety-cases` | Staff | Admin(INSPECTION_READ) | Safety cases, read only (the Audit Console decides them). |
+| GET | `/api/v1/admin/commercial/safety-cases/:id` | Staff | Admin(INSPECTION_READ) | One safety case, read only. |
+
 ### `admin/commission-invoices`
 
 Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
@@ -300,10 +350,18 @@ Defined in `backend/src/http/routes/directory.admin.ts`.
 
 ### `admin/disputes`
 
-Defined in `backend/src/http/routes/disputes.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/disputes.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/disputes/:id/case-controls` | Staff | Admin(DISPUTE_VIEW) | A dispute's case controls: profile, clocks, requests, remedies, testing, recoveries. |
+| POST | `/api/v1/admin/disputes/:id/case-controls/acknowledge` | Staff | Admin(DISPUTE_MANAGE) | Acknowledge a case. |
+| POST | `/api/v1/admin/disputes/:id/case-controls/evidence-sufficient` | Staff | Admin(DISPUTE_MANAGE) | Record why the evidence is sufficient; starts the decision clock once. |
+| POST | `/api/v1/admin/disputes/:id/case-controls/evidence-requests` | Staff | Admin(DISPUTE_MANAGE) | Request proportionate evidence from a party. |
+| PUT | `/api/v1/admin/disputes/:id/case-controls/testing` | Staff | Admin(DISPUTE_MANAGE) | Record independent testing and its interim / final cost allocation. |
+| PUT | `/api/v1/admin/disputes/:id/case-controls/decision` | Staff | Admin(DISPUTE_MANAGE) | Record the reasoned decision and remedies (amounts, payers, return freight, completion). |
+| POST | `/api/v1/admin/disputes/remedies/:id/complete` | Staff | Admin(DISPUTE_MANAGE) | Mark a remedy completed (with its refund, where one was made). |
+| POST | `/api/v1/admin/disputes/:id/case-controls/appeal-reviewer` | Staff | Admin(DISPUTE_APPROVE) | Assign an independent appeal reviewer. |
 | GET | `/api/v1/admin/disputes` | Staff | Admin(DISPUTE_VIEW) | The dispute queue: claims and chargebacks, with counts by status and SLA breach flags. |
 | GET | `/api/v1/admin/disputes/settings` | Staff | Admin(DISPUTE_VIEW) | The dispute rules: windows, SLAs, reasons offered and the approval threshold. |
 | PUT | `/api/v1/admin/disputes/settings` | Staff | Admin(SETTINGS_WRITE) | Save the dispute rules. Versioned: a stale form is refused. |
@@ -676,10 +734,14 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 
 ### `admin/orders`
 
-Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/trade-documents.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/trade-documents.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/orders/:id/commercial-controls` | Staff | Admin(ORDER_READ) | An order's frozen line snapshots: seller, manufacturer, scope, term, importer, money, policy versions. |
+| POST | `/api/v1/admin/orders/:id/loss-recoveries` | Staff | Admin(REFUND_CREATE) | Record a carrier, insurer, chargeback or seller recovery; overlaps are flagged, never blocked. |
+| POST | `/api/v1/admin/orders/:id/payment-plan` | Staff | Admin(ORDER_APPROVE) | Propose the bespoke 30/60/10 plan on a business order (needs the adopted schedule). |
+| POST | `/api/v1/admin/orders/:id/payment-plan/agreement` | Staff | Admin(ORDER_APPROVE) | Record seller, buyer or provider agreement to the plan. |
 | GET | `/api/v1/admin/orders/:id/shippable` | Staff | Admin(ORDER_FULFIL) | What is left to ship on each line, accounting for partial shipments. |
 | POST | `/api/v1/admin/orders/:id/shipments` | Staff | Admin(ORDER_FULFIL) | Record a shipment of some or all of a confirmed order's items, with the carrier and tracking details. The order moves to processing, and to shipped once everything has gone (unless told not to). Writes an audit entry. |
 | POST | `/api/v1/admin/orders/:id/returns` | Staff | Admin(ORDER_RETURN) | Record a return for a buyer (a call, an email), with a reason code and quantities. Not bound by the window. |
@@ -910,10 +972,13 @@ Defined in `backend/src/http/routes/returns.ts`.
 
 ### `admin/returns`
 
-Defined in `backend/src/http/routes/returns.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/returns.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| PUT | `/api/v1/admin/returns/:id/authorization` | Staff | Admin(ORDER_RETURN) | Issue a return authorisation: route, freight payer and reason. |
+| PATCH | `/api/v1/admin/returns/:id/authorization` | Staff | Admin(ORDER_RETURN) | Record return receipt and inspection evidence, and any evidenced deduction. |
+| GET | `/api/v1/admin/returns/:id/authorization` | Staff | Admin(ORDER_READ) | The return authorisation, if issued. |
 | GET | `/api/v1/admin/returns` | Staff | Admin(ORDER_READ) | Returns, newest first, a page at a time. Filter by status (OPEN for everything still being worked) or order. |
 | GET | `/api/v1/admin/returns/:id` | Staff | Admin(ORDER_READ) | One return in full: lines, the buyer's reason and photos, the seller's answer, the timeline and any refund. |
 | POST | `/api/v1/admin/returns/:id/approve` | Staff | Admin(ORDER_RETURN) | Approve a requested return, optionally with a note and how the goods should come back. |
@@ -949,6 +1014,24 @@ Defined in `backend/src/http/routes/schedules.ts`.
 | POST | `/api/v1/admin/schedules/:id/pause` | Staff | Admin(SCHEDULE_WRITE) | Pause any customer's scheduled order, with an optional reason. Upcoming deliveries that have not started are withdrawn until it is resumed. Writes an audit entry. |
 | POST | `/api/v1/admin/schedules/:id/resume` | Staff | Admin(SCHEDULE_WRITE) | Restart any customer's paused scheduled order. The next delivery date is worked out afresh from today, so missed deliveries are not caught up. Refused if the card it pays with automatically can no longer be charged, or a one-off delivery date has already passed; writes an audit entry. |
 | DELETE | `/api/v1/admin/schedules/:id` | Staff | Admin(SCHEDULE_WRITE) | Cancel any customer's scheduled order, with an optional reason. Only deliveries that have not started are cancelled; orders already created carry on as normal. Writes an audit entry. |
+
+### `admin/seller-assessments`
+
+Defined in `backend/src/http/routes/seller-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/seller-assessments` | Staff | Admin(CUSTOMER_READ) | Seller assessments, read-only. Decisions belong to the Audit Console. |
+| GET | `/api/v1/admin/seller-assessments/:id` | Staff | Admin(CUSTOMER_READ) | One assessment summary, read-only: no internal reviewer notes, no identity or banking file names. |
+| GET | `/api/v1/admin/seller-assessments/:id/evidence/:evidenceId` | Staff | Admin(CUSTOMER_READ) | Download an evidence file the Admin Panel may see. Identity, ownership and banking evidence stay with Audit. |
+
+### `admin/seller-assessments-impact`
+
+Defined in `backend/src/http/routes/seller-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/seller-assessments-impact` | Staff | Admin(CUSTOMER_READ) | What switching the purchase gate to enforce would block, read-only. |
 
 ### `admin/seller-carriers`
 
@@ -1025,20 +1108,28 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 
 ### `admin/seller-orders`
 
-Defined in `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/seller-orders/:id/controls` | Staff | Admin(ORDER_READ) | A seller order's acceptance controls. |
+| PATCH | `/api/v1/admin/seller-orders/:id/controls` | Staff | Admin(ORDER_FULFIL) | Record missing acceptance controls while the seller order is NEW. |
+| GET | `/api/v1/admin/seller-orders/:id/dispatch-controls` | Staff | Admin(LOGISTICS_READ) | Dispatch controls: booking, quotes, documents, evidence, custody, partial shipments and the gate's gaps. |
+| PUT | `/api/v1/admin/seller-orders/:id/freight-booking` | Staff | Admin(LOGISTICS_WRITE) | Record a freight booking with its compared quotes. |
+| PUT | `/api/v1/admin/seller-orders/:id/dispatch-evidence` | Staff | Admin(LOGISTICS_WRITE) | Record dispatch evidence (quantities, lots, seals, photos, temperature, handling). |
+| POST | `/api/v1/admin/seller-orders/:id/custody-handovers` | Staff | Admin(LOGISTICS_WRITE) | Record a custody handover. |
+| POST | `/api/v1/admin/seller-orders/:id/partial-shipments` | Staff | Admin(ORDER_APPROVE) | Approve a partial shipment with proportionate billing. |
 | POST | `/api/v1/admin/seller-orders/:id/commission-invoice` | Staff | Admin(COMMISSION_INVOICE_GENERATE) | Create the draft commission invoice for one seller order, or return the live one. Needs an Idempotency-Key. |
 | POST | `/api/v1/admin/seller-orders/:id/compliance-override` | Staff | Admin(LOGISTICS_WRITE) | Let one seller order's goods leave despite its current compliance holds, with a written reason. Audited. |
 | DELETE | `/api/v1/admin/seller-orders/:id/compliance-override` | Staff | Admin(LOGISTICS_WRITE) | Withdraw a compliance override: the holds apply again. Audited. |
 
 ### `admin/sellers`
 
-Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/factories.admin.ts`.
+Defined in `backend/src/http/routes/shipment-assessment.ts`, `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/factories.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/sellers/:id/audit-badge` | Staff | Admin(CUSTOMER_READ) | A seller's Audit badge, history and verification certificates, read-only. |
 | GET | `/api/v1/admin/sellers` | Staff | Admin(CUSTOMER_READ) | List seller applications a page at a time, filtered by status or searched by business name. |
 | GET | `/api/v1/admin/sellers/verified` | Staff | Admin(CUSTOMER_READ) | Verified suppliers - approved, not suspended, with something live to sell - for the Sellers screen. `sort=newest` is most recently verified first. |
 | GET | `/api/v1/admin/sellers/:id` | Staff | Admin(CUSTOMER_READ) | One seller application in full, including internal notes the seller never sees. |
@@ -1084,6 +1175,18 @@ Defined in `backend/src/http/routes/settings.admin.ts`.
 | GET | `/api/v1/admin/settings/catalogue-translation` | Staff | Admin(SETTINGS_READ) | Machine-translating the shop's own product copy. |
 | PUT | `/api/v1/admin/settings/catalogue-translation` | Staff | Admin(SETTINGS_WRITE) | Store or remove the API key used to machine-translate product copy. The key is kept encrypted and only its last four characters are ever shown. Writes an audit entry, without the key. |
 | POST | `/api/v1/admin/settings/catalogue-translation/run` | Staff | Admin(SETTINGS_WRITE) | Translate everything that has no copy in a language yet. |
+
+### `admin/shipment-assessments`
+
+Defined in `backend/src/http/routes/shipment-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/shipment-assessments` | Staff | Admin(INSPECTION_READ) | Shipment Assessment queues, read-only. Decisions are made in the Audit Console. |
+| GET | `/api/v1/admin/shipment-assessments/policy` | Staff | Admin(INSPECTION_READ) | The badge policy, read-only. |
+| GET | `/api/v1/admin/shipment-assessments/:id` | Staff | Admin(INSPECTION_READ) | One case in full, read-only. |
+| GET | `/api/v1/admin/shipment-assessments/:id/evidence/:evidenceId` | Staff | Admin(INSPECTION_READ) | Download a case's evidence file, read-only. |
+| GET | `/api/v1/admin/shipment-assessments/:id/documents/:documentId` | Staff | Admin(INSPECTION_READ) | Download a case's certificate, waiver or report, read-only. |
 
 ### `admin/shipments`
 
@@ -1271,10 +1374,13 @@ Defined in `backend/src/http/routes/logistics.portal.ts`.
 
 ### `logistics/legs`
 
-Defined in `backend/src/http/routes/logistics-levels.admin.ts`.
+Defined in `backend/src/http/routes/shipment-assessment.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/logistics/legs/:id/shipment-assessment` | Logistics | Logistics(SHIPMENT_STATUS_WRITE) | Release or hold state, handling needs and the final loading checks for an L2 leg this carrier holds. It cannot lift a hold. |
+| POST | `/api/v1/logistics/legs/:id/shipment-assessment/checks` | Logistics | Logistics(SHIPMENT_STATUS_WRITE) | Record the final loading checks (vehicle, securing, count, seals, documents) after release. |
+| POST | `/api/v1/logistics/legs/:id/shipment-assessment/evidence` | Logistics | Logistics(SHIPMENT_STATUS_WRITE) | Attach loading evidence (photos of the container, seals, documents). |
 | GET | `/api/v1/logistics/legs` | Logistics | Logistics(SHIPMENT_READ) | The delivery legs this company holds, most recently changed first. |
 | GET | `/api/v1/logistics/legs/:id` | Logistics | Logistics(SHIPMENT_READ) | One leg this delivery company holds. A leg held by another company is not found. |
 | POST | `/api/v1/logistics/legs/:id/accept` | Logistics | Logistics(SHIPMENT_ACCEPT) | Accept a leg offered to this delivery company, confirming it will carry it. The seller is told, and it is recorded in their history. |
@@ -1348,10 +1454,12 @@ Defined in `backend/src/http/routes/logistics.portal.ts`.
 
 ### `logistics/shipments`
 
-Defined in `backend/src/http/routes/logistics.portal.ts`, `backend/src/http/routes/logistics.operations.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/logistics.portal.ts`, `backend/src/http/routes/logistics.operations.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/logistics/shipments/:id/custody` | Logistics | Logistics(SHIPMENT_READ) | Custody, documents and the dispatch gaps for a shipment assigned to my company. |
+| POST | `/api/v1/logistics/shipments/:id/custody` | Logistics | Logistics(SHIPMENT_STATUS_WRITE) | Record a custody handover for a shipment assigned to my company. |
 | GET | `/api/v1/logistics/shipments` | Logistics | Logistics(SHIPMENT_READ) | One page of this delivery company's shipments, searchable and filterable by reference, company, place, status, delivery deadline, driver, problems, proof of delivery and dates, and sortable. |
 | GET | `/api/v1/logistics/shipments/export` | Logistics | Logistics(SHIPMENT_EXPORT) | The same rows, as CSV. |
 | GET | `/api/v1/logistics/shipments/:id` | Logistics | LogisticsAny(SHIPMENT_READ, DRIVER_TASK_READ) | One shipment this delivery company holds, with contact details masked to what the caller is entitled to see. A driver may open only the stops on their own round, and sees contact details masked here as everybody does. |
@@ -1419,6 +1527,14 @@ Defined in `backend/src/http/routes/inspection.ts`.
 | POST | `/api/v1/audit/agency/defects/:id/reclassify` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Reclassify a defect's severity, with a reason and supporting evidence. |
 | POST | `/api/v1/audit/agency/jobs/:id/evidence` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Upload timestamped evidence (photo, video, document, measurement) to a job. Stored privately and hashed. |
 | GET | `/api/v1/audit/agency/evidence/:id` | Audit | Audit(InspectionAgencyPermission.JOB_READ) | Download one evidence file you may see. |
+
+### `audit/audit-documents`
+
+Defined in `backend/src/http/routes/shipment-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/audit/audit-documents/:id/revoke` | Audit | Audit(CERTIFICATE_ISSUE) | Revoke an issued document with a reason. A revoked release document withdraws its unused release. |
 
 ### `audit/auth`
 
@@ -1546,6 +1662,17 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 | POST | `/api/v1/audit/notifications/:id/read` | Audit | Audit | Mark one of your notifications read. |
 | POST | `/api/v1/audit/notifications/read-all` | Audit | Audit | Mark all your notifications read. |
 
+### `audit/product-evidence`
+
+Defined in `backend/src/http/routes/commercial-policy.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/product-evidence` | Audit | Audit(ASSESSMENT_READ) | Product evidence per SKU/version, site and country. |
+| GET | `/api/v1/audit/product-evidence/prompts` | Audit | Audit(ASSESSMENT_READ) | Doc 08 s8 reviewer prompts for a department. |
+| POST | `/api/v1/audit/product-evidence` | Audit | Audit(ASSESSMENT_WORK) | Record a piece of product evidence. |
+| POST | `/api/v1/audit/product-evidence/:id/status` | Audit | Audit(SELLER_VERIFY) | Verify, suspend, withdraw or reject evidence (verification not by its recorder). |
+
 ### `audit/products`
 
 Defined in `backend/src/http/routes/audit.console.ts`.
@@ -1553,6 +1680,14 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/audit/products` | Audit | Audit(SELLER_READ) | Product compliance cases only. |
+
+### `audit/recall-rehearsals`
+
+Defined in `backend/src/http/routes/commercial-policy.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/audit/recall-rehearsals` | Audit | Audit(ASSESSMENT_WORK) | Record an annual recall-traceability rehearsal. |
 
 ### `audit/reports`
 
@@ -1581,9 +1716,75 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 | POST | `/api/v1/audit/rules/:id/revise` | Audit | Audit(RULE_DRAFT) | Draft a new version of a rule. |
 | POST | `/api/v1/audit/rules/:id/retire` | Audit | Audit(RULE_APPROVE) | Withdraw a rule, with the reason. |
 
+### `audit/safety-cases`
+
+Defined in `backend/src/http/routes/commercial-policy.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/safety-cases` | Audit | Audit(ASSESSMENT_READ) | Safety cases. |
+| GET | `/api/v1/audit/safety-cases/:id` | Audit | Audit(ASSESSMENT_READ) | One safety case with its scope and actions. |
+| GET | `/api/v1/audit/safety-cases/:id/trace` | Audit | Audit(ASSESSMENT_READ) | Trace what a case reaches: orders, customers, countries, unshipped orders, repeat orders, stock. |
+| POST | `/api/v1/audit/safety-cases` | Audit | Audit(ASSESSMENT_WORK) | Open a safety case. |
+| POST | `/api/v1/audit/safety-cases/:id/contain` | Audit | Audit(ASSESSMENT_WORK) | Triage and contain: stop listings, shipments and repeat orders in scope. |
+| POST | `/api/v1/audit/safety-cases/:id/actions` | Audit | Audit(ASSESSMENT_WORK) | Record a reporting decision, notice, recall action or effectiveness check. |
+| POST | `/api/v1/audit/safety-cases/:id/correction` | Audit | Audit(ASSESSMENT_WORK) | Record the cause, correction, tests and current certificates. |
+| POST | `/api/v1/audit/safety-cases/:id/release` | Audit | Audit(RELEASE_REQUEST) | Human release (not by the person who opened the case). |
+
+### `audit/seller-assessments`
+
+Defined in `backend/src/http/routes/seller-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/seller-assessments` | Audit | Audit(ASSESSMENT_READ) | The seller assessment queue: search, owner, stage, risk, overdue and expiry filters, with a count per status. |
+| GET | `/api/v1/audit/seller-assessments/policies` | Audit | Audit(ASSESSMENT_READ) | Policy versions, the version in force, and the purchase-gate mode. |
+| POST | `/api/v1/audit/seller-assessments/policies` | Audit | Audit(ASSESSMENT_WORK) | Draft a new policy version. Head of Seller Assurance; a version can only tighten the document's controls. |
+| POST | `/api/v1/audit/seller-assessments/policies/:id/adopt` | Audit | Audit(ASSESSMENT_WORK) | Record adoption of a draft version: the authority's reference and the effective date. Never by its drafter. |
+| POST | `/api/v1/audit/seller-assessments/policies/:id/disclose` | Audit | Audit(ASSESSMENT_WORK) | Record disclosure of an adopted version. Until disclosed, it is not in force. |
+| GET | `/api/v1/audit/seller-assessments/capabilities` | Audit | Audit(ASSESSMENT_READ) | Who holds which assessment capability. |
+| PUT | `/api/v1/audit/seller-assessments/capabilities/:id` | Audit | Audit(ASSESSMENT_WORK) | Grant or remove assessment capabilities for another staff member. Head of Seller Assurance only. |
+| GET | `/api/v1/audit/seller-assessments/impact` | Audit | Audit(ASSESSMENT_READ) | What switching the purchase gate to enforce would block today, per seller. |
+| POST | `/api/v1/audit/seller-assessments/legacy-reassessments` | Audit | Audit(ASSESSMENT_WORK) | Open a legacy reassessment for every seller approved under the earlier process. Nothing is converted into an approval. |
+| GET | `/api/v1/audit/seller-assessments/registers` | Audit | Audit(ASSESSMENT_READ) | Notices, appeals, change requests, incidents and bank changes across every seller. |
+| GET | `/api/v1/audit/seller-assessments/tasks` | Audit | Audit(ASSESSMENT_READ) | Surveillance and revalidation tasks, open and overdue by default. |
+| POST | `/api/v1/audit/seller-assessments/tasks/:id/complete` | Audit | Audit(ASSESSMENT_WORK) | Complete a surveillance task with its outcome. A sanctions task is never completed by the software. |
+| GET | `/api/v1/audit/seller-assessments/dispositions` | Audit | Audit(ASSESSMENT_READ) | Placed seller orders held for a safety and legal disposition. |
+| POST | `/api/v1/audit/seller-assessments/dispositions/:id` | Audit | Audit(ASSESSMENT_WORK) | Record a disposition for a held seller order: release, keep holding, recommend cancellation, or recall. |
+| GET | `/api/v1/audit/seller-assessments/retention` | Audit | Audit(ASSESSMENT_READ) | Evidence categories, files and legal holds, with the configured retention years per category. |
+| POST | `/api/v1/audit/seller-assessments/evidence/:id/legal-hold` | Audit | Audit(ASSESSMENT_WORK) | Place or lift a legal hold on one evidence file. |
+| POST | `/api/v1/audit/seller-assessments/appeals/:id/decision` | Audit | Audit(ASSESSMENT_WORK) | Decide an appeal. The reviewer must be uninvolved in the original decision; an appeal never restores selling. |
+| POST | `/api/v1/audit/seller-assessments/changes/:id/decision` | Audit | Audit(ASSESSMENT_WORK) | Decide a seller's change request. A new product or country needs an extension assessment. |
+| POST | `/api/v1/audit/seller-assessments/sellers/:id/undisclosed-changes` | Audit | Audit(ASSESSMENT_WORK) | Record a change the seller did not disclose. |
+| POST | `/api/v1/audit/seller-assessments/incidents/:id/review` | Audit | Audit(ASSESSMENT_WORK) | Review an incident report. |
+| POST | `/api/v1/audit/seller-assessments/bank-changes/:id` | Audit | Audit(ASSESSMENT_WORK) | One step of a bank-beneficiary change: confirm with the known contact, then two different Finance approvals. |
+| POST | `/api/v1/audit/seller-assessments/approvals/:id/suspend` | Audit | Audit(ASSESSMENT_WORK) | Suspend, restrict or revoke a trading approval (all or named scope rows) with a full notice. Held orders get a disposition. |
+| GET | `/api/v1/audit/seller-assessments/:id` | Audit | Audit(ASSESSMENT_READ) | One assessment in full: application, gates, checklist, score, scope matrix, findings, workpapers, certification, approvals and timeline. |
+| GET | `/api/v1/audit/seller-assessments/:id/release-gaps` | Audit | Audit(ASSESSMENT_READ) | Everything that still blocks release, listed together. |
+| GET | `/api/v1/audit/seller-assessments/:id/evidence/:evidenceId` | Audit | Audit(ASSESSMENT_READ) | Download one evidence file. Every view is recorded. |
+| POST | `/api/v1/audit/seller-assessments/:id/evidence` | Audit | Audit(ASSESSMENT_WORK) | Attach a reviewer's evidence file (site photos, lab report, issuer confirmation). Stored privately, scanned, versioned. |
+| POST | `/api/v1/audit/seller-assessments/:id/assign` | Audit | Audit(ASSESSMENT_WORK) | Name the assessment owner, the risk level and a reviewer per gate. Head of Seller Assurance. |
+| POST | `/api/v1/audit/seller-assessments/:id/correction` | Audit | Audit(ASSESSMENT_WORK) | Return the application to the seller with corrections to make. Gate 1. |
+| POST | `/api/v1/audit/seller-assessments/:id/accept-file` | Audit | Audit(ASSESSMENT_WORK) | Accept the complete file: Gate 1 passes, the review target starts, the scope matrix is laid out. |
+| POST | `/api/v1/audit/seller-assessments/:id/gates/:gate` | Audit | Audit(ASSESSMENT_WORK) | Decide gate 2-7: passed, failed, in progress or correction requested. Prerequisites and the gate's own evidence are checked. |
+| PUT | `/api/v1/audit/seller-assessments/:id/checklist/:code` | Audit | Audit(ASSESSMENT_WORK) | Review one applicant checklist item: Pass, Fail, or Not applicable with a reason; evidence, expiry and comment. |
+| POST | `/api/v1/audit/seller-assessments/:id/checklist/:code/approve-na` | Audit | Audit(ASSESSMENT_WORK) | Approve a not-applicable item. A second person with the Head of Seller Assurance capability. |
+| PUT | `/api/v1/audit/seller-assessments/:id/scores/:dimension` | Audit | Audit(ASSESSMENT_WORK) | Rate one scoring dimension 0-5 with its evidence and reasoning. |
+| PUT | `/api/v1/audit/seller-assessments/:id/scope/:scopeId` | Audit | Audit(ASSESSMENT_WORK) | Classify one product x site x country x channel combination (Gate 3) and approve or block it. |
+| POST | `/api/v1/audit/seller-assessments/:id/findings` | Audit | Audit(ASSESSMENT_WORK) | Raise a finding: critical, major or minor, with its requirement and evidence. A critical one records a hard stop. |
+| POST | `/api/v1/audit/seller-assessments/findings/:id/close` | Audit | Audit(ASSESSMENT_WORK) | Close (on effectiveness evidence) or reopen a finding. Auditors only. |
+| POST | `/api/v1/audit/seller-assessments/:id/workpapers` | Audit | Audit(ASSESSMENT_WORK) | Record a workpaper: site audit, sample plan and custody, lab competence, contract, mock order, identity, bank, sanctions, specialist review or AI output. |
+| POST | `/api/v1/audit/seller-assessments/:id/hard-stops` | Audit | Audit(ASSESSMENT_WORK) | Record a hard stop. It blocks release whatever the score; there is no route that clears one. |
+| POST | `/api/v1/audit/seller-assessments/:id/certifications` | Audit | Audit(ASSESSMENT_WORK) | Appoint the independent certification body the marketplace engages and pays (Gate 5). |
+| PUT | `/api/v1/audit/seller-assessments/certifications/:id` | Audit | Audit(ASSESSMENT_WORK) | Record the certificate the body issued and how its authenticity was checked with the issuer. |
+| POST | `/api/v1/audit/seller-assessments/certifications/:id/withdraw` | Audit | Audit(ASSESSMENT_WORK) | Record a withdrawal or suspension by the issuer. The purchase gate stops at once. |
+| POST | `/api/v1/audit/seller-assessments/:id/decision` | Audit | Audit(ASSESSMENT_WORK) | Decline, send to remediation, or return to review after remediation. |
+| POST | `/api/v1/audit/seller-assessments/:id/release` | Audit | Audit(ASSESSMENT_WORK) | Gate 8: independent release of exactly the named scope rows. Creates the trading approval and its PDF. |
+| GET | `/api/v1/audit/seller-assessments/approvals/:id/pdf` | Audit | Audit(ASSESSMENT_READ) | The trading approval PDF. |
+
 ### `audit/seller-verification`
 
-Defined in `backend/src/http/routes/audit.console.ts`.
+Defined in `backend/src/http/routes/audit.console.ts`, `backend/src/http/routes/shipment-assessment.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1594,15 +1795,45 @@ Defined in `backend/src/http/routes/audit.console.ts`.
 | POST | `/api/v1/audit/seller-verification/:id/turnover/decision` | Audit | Audit(SELLER_VERIFY) | Verify or refuse the seller's current turnover declaration, with a reason the seller sees. Refused when the seller changed it, or another reviewer decided it, since it was loaded. Never approves the seller. |
 | GET | `/api/v1/audit/seller-verification/documents/:id/file` | Audit | Audit(SELLER_READ) | One onboarding document's file, as an attachment. Scanned files only; every read is audited. |
 | POST | `/api/v1/audit/seller-verification/documents/:id/decision` | Audit | Audit(SELLER_VERIFY) | Accept or refuse one onboarding document. A refusal needs a reason the seller sees; a document decided by somebody else meanwhile is refused with SELLER_STALE_VERSION. |
+| GET | `/api/v1/audit/seller-verification/:id/certificates` | Audit | Audit(SELLER_READ) | A seller's verification certificates, newest first, with status. |
+| POST | `/api/v1/audit/seller-verification/:id/certificates` | Audit | Audit(CERTIFICATE_ISSUE) | Issue a Seller Verification Certificate (a new version if one exists) after final approval, with an explicit scope. |
+| GET | `/api/v1/audit/seller-verification/:id/certificates/:documentId` | Audit | Audit(SELLER_READ) | Download a seller verification certificate PDF. |
 
 ### `audit/sellers`
 
-Defined in `backend/src/http/routes/audit.console.ts`.
+Defined in `backend/src/http/routes/audit.console.ts`, `backend/src/http/routes/shipment-assessment.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/audit/sellers` | Audit | Audit(SELLER_READ) | Sellers, with their qualification and document counts and their health rating; filter by band, sort by risk. |
 | GET | `/api/v1/audit/sellers/:id` | Audit | Audit(SELLER_READ) | One seller: business identity (read-only), category qualifications, product cases and documents - kept apart. |
+| GET | `/api/v1/audit/sellers/:id/badge` | Public |  | A seller's Audit badge and its history. |
+| PUT | `/api/v1/audit/sellers/:id/badge` | Audit | Audit(SELLER_BADGE) | Set or clear a seller's Audit badge, with a reason. A downgrade withdraws unused waivers; an upgrade creates none. |
+
+### `audit/shipment-assessments`
+
+Defined in `backend/src/http/routes/shipment-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/audit/shipment-assessments` | Audit | Audit(SHIPMENT_READ) | The Shipment Assessment queues: one per status group, a count for each, search by assessment, order, seller order or seller. |
+| GET | `/api/v1/audit/shipment-assessments/policy` | Audit | Audit(SHIPMENT_READ) | The badge policy in force and its earlier versions. |
+| POST | `/api/v1/audit/shipment-assessments/policy` | Audit | Audit(SHIPMENT_POLICY) | Publish a new badge-policy version. Supervisors only; decisions keep the version they were made under. |
+| GET | `/api/v1/audit/shipment-assessments/:id` | Audit | Audit(SHIPMENT_READ) | One case in full: overview, checklist rounds, evidence, findings, history, waivers, releases, exceptions and documents. |
+| GET | `/api/v1/audit/shipment-assessments/:id/waiver-history` | Audit | Audit(SHIPMENT_WAIVE) | The seller history a waiver reviewer must look at: recent inspection results, earlier assessments, unresolved complaints. No score is computed. |
+| POST | `/api/v1/audit/shipment-assessments/:id/rounds` | Audit | Audit(SHIPMENT_ASSESS) | Start a physical assessment round. Needs L1 handed over; a reassessment starts a new round and keeps the old one. |
+| POST | `/api/v1/audit/shipment-assessments/:id/checks` | Audit | Audit(SHIPMENT_ASSESS) | Record checklist results: Pass, Fail, Hold / not verified, or N/A with a reason. Each item stands on its own. |
+| PUT | `/api/v1/audit/shipment-assessments/:id/quantities` | Audit | Audit(SHIPMENT_ASSESS) | Record the round's quantities: ordered, declared, presented, counted, sampled, approved, packages, weights and methods. |
+| POST | `/api/v1/audit/shipment-assessments/:id/evidence` | Audit | Audit(SHIPMENT_ASSESS) | Attach a photo or PDF to the assessment, optionally against one checklist item. Stored privately. |
+| GET | `/api/v1/audit/shipment-assessments/:id/evidence/:evidenceId` | Audit | Audit(SHIPMENT_READ) | Download one evidence file of a case. |
+| POST | `/api/v1/audit/shipment-assessments/:id/submit` | Audit | Audit(SHIPMENT_ASSESS) | Submit the round. Missing results, evidence or N/A reasons refuse it; any Fail or Hold blocks the whole shipment and issues a findings report. |
+| POST | `/api/v1/audit/shipment-assessments/:id/qa` | Audit | Audit(SHIPMENT_QA) | QA: a second person approves (release + Shipment Assessment Certificate, with a dispatch deadline) or returns the round. |
+| POST | `/api/v1/audit/shipment-assessments/:id/waiver-review` | Audit | Audit(SHIPMENT_WAIVE) | Move an eligible shipment into waiver review (for example after a badge upgrade). It does not waive anything. |
+| POST | `/api/v1/audit/shipment-assessments/:id/waiver` | Audit | Audit(SHIPMENT_WAIVE) | Approve or reject a badge-based waiver. Gold needs a written review of the history shown; mandatory inspections can never be waived. |
+| POST | `/api/v1/audit/shipment-assessments/:id/hold` | Audit | Audit(SHIPMENT_ASSESS) | Put the whole shipment on hold. Any unused release is withdrawn. |
+| POST | `/api/v1/audit/shipment-assessments/:id/reassessment` | Audit | Audit(SHIPMENT_ASSESS) | Require corrective action and a new assessment round. Earlier rounds and reports are kept unchanged. |
+| POST | `/api/v1/audit/shipment-assessments/exceptions/:id/resolve` | Audit | Audit(SHIPMENT_ASSESS) | Record what was done about a carrier-reported departure during a hold. The departure itself stays on record. |
+| GET | `/api/v1/audit/shipment-assessments/:id/documents/:documentId` | Audit | Audit(SHIPMENT_READ) | Download a certificate, waiver or findings report PDF of a case. |
 
 ### `audit/sublot-releases`
 
@@ -1647,6 +1878,25 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | POST | `/api/v1/seller/agreements` | Seller | Seller | Accept one of the marketplace's seller agreements at a given version, by typed name or drawn signature. Only the account owner may do this. The time, IP address and browser are kept as evidence. Writes an audit entry. |
 | GET | `/api/v1/seller/agreements` | Seller | Seller | Every agreement the seller has accepted, newest first: which one, which version, by whom and when. |
 
+### `seller/assessment`
+
+Defined in `backend/src/http/routes/seller-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/assessment` | Seller | Seller(ACCOUNT_READ) | The seller's assessments, approvals and scope, notices and appeals, changes, incidents and bank changes. |
+| POST | `/api/v1/seller/assessment` | Seller | Seller(ACCOUNT_WRITE) | Start an application, an extension, a renewal or a reassessment. Returns the open one if there is one. |
+| PATCH | `/api/v1/seller/assessment/:id/application` | Seller | Seller(ACCOUNT_WRITE) | Save application sections (save and resume). Only while it is a draft or returned for correction. |
+| POST | `/api/v1/seller/assessment/:id/evidence` | Seller | Seller(ACCOUNT_WRITE) | Upload an evidence file for the application or a finding. Scanned, stored privately, versioned. |
+| GET | `/api/v1/seller/assessment/:id/evidence/:evidenceId` | Seller | Seller(ACCOUNT_READ) | Download a file this seller uploaded. |
+| POST | `/api/v1/seller/assessment/:id/submit` | Seller | Seller(ACCOUNT_SUBMIT) | Submit the application. Gaps and ineligibility are listed, never hidden. |
+| PUT | `/api/v1/seller/assessment/findings/:id` | Seller | Seller(ACCOUNT_WRITE) | Answer a finding: containment, root cause, corrective and preventive action, owner and evidence. Only an auditor closes it. |
+| POST | `/api/v1/seller/assessment/notices/:id/appeal` | Seller | Seller(ACCOUNT_SUBMIT) | Appeal a notice within its window. |
+| POST | `/api/v1/seller/assessment/changes` | Seller | Seller(ACCOUNT_WRITE) | Notify a change before making it: facility, entity, ownership, brand rights, subcontractor, materials, formulation, design, process, intended use, safety software, labels, country. |
+| POST | `/api/v1/seller/assessment/incidents` | Seller | Seller(ACCOUNT_WRITE) | Report an incident. The deadline is the policy's hours or a shorter statutory one. |
+| POST | `/api/v1/seller/assessment/bank-changes` | Seller | Seller(ACCOUNT_SUBMIT) | Ask to change the bank beneficiary. Verified by Finance through a known contact and approved by two people. |
+| GET | `/api/v1/seller/assessment/approvals/:id/pdf` | Seller | Seller(ACCOUNT_READ) | The seller's own trading approval PDF. |
+
 ### `seller/audit`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1654,6 +1904,15 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/audit` | Seller | Seller + Seller(AUDIT_READ) | The seller's own activity log, newest first: who did what, to what, and when. Shows a short summary of each change, not the full before-and-after. `resourceId` (and optionally `resourceType`) narrows it to one record's history, such as one listing. |
+
+### `seller/audit-certificates`
+
+Defined in `backend/src/http/routes/shipment-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/audit-certificates` | Seller | Seller(ORDER_READ) | This seller's verification certificates. |
+| GET | `/api/v1/seller/audit-certificates/:id` | Seller | Seller(ORDER_READ) | Download one of this seller's verification certificates. |
 
 ### `seller/brand-requests`
 
@@ -1714,6 +1973,14 @@ Defined in `backend/src/http/routes/seller.factories.ts`.
 | PATCH | `/api/v1/seller/certifications/:id` | Public |  | Change a certificate. Refused while it is with a reviewer; a verified one goes back for review. |
 | DELETE | `/api/v1/seller/certifications/:id` | Public |  | Archive a certificate so it is no longer shown. |
 | POST | `/api/v1/seller/certifications/:id/submit` | Public |  | Send a refused or expired certificate for review again. |
+
+### `seller/commercial`
+
+Defined in `backend/src/http/routes/commercial-policy.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/commercial/fees` | Seller | Seller(FINANCE_READ) | My fees: commission reversals proposed for my orders, and my security schedules. |
 
 ### `seller/company-changes`
 
@@ -1792,10 +2059,12 @@ Defined in `backend/src/http/routes/seller.operations.ts`.
 
 ### `seller/disputes`
 
-Defined in `backend/src/http/routes/disputes.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/disputes.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/seller/disputes/:reference/case-controls` | Seller | Seller(ORDER_READ) | Case requests addressed to me on one of my disputes. |
+| POST | `/api/v1/seller/disputes/:reference/case-controls/evidence-requests/:requestId` | Seller | Seller(RETURN_HANDLE) | Answer an evidence request addressed to me. |
 | GET | `/api/v1/seller/disputes` | Seller | Seller(ORDER_READ) | Claims on this seller's goods, most recently active first. |
 | GET | `/api/v1/seller/disputes/:reference` | Seller | Seller(ORDER_READ) | One claim on this seller's goods, with the buyer's evidence and the thread. |
 | POST | `/api/v1/seller/disputes/:reference/response` | Seller | Seller(ORDER_READ) | Answer a claim: your account and, optionally, what you offer. Moves it to the marketplace's review. |
@@ -2170,10 +2439,17 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 
 ### `seller/orders`
 
-Defined in `backend/src/http/routes/messages.ts`, `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.workbench.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
+Defined in `backend/src/http/routes/shipment-assessment.ts`, `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/messages.ts`, `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.workbench.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/seller/orders/:id/shipment-assessment` | Seller | Seller(ORDER_READ) | The assessment of one of this seller's orders, if it has one yet. |
+| GET | `/api/v1/seller/orders/:id/controls` | Seller | Seller(ORDER_READ) | My order's acceptance controls and frozen terms (commission rate, base, rule version, rounding). |
+| PATCH | `/api/v1/seller/orders/:id/controls` | Seller | Seller(ORDER_FULFIL) | Record missing acceptance controls while my order is NEW. |
+| GET | `/api/v1/seller/orders/:id/dispatch-controls` | Seller | Seller(ORDER_READ) | My order's dispatch controls and the gate's open gaps. |
+| PUT | `/api/v1/seller/orders/:id/freight-booking` | Seller | Seller(ORDER_FULFIL) | Record a freight booking for my order. |
+| PUT | `/api/v1/seller/orders/:id/dispatch-evidence` | Seller | Seller(ORDER_FULFIL) | Record dispatch evidence for my order. |
+| POST | `/api/v1/seller/orders/:id/custody-handovers` | Seller | Seller(ORDER_FULFIL) | Record a custody handover for my order. |
 | GET | `/api/v1/seller/orders/:id/messages` | Seller | Seller(ORDER_READ) | The buyer's and your messages about one of your orders, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/seller/orders/:id/messages` | Seller | TradingSeller(ORDER_READ) | Write to the buyer about one of your orders. A resend with the same clientMessageId is not a second message. |
 | GET | `/api/v1/seller/orders` | Seller | Seller + Seller(ORDER_READ) | One page of the seller's orders. Can be filtered by status, a search, dispatch place, or only those past their dispatch deadline. |
@@ -2279,10 +2555,13 @@ Defined in `backend/src/http/routes/product-reviews.ts`.
 
 ### `seller/returns`
 
-Defined in `backend/src/http/routes/returns.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/returns.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| PUT | `/api/v1/seller/returns/:id/authorization` | Seller | Seller(RETURN_HANDLE) | Issue a return authorisation for one of my returns. |
+| PATCH | `/api/v1/seller/returns/:id/authorization` | Seller | Seller(RETURN_HANDLE) | Record receipt and inspection evidence for one of my returns. |
+| GET | `/api/v1/seller/returns/:id/authorization` | Seller | Seller(ORDER_READ) | My return's authorisation. |
 | GET | `/api/v1/seller/returns` | Seller | Seller + Seller(ORDER_READ) | Returns of your goods, newest first. Filter by status (OPEN for everything still being worked). |
 | GET | `/api/v1/seller/returns/:id` | Seller | Seller + Seller(ORDER_READ) | One return of your goods, with the buyer's reason and photos. Another seller's answers "not found". |
 | POST | `/api/v1/seller/returns/:id/response` | Seller | Seller + Seller(RETURN_HANDLE) | Accept or contest a return (contesting needs a note), optionally with how the goods should come back. |
@@ -2336,6 +2615,18 @@ Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/rou
 | GET | `/api/v1/seller/settlements/:id/lines` | Seller | Seller + Seller(FINANCE_READ) | Every line making up one of the seller's settlement statements, oldest first. |
 | GET | `/api/v1/seller/settlements/estimate` | Seller | Seller(FINANCE_READ) | Estimate what the seller would be paid for a given sale amount and delivery charge, after platform fees and the tax on them, using the fee rules in force today. Read-only. |
 | GET | `/api/v1/seller/settlements/orders` | Seller | Seller(FINANCE_READ) | The payouts already worked out for the seller's orders, newest first. |
+
+### `seller/shipment-assessments`
+
+Defined in `backend/src/http/routes/shipment-assessment.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/shipment-assessments` | Seller | Seller(ORDER_READ) | This seller's shipment assessments, by queue. |
+| GET | `/api/v1/seller/shipment-assessments/:id` | Seller | Seller(ORDER_READ) | One of this seller's assessments: findings, checks, quantities and documents. Read-only for findings. |
+| POST | `/api/v1/seller/shipment-assessments/:id/response` | Seller | Seller(ORDER_FULFIL) | Submit readiness information, or answer a corrective action. Cannot change a finding or a decision. |
+| POST | `/api/v1/seller/shipment-assessments/:id/evidence` | Seller | Seller(ORDER_FULFIL) | Upload a packing photo, document or other evidence for the Audit Team. |
+| GET | `/api/v1/seller/shipment-assessments/:id/documents/:documentId` | Seller | Seller(ORDER_READ) | Download a certificate, waiver or findings report of this seller's shipment. |
 
 ### `seller/store-profile`
 
@@ -2786,6 +3077,8 @@ Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/agreement
 | POST | `/api/v1/auth/agreements/terms` | Customer | CustomerBeforeAgreements | "I agree" in the Terms dialog: records acceptance of the named Terms in force. Never acknowledges the Privacy Policy. |
 | POST | `/api/v1/auth/agreements/privacy` | Customer | CustomerBeforeAgreements | "I acknowledge" in the Privacy Policy dialog: records the acknowledgment of the notice in force. Never accepts the Terms and consents to nothing optional. |
 | DELETE | `/api/v1/auth/agreements/terms` | Customer | CustomerBeforeAgreements | Untick the Terms box before Continue. The record is kept, marked cleared, and the screen asks again. |
+| POST | `/api/v1/auth/agreements/services` | Customer | CustomerBeforeAgreements | Accept the Platform Services Agreement under its own box: the Seller Hub's (SELLER), the company screen's (COMPANY_BUYER) or the consumer screen's (CONSUMER). |
+| DELETE | `/api/v1/auth/agreements/services` | Customer | CustomerBeforeAgreements | Untick the Platform Services Agreement box before Continue; the record is kept, marked cleared. |
 | DELETE | `/api/v1/auth/agreements/privacy` | Customer | CustomerBeforeAgreements | Untick the Privacy Policy box before Continue. Withdraws no consent; the record is kept, marked cleared. |
 | GET | `/api/v1/auth/agreements/history` | Customer | CustomerBeforeAgreements | Every Terms acceptance and privacy-notice acknowledgment this person has given, newest first, for their account page. |
 
@@ -2846,21 +3139,23 @@ Defined in `backend/src/http/routes/catalog.public.ts`.
 
 ### `disputes`
 
-Defined in `backend/src/http/routes/disputes.ts`.
+Defined in `backend/src/http/routes/disputes.ts`, `backend/src/http/routes/commercial-policy.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/disputes/context` | Customer | Customer | What the claim form needs: the reasons offered, the windows and the file rules. |
-| POST | `/api/v1/disputes` | Customer | Customer | Raise a claim on one of your orders, or one line of it. Needs an Idempotency-Key. |
-| GET | `/api/v1/disputes` | Customer | Customer | Your claims, most recently active first. `orderId` narrows to one order. |
-| GET | `/api/v1/disputes/:reference` | Customer | Customer | One of your claims: its status, deadlines, decision, evidence and thread. |
-| POST | `/api/v1/disputes/:reference/messages` | Customer | Customer | Write on your claim. The seller and the marketplace see it. Needs an Idempotency-Key. |
-| POST | `/api/v1/disputes/:reference/escalate` | Customer | Customer | Ask the marketplace to decide, once the seller's time to answer has passed. |
-| POST | `/api/v1/disputes/:reference/withdraw` | Customer | Customer | Withdraw your claim. It cannot be reopened. |
-| POST | `/api/v1/disputes/:reference/appeal` | Customer | Customer | Appeal the decision on your claim, once, inside the appeal window. |
-| POST | `/api/v1/disputes/:reference/attachments` | Customer | Customer | Attach one image, video or PDF as evidence. Checked by its contents, scanned, stored privately. |
-| POST | `/api/v1/disputes/:reference/attachments/:attachmentId/link` | Customer | Customer | A download link for one file on your claim: five minutes, single use, this session only. |
-| GET | `/api/v1/disputes/:reference/attachments/:attachmentId/download` | Customer | Customer | Redeem a download link. Served as a download, never inline. |
+| GET | `/api/v1/disputes/context` | Customer | CustomerForRemedies | What the claim form needs: the reasons offered, the windows and the file rules. |
+| POST | `/api/v1/disputes` | Customer | CustomerForRemedies | Raise a claim on one of your orders, or one line of it. Needs an Idempotency-Key. |
+| GET | `/api/v1/disputes` | Customer | CustomerForRemedies | Your claims, most recently active first. `orderId` narrows to one order. |
+| GET | `/api/v1/disputes/:reference` | Customer | CustomerForRemedies | One of your claims: its status, deadlines, decision, evidence and thread. |
+| POST | `/api/v1/disputes/:reference/messages` | Customer | CustomerForRemedies | Write on your claim. The seller and the marketplace see it. Needs an Idempotency-Key. |
+| POST | `/api/v1/disputes/:reference/escalate` | Customer | CustomerForRemedies | Ask the marketplace to decide, once the seller's time to answer has passed. |
+| POST | `/api/v1/disputes/:reference/withdraw` | Customer | CustomerForRemedies | Withdraw your claim. It cannot be reopened. |
+| POST | `/api/v1/disputes/:reference/appeal` | Customer | CustomerForRemedies | Appeal the decision on your claim, once, inside the appeal window. |
+| POST | `/api/v1/disputes/:reference/attachments` | Customer | CustomerForRemedies | Attach one image, video or PDF as evidence. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/disputes/:reference/attachments/:attachmentId/link` | Customer | CustomerForRemedies | A download link for one file on your claim: five minutes, single use, this session only. |
+| GET | `/api/v1/disputes/:reference/attachments/:attachmentId/download` | Customer | CustomerForRemedies | Redeem a download link. Served as a download, never inline. |
+| GET | `/api/v1/disputes/:reference/case-controls` | Customer | CustomerForRemedies | My claim's case facts, requests to me and the decided remedies. |
+| POST | `/api/v1/disputes/:reference/case-controls/evidence-requests/:requestId` | Customer | CustomerForRemedies | Answer an evidence request addressed to me (including material contrary evidence). |
 
 ### `documents`
 
@@ -2868,10 +3163,10 @@ Defined in `backend/src/http/routes/documents.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/documents/orders/:orderId` | Customer | Customer | The buyer's view of an order's seller documents. |
-| POST | `/api/v1/documents/buyer/:kind/:id/link` | Customer | Customer | Get a short-lived, single-use download link for one of the buyer's own invoices or credit notes. A packing list is never offered to a buyer. |
-| GET | `/api/v1/documents/batch/:id/download` | Customer | Customer | Download several of a seller's own issued documents as one ZIP file, using a link from the seller's batch-link request. Works once, only for the person the link was made for, and records each document download in the audit log. |
-| GET | `/api/v1/documents/:kind/:id/download` | Customer | Customer | Download one invoice or packing list as a PDF, for the seller who issued it or the buyer it was issued to. The link works once, only for the person it was made for, and the download is recorded in the audit log. |
+| GET | `/api/v1/documents/orders/:orderId` | Customer | CustomerForRemedies | The buyer's view of an order's seller documents. |
+| POST | `/api/v1/documents/buyer/:kind/:id/link` | Customer | CustomerForRemedies | Get a short-lived, single-use download link for one of the buyer's own invoices or credit notes. A packing list is never offered to a buyer. |
+| GET | `/api/v1/documents/batch/:id/download` | Customer | CustomerForRemedies | Download several of a seller's own issued documents as one ZIP file, using a link from the seller's batch-link request. Works once, only for the person the link was made for, and records each document download in the audit log. |
+| GET | `/api/v1/documents/:kind/:id/download` | Customer | CustomerForRemedies | Download one invoice or packing list as a PDF, for the seller who issued it or the buyer it was issued to. The link works once, only for the person it was made for, and the download is recorded in the audit log. |
 
 ### `fulfilment`
 
@@ -2897,24 +3192,27 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 ### `orders`
 
-Defined in `backend/src/http/routes/messages.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/order-shipment-details.customer.ts`, `backend/src/http/routes/order-milestones.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/finance.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
+Defined in `backend/src/http/routes/commercial-policy.ts`, `backend/src/http/routes/shipment-assessment.ts`, `backend/src/http/routes/messages.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/order-shipment-details.customer.ts`, `backend/src/http/routes/order-milestones.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/finance.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/orders/:id/refund-status` | Customer | CustomerForRemedies | My order's refunds: when each was instructed and the provider's actual status. |
+| GET | `/api/v1/orders/:id/shipment-assessments` | Customer | Customer | The released shipment assessment summaries of one of the buyer's own orders: status, dispatch deadline and released documents only. |
+| GET | `/api/v1/orders/:id/shipment-assessments/:documentId` | Customer | Customer | Download a released certificate or waiver of the buyer's own order. Findings reports are not shared. |
 | GET | `/api/v1/orders/:id/messages` | Customer | Customer | Your messages with each seller on one of your orders, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/orders/:id/messages/:groupId` | Customer | Customer | Write to the seller of one part of your order. A resend with the same clientMessageId is not a second message. |
-| GET | `/api/v1/orders/:id/returns/eligibility` | Customer | Customer | What can be returned from one of your orders: the window, the reasons offered and each line's quantity left. |
-| POST | `/api/v1/orders/:id/returns` | Customer | Customer | Ask to return lines of your own delivered order, with a reason and photos. Needs an Idempotency-Key. |
-| GET | `/api/v1/orders` | Customer | Customer | The signed-in customer orders |
-| GET | `/api/v1/orders/:id/invoice` | Customer | Customer | The customer’s own invoice |
-| GET | `/api/v1/orders/:id` | Customer | Customer | Order detail with timeline |
-| POST | `/api/v1/orders/:id/cancel` | Customer | Customer | Cancel an order the policy still allows to be cancelled. |
-| GET | `/api/v1/orders/:id/tracking` | Customer | Customer | Every consignment on one of the buyer's orders: its timeline in the buyer's words, anything wrong with it, its ETA and its proof of delivery. |
-| POST | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/link` | Customer | Customer | A single-use link, valid for a few minutes, to the signature or photograph captured as proof of delivery of one of the buyer's consignments. |
-| GET | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/download` | Customer | Customer | Redeem a proof-of-delivery link: works once, only for the person it was made for, and is recorded in the audit log. |
+| GET | `/api/v1/orders/:id/returns/eligibility` | Customer | CustomerForRemedies | What can be returned from one of your orders: the window, the reasons offered and each line's quantity left. |
+| POST | `/api/v1/orders/:id/returns` | Customer | CustomerForRemedies | Ask to return lines of your own delivered order, with a reason and photos. Needs an Idempotency-Key. |
+| GET | `/api/v1/orders` | Customer | CustomerForRemedies | The signed-in customer orders |
+| GET | `/api/v1/orders/:id/invoice` | Customer | CustomerForRemedies | The customer’s own invoice |
+| GET | `/api/v1/orders/:id` | Customer | CustomerForRemedies | Order detail with timeline |
+| POST | `/api/v1/orders/:id/cancel` | Customer | CustomerForRemedies | Cancel an order the policy still allows to be cancelled. |
+| GET | `/api/v1/orders/:id/tracking` | Customer | CustomerForRemedies | Every consignment on one of the buyer's orders: its timeline in the buyer's words, anything wrong with it, its ETA and its proof of delivery. |
+| POST | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/link` | Customer | CustomerForRemedies | A single-use link, valid for a few minutes, to the signature or photograph captured as proof of delivery of one of the buyer's consignments. |
+| GET | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/download` | Customer | CustomerForRemedies | Redeem a proof-of-delivery link: works once, only for the person it was made for, and is recorded in the audit log. |
 | GET | `/api/v1/orders/:id/shipment-details` | Customer | Customer | The booking of every consignment on one of the buyer's orders, the trade documents the buyer may see, and what the destination rules ask the buyer to produce. |
 | GET | `/api/v1/orders/:id/trade-documents/:versionId/file` | Customer | Customer | Download the current version of a buyer-visible trade document on one of the buyer's orders. |
-| GET | `/api/v1/orders/:id/milestones` | Customer | Customer | Production milestones and exceptions, inspection status, shipments, buyer-visible documents and payment status of one of the buyer's orders. |
+| GET | `/api/v1/orders/:id/milestones` | Customer | CustomerForRemedies | Production milestones and exceptions, inspection status, shipments, buyer-visible documents and payment status of one of the buyer's orders. |
 | GET | `/api/v1/orders/:id/receipts` | Customer | Customer | The receipts the buyer can download for one of their own orders: each captured payment and each confirmed refund. |
 | GET | `/api/v1/orders/:id/receipts/:kind/:sourceId` | Customer | Customer | Download the buyer's receipt for one payment or refund on their own order as a PDF; the first download issues its number. |
 | GET | `/api/v1/orders/:id/payment-protection` | Customer | Customer | How the buyer's payment on their own order is held and released: method, status, terms, per-seller milestones, receipts. |
@@ -3014,11 +3312,11 @@ Defined in `backend/src/http/routes/returns.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/returns` | Customer | Customer | Your returns, newest first. Filter by status (OPEN for everything still being worked) or order. |
-| GET | `/api/v1/returns/:id` | Customer | Customer | One of your returns with its timeline, files and refund. Somebody else's answers "not found". |
-| POST | `/api/v1/returns/:id/files` | Customer | Customer | Add one more photograph or video to your open return. Checked by its contents, scanned, stored privately. |
-| POST | `/api/v1/returns/:id/files/:fileId/link` | Customer | Customer | A five-minute, single-use link to one file of your return. |
-| GET | `/api/v1/returns/:id/files/:fileId/download` | Customer | Customer | Download a file of your return with a link from the route above. Spent on first use. |
+| GET | `/api/v1/returns` | Customer | CustomerForRemedies | Your returns, newest first. Filter by status (OPEN for everything still being worked) or order. |
+| GET | `/api/v1/returns/:id` | Customer | CustomerForRemedies | One of your returns with its timeline, files and refund. Somebody else's answers "not found". |
+| POST | `/api/v1/returns/:id/files` | Customer | CustomerForRemedies | Add one more photograph or video to your open return. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/returns/:id/files/:fileId/link` | Customer | CustomerForRemedies | A five-minute, single-use link to one file of your return. |
+| GET | `/api/v1/returns/:id/files/:fileId/download` | Customer | CustomerForRemedies | Download a file of your return with a link from the route above. Spent on first use. |
 
 ### `rfqs`
 

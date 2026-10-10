@@ -4112,8 +4112,17 @@ beside **Save** says where it is ("Kept on this device — sending shortly",
 "Saving…", "Saved at 14:02 — the marketplace has this"). Coming back to a step
 with unsent answers shows "We brought back what you typed".
 
-**Send for review** can be pressed only when every required step is done.
-Otherwise the button lists what is left. Sending moves the application to the
+**Send for review** can be pressed only when every required step is done
+and both seller agreements are accepted. Under the button, **Seller
+agreements** lists the Seller Terms & Conditions and the Seller Platform
+Services Agreement, each with "Accepted: version …, date", "Not accepted yet"
+or "Not published yet", and a **Read** button that opens the same dialog as
+the agreement screen (read-only once accepted). Reading never accepts; only **I
+agree** at the end does (`GET /api/v1/auth/agreements?scope=SELLER`,
+`POST /api/v1/auth/agreements/terms|services`). A refusal with
+`SELLER_AGREEMENTS_REQUIRED` re-reads their status.
+Otherwise the button lists what is left, starting with "Accept both seller
+agreements" when one is missing. Sending moves the application to the
 marketplace's queue (admin `/sellers`). "Your application has been sent. We
 will be in touch."
 
@@ -8253,8 +8262,9 @@ and response-time (SLA) timers.
 
 **Who sees it.** Every signed-in person whose Terms or Privacy Policy
 acknowledgment is owed: buyers on the storefront (`layout/StoreAgreementGate.tsx`),
-seller members in the Seller Hub (`layout/SellerAgreementGate.tsx`, before the
-Hub's own lock), carrier staff, operator staff and Audit Console users
+seller members in the Seller Hub (`layout/SellerAgreementGate.tsx`, after the
+Hub's own password screen, so it appears only for what the boxes there did not
+settle), carrier staff, operator staff and Audit Console users
 (`auth/PortalAgreementGate.tsx`, after the second-factor and location screens).
 It covers the page that was asked for, so **Continue** lands there. Files:
 `components/agreement-kit/` - the same files in all four apps.
@@ -8263,8 +8273,43 @@ It covers the page that was asked for, so **Continue** lands there. Files:
 sentence, then two cards, each with one box:
 
 - "I agree to the **Terms & Conditions**." A seller's Terms are the Terms of
-  Use and the Seller Addendum, shown one after the other in the same dialog.
+  Use and the Seller Terms and Conditions, shown one after the other in the
+  same dialog.
+- Seller Hub only: "I agree to the **Seller Platform Services Agreement**." Its
+  own dialog (the 12 sections and Schedules A-F) and its own read-to-the-end
+  check, with a note that the tick is not a signature and does not agree the
+  seller's own schedules. The intro and the Continue hint then speak of all
+  three ("Continue becomes available once all three are saved.").
 - "I acknowledge that I have read the **Privacy Policy**."
+
+Acting for a company (`COMPANY_BUYER`): "I agree to the **B2B Buyer Terms &
+Conditions**.", the Privacy Policy, and "I agree to the **B2B Buyer Platform
+Services Agreement**." (12 sections and Schedules A-C), with an intro naming the
+company. A member who cannot bind the company sees that box disabled with
+"Authorised company representative required", can still read the agreement, and
+Continue stays disabled. An acceptance another member gave shows ticked and
+locked. Continue asks the server again before it uncovers the page, and says so
+if the server cannot confirm.
+
+Shopping for yourself (`CONSUMER`), once all three consumer documents are
+published: "I agree to the **B2C Consumer Terms & Conditions**.", "I
+acknowledge that I have read the **Privacy Policy**." and "I agree to the
+**B2C Platform Services Agreement**.", in that order, with an intro for
+shopping for yourself. The Terms dialog's description points to the model
+withdrawal notice in section 11. Under the boxes a second note says that
+agreeing gives up no right to cancel, return goods, claim under a guarantee,
+get a refund, complain or dispute a payment, and switches on no marketing,
+cookies, recurring orders, AutoPay or paid extra. The links at the foot add
+**Your orders and returns** (`/account/orders`) and **Legal documents**
+(`/legal`). Until all three are published the individual sees the two-box
+Terms of Use screen as before. If the document a box asks for changes while it
+is open, the dialog shows the new text with the "new version" notice.
+
+While the screen waits, a shopper (not a company session) can still open
+`/account/orders`, an order, its claim and return pages, `/account/returns...`
+and `/account/disputes...` (`isConsumerRemedyPath`).
+
+**Sign-in forms.** Every sign-in form (storefront Individual and Company tabs, Seller Hub, admin console, carrier portal, Audit Console) shows its agreement boxes under the password, one line each. The Individual tab shows the three consumer boxes once all three consumer documents are published, and the Terms of Use boxes until then. Each box opens its document in the read-to-the-end dialog; opening ticks nothing; **Sign in** stays disabled until every published document is ticked, and fails closed if the documents cannot be fetched. What was ticked is recorded by the first agreement request after sign-in, against the account (and company) the server resolves; the agreement screen after sign-in remains the server-enforced fallback.
 
 Under each box: not yet done, or "Accepted: version …, date. Untick to clear it
 before you continue." A note that neither box switches on marketing, analytics
@@ -8289,6 +8334,7 @@ Continue clears that one record.
 
 **API calls:** `GET {prefix}/agreements`, `POST {prefix}/agreements/terms`,
 `POST {prefix}/agreements/privacy`, `DELETE {prefix}/agreements/terms|privacy`,
+and on the Seller Hub, the company screen and the consumer screen `POST|DELETE /api/v1/auth/agreements/services`,
 where `{prefix}` is `/api/v1/auth` (storefront; Seller Hub adds `scope=SELLER`),
 `/api/v1/admin/auth`, `/api/v1/logistics/auth` or `/api/v1/audit/auth`.
 
@@ -8659,3 +8705,49 @@ Changes elsewhere:
   approvals and release-evidence upload.
 - **Carrier portal** — a consignment shows whether inspection released or held
   the goods.
+
+## Shipment Assessment screens
+
+| Screen | Where | Shows and does | Calls |
+| --- | --- | --- | --- |
+| Shipment assessment queues | Audit Console `/shipment-assessment` (sidebar under Verification) | Tabs: Ready for assessment, In progress, Awaiting QA, Waiver review, Approved for L2, Failed / on hold, Reassessment required, Awaiting L1, Dispatched / history, Existing shipments to review. Columns: shipment and order, seller and badge, goods, L1 arrival time and place, planned L2 departure, requirement and reason, assessor / QA, decision, dispatch deadline, document. Search. Cards on a phone. | `GET /audit/shipment-assessments` |
+| Shipment assessment case | Audit Console `/shipment-assessment/:id` | Next-step panel (start, waiver review with the seller history, QA approve/return with deadline, hold, reassessment). Tabs: Overview, Checklist (per-item result, note, sample flag; quantities; submit), Evidence (upload from a phone camera, download), Findings (each round, sample notice, waiver decisions), History, Documents (download, revoke). | `/audit/shipment-assessments/:id/*` |
+| Badge policy | Audit Console `/shipment-assessment/policy` | Policy in force and every version; supervisors publish a new one. | `GET/POST /audit/shipment-assessments/policy` |
+| Audit badge and certificates panel | Audit Console Seller Verify detail | Current badge and history; supervisor changes it with a reason. Seller verification certificates; issue after approval with an explicit scope. | `/audit/sellers/:id/badge`, `/audit/seller-verification/:id/certificates` |
+| Shipment assessment (read only) | Admin panel `/inspection/shipment-assessments[/:id]` | Queues, case, decisions, history, documents. No buttons that change anything. | `GET /admin/shipment-assessments*` |
+| Shipment assessment card | Seller Hub order detail | Status, badge, requirement, dispatch deadline, findings, corrective action, documents; readiness note, corrective response, evidence upload. | `/seller/orders/:id/shipment-assessment`, `/seller/shipment-assessments/:id/*` |
+| Audit release panel | Carrier portal, on each L2 leg | Release or hold, dispatch deadline; after release, the final loading checks and photo upload. | `/logistics/legs/:id/shipment-assessment*` |
+| Shipment assessment card | Storefront order detail (buyer) | Status and the released certificate or waiver PDF. | `/orders/:id/shipment-assessments` |
+| Document check | Storefront `/verify-document?kind=audit-document` | Status, dates and stated scope of an Audit document. | `GET /documents/verify` |
+
+## Seller Assessment screens
+
+| Screen | Where | Shows and does | Calls |
+|---|---|---|---|
+| Seller assessment queue | Audit Console `/seller-assessments` | Status (with counts), search, risk, overdue, approval-expiry filters; stage, owner, review target, open findings, hard stops | `GET /audit/seller-assessments` |
+| Seller assessment | Audit Console `/seller-assessments/:id` | Eight-gate progress; overview, checklist with evidence preview beside it, score with reasoning, scope matrix with per-row classification, findings (CAPA), workpapers (site audit, sample plan, lab, contract, mock order, identity, bank, sanctions, specialist, AI output), certification, release (gaps, exact scope, decision, hard stop, approval PDF, suspension), timeline | `/audit/seller-assessments/:id*` |
+| Seller assurance | Audit Console `/seller-assessments/assurance` | Policy versions and adoption, capabilities, activation impact, legacy reassessment, notices, appeals, changes, incidents, bank changes, held orders, surveillance tasks, retention | `/audit/seller-assessments/{policies,capabilities,impact,registers,dispositions,tasks,retention,...}` |
+| Seller assessment | Seller Hub `/seller/assessment` | Eligibility explanation, application by section (save and resume), documents, gate progress, corrections, findings to answer, approved / blocked scope with validity and renewal, notices and appeals, change notifications, incidents, bank change | `/seller/assessment*` |
+| Seller assessments (read only) | Admin Panel `/seller-assessments[/:id]` | Activation impact line, list, summary of gates, score, checklist, scope, findings, certification, approvals, permitted evidence downloads, timeline | `GET /admin/seller-assessments*` |
+
+## Delivery, case and commercial screens (Doc 07 and Doc 08)
+
+| Screen | Where | Shows and does | Calls |
+|---|---|---|---|
+| Commercial schedules | Admin Panel `/commercial/schedules` | Every schedule by kind and status; a "proposal - not active" banner on anything not ACTIVE; Reference tab with the Doc 08 commission table, the worked example (12,500 + 400 = 12,900) and catalogue differences | `GET /admin/commercial/schedules`, `GET /admin/commercial/reference` |
+| Commercial schedule | Admin Panel `/commercial/schedules/:id` | Source, scope, dates, signed-schedule reference, history, what still stops activation; draft, edit (JSON body), submit, approve / return with evidence, provider confirmation, activate, retire; financial preview on sample figures | `GET/PATCH /admin/commercial/schedules/:id`, `.../preview`, `.../submit`, `.../decision`, `.../provider-confirmation`, `.../activate`, `.../retire` |
+| Launch readiness | Admin Panel `/commercial/launch` and `/commercial/launch/:countryCode` | Countries with status and open decisions; each decision with owner, scope, evidence, reviewer, expiry, blocker and cited sources; edit, independent review, enable / disable | `GET /admin/commercial/launch[/:countryCode]`, `PUT .../:key`, `POST .../:key/review`, `.../enable`, `.../disable` |
+| Finance controls | Admin Panel `/commercial/finance` | Tabs: certification programmes (costs, verification, allocations, unrecovered balance), security (proposals, schedules, monthly / quarterly reviews), insurance register (three proposed groups, gaps, verification), commission adjustments (apply with credit-note reference) | `/admin/commercial/certification-programmes`, `/security`, `/security-reviews/:id`, `/insurance`, `/commission-adjustments` |
+| Operations controls | Admin Panel `/commercial/operations` | Tabs: import routes (importer, local actors, independent approval), provider reviews ("Credentials required" without a live integration), handling requirements | `/admin/commercial/import-routes`, `/provider-reviews`, `/handling-requirements` |
+| Product evidence, safety cases (read only) | Admin Panel `/commercial/product-evidence`, `/commercial/safety-cases[/:id]` | The Audit Console's records with "Read only here; the Audit Console decides." No action buttons | `GET /admin/commercial/product-evidence`, `GET /admin/commercial/safety-cases[/:id]` |
+| Commercial terms and refunds | Admin Panel order detail | Each line's frozen snapshot, the seller orders' acceptance and dispatch controls, and refunds with instruction date and provider status | `GET /admin/orders/:id/commercial-controls`, `/admin/seller-orders/:id/controls`, `/dispatch-controls` |
+| Case controls | Admin Panel dispute case | Category, urgency, late intake, clocks, evidence sufficiency, evidence requests, testing, reasoned decision and remedies, appeal reviewer, loss recoveries, legal notice | `/admin/disputes/:id/case-controls[/...]`, `/admin/orders/:id/loss-recoveries` |
+| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry", what it does not prove; record, verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as reviewer prompts | `/audit/product-evidence[/...]` |
+| Safety cases | Audit Console `/safety-cases[/:id]` | Cases and the annual rehearsal status; open, contain (listings, shipments, repeat orders), trace, reporting decisions by a qualified role (no AI option), notices and recall actions, correction, release by another person | `/audit/safety-cases[/...]`, `/audit/recall-rehearsals` |
+| Claim form | Storefront `orders/:id/claim` | Optional kind of problem (12 categories), urgency, statutory-rights box, late explanation, quantity, lots; a safety note for safety reports | `POST /disputes` (with `case`) |
+| Case progress | Storefront dispute detail | Category, acknowledgement, due dates, reasoning and remedies, requests to the buyer with an answer form, legal notice | `GET /disputes/:reference/case-controls`, `POST .../evidence-requests/:requestId` |
+| Refunds | Storefront order detail | Amount, instruction date and the provider's actual status; never "confirmed" while pending; link to the Delivery, returns and disputes policy | `GET /orders/:id/refund-status` |
+| Agreed terms, dispatch evidence | Seller Hub order detail | The frozen terms incl. commission rate, base, rule version and rounding; the controls form while NEW; dispatch gaps, customs documents, evidence, custody handover and freight booking forms | `/seller/orders/:id/controls`, `/dispatch-controls`, `/dispatch-evidence`, `/custody-handovers`, `/freight-booking` |
+| Case requests | Seller Hub dispute detail | Requests addressed to the seller with an answer form | `/seller/disputes/:reference/case-controls[/...]` |
+| Fees and security | Seller Hub `/seller/fees` | Commission reversals for the seller's orders, security schedules and reviews, certification programmes (read only) | `GET /seller/commercial/fees` |
+| Custody and dispatch evidence | Carrier portal shipment detail | What dispatch still needs, customs-document status, handling requirements, past handovers; record a handover | `GET/POST /logistics/shipments/:id/custody` |

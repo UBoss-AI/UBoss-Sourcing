@@ -43,6 +43,8 @@ export type ConsentRecordMinAggregateOutputType = {
   scope: $Enums.AgreementScope | null
   activeDocumentId: string | null
   clearedAt: Date | null
+  sellerAccountId: string | null
+  activeCompanyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,6 +67,8 @@ export type ConsentRecordMaxAggregateOutputType = {
   scope: $Enums.AgreementScope | null
   activeDocumentId: string | null
   clearedAt: Date | null
+  sellerAccountId: string | null
+  activeCompanyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -87,6 +91,8 @@ export type ConsentRecordCountAggregateOutputType = {
   scope: number
   activeDocumentId: number
   clearedAt: number
+  sellerAccountId: number
+  activeCompanyKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -111,6 +117,8 @@ export type ConsentRecordMinAggregateInputType = {
   scope?: true
   activeDocumentId?: true
   clearedAt?: true
+  sellerAccountId?: true
+  activeCompanyKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -133,6 +141,8 @@ export type ConsentRecordMaxAggregateInputType = {
   scope?: true
   activeDocumentId?: true
   clearedAt?: true
+  sellerAccountId?: true
+  activeCompanyKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -155,6 +165,8 @@ export type ConsentRecordCountAggregateInputType = {
   scope?: true
   activeDocumentId?: true
   clearedAt?: true
+  sellerAccountId?: true
+  activeCompanyKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -250,6 +262,8 @@ export type ConsentRecordGroupByOutputType = {
   scope: $Enums.AgreementScope | null
   activeDocumentId: string | null
   clearedAt: Date | null
+  sellerAccountId: string | null
+  activeCompanyKey: string
   createdAt: Date
   updatedAt: Date
   _count: ConsentRecordCountAggregateOutputType | null
@@ -293,11 +307,14 @@ export type ConsentRecordWhereInput = {
   scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  activeCompanyKey?: Prisma.StringFilter<"ConsentRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   company?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
   legalDocument?: Prisma.XOR<Prisma.LegalDocumentNullableScalarRelationFilter, Prisma.LegalDocumentWhereInput> | null
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
 }
 
 export type ConsentRecordOrderByWithRelationInput = {
@@ -318,17 +335,20 @@ export type ConsentRecordOrderByWithRelationInput = {
   scope?: Prisma.SortOrderInput | Prisma.SortOrder
   activeDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   clearedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeCompanyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   legalDocument?: Prisma.LegalDocumentOrderByWithRelationInput
+  sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.ConsentRecordOrderByRelevanceInput
 }
 
 export type ConsentRecordWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_activeDocumentId?: Prisma.ConsentRecordUserIdActiveDocumentIdCompoundUniqueInput
+  userId_activeDocumentId_activeCompanyKey?: Prisma.ConsentRecordUserIdActiveDocumentIdActiveCompanyKeyCompoundUniqueInput
   AND?: Prisma.ConsentRecordWhereInput | Prisma.ConsentRecordWhereInput[]
   OR?: Prisma.ConsentRecordWhereInput[]
   NOT?: Prisma.ConsentRecordWhereInput | Prisma.ConsentRecordWhereInput[]
@@ -348,12 +368,15 @@ export type ConsentRecordWhereUniqueInput = Prisma.AtLeast<{
   scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  activeCompanyKey?: Prisma.StringFilter<"ConsentRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   company?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
   legalDocument?: Prisma.XOR<Prisma.LegalDocumentNullableScalarRelationFilter, Prisma.LegalDocumentWhereInput> | null
-}, "id" | "userId_activeDocumentId">
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+}, "id" | "userId_activeDocumentId_activeCompanyKey">
 
 export type ConsentRecordOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -373,6 +396,8 @@ export type ConsentRecordOrderByWithAggregationInput = {
   scope?: Prisma.SortOrderInput | Prisma.SortOrder
   activeDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   clearedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeCompanyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ConsentRecordCountOrderByAggregateInput
@@ -401,6 +426,8 @@ export type ConsentRecordScalarWhereWithAggregatesInput = {
   scope?: Prisma.EnumAgreementScopeNullableWithAggregatesFilter<"ConsentRecord"> | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
   clearedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ConsentRecord"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"ConsentRecord"> | string | null
+  activeCompanyKey?: Prisma.StringWithAggregatesFilter<"ConsentRecord"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ConsentRecord"> | Date | string
 }
@@ -420,11 +447,13 @@ export type ConsentRecordCreateInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
   company?: Prisma.BuyerCompanyCreateNestedOneWithoutConsentsInput
   legalDocument?: Prisma.LegalDocumentCreateNestedOneWithoutAcceptancesInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutConsentRecordsInput
 }
 
 export type ConsentRecordUncheckedCreateInput = {
@@ -445,6 +474,8 @@ export type ConsentRecordUncheckedCreateInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -464,11 +495,13 @@ export type ConsentRecordUpdateInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
   company?: Prisma.BuyerCompanyUpdateOneWithoutConsentsNestedInput
   legalDocument?: Prisma.LegalDocumentUpdateOneWithoutAcceptancesNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutConsentRecordsNestedInput
 }
 
 export type ConsentRecordUncheckedUpdateInput = {
@@ -489,6 +522,8 @@ export type ConsentRecordUncheckedUpdateInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -511,6 +546,8 @@ export type ConsentRecordCreateManyInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -530,6 +567,7 @@ export type ConsentRecordUpdateManyMutationInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -552,6 +590,8 @@ export type ConsentRecordUncheckedUpdateManyInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -572,9 +612,10 @@ export type ConsentRecordOrderByRelevanceInput = {
   search: string
 }
 
-export type ConsentRecordUserIdActiveDocumentIdCompoundUniqueInput = {
+export type ConsentRecordUserIdActiveDocumentIdActiveCompanyKeyCompoundUniqueInput = {
   userId: string
   activeDocumentId: string
+  activeCompanyKey: string
 }
 
 export type ConsentRecordCountOrderByAggregateInput = {
@@ -595,6 +636,8 @@ export type ConsentRecordCountOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   activeDocumentId?: Prisma.SortOrder
   clearedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  activeCompanyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -617,6 +660,8 @@ export type ConsentRecordMaxOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   activeDocumentId?: Prisma.SortOrder
   clearedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  activeCompanyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -639,6 +684,8 @@ export type ConsentRecordMinOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   activeDocumentId?: Prisma.SortOrder
   clearedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  activeCompanyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -682,6 +729,48 @@ export type ConsentRecordUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
   update?: Prisma.ConsentRecordUpdateWithWhereUniqueWithoutUserInput | Prisma.ConsentRecordUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.ConsentRecordUpdateManyWithWhereWithoutUserInput | Prisma.ConsentRecordUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.ConsentRecordScalarWhereInput | Prisma.ConsentRecordScalarWhereInput[]
+}
+
+export type ConsentRecordCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput> | Prisma.ConsentRecordCreateWithoutSellerAccountInput[] | Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput | Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.ConsentRecordCreateManySellerAccountInputEnvelope
+  connect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+}
+
+export type ConsentRecordUncheckedCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput> | Prisma.ConsentRecordCreateWithoutSellerAccountInput[] | Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput | Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.ConsentRecordCreateManySellerAccountInputEnvelope
+  connect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+}
+
+export type ConsentRecordUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput> | Prisma.ConsentRecordCreateWithoutSellerAccountInput[] | Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput | Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.ConsentRecordUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.ConsentRecordUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.ConsentRecordCreateManySellerAccountInputEnvelope
+  set?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  disconnect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  delete?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  connect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  update?: Prisma.ConsentRecordUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.ConsentRecordUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.ConsentRecordUpdateManyWithWhereWithoutSellerAccountInput | Prisma.ConsentRecordUpdateManyWithWhereWithoutSellerAccountInput[]
+  deleteMany?: Prisma.ConsentRecordScalarWhereInput | Prisma.ConsentRecordScalarWhereInput[]
+}
+
+export type ConsentRecordUncheckedUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput> | Prisma.ConsentRecordCreateWithoutSellerAccountInput[] | Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput | Prisma.ConsentRecordCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.ConsentRecordUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.ConsentRecordUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.ConsentRecordCreateManySellerAccountInputEnvelope
+  set?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  disconnect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  delete?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  connect?: Prisma.ConsentRecordWhereUniqueInput | Prisma.ConsentRecordWhereUniqueInput[]
+  update?: Prisma.ConsentRecordUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.ConsentRecordUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.ConsentRecordUpdateManyWithWhereWithoutSellerAccountInput | Prisma.ConsentRecordUpdateManyWithWhereWithoutSellerAccountInput[]
   deleteMany?: Prisma.ConsentRecordScalarWhereInput | Prisma.ConsentRecordScalarWhereInput[]
 }
 
@@ -796,10 +885,12 @@ export type ConsentRecordCreateWithoutUserInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.BuyerCompanyCreateNestedOneWithoutConsentsInput
   legalDocument?: Prisma.LegalDocumentCreateNestedOneWithoutAcceptancesInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutConsentRecordsInput
 }
 
 export type ConsentRecordUncheckedCreateWithoutUserInput = {
@@ -819,6 +910,8 @@ export type ConsentRecordUncheckedCreateWithoutUserInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -870,8 +963,82 @@ export type ConsentRecordScalarWhereInput = {
   scope?: Prisma.EnumAgreementScopeNullableFilter<"ConsentRecord"> | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
   clearedAt?: Prisma.DateTimeNullableFilter<"ConsentRecord"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ConsentRecord"> | string | null
+  activeCompanyKey?: Prisma.StringFilter<"ConsentRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ConsentRecord"> | Date | string
+}
+
+export type ConsentRecordCreateWithoutSellerAccountInput = {
+  id: string
+  purpose: $Enums.ConsentPurpose
+  textVersion: string
+  textHash: string
+  acceptedAt?: Date | string
+  ipAddress?: string | null
+  userAgent?: string | null
+  withdrawnAt?: Date | string | null
+  locale?: string | null
+  acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
+  activeCompanyKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
+  company?: Prisma.BuyerCompanyCreateNestedOneWithoutConsentsInput
+  legalDocument?: Prisma.LegalDocumentCreateNestedOneWithoutAcceptancesInput
+}
+
+export type ConsentRecordUncheckedCreateWithoutSellerAccountInput = {
+  id: string
+  userId: string
+  companyId?: string | null
+  purpose: $Enums.ConsentPurpose
+  textVersion: string
+  textHash: string
+  acceptedAt?: Date | string
+  ipAddress?: string | null
+  userAgent?: string | null
+  withdrawnAt?: Date | string | null
+  legalDocumentId?: string | null
+  locale?: string | null
+  acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
+  activeCompanyKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ConsentRecordCreateOrConnectWithoutSellerAccountInput = {
+  where: Prisma.ConsentRecordWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type ConsentRecordCreateManySellerAccountInputEnvelope = {
+  data: Prisma.ConsentRecordCreateManySellerAccountInput | Prisma.ConsentRecordCreateManySellerAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type ConsentRecordUpsertWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.ConsentRecordWhereUniqueInput
+  update: Prisma.XOR<Prisma.ConsentRecordUpdateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedUpdateWithoutSellerAccountInput>
+  create: Prisma.XOR<Prisma.ConsentRecordCreateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type ConsentRecordUpdateWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.ConsentRecordWhereUniqueInput
+  data: Prisma.XOR<Prisma.ConsentRecordUpdateWithoutSellerAccountInput, Prisma.ConsentRecordUncheckedUpdateWithoutSellerAccountInput>
+}
+
+export type ConsentRecordUpdateManyWithWhereWithoutSellerAccountInput = {
+  where: Prisma.ConsentRecordScalarWhereInput
+  data: Prisma.XOR<Prisma.ConsentRecordUpdateManyMutationInput, Prisma.ConsentRecordUncheckedUpdateManyWithoutSellerAccountInput>
 }
 
 export type ConsentRecordCreateWithoutCompanyInput = {
@@ -889,10 +1056,12 @@ export type ConsentRecordCreateWithoutCompanyInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
   legalDocument?: Prisma.LegalDocumentCreateNestedOneWithoutAcceptancesInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutConsentRecordsInput
 }
 
 export type ConsentRecordUncheckedCreateWithoutCompanyInput = {
@@ -912,6 +1081,8 @@ export type ConsentRecordUncheckedCreateWithoutCompanyInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -957,10 +1128,12 @@ export type ConsentRecordCreateWithoutLegalDocumentInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConsentRecordsInput
   company?: Prisma.BuyerCompanyCreateNestedOneWithoutConsentsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutConsentRecordsInput
 }
 
 export type ConsentRecordUncheckedCreateWithoutLegalDocumentInput = {
@@ -980,6 +1153,8 @@ export type ConsentRecordUncheckedCreateWithoutLegalDocumentInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1027,6 +1202,8 @@ export type ConsentRecordCreateManyUserInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1046,10 +1223,12 @@ export type ConsentRecordUpdateWithoutUserInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneWithoutConsentsNestedInput
   legalDocument?: Prisma.LegalDocumentUpdateOneWithoutAcceptancesNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutConsentRecordsNestedInput
 }
 
 export type ConsentRecordUncheckedUpdateWithoutUserInput = {
@@ -1069,6 +1248,8 @@ export type ConsentRecordUncheckedUpdateWithoutUserInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1090,6 +1271,100 @@ export type ConsentRecordUncheckedUpdateManyWithoutUserInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ConsentRecordCreateManySellerAccountInput = {
+  id: string
+  userId: string
+  companyId?: string | null
+  purpose: $Enums.ConsentPurpose
+  textVersion: string
+  textHash: string
+  acceptedAt?: Date | string
+  ipAddress?: string | null
+  userAgent?: string | null
+  withdrawnAt?: Date | string | null
+  legalDocumentId?: string | null
+  locale?: string | null
+  acceptanceSource?: string | null
+  action?: $Enums.ConsentAction | null
+  scope?: $Enums.AgreementScope | null
+  activeDocumentId?: string | null
+  clearedAt?: Date | string | null
+  activeCompanyKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ConsentRecordUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumConsentPurposeFieldUpdateOperationsInput | $Enums.ConsentPurpose
+  textVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  textHash?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
+  company?: Prisma.BuyerCompanyUpdateOneWithoutConsentsNestedInput
+  legalDocument?: Prisma.LegalDocumentUpdateOneWithoutAcceptancesNestedInput
+}
+
+export type ConsentRecordUncheckedUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purpose?: Prisma.EnumConsentPurposeFieldUpdateOperationsInput | $Enums.ConsentPurpose
+  textVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  textHash?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ConsentRecordUncheckedUpdateManyWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purpose?: Prisma.EnumConsentPurposeFieldUpdateOperationsInput | $Enums.ConsentPurpose
+  textVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  textHash?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptanceSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  action?: Prisma.NullableEnumConsentActionFieldUpdateOperationsInput | $Enums.ConsentAction | null
+  scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
+  activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1111,6 +1386,8 @@ export type ConsentRecordCreateManyCompanyInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1130,10 +1407,12 @@ export type ConsentRecordUpdateWithoutCompanyInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
   legalDocument?: Prisma.LegalDocumentUpdateOneWithoutAcceptancesNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutConsentRecordsNestedInput
 }
 
 export type ConsentRecordUncheckedUpdateWithoutCompanyInput = {
@@ -1153,6 +1432,8 @@ export type ConsentRecordUncheckedUpdateWithoutCompanyInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1174,6 +1455,8 @@ export type ConsentRecordUncheckedUpdateManyWithoutCompanyInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1195,6 +1478,8 @@ export type ConsentRecordCreateManyLegalDocumentInput = {
   scope?: $Enums.AgreementScope | null
   activeDocumentId?: string | null
   clearedAt?: Date | string | null
+  sellerAccountId?: string | null
+  activeCompanyKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1214,10 +1499,12 @@ export type ConsentRecordUpdateWithoutLegalDocumentInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConsentRecordsNestedInput
   company?: Prisma.BuyerCompanyUpdateOneWithoutConsentsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutConsentRecordsNestedInput
 }
 
 export type ConsentRecordUncheckedUpdateWithoutLegalDocumentInput = {
@@ -1237,6 +1524,8 @@ export type ConsentRecordUncheckedUpdateWithoutLegalDocumentInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1258,6 +1547,8 @@ export type ConsentRecordUncheckedUpdateManyWithoutLegalDocumentInput = {
   scope?: Prisma.NullableEnumAgreementScopeFieldUpdateOperationsInput | $Enums.AgreementScope | null
   activeDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clearedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeCompanyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1282,11 +1573,14 @@ export type ConsentRecordSelect<ExtArgs extends runtime.Types.Extensions.Interna
   scope?: boolean
   activeDocumentId?: boolean
   clearedAt?: boolean
+  sellerAccountId?: boolean
+  activeCompanyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   company?: boolean | Prisma.ConsentRecord$companyArgs<ExtArgs>
   legalDocument?: boolean | Prisma.ConsentRecord$legalDocumentArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.ConsentRecord$sellerAccountArgs<ExtArgs>
 }, ExtArgs["result"]["consentRecord"]>
 
 
@@ -1309,15 +1603,18 @@ export type ConsentRecordSelectScalar = {
   scope?: boolean
   activeDocumentId?: boolean
   clearedAt?: boolean
+  sellerAccountId?: boolean
+  activeCompanyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ConsentRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "companyId" | "purpose" | "textVersion" | "textHash" | "acceptedAt" | "ipAddress" | "userAgent" | "withdrawnAt" | "legalDocumentId" | "locale" | "acceptanceSource" | "action" | "scope" | "activeDocumentId" | "clearedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["consentRecord"]>
+export type ConsentRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "companyId" | "purpose" | "textVersion" | "textHash" | "acceptedAt" | "ipAddress" | "userAgent" | "withdrawnAt" | "legalDocumentId" | "locale" | "acceptanceSource" | "action" | "scope" | "activeDocumentId" | "clearedAt" | "sellerAccountId" | "activeCompanyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["consentRecord"]>
 export type ConsentRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   company?: boolean | Prisma.ConsentRecord$companyArgs<ExtArgs>
   legalDocument?: boolean | Prisma.ConsentRecord$legalDocumentArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.ConsentRecord$sellerAccountArgs<ExtArgs>
 }
 
 export type $ConsentRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1329,6 +1626,10 @@ export type $ConsentRecordPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * RESTRICT: a document somebody has agreed to can never be deleted.
      */
     legalDocument: Prisma.$LegalDocumentPayload<ExtArgs> | null
+    /**
+     * SET NULL: removing a seller never removes what its people accepted.
+     */
+    sellerAccount: Prisma.$SellerAccountPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1387,6 +1688,20 @@ export type $ConsentRecordPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * box withdraws no consent to anything else.
      */
     clearedAt: Date | null
+    /**
+     * For a SELLER-scope record: the seller the person was acting for, resolved
+     * by the server from their membership - never taken from the request. Null
+     * for every other scope, and for seller records written before it existed
+     * (none is back-filled: nobody knows for certain which seller they were).
+     */
+    sellerAccountId: string | null
+    /**
+     * The company an active COMPANY_BUYER record is for, or '' for every other
+     * record. Part of the one-active-record unique index, so a member of two
+     * companies can hold one record per company. Never NULL: MariaDB treats
+     * every NULL in a UNIQUE index as distinct.
+     */
+    activeCompanyKey: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["consentRecord"]>
@@ -1732,6 +2047,7 @@ export interface Prisma__ConsentRecordClient<T, Null = never, ExtArgs extends ru
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   company<T extends Prisma.ConsentRecord$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConsentRecord$companyArgs<ExtArgs>>): Prisma.Prisma__BuyerCompanyClient<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   legalDocument<T extends Prisma.ConsentRecord$legalDocumentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConsentRecord$legalDocumentArgs<ExtArgs>>): Prisma.Prisma__LegalDocumentClient<runtime.Types.Result.GetResult<Prisma.$LegalDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerAccount<T extends Prisma.ConsentRecord$sellerAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConsentRecord$sellerAccountArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1778,6 +2094,8 @@ export interface ConsentRecordFieldRefs {
   readonly scope: Prisma.FieldRef<"ConsentRecord", 'AgreementScope'>
   readonly activeDocumentId: Prisma.FieldRef<"ConsentRecord", 'String'>
   readonly clearedAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
+  readonly sellerAccountId: Prisma.FieldRef<"ConsentRecord", 'String'>
+  readonly activeCompanyKey: Prisma.FieldRef<"ConsentRecord", 'String'>
   readonly createdAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ConsentRecord", 'DateTime'>
 }
@@ -2163,6 +2481,25 @@ export type ConsentRecord$legalDocumentArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.LegalDocumentInclude<ExtArgs> | null
   where?: Prisma.LegalDocumentWhereInput
+}
+
+/**
+ * ConsentRecord.sellerAccount
+ */
+export type ConsentRecord$sellerAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerAccount
+   */
+  select?: Prisma.SellerAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerAccount
+   */
+  omit?: Prisma.SellerAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerAccountInclude<ExtArgs> | null
+  where?: Prisma.SellerAccountWhereInput
 }
 
 /**

@@ -1,3 +1,4 @@
+import { assertOrderEligible, recheckOrderAfterCapture } from '../seller-assessment/purchase-gate.service.js';
 import { evaluateAutoPay, type AutoPayDecision } from './autopay.service.js';
 /**
  * Payments.
@@ -931,6 +932,9 @@ export async function createOrderPayment(
     throw conflict(ErrorCode.ORDER_ALREADY_PAID, 'This order is already paid in full.');
   }
 
+  // Seller Assessment: no new payment for a product whose scope has lapsed since checkout.
+  await assertOrderEligible(prisma, order.id, 'payment-start');
+
   /**
    * What the customer asked for, from the request or from the order.
    *
@@ -1603,6 +1607,8 @@ export async function chargeOrderOffSession(
   });
 
   if (order === null) throw notFound('Order');
+  // AutoPay / repeat-order charge: refused before any money moves if the seller scope lapsed.
+  await assertOrderEligible(prisma, order.id, 'autopay-charge');
 
   const method = await prisma.customerPaymentMethod.findUnique({
     where: { id: input.paymentMethodId },
@@ -2811,6 +2817,10 @@ export async function applyCapturedPayment(params: {
       reason: params.reason,
       meta: { providerPaymentId: capture.providerPaymentId, eventId: params.eventId },
     });
+    // Seller Assessment: the money is kept and reconciled exactly as above. A
+    // seller order whose scope lapsed since checkout is held for a safety and
+    // legal disposition - never shipped, cancelled or refunded automatically.
+    await recheckOrderAfterCapture(prisma, order.id);
   }
 
   if (outcome.applied) {

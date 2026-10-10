@@ -25,6 +25,7 @@ import { Badge, Button, Card, EmptyState, ErrorState, Field, Input, LoadingState
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
+import { SellerCaseRequestsCard } from '@/pages/disputes/CaseControls';
 import { currencyExponent, formatDateTime, formatMoney, majorToMinor } from '@/lib/format';
 import {
   appealSellerClaim,
@@ -313,6 +314,7 @@ export function SellerDisputeDetailPage(): React.JSX.Element {
         </Card>
         <InspectionCard dispute={dispute} />
       </div>
+      <SellerCaseRequestsCard reference={dispute.reference} />
 
       <Card title={t('disputes.threadTitle')} className="mt-4" bodyClassName="space-y-3 px-5 py-4">
         <ol className="space-y-3 text-sm">

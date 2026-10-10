@@ -13,6 +13,8 @@
  * Every status change goes through `assertTransition` and appends to
  * `order_status_history`. No service writes `orders.status` directly.
  */
+import { assertOffersEligible, channelFor } from '../seller-assessment/purchase-gate.service.js';
+import { assertCheckoutDeliveryRules } from '../commercial-policy/order-controls.service.js';
 import { captureOrderItemSnapshots } from './order-item-snapshot.service.js';
 import { assertAcceptableTerms } from '../legal/legal-document.service.js';
 import { env } from '../../config/env.js';
@@ -420,6 +422,24 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   }
 
   assertCheckoutReady(resolved);
+
+  // Seller Assessment scope, asked again here with the real shipping country and
+  // buyer type: a basket built before a suspension or an expiry stops here.
+  await assertOffersEligible(
+    prisma,
+    resolved.sourceItems.map((item) => item.sellerOfferId),
+    shippingSnapshot.country,
+    channelFor((input.buyerCompanyId ?? null) !== null),
+    'checkout',
+  );
+
+  // Doc 07 / Doc 08: the destination is launched, nothing is under a safety
+  // hold, and a consumer order crossing a border has an approved import route.
+  await assertCheckoutDeliveryRules(prisma, {
+    countryCode: shippingSnapshot.country,
+    channel: channelFor((input.buyerCompanyId ?? null) !== null),
+    items: resolved.sourceItems.map((item) => ({ productId: item.productId, sellerOfferId: item.sellerOfferId })),
+  });
 
   // Country rules (Master row 69): nothing a rule in force blocks for the
   // delivery country leaves here, including a rule that applies only above an

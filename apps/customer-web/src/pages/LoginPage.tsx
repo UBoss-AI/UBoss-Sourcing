@@ -27,7 +27,7 @@
  * the page is finished on a phone, on a machine with no WebGL and with the
  * chunk behind the globe still in flight.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -35,6 +35,9 @@ import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { DemoLoginPanel } from '@/components/DemoLoginPanel';
+import { SignInAgreements } from '@/components/agreement-kit/SignInAgreements';
+import { setPendingSignInAgreements, type SignInAgreementValue } from '@/components/agreement-kit/sign-in-agreements';
+import { agreementsClient } from '@/lib/agreements';
 import { Button, Field, Spinner } from '@/components/ui';
 import {
   AuthCard,
@@ -94,6 +97,13 @@ export function LoginPage(): React.JSX.Element {
 
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  // The agreement boxes under the password: the ids of each document agreed
+  // to. Each tab has its own documents, so switching tabs starts them afresh.
+  const [agreements, setAgreements] = useState<SignInAgreementValue>({});
+  const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const onAgreementsComplete = useCallback((complete: boolean) => {
+    setAgreementsComplete(complete);
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const companiesOffered = features.buyerCompanies === true;
   const buyerType = buyerTypeFrom(`?${searchParams.toString()}`, companiesOffered);
@@ -232,16 +242,23 @@ export function LoginPage(): React.JSX.Element {
     setFormError(null);
     setHelpCode(null);
 
+    const signingInForCompany = companiesOffered && buyerType === 'company';
+    if (!agreementsComplete) {
+      setFormError(t('agreements.login.required'));
+      return;
+    }
+
     if (captchaRequired && captchaToken === null) {
       setFormError(t('security.captcha.required'));
       return;
     }
 
     try {
-      // No terms tick here. The Terms and the Privacy Policy are accepted on
-      // the agreement screen after signing in, recorded against the account,
-      // and asked for again only when a version requires it - not on every
-      // sign-in. See components/agreement-kit.
+      // The boxes ticked above are handed over now and recorded by the first
+      // agreement request after sign-in - for a company, against the company
+      // the server resolves (components/agreement-kit/sign-in-agreements). The
+      // screen after sign-in still asks for anything that could not be recorded.
+      setPendingSignInAgreements(signingInForCompany ? 'COMPANY_BUYER' : 'BUYER', agreements);
       const { next, mfaChallengeRequired } = companiesOffered
         ? await login(values.email, values.password, buyerType, captchaToken)
         : await login(values.email, values.password, undefined, captchaToken);
@@ -382,6 +399,15 @@ export function LoginPage(): React.JSX.Element {
             )}
           </Field>
 
+          <SignInAgreements
+            key={buyerType}
+            client={agreementsClient}
+            scope={companiesOffered && buyerType === 'company' ? 'COMPANY_BUYER' : 'BUYER'}
+            value={agreements}
+            onChange={setAgreements}
+            onCompleteChange={onAgreementsComplete}
+          />
+
           <CaptchaWidget key={captchaRound} onToken={setCaptchaToken} />
 
           <Button
@@ -390,7 +416,8 @@ export function LoginPage(): React.JSX.Element {
             size="lg"
             fullWidth
             isLoading={isSubmitting}
-            className={GRADIENT_CTA}
+            disabled={!agreementsComplete}
+            className={`${GRADIENT_CTA} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {t('auth.login.submit')}
             {/* Decoration, and hidden as such. In the accessible name this

@@ -1,9 +1,9 @@
 /**
  * The seller turnover eligibility policy, end to end over HTTP.
  *
- *   - **Applying.** `/sellers/apply` refuses a turnover below the minimum, at
- *     exactly the minimum, a missing declaration or year and a malformed
- *     amount - and accepts one paisa above the minimum, storing the exact
+ *   - **Applying.** `/sellers/apply` refuses a turnover one paisa below the
+ *     minimum, a missing declaration or year and a malformed
+ *     amount - and accepts exactly the minimum (policy v1.0, "at least"), storing the exact
  *     amount, the year, the declaration time and the policy version.
  *   - **No way round it.** An in-progress application with no declaration, or
  *     one corrected down below the minimum, is refused at `/sellers/submit`
@@ -264,8 +264,7 @@ describe('the policy is public', () => {
 
 describe('applying to sell', () => {
   it.each([
-    ['below the minimum', (MINIMUM - 1n).toString()],
-    ['exactly the minimum', MINIMUM.toString()],
+    ['one paisa below the minimum', (MINIMUM - 1n).toString()],
   ])('refuses a turnover %s', async (_label, amount) => {
     const response = await call(applicant, 'POST', '/api/v1/sellers/apply', application(turnover(amount)));
     expect(response.statusCode, response.body).toBe(409);
@@ -292,17 +291,17 @@ describe('applying to sell', () => {
     expect(await sellerIds()).toEqual([legacySellerId]);
   });
 
-  it('accepts one paisa above the minimum and stores exactly what was declared', async () => {
-    const response = await call(applicant, 'POST', '/api/v1/sellers/apply', application(turnover((MINIMUM + 1n).toString())));
+  it('accepts exactly the minimum and stores exactly what was declared', async () => {
+    const response = await call(applicant, 'POST', '/api/v1/sellers/apply', application(turnover(MINIMUM.toString())));
     expect(response.statusCode, response.body).toBe(201);
     const { sellerAccountId } = response.json<{ sellerAccountId: string }>();
 
     const row = await prisma.sellerTurnoverDeclaration.findFirstOrThrow({ where: { sellerAccountId, isCurrent: true } });
-    expect(row.amountMinor).toBe(MINIMUM + 1n);
+    expect(row.amountMinor).toBe(MINIMUM);
     expect(row.currency).toBe('INR');
     expect(row.financialYearStart.toISOString().slice(0, 10)).toBe(FY.start);
     expect(row.financialYearEnd.toISOString().slice(0, 10)).toBe(FY.end);
-    expect(row.policyVersion).toBe('2026-10');
+    expect(row.policyVersion).toBe('SAO-1.0');
     expect(row.minimumMinor).toBe(MINIMUM);
     expect(row.declaredAt).toBeInstanceOf(Date);
     // Declared is not verified, and nobody is approved by declaring.
@@ -326,16 +325,16 @@ describe('the onboarding form and the submit gate', () => {
     expect(response.statusCode, response.body).toBe(200);
     const view = response.json<{ standing: string; declaration: Record<string, unknown> }>();
     expect(view.standing).toBe('ELIGIBLE');
-    expect(view.declaration).toMatchObject({ amountMinor: (MINIMUM + 1n).toString(), financialYearStart: FY.start });
+    expect(view.declaration).toMatchObject({ amountMinor: MINIMUM.toString(), financialYearStart: FY.start });
     expect(view.declaration).not.toHaveProperty('internalNote');
   });
 
-  it('keeps a figure corrected down to the minimum, and refuses submission', async () => {
-    const saved = await call(applicant, 'PUT', '/api/v1/seller/turnover', turnover(MINIMUM.toString()));
+  it('keeps a figure corrected down below the minimum, and refuses submission', async () => {
+    const saved = await call(applicant, 'PUT', '/api/v1/seller/turnover', turnover((MINIMUM - 1n).toString()));
     expect(saved.statusCode, saved.body).toBe(200);
     expect(saved.json<{ standing: string; declaration: { amountMinor: string } }>()).toMatchObject({
       standing: 'BELOW_MINIMUM',
-      declaration: { amountMinor: MINIMUM.toString() },
+      declaration: { amountMinor: (MINIMUM - 1n).toString() },
     });
 
     const onboarding = await call(applicant, 'GET', '/api/v1/seller/onboarding');
@@ -343,7 +342,7 @@ describe('the onboarding form and the submit gate', () => {
       .json<{ steps: { key: string; state: string; message: string | null }[] }>()
       .steps.find((step) => step.key === 'business_identity');
     expect(business?.state).toBe('IN_PROGRESS');
-    expect(business?.message).toContain('Annual turnover above the seller minimum');
+    expect(business?.message).toContain('Annual turnover of at least the seller minimum');
 
     const submit = await call(applicant, 'POST', '/api/v1/seller/submit', {});
     expect(submit.statusCode, submit.body).toBe(409);
@@ -401,8 +400,8 @@ describe('the onboarding form and the submit gate', () => {
 
       const review = await call(staff, 'GET', `/api/v1/admin/sellers/${sellerAccountId}/turnover`);
       expect(review.statusCode, review.body).toBe(200);
-      const current = review.json<{ current: { id: string; exceedsMinimum: boolean } }>().current;
-      expect(current.exceedsMinimum).toBe(true);
+      const current = review.json<{ current: { id: string; meetsMinimum: boolean } }>().current;
+      expect(current.meetsMinimum).toBe(true);
 
       const decided = await decideAsAuditor(sellerAccountId, {
         declarationId: current.id,

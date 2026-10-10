@@ -343,6 +343,24 @@ export const router = createBrowserRouter([
         path: 'reports',
         ...lazyRoute(() => import('@/pages/ReportsPage').then((m) => m.ReportsPage), [Permission.REPORT_READ]),
       },
+      // Seller Assessment and Onboarding: read only here; the Audit Console decides.
+      {
+        path: 'seller-assessments',
+        ...lazyRoute(() => import('@/pages/seller/SellerAssessmentPages').then((m) => m.SellerAssessmentListPage), [Permission.CUSTOMER_READ]),
+      },
+      {
+        path: 'seller-assessments/:id',
+        ...lazyRoute(() => import('@/pages/seller/SellerAssessmentPages').then((m) => m.SellerAssessmentViewPage), [Permission.CUSTOMER_READ]),
+      },
+      // Shipment Assessment between L1 and L2: read only here; the Audit Console decides.
+      {
+        path: 'inspection/shipment-assessments',
+        ...lazyRoute(() => import('@/pages/inspection/ShipmentAssessmentPages').then((m) => m.ShipmentAssessmentListPage), [Permission.INSPECTION_READ]),
+      },
+      {
+        path: 'inspection/shipment-assessments/:id',
+        ...lazyRoute(() => import('@/pages/inspection/ShipmentAssessmentPages').then((m) => m.ShipmentAssessmentViewPage), [Permission.INSPECTION_READ]),
+      },
       // The inspection console (checklist Master rows 55, 70, 94).
       {
         path: 'inspection',
@@ -380,6 +398,43 @@ export const router = createBrowserRouter([
       {
         path: 'risk',
         ...lazyRoute(() => import('@/pages/RiskReviewPage').then((m) => m.RiskReviewPage), [Permission.RISK_READ]),
+      },
+      // Doc 07 / Doc 08 commercial policy: draft schedules, launch readiness, finance and operations controls.
+      {
+        path: 'commercial/schedules',
+        ...lazyRoute(() => import('@/pages/commercial/CommercialSchedulesPage').then((m) => m.CommercialSchedulesPage), [Permission.FINANCE_POLICY_READ]),
+      },
+      {
+        path: 'commercial/schedules/:id',
+        ...lazyRoute(() => import('@/pages/commercial/CommercialSchedulesPage').then((m) => m.CommercialScheduleDetailPage), [Permission.FINANCE_POLICY_READ]),
+      },
+      {
+        path: 'commercial/launch',
+        ...lazyRoute(() => import('@/pages/commercial/LaunchReadinessPages').then((m) => m.LaunchReadinessPage), [Permission.SETTINGS_READ]),
+      },
+      {
+        path: 'commercial/launch/:countryCode',
+        ...lazyRoute(() => import('@/pages/commercial/LaunchReadinessPages').then((m) => m.LaunchCountryPage), [Permission.SETTINGS_READ]),
+      },
+      {
+        path: 'commercial/finance',
+        ...lazyRoute(() => import('@/pages/commercial/FinanceControlsPage').then((m) => m.FinanceControlsPage), [Permission.FINANCE_POLICY_READ, Permission.COMMISSION_INVOICE_VIEW]),
+      },
+      {
+        path: 'commercial/operations',
+        ...lazyRoute(() => import('@/pages/commercial/OperationsControlsPage').then((m) => m.OperationsControlsPage), [Permission.SETTINGS_READ, Permission.LOGISTICS_READ]),
+      },
+      {
+        path: 'commercial/product-evidence',
+        ...lazyRoute(() => import('@/pages/commercial/ReadOnlyEvidencePages').then((m) => m.ProductEvidencePage), [Permission.INSPECTION_READ]),
+      },
+      {
+        path: 'commercial/safety-cases',
+        ...lazyRoute(() => import('@/pages/commercial/ReadOnlyEvidencePages').then((m) => m.SafetyCasesPage), [Permission.INSPECTION_READ]),
+      },
+      {
+        path: 'commercial/safety-cases/:id',
+        ...lazyRoute(() => import('@/pages/commercial/ReadOnlyEvidencePages').then((m) => m.SafetyCaseDetailPage), [Permission.INSPECTION_READ]),
       },
       {
         path: 'manufacturers',

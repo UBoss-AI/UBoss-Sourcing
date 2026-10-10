@@ -13,7 +13,7 @@
  * event or a reconciliation, never from the API response that merely accepted
  * the request.
  */
-import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
@@ -76,6 +76,16 @@ export interface CreatedRefund {
   status: string;
   amount: ReturnType<typeof serialiseMoney>;
   providerRefundId: string | null;
+}
+
+/** Failure code for a refund whose outcome at the provider is not known. */
+export const OUTCOME_UNKNOWN = 'OUTCOME_UNKNOWN';
+
+/** A definite refusal (4xx, not retryable) is FAILED; anything else may have succeeded at the provider. */
+export function isAmbiguousProviderOutcome(error: unknown): boolean {
+  if (!(error instanceof PaymentProviderError)) return true;
+  if (error.retryable) return true;
+  return error.httpStatus === null ? false : error.httpStatus >= 500;
 }
 
 export async function createRefund(input: CreateRefundInput): Promise<CreatedRefund> {
@@ -163,7 +173,14 @@ export async function createRefund(input: CreateRefundInput): Promise<CreatedRef
     where: { idempotencyKey: input.idempotencyKey },
   });
 
-  if (existing !== null) {
+  /*
+   * Doc 07 s9: a refund whose outcome at the provider is UNKNOWN (a timeout, a
+   * dropped connection, a 5xx) stays REQUESTED with OUTCOME_UNKNOWN. Retrying
+   * with the same key asks the provider again under the SAME idempotency key,
+   * so the provider answers with the refund it already made - never a second.
+   */
+  const reconcileUnknown = existing !== null && existing.status === 'REQUESTED' && existing.failureCode === OUTCOME_UNKNOWN;
+  if (existing !== null && !reconcileUnknown) {
     return {
       refundId: existing.id,
       status: existing.status,
@@ -171,12 +188,15 @@ export async function createRefund(input: CreateRefundInput): Promise<CreatedRef
       providerRefundId: existing.providerRefundId,
     };
   }
+  if (existing !== null && existing.amountMinor !== amountMinor) {
+    throw conflict(ErrorCode.CONFLICT, 'A refund with this request key is still being reconciled for a different amount.', [{ code: 'IDEMPOTENCY_KEY_REUSED' }]);
+  }
 
-  const refundId = newId();
+  const refundId = existing?.id ?? newId();
 
   // Recorded as REQUESTED before the provider call, so a crash mid-call leaves
   // a row to reconcile rather than a refund nobody knows about.
-  await prisma.refund.create({
+  if (existing === null) await prisma.refund.create({
     data: {
       id: refundId,
       orderId: order.id,
@@ -269,6 +289,19 @@ export async function createRefund(input: CreateRefundInput): Promise<CreatedRef
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'unknown provider error';
+
+    if (isAmbiguousProviderOutcome(error)) {
+      // Not FAILED: the provider may have refunded. Kept REQUESTED for a retry
+      // under the same key, which reconciles instead of refunding twice.
+      await prisma.refund.update({ where: { id: refundId }, data: { failureCode: OUTCOME_UNKNOWN, failureMessage: message.slice(0, 500) } });
+      logger.warn({ refundId, orderId: order.id, err: error }, 'refund outcome unknown at the provider; kept for reconciliation');
+      throw new AppError({
+        statusCode: 503,
+        code: ErrorCode.PAYMENT_PROVIDER_ERROR,
+        message: 'The payment provider did not confirm this refund. It is recorded as pending; retry the same request to reconcile it - a second refund will not be created.',
+        details: [{ code: OUTCOME_UNKNOWN, field: 'refund', meta: { refundId } }],
+      });
+    }
 
     await prisma.refund.update({
       where: { id: refundId },

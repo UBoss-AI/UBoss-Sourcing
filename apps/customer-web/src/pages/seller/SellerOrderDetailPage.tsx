@@ -28,8 +28,11 @@ import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePan
 import { ConsignmentDocumentsPanel } from './ConsignmentDocumentsPanel';
 import { ShipmentBookingPanel } from './ShipmentBookingPanel';
 import { TradeDocumentsPanel } from './TradeDocumentsPanel';
+import { SellerOrderTermsCard } from './SellerOrderTermsCard';
+import { SellerDispatchEvidenceCard } from './SellerDispatchEvidenceCard';
 import { Link, useParams } from 'react-router-dom';
 import { SellerOrderInspection } from '@/components/inspection/OrderInspections';
+import { SellerShipmentAssessmentPanel } from '@/components/inspection/ShipmentAssessmentPanels';
 import { SellerProductionPanel } from './SellerProductionPanel';
 import { OrderMessagesPanel } from '@/components/messages/OrderMessagesPanel';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -135,10 +138,15 @@ export function SellerOrderDetailPage(): React.JSX.Element {
           {/* LIVE-004: the purchase order this order was made from, and its terms. */}
           {order.purchaseOrder != null && <PurchaseOrderTermsCard purchaseOrder={order.purchaseOrder} />}
           <Lines order={order} />
+          {/* Doc 08: the terms frozen on each line, and what the acceptance gate still needs. */}
+          <SellerOrderTermsCard order={order} />
+          {/* Doc 07: what dispatch still needs, and the records that close it. */}
+          {order.status !== 'NEW' && <SellerDispatchEvidenceCard order={order} />}
           {/* L1-L4, where this order was priced on four delivery levels. */}
           {/* Raw material, production, QA, ready and exceptions (Master row 40). */}
           {order.status !== 'NEW' && <SellerProductionPanel sellerOrderId={order.id} />}
           <SellerOrderInspection sellerOrderGroupId={order.id} />
+          <SellerShipmentAssessmentPanel sellerOrderId={order.id} />
           <SellerOrderLegsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Consignments order={order} />
           {/* Invoice, packing list and Mark packed, per consignment. Open on a

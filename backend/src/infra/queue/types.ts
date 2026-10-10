@@ -76,6 +76,8 @@ export const JobType = {
   /// The dispute clock: a claim whose seller let the time to answer pass goes
   /// to the operator, and a missed decision or evidence deadline rings the bell.
   DISPUTE_SLA_SWEEP: 'dispute.sla_sweep',
+  /** Doc 07 / Doc 08: case clocks, certification reservations, security reviews, evidence expiry. */
+  COMMERCIAL_POLICY_SWEEP: 'commercial_policy.sweep',
   /// Refunds still processing whose provider webhook never arrived: asked
   /// about at the provider and settled the way the webhook would (LIVE-017).
   REFUND_POLL: 'refund.poll',
@@ -208,6 +210,13 @@ export const JobType = {
   /// ACTION_REQUIRED, with a reason naming it. Hourly; a seller already moved
   /// is not APPROVED any more, so a repeat finds nothing.
   SELLER_DOCUMENT_EXPIRY_SWEEP: 'seller_document.expiry_sweep',
+  /// Shipment Assessment: open cases, withdraw stale releases, expire documents.
+  SHIPMENT_ASSESSMENT_SWEEP: 'shipment_assessment.sweep',
+  /// Daily: trading-approval expiry, 90/60/30-day reminders, monthly certificate
+  /// and insurance checks, revalidation, sanctions re-screening and category
+  /// surveillance tasks. Idempotent by dedupe key. Never the only enforcement:
+  /// the purchase gate compares every date on every request.
+  SELLER_ASSESSMENT_SURVEILLANCE: 'seller_assessment.surveillance',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

@@ -3577,3 +3577,336 @@ export type InspectionLabSample = Prisma.InspectionLabSampleModel
  * the Admin Panel by somebody else, consumed by exactly one dispatch.
  */
 export type InspectionSubLotRelease = Prisma.InspectionSubLotReleaseModel
+/**
+ * Model SellerBadgeChange
+ * Every change of a seller's Audit badge, append-only.
+ */
+export type SellerBadgeChange = Prisma.SellerBadgeChangeModel
+/**
+ * Model ShipmentAssessmentPolicy
+ * The badge policy, one row per version. The highest version is in force;
+ * a decision records the version it was made under. Never updated.
+ */
+export type ShipmentAssessmentPolicy = Prisma.ShipmentAssessmentPolicyModel
+/**
+ * Model ShipmentAssessment
+ * One seller order's assessment between L1 and L2.
+ */
+export type ShipmentAssessment = Prisma.ShipmentAssessmentModel
+/**
+ * Model ShipmentAssessmentRound
+ * One round of an assessment. A reassessment is a new round; the earlier
+ * rounds, their checks and their report are never changed.
+ */
+export type ShipmentAssessmentRound = Prisma.ShipmentAssessmentRoundModel
+/**
+ * Model ShipmentAssessmentCheck
+ * One checklist item's result in one round.
+ */
+export type ShipmentAssessmentCheck = Prisma.ShipmentAssessmentCheckModel
+/**
+ * Model ShipmentAssessmentEvidence
+ * A photo or document attached to an assessment. Private storage only.
+ */
+export type ShipmentAssessmentEvidence = Prisma.ShipmentAssessmentEvidenceModel
+/**
+ * Model ShipmentAssessmentEvent
+ * Everything that happened to an assessment, append-only.
+ */
+export type ShipmentAssessmentEvent = Prisma.ShipmentAssessmentEventModel
+/**
+ * Model ShipmentWaiverDecision
+ * An auditor's decision on a badge-based waiver.
+ */
+export type ShipmentWaiverDecision = Prisma.ShipmentWaiverDecisionModel
+/**
+ * Model ShipmentReleaseAuthorization
+ * Permission for L2 to start. One ACTIVE row per assessment at most.
+ */
+export type ShipmentReleaseAuthorization = Prisma.ShipmentReleaseAuthorizationModel
+/**
+ * Model ShipmentAssessmentException
+ * Reality that broke a rule: a carrier reported the goods leaving while the
+ * shipment was not released. Recorded, never discarded, never approved.
+ */
+export type ShipmentAssessmentException = Prisma.ShipmentAssessmentExceptionModel
+/**
+ * Model AuditDocument
+ * A certificate, waiver authorization or findings report the Audit Team
+ * issued. The PDF is never overwritten: a correction is a new row with
+ * `supersedesId` set and the old one SUPERSEDED.
+ */
+export type AuditDocument = Prisma.AuditDocumentModel
+/**
+ * Model SellerAssessmentPolicy
+ * A versioned policy. v1.0 is seeded as DRAFT: its proposed commercial
+ * defaults bind only after somebody records adoption, an effective date and
+ * disclosure. Never edited in place - a change is a new version.
+ */
+export type SellerAssessmentPolicy = Prisma.SellerAssessmentPolicyModel
+/**
+ * Model SellerAssessment
+ * One assessment cycle for one seller: initial onboarding, an extension of
+ * scope, a renewal, a reassessment, or the reassessment of a legacy seller.
+ */
+export type SellerAssessment = Prisma.SellerAssessmentModel
+/**
+ * Model SellerAssessmentGate
+ * 
+ */
+export type SellerAssessmentGate = Prisma.SellerAssessmentGateModel
+/**
+ * Model SellerAssessmentChecklistItem
+ * Section 8: the 23 applicant checklist items. Untouched stays UNREVIEWED.
+ */
+export type SellerAssessmentChecklistItem = Prisma.SellerAssessmentChecklistItemModel
+/**
+ * Model SellerAssessmentScore
+ * Section 4: one rating 0-5 per dimension, with its evidence and reasoning.
+ */
+export type SellerAssessmentScore = Prisma.SellerAssessmentScoreModel
+/**
+ * Model SellerAssessmentEvidence
+ * A private evidence file. A replacement is a new version; the old one stays.
+ */
+export type SellerAssessmentEvidence = Prisma.SellerAssessmentEvidenceModel
+/**
+ * Model SellerAssessmentScopeItem
+ * Gate 3 and Section 11: one material combination - product version x site x
+ * single country x channel. No regional row: a country is one ISO code.
+ */
+export type SellerAssessmentScopeItem = Prisma.SellerAssessmentScopeItemModel
+/**
+ * Model SellerAssessmentFinding
+ * Gate 6 and Section 10: a finding and its corrective / preventive action.
+ */
+export type SellerAssessmentFinding = Prisma.SellerAssessmentFindingModel
+/**
+ * Model SellerAssessmentWorkpaper
+ * Typed records of human work: site audits, sample plans and custody, lab
+ * competence, contracts, mock-order steps, identity checks, specialist
+ * reviews, AI outputs. Append-only; a correction is a new revision.
+ * `mode` says plainly whether a step was SIMULATED or really VERIFIED.
+ */
+export type SellerAssessmentWorkpaper = Prisma.SellerAssessmentWorkpaperModel
+/**
+ * Model SellerExternalCertification
+ * Gate 5: the independent body the marketplace appointed and paid, and the
+ * certificate it issued. A seller upload never authenticates anything.
+ */
+export type SellerExternalCertification = Prisma.SellerExternalCertificationModel
+/**
+ * Model SellerTradingApproval
+ * Gate 8 and Section 9: the marketplace's INTERNAL trading approval. Not the
+ * external certificate and not a government or accredited approval.
+ */
+export type SellerTradingApproval = Prisma.SellerTradingApprovalModel
+/**
+ * Model SellerTradingApprovalScope
+ * One approved (or blocked) combination. The purchase gate reads this.
+ */
+export type SellerTradingApprovalScope = Prisma.SellerTradingApprovalScopeModel
+/**
+ * Model SellerAssessmentEvent
+ * Append-only history of every decision and change: actor, capability,
+ * reason, policy version and evidence versions.
+ */
+export type SellerAssessmentEvent = Prisma.SellerAssessmentEventModel
+/**
+ * Model SellerAssessmentNotice
+ * Section 12: a suspension, rejection or restriction notice.
+ */
+export type SellerAssessmentNotice = Prisma.SellerAssessmentNoticeModel
+/**
+ * Model SellerAssessmentAppeal
+ * 
+ */
+export type SellerAssessmentAppeal = Prisma.SellerAssessmentAppealModel
+/**
+ * Model SellerAssessmentChangeRequest
+ * Section 6: an advance change notification, or one the audit team found undisclosed.
+ */
+export type SellerAssessmentChangeRequest = Prisma.SellerAssessmentChangeRequestModel
+/**
+ * Model SellerIncidentReport
+ * 
+ */
+export type SellerIncidentReport = Prisma.SellerIncidentReportModel
+/**
+ * Model SellerOrderDisposition
+ * A placed seller order caught by a suspension or a lapsed scope. Nothing
+ * ships, cancels or refunds by itself: a person records the disposition.
+ */
+export type SellerOrderDisposition = Prisma.SellerOrderDispositionModel
+/**
+ * Model SellerBankChangeRequest
+ * A bank beneficiary change: confirmed through a known independent contact
+ * and approved by two different people.
+ */
+export type SellerBankChangeRequest = Prisma.SellerBankChangeRequestModel
+/**
+ * Model SellerSurveillanceTask
+ * Surveillance, revalidation and expiry reminders. `dedupeKey` makes every
+ * sweep idempotent: a task or reminder is created once, whatever retries.
+ */
+export type SellerSurveillanceTask = Prisma.SellerSurveillanceTaskModel
+/**
+ * Model CommercialSchedule
+ * 
+ */
+export type CommercialSchedule = Prisma.CommercialScheduleModel
+/**
+ * Model CommercialScheduleEvent
+ * 
+ */
+export type CommercialScheduleEvent = Prisma.CommercialScheduleEventModel
+/**
+ * Model OrderLineCommercialSnapshot
+ * Doc 07 s1: what was agreed for one order line, frozen once. A later rule change never rewrites it.
+ */
+export type OrderLineCommercialSnapshot = Prisma.OrderLineCommercialSnapshotModel
+/**
+ * Model ImportRoute
+ * Doc 07 s4 / Doc 08 s1: a reviewed lawful import route. B2C checkout of a covered category is refused without an approved one.
+ */
+export type ImportRoute = Prisma.ImportRouteModel
+/**
+ * Model DisputeCaseProfile
+ * Doc 07 s6-s8: the case-management facts a dispute carries beyond the published dispute contract.
+ */
+export type DisputeCaseProfile = Prisma.DisputeCaseProfileModel
+/**
+ * Model DisputeEvidenceRequest
+ * 
+ */
+export type DisputeEvidenceRequest = Prisma.DisputeEvidenceRequestModel
+/**
+ * Model DisputeRemedyAction
+ * 
+ */
+export type DisputeRemedyAction = Prisma.DisputeRemedyActionModel
+/**
+ * Model DisputeTestingRecord
+ * 
+ */
+export type DisputeTestingRecord = Prisma.DisputeTestingRecordModel
+/**
+ * Model LossRecovery
+ * Doc 07 s10: every recovery of one loss, so carrier, insurer, chargeback and refund are never counted twice.
+ */
+export type LossRecovery = Prisma.LossRecoveryModel
+/**
+ * Model CommissionAdjustment
+ * Commission reversed for a refund (Doc 08 s2: commission follows refunds proportionately). Proposed, then applied by finance.
+ */
+export type CommissionAdjustment = Prisma.CommissionAdjustmentModel
+/**
+ * Model CertificationProgramme
+ * Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+ */
+export type CertificationProgramme = Prisma.CertificationProgrammeModel
+/**
+ * Model CertificationCostEntry
+ * 
+ */
+export type CertificationCostEntry = Prisma.CertificationCostEntryModel
+/**
+ * Model CertificationRecoveryAllocation
+ * 
+ */
+export type CertificationRecoveryAllocation = Prisma.CertificationRecoveryAllocationModel
+/**
+ * Model SellerSecuritySchedule
+ * Doc 07 s10 / Doc 08 s6: a seller's security schedule. Proposed until approved with provider permission.
+ */
+export type SellerSecuritySchedule = Prisma.SellerSecurityScheduleModel
+/**
+ * Model SecurityReview
+ * 
+ */
+export type SecurityReview = Prisma.SecurityReviewModel
+/**
+ * Model InsurancePolicyRecord
+ * Doc 08 s6: insurance verified per policy. Buying a limit never approves a category.
+ */
+export type InsurancePolicyRecord = Prisma.InsurancePolicyRecordModel
+/**
+ * Model ProductComplianceEvidence
+ * Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+ */
+export type ProductComplianceEvidence = Prisma.ProductComplianceEvidenceModel
+/**
+ * Model SafetyCase
+ * Doc 07 s11 / Doc 08 s9: a product safety case and recall.
+ */
+export type SafetyCase = Prisma.SafetyCaseModel
+/**
+ * Model SafetyCaseScope
+ * 
+ */
+export type SafetyCaseScope = Prisma.SafetyCaseScopeModel
+/**
+ * Model SafetyCaseAction
+ * Reporting decisions, notices, recall actions and effectiveness checks. Reporting decisions are a qualified person's, never an AI's.
+ */
+export type SafetyCaseAction = Prisma.SafetyCaseActionModel
+/**
+ * Model RecallRehearsal
+ * 
+ */
+export type RecallRehearsal = Prisma.RecallRehearsalModel
+/**
+ * Model LaunchReadinessItem
+ * Doc 08 s11: one decision for one country. A country is enabled only when every applicable decision is approved.
+ */
+export type LaunchReadinessItem = Prisma.LaunchReadinessItemModel
+/**
+ * Model CountryLaunch
+ * 
+ */
+export type CountryLaunch = Prisma.CountryLaunchModel
+/**
+ * Model FreightBooking
+ * Doc 07 s3: a freight booking for one seller order, with the quotes compared.
+ */
+export type FreightBooking = Prisma.FreightBookingModel
+/**
+ * Model FreightQuoteOption
+ * 
+ */
+export type FreightQuoteOption = Prisma.FreightQuoteOptionModel
+/**
+ * Model LogisticsProviderReview
+ * Doc 07 s3: provider screening. A missing integration is shown as "Credentials required", never as a pass.
+ */
+export type LogisticsProviderReview = Prisma.LogisticsProviderReviewModel
+/**
+ * Model HandlingRequirement
+ * Doc 07 s4: dangerous goods, batteries, timber packaging and temperature, configured per product category and route.
+ */
+export type HandlingRequirement = Prisma.HandlingRequirementModel
+/**
+ * Model DispatchEvidence
+ * Doc 07 s5: what was packed, sealed, photographed and handed over.
+ */
+export type DispatchEvidence = Prisma.DispatchEvidenceModel
+/**
+ * Model CustodyHandover
+ * 
+ */
+export type CustodyHandover = Prisma.CustodyHandoverModel
+/**
+ * Model PartialShipmentApproval
+ * 
+ */
+export type PartialShipmentApproval = Prisma.PartialShipmentApprovalModel
+/**
+ * Model ReturnAuthorization
+ * Doc 07 s9: a return authorisation - who pays, which route, what was received and inspected.
+ */
+export type ReturnAuthorization = Prisma.ReturnAuthorizationModel
+/**
+ * Model OrderPaymentPlan
+ * Doc 08 s5: an approved bespoke payment plan for one order. Never a default.
+ */
+export type OrderPaymentPlan = Prisma.OrderPaymentPlanModel

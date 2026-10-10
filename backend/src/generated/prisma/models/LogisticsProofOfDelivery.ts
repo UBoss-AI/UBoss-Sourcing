@@ -107,6 +107,7 @@ export type LogisticsProofOfDeliveryCountAggregateOutputType = {
   signatureDocumentId: number
   photoDocumentId: number
   exceptionNote: number
+  quantitiesJson: number
   capturedByPartnerUserId: number
   capturedBySource: number
   createdAt: number
@@ -185,6 +186,7 @@ export type LogisticsProofOfDeliveryCountAggregateInputType = {
   signatureDocumentId?: true
   photoDocumentId?: true
   exceptionNote?: true
+  quantitiesJson?: true
   capturedByPartnerUserId?: true
   capturedBySource?: true
   createdAt?: true
@@ -294,6 +296,7 @@ export type LogisticsProofOfDeliveryGroupByOutputType = {
   signatureDocumentId: string | null
   photoDocumentId: string | null
   exceptionNote: string | null
+  quantitiesJson: runtime.JsonValue | null
   capturedByPartnerUserId: string | null
   capturedBySource: $Enums.LogisticsEventSource
   createdAt: Date
@@ -339,6 +342,7 @@ export type LogisticsProofOfDeliveryWhereInput = {
   signatureDocumentId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   photoDocumentId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   exceptionNote?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
+  quantitiesJson?: Prisma.JsonNullableFilter<"LogisticsProofOfDelivery">
   capturedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFilter<"LogisticsProofOfDelivery"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFilter<"LogisticsProofOfDelivery"> | Date | string
@@ -362,6 +366,7 @@ export type LogisticsProofOfDeliveryOrderByWithRelationInput = {
   signatureDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   photoDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   exceptionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -389,6 +394,7 @@ export type LogisticsProofOfDeliveryWhereUniqueInput = Prisma.AtLeast<{
   signatureDocumentId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   photoDocumentId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   exceptionNote?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
+  quantitiesJson?: Prisma.JsonNullableFilter<"LogisticsProofOfDelivery">
   capturedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsProofOfDelivery"> | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFilter<"LogisticsProofOfDelivery"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFilter<"LogisticsProofOfDelivery"> | Date | string
@@ -412,6 +418,7 @@ export type LogisticsProofOfDeliveryOrderByWithAggregationInput = {
   signatureDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   photoDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   exceptionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -442,6 +449,7 @@ export type LogisticsProofOfDeliveryScalarWhereWithAggregatesInput = {
   signatureDocumentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsProofOfDelivery"> | string | null
   photoDocumentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsProofOfDelivery"> | string | null
   exceptionNote?: Prisma.StringNullableWithAggregatesFilter<"LogisticsProofOfDelivery"> | string | null
+  quantitiesJson?: Prisma.JsonNullableWithAggregatesFilter<"LogisticsProofOfDelivery">
   capturedByPartnerUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsProofOfDelivery"> | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceWithAggregatesFilter<"LogisticsProofOfDelivery"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsProofOfDelivery"> | Date | string
@@ -463,6 +471,7 @@ export type LogisticsProofOfDeliveryCreateInput = {
   signatureDocumentId?: string | null
   photoDocumentId?: string | null
   exceptionNote?: string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: string | null
   capturedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
@@ -486,6 +495,7 @@ export type LogisticsProofOfDeliveryUncheckedCreateInput = {
   signatureDocumentId?: string | null
   photoDocumentId?: string | null
   exceptionNote?: string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: string | null
   capturedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
@@ -507,6 +517,7 @@ export type LogisticsProofOfDeliveryUpdateInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -530,6 +541,7 @@ export type LogisticsProofOfDeliveryUncheckedUpdateInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -552,6 +564,7 @@ export type LogisticsProofOfDeliveryCreateManyInput = {
   signatureDocumentId?: string | null
   photoDocumentId?: string | null
   exceptionNote?: string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: string | null
   capturedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
@@ -573,6 +586,7 @@ export type LogisticsProofOfDeliveryUpdateManyMutationInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -595,6 +609,7 @@ export type LogisticsProofOfDeliveryUncheckedUpdateManyInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -628,6 +643,7 @@ export type LogisticsProofOfDeliveryCountOrderByAggregateInput = {
   signatureDocumentId?: Prisma.SortOrder
   photoDocumentId?: Prisma.SortOrder
   exceptionNote?: Prisma.SortOrder
+  quantitiesJson?: Prisma.SortOrder
   capturedByPartnerUserId?: Prisma.SortOrder
   capturedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -735,6 +751,7 @@ export type LogisticsProofOfDeliveryCreateWithoutShipmentInput = {
   signatureDocumentId?: string | null
   photoDocumentId?: string | null
   exceptionNote?: string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: string | null
   capturedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
@@ -756,6 +773,7 @@ export type LogisticsProofOfDeliveryUncheckedCreateWithoutShipmentInput = {
   signatureDocumentId?: string | null
   photoDocumentId?: string | null
   exceptionNote?: string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: string | null
   capturedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
@@ -793,6 +811,7 @@ export type LogisticsProofOfDeliveryUpdateWithoutShipmentInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -814,6 +833,7 @@ export type LogisticsProofOfDeliveryUncheckedUpdateWithoutShipmentInput = {
   signatureDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photoDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   exceptionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capturedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capturedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -838,6 +858,7 @@ export type LogisticsProofOfDeliverySelect<ExtArgs extends runtime.Types.Extensi
   signatureDocumentId?: boolean
   photoDocumentId?: boolean
   exceptionNote?: boolean
+  quantitiesJson?: boolean
   capturedByPartnerUserId?: boolean
   capturedBySource?: boolean
   createdAt?: boolean
@@ -863,13 +884,14 @@ export type LogisticsProofOfDeliverySelectScalar = {
   signatureDocumentId?: boolean
   photoDocumentId?: boolean
   exceptionNote?: boolean
+  quantitiesJson?: boolean
   capturedByPartnerUserId?: boolean
   capturedBySource?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LogisticsProofOfDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "recipientName" | "recipientDesignation" | "deliveredAt" | "deliveryLatitude" | "deliveryLongitude" | "deliveryLocationLabel" | "hasSignature" | "hasPhoto" | "otpVerified" | "businessStamped" | "signatureDocumentId" | "photoDocumentId" | "exceptionNote" | "capturedByPartnerUserId" | "capturedBySource" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsProofOfDelivery"]>
+export type LogisticsProofOfDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "recipientName" | "recipientDesignation" | "deliveredAt" | "deliveryLatitude" | "deliveryLongitude" | "deliveryLocationLabel" | "hasSignature" | "hasPhoto" | "otpVerified" | "businessStamped" | "signatureDocumentId" | "photoDocumentId" | "exceptionNote" | "quantitiesJson" | "capturedByPartnerUserId" | "capturedBySource" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsProofOfDelivery"]>
 export type LogisticsProofOfDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }
@@ -909,6 +931,10 @@ export type $LogisticsProofOfDeliveryPayload<ExtArgs extends runtime.Types.Exten
      * colleague, one carton refused.
      */
     exceptionNote: string | null
+    /**
+     * Doc 07 s5: quantities delivered per line, as the recipient confirmed them. Proof of delivery is not proof of technical conformity.
+     */
+    quantitiesJson: runtime.JsonValue | null
     capturedByPartnerUserId: string | null
     capturedBySource: $Enums.LogisticsEventSource
     createdAt: Date
@@ -1298,6 +1324,7 @@ export interface LogisticsProofOfDeliveryFieldRefs {
   readonly signatureDocumentId: Prisma.FieldRef<"LogisticsProofOfDelivery", 'String'>
   readonly photoDocumentId: Prisma.FieldRef<"LogisticsProofOfDelivery", 'String'>
   readonly exceptionNote: Prisma.FieldRef<"LogisticsProofOfDelivery", 'String'>
+  readonly quantitiesJson: Prisma.FieldRef<"LogisticsProofOfDelivery", 'Json'>
   readonly capturedByPartnerUserId: Prisma.FieldRef<"LogisticsProofOfDelivery", 'String'>
   readonly capturedBySource: Prisma.FieldRef<"LogisticsProofOfDelivery", 'LogisticsEventSource'>
   readonly createdAt: Prisma.FieldRef<"LogisticsProofOfDelivery", 'DateTime'>

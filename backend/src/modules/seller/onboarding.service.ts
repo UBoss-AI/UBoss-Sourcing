@@ -21,6 +21,7 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { taxNumberProblem } from '../../domain/seller-kyb.js';
 import { recordSellerAudit } from './audit.service.js';
+import { assertSellerSubmissionAgreements } from '../legal/agreement.service.js';
 import { notifyVerifiersOfSubmission } from './verification.service.js';
 import { kybGapsFor } from './kyb-facts.service.js';
 import { assertTurnoverEligibleForSubmission, turnoverGapsFor } from './turnover-facts.service.js';
@@ -1220,6 +1221,12 @@ export async function acceptAgreement(input: AcceptAgreementInput): Promise<void
 export async function submitApplication(
   membership: SellerMembership,
   correlationId?: string | null,
+  /**
+   * The signed-in person sending it, from the session. Their acceptance of the
+   * current Seller Terms and Seller Platform Services Agreement is checked and
+   * recorded with the submission. Every HTTP caller passes it.
+   */
+  submittedByUserId?: string | null,
 ): Promise<void> {
   assertSellerPermission(membership, SellerPermission.ACCOUNT_SUBMIT);
   assertApplicationEditable(membership);
@@ -1230,6 +1237,17 @@ export async function submitApplication(
    * checklist. Every submission and resubmission comes through here.
    */
   await assertTurnoverEligibleForSubmission(membership.sellerAccountId);
+
+  /*
+   * The two seller agreements, in the versions in force now and accepted by
+   * the person submitting. Refused with SELLER_AGREEMENTS_REQUIRED, naming
+   * each one, when either is unpublished, unaccepted or replaced since. This
+   * approves nothing: verification and release stay with the Audit Console.
+   */
+  const agreements =
+    submittedByUserId === null || submittedByUserId === undefined
+      ? []
+      : await assertSellerSubmissionAgreements(submittedByUserId, membership.sellerAccountId);
 
   const view = await readOnboarding(membership);
 
@@ -1271,5 +1289,20 @@ export async function submitApplication(
       resubmission: before.status === 'ACTION_REQUIRED',
       version: before.version + 1,
     });
+    if (agreements.length > 0) {
+      // Which exact versions this submission was made against, in the same
+      // transaction, so the two can never disagree.
+      await recordSellerAudit({
+        sellerAccountId: membership.sellerAccountId,
+        action: 'seller.application.agreements_confirmed',
+        actor: { type: 'CUSTOMER', userId: submittedByUserId ?? null, label: membership.displayName },
+        resourceType: 'seller_account',
+        resourceId: membership.sellerAccountId,
+        after: { agreements },
+        summary: 'The application was sent against the accepted Seller Terms and Seller Platform Services Agreement.',
+        correlationId: correlationId ?? null,
+        tx,
+      });
+    }
   });
 }

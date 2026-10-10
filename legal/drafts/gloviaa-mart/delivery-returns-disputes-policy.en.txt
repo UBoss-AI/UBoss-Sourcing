@@ -1,0 +1,95 @@
+kind: RETURNS_POLICY
+version: 2026-10-draft-1
+locale: en
+title: Gloviaa Mart Delivery, Returns, Refunds and Disputes Policy
+---
+For approval before implementation or signature. Proposed operating targets become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
+
+Effective date: [[DECISION: effective date, set when adopted]]
+
+This buyer policy explains how delivery, receipt, returns, refunds, complaints and disputes are handled on Gloviaa Mart, operated by [[DECISION: registered company name, address and registration number]]. It is the buyer-facing part of the marketplace's Delivery, Returns, Refunds and Dispute Administration Policy. Internal seller security and reserve terms are not part of it.
+
+## 1 Who does what
+
+- Each confirmed order line names the actual seller. The seller supplies the goods and is responsible for their conformity.
+- For international business orders the business buyer is ordinarily the importer of record. A consumer is never assumed to be a qualified importer.
+- Gloviaa routes orders and coordinates appointed logistics and customs providers within written mandates. Carriers, warehouses and installers keep their own service duties and claims routes.
+- Before an order is accepted, the seller, manufacturer, product version, site, destination, business or consumer context, importer, price, taxes, charges, payment milestones, delivery term, named delivery place, lead time, packaging, transport restrictions, insurance and return route are confirmed. A payment confirmation alone does not accept an order.
+
+## 2 Delivery terms
+
+- International business orders: by default DAP (Incoterms 2020) to a precise named destination. The seller pays transport and bears transit risk until the goods are ready for unloading there. The buyer handles import clearance, duties, taxes and unloading.
+- FCA at a named Indian pickup point or terminal is used only where a business buyer expressly elects main-carriage responsibility and the election is approved.
+- DDP is used only with an approved importer, tax and regulatory arrangement.
+- Indian domestic orders state delivery risk, tax invoicing, e-way documentation where required and receiving conditions directly.
+- Consumer orders use consumer-compliant risk and import terms. Commercial delivery terms never remove consumer protections. Consumer checkout is not offered where no lawful import route exists.
+- A delivery term is not a delivery date, a title clause, an inspection protocol or a warranty. These are stated separately on the order.
+
+## 3 Dispatch, tracking and proof of delivery
+
+- Orders are dispatched only when payment, any required inspection and the required documents are in order.
+- You receive tracking, shipment splits, contact details and meaningful delay updates.
+- Partial shipments happen only with your approval and are billed in proportion.
+- Proof of delivery records the date, time, place, recipient, quantities and any exceptions. It does not by itself prove that the goods conform to their specification.
+- Refunds and statutory remedies do not wait indefinitely for a carrier or insurer claim.
+
+## 4 Reporting problems after receipt
+
+These are service and evidence targets. They never take away a legal right.
+
+- Visible package damage or shortage: please tell us within 48 hours of receipt. Latent defect, statutory and safety claims remain.
+- Apparent quantity or specification issue on a business order: please tell us within 7 calendar days. Agreed technical acceptance and warranty remain, and a longer agreed acceptance test follows its own timetable.
+- General platform claim: please file within 30 days after delivery. There is no limit on your applicable legal rights.
+- Voluntary eligible return: request within 14 days after delivery. Broader withdrawal rights in your country prevail.
+
+If you report late, tell us why. A late safety, defect, warranty or statutory claim is taken in and reviewed; it is not refused automatically.
+
+## 5 How a case is handled
+
+- You receive a case reference. We acknowledge it ordinarily within one business day.
+- We ask only for proportionate evidence, such as photographs, the invoice, the delivery record or a test report. We never ask for an identity document unrelated to the dispute.
+- The seller is asked to respond, ordinarily within 72 hours. Where the seller produces material evidence against your account, you get a reasonable chance to answer it.
+- Independent tests are arranged where needed, under an agreed protocol, with costs reallocated according to fault and the agreed terms.
+- Credible safety incidents go to our safety team at once, and affected listings, shipments and repeat orders can be stopped while they are reviewed.
+- We aim to decide within 7 days after the evidence is sufficient, and keep you updated on complex matters.
+
+## 6 Decisions and remedies
+
+- Remedies include correction, repair, replacement, delivery of a missing quantity, price adjustment, return, refund and re-performance of a service.
+- A decision names the amounts, who pays return freight, the expected completion date and how to appeal.
+- No decision is made by an automated system alone.
+- Gloviaa administers the platform case. It is not an arbitral tribunal and does not decide final legal liability.
+
+## 7 Appeals
+
+- You may appeal a decision within 7 days. An uninvolved reviewer handles the appeal and aims to finish within ten business days where practical.
+- You keep your rights to go to court, to arbitration where agreed, to a regulator and to your payment provider.
+
+## 8 Refunds and cancellations
+
+- Before an order is accepted, funds are released or refunded where due.
+- After acceptance, business cancellations follow the agreed terms and evidenced irrecoverable work. There is no blanket forfeiture.
+- Consumer cancellation refunds include every amount the law of your country requires. Labels such as certification or administration charges do not reduce them.
+- Refunds go to the original payment method where required.
+- We tell you when a refund was instructed and show its actual status at the payment provider. A refund still pending at the provider is never shown as completed, and we do not promise bank-credit timing outside the provider's control.
+- A valid defect remedy never depends on original packaging, on there being no earlier complaint, or on a seller's insurer paying.
+- A deduction for damage you caused needs evidence and a legal basis.
+- Exclusions for change-of-mind returns are disclosed before purchase and do not affect your rights for defective goods.
+
+## 9 Product safety and recalls
+
+- Suspected unsafe goods and affected listings are stopped promptly.
+- If you are affected by a recall, you receive plain-language instructions and a workable remedy.
+- Reinstatement of a product needs evidence of containment, cause, correction, tests and current certificates, and a human release decision.
+
+## 10 Contacts
+
+- Complaints and grievance officer: [[DECISION: name and contact]]
+- Safety contact: [[DECISION: name and contact]]
+- Privacy contact: [[DECISION: name and contact]]
+- Returns and logistics contact: [[DECISION: contact]]
+- Payments contact: [[DECISION: contact]]
+
+## 11 Versions
+
+The version of this policy that applies to an order is the one in force when the order was confirmed, and it is kept with the order.

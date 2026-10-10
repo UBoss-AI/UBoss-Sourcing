@@ -13,6 +13,7 @@
  *     a fresh cart at today's prices, and says so — a customer who expects the
  *     old total and gets a new one has been misled by the button.
  */
+import { BuyerShipmentAssessments } from '@/components/inspection/ShipmentAssessmentPanels';
 import { OrderedProductInfo } from '@/pages/seller/OrderedProductInfo';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -36,6 +37,7 @@ import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
 import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
 import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
 import { PaymentProtectionCard } from '@/components/PaymentProtectionCard';
+import { RefundStatusCard } from '@/components/RefundStatusCard';
 import { OrderTracking } from '@/components/order-tracking/OrderTracking';
 import { OrderShipmentDetails } from '@/components/OrderShipmentDetails';
 import { BuyerOrderInspections } from '@/components/inspection/OrderInspections';
@@ -604,6 +606,7 @@ export function OrderDetailPage(): React.JSX.Element {
             {/* How each consignment ships, and its trade documents (Master rows 42, 56). */}
             <OrderShipmentDetails orderId={order.id} />
             <BuyerOrderInspections orderId={order.id} />
+            <BuyerShipmentAssessments orderId={order.id} />
             {/* Messages with each seller on this order (JOURNEY-055). Nothing
                 for the marketplace's own stock, which has no seller. */}
             <div className="mt-4">
@@ -637,6 +640,13 @@ export function OrderDetailPage(): React.JSX.Element {
           {/* A receipt per captured payment and confirmed refund. Nothing before payment. */}
           <PaymentProtectionCard orderId={order.id} />
           <OrderPaymentReceipts orderId={order.id} />
+          {/* Doc 07: each refund as the payment provider reports it. Nothing before a refund. */}
+          <RefundStatusCard orderId={order.id} />
+          <p className="text-sm">
+            <Link to="/legal" className="font-medium text-brand hover:underline">
+              {t('commercial.policyLink')}
+            </Link>
+          </p>
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 className="text-title-sm text-ink">{t('orderDetail.needSomething')}</h2>
 

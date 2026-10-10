@@ -47,6 +47,8 @@ import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../doma
 import { serialiseMoney } from '../../domain/money.js';
 import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
+import { onL1Completed } from '../shipment-assessment/assessment.service.js';
+import { consumeReleaseForL2 } from '../shipment-assessment/release-gate.service.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -704,6 +706,11 @@ export async function transitionLeg(
   const actorRole = editor.kind === 'PARTNER' ? 'PARTNER' : editor.kind === 'SELLER' ? 'SELLER' : 'UBOSS';
 
   const result = await prisma.$transaction(async (tx) => {
+    // L2 may start only on an Audit release (Shipment Assessment). Refused
+    // here, before anything is written or any carrier is told.
+    if (leg.level === 'L2' && input.to === 'IN_PROGRESS') {
+      await consumeReleaseForL2(tx, leg, { userId: editor.userId, role: actorRole });
+    }
     const moved = await tx.shipmentLeg.updateMany({
       where: { id: leg.id, version: leg.version },
       data: {
@@ -771,6 +778,9 @@ export async function transitionLeg(
     `${leg.level} of ${leg.sellerOrderGroup.sellerOrderNumber}: ${leg.status} to ${input.to}.`);
 
   await announceTransition(leg, input.to, { refused, takenBack, next: result.next, note: input.note ?? null });
+
+  // L1 handed over at the port of loading: the shipment is ready for assessment.
+  if (leg.level === 'L1' && input.to === 'COMPLETED') await onL1Completed(leg.sellerOrderGroupId);
 
   return result.leg;
 }

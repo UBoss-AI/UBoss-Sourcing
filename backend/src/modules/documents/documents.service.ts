@@ -16,6 +16,7 @@
  * that is stored - the same pattern the logistics portal and the report
  * exports use. A download is audited.
  */
+import { verifyAuditDocument } from '../shipment-assessment/documents.service.js';
 import { z } from 'zod';
 
 import { env } from '../../config/env.js';
@@ -615,6 +616,11 @@ export async function verifyDocument(
     };
   }
   if (!verificationCodeMatches(kind, number, given)) return { valid: false };
+  if (kind === 'audit-document') {
+    // A certificate, waiver or findings report: current status and scope only.
+    const found = await verifyAuditDocument(number);
+    return found === null ? { valid: false } : { valid: true, number, ...found };
+  }
   if (kind === 'commission-invoice' || kind === 'commission-credit-note') {
     // The operator's own invoice to a seller: no seller, no amounts - only what
     // is printed beside the QR already.

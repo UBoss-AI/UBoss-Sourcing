@@ -23,6 +23,9 @@ import type { ConsoleSession } from '@/lib/types';
 import { agency, sessionFor } from '@/test/session-fixture';
 import { LoginPage } from './LoginPage';
 
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
+
 vi.mock('@/lib/audit', () => ({
   fetchSession: vi.fn(),
   signIn: vi.fn(),
@@ -179,6 +182,10 @@ describe('a refused password', () => {
     const email = await screen.findByLabelText('Work email');
     fireEvent.change(email, { target: { value: 'inspector@northgate.example' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong-one' } });
+    // Sign in waits for the agreement boxes (stood in for here) to report ticked.
+    await waitFor(() => {
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: /^sign in$/i }).disabled).toBe(false);
+    });
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
     expect(await screen.findByText(/do not match/i)).toBeDefined();
@@ -197,6 +204,10 @@ describe('where a sign-in lands', () => {
       target: { value: session.user.email },
     });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'a-password' } });
+    // Sign in waits for the agreement boxes (stood in for here) to report ticked.
+    await waitFor(() => {
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: /^sign in$/i }).disabled).toBe(false);
+    });
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
   }
 

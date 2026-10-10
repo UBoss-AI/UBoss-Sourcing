@@ -22,6 +22,9 @@
  * a rate in between, and a disputed settlement has to be recomputable from what
  * was in force on the day.
  */
+import { assertDispatchAllowed } from '../seller-assessment/purchase-gate.service.js';
+import { assertAcceptanceControls } from '../commercial-policy/order-controls.service.js';
+import { assertDispatchControls } from '../commercial-policy/logistics-controls.service.js';
 import { readOrderItemSnapshot, type OrderItemSnapshot } from '../../domain/order-item-snapshot.js';
 import { currentListingInfo } from '../orders/order-item-snapshot.service.js';
 import type { Prisma } from '../../generated/prisma/client.js';
@@ -470,7 +473,13 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
     // code a rule needs, keeps the goods until fixed or overridden by staff.
     if (SELLER_ORDER_GATED_STATUSES.includes(input.to)) {
       assertComplianceOpen(await evaluateSellerOrderCompliance(tx, group.id), { from, to: input.to });
+      await assertDispatchAllowed(tx, group.id);
+      // Doc 07 s5: payment, documents, quantities, seals, photos, custody, temperature; and any safety hold.
+      await assertDispatchControls(tx, group.id);
     }
+
+    // Doc 07 s1: payment success is not acceptance - the agreed terms are recorded first.
+    if (input.to === 'ACCEPTED') await assertAcceptanceControls(tx, group.id);
 
     // Accepting is where a location is chosen, and it is required: a group with
     // no location has no dispatch deadline, so its SLA can never be breached
@@ -845,6 +854,8 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
       assertInspectionGateOpen(inspectionGate, 'SELLER_ORDER', { from: group.status, to: 'SHIPPED' });
     }
     assertComplianceOpen(await evaluateSellerOrderCompliance(tx, group.id), { from: group.status, to: 'SHIPPED' });
+    await assertDispatchAllowed(tx, group.id);
+    await assertDispatchControls(tx, group.id);
 
     const contents =
       input.contents ??

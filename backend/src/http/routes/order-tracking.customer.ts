@@ -19,7 +19,7 @@ import {
   readBuyerTracking,
   redeemBuyerPodLink,
 } from '../../modules/logistics/buyer-tracking.service.js';
-import { currentUser, orderScopeWhere, requireCustomer } from '../plugins/auth.js';
+import { currentUser, orderScopeWhere, requireCustomerForRemedies } from '../plugins/auth.js';
 
 const orderParam = z.object({ id: z.string().length(26) });
 const podParam = z.object({
@@ -29,7 +29,8 @@ const podParam = z.object({
 });
 
 export function registerCustomerOrderTrackingRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireCustomer);
+  // Existing orders and their remedies stay reachable before new Terms are accepted.
+  app.addHook('preHandler', requireCustomerForRemedies);
 
   // Every consignment on one of the buyer's orders: its timeline in the buyer's words, anything wrong with it, its ETA and its proof of delivery.
   app.get('/:id/tracking', async (request, reply) => {

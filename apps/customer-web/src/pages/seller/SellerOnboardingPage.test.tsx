@@ -98,12 +98,44 @@ const seller: SellerIdentity = {
   lock: { isSet: true, isOpen: true },
 };
 
+/** The Seller Hub's agreement status: the seller terms and the services agreement. */
+function agreementStatus(accepted: boolean): Record<string, unknown> {
+  const entry = (kind: string, id: string, title: string) => ({
+    kind,
+    current: {
+      document: {
+        id, kind, version: '1.0', locale: 'en', title, body: '## 1 One\nText.', changeSummary: null,
+        effectiveAt: '2026-11-01T00:00:00.000Z', publishedAt: '2026-11-01T00:00:00.000Z', contentSha256: 'c'.repeat(64),
+      },
+      requestedLocale: 'en',
+      isFallback: false,
+    },
+    record: accepted
+      ? { recordId: `r-${id}`, documentId: id, version: '1.0', locale: 'en', action: 'TERMS_ACCEPTED', recordedAt: '2026-11-02T10:00:00.000Z' }
+      : null,
+    unavailable: false,
+  });
+  return {
+    scope: 'SELLER',
+    terms: [entry('SELLER_TERMS', '01JSELLERTERMS000000000001', 'Seller Terms and Conditions')],
+    services: [entry('SELLER_SERVICES_AGREEMENT', '01JSERVICES000000000000001', 'Seller Platform Services Agreement')],
+    privacy: { kind: 'PRIVACY_POLICY', current: null, record: null, unavailable: true },
+    termsComplete: accepted,
+    servicesComplete: accepted,
+    privacyComplete: true,
+    complete: accepted,
+  };
+}
+
 function serve(
   view: Record<string, unknown>,
   stored: { account?: Record<string, unknown> | null; profile?: Record<string, unknown> | null } = {},
+  agreementsAccepted = true,
 ): void {
   fetchMock.mockImplementation((input: unknown) => {
     const url = String(input);
+
+    if (url.includes('/auth/agreements')) return Promise.resolve(jsonResponse(agreementStatus(agreementsAccepted)));
 
     if (url.includes('/seller/onboarding')) return Promise.resolve(jsonResponse(view));
     if (url.includes('/seller/business-profile')) {
@@ -228,6 +260,37 @@ describe('SellerOnboardingPage', () => {
  * load, which is why the second test reloads the screen rather than trying to
  * simulate one.
  */
+describe('the seller agreements beside Send for review', () => {
+  const ready = { canSubmit: true, blockingSteps: [], percentComplete: 100 };
+
+  it('keeps Send for review disabled, and says why, until both agreements are accepted', async () => {
+    serve(onboarding(ready), {}, false);
+    renderPage();
+
+    expect(await screen.findByText('Accept both seller agreements')).toBeInTheDocument();
+    expect(screen.getAllByText('Not accepted yet: open it, read to the end and choose I agree.')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Send for review' })).toBeDisabled();
+  });
+
+  it('enables it once both are accepted, and opens each document on its own without un-accepting it', async () => {
+    const user = userEvent.setup();
+    serve(onboarding(ready), {}, true);
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Send for review' })).toBeEnabled();
+    });
+    expect(screen.getAllByText(/Accepted: version 1.0/)).toHaveLength(2);
+
+    await user.click(screen.getAllByRole('button', { name: 'Read' })[1] as HTMLElement);
+    const box = screen.getByRole('dialog', { name: 'Seller Platform Services Agreement' });
+    expect(within(box).queryByRole('button', { name: 'I agree' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Send for review' })).toBeEnabled();
+    expect(fetchMock.mock.calls.some(([, init]) => (init as RequestInit | undefined)?.method === 'POST')).toBe(false);
+  });
+});
+
 describe('work that was typed but never sent', () => {
   it('keeps every keystroke on the device without anybody pressing Save', async () => {
     serve(onboarding({ lastStepKey: 'store_profile' }), {

@@ -11,7 +11,9 @@ import type {
   AgreementScope,
   AgreementsClient,
   AgreementStatus,
+  CurrentAgreementDocument,
 } from '@/components/agreement-kit/types';
+import { flushSignInAgreements } from '@/components/agreement-kit/sign-in-agreements';
 import { ApiError, BASE_URL, api, onAgreementsRequired } from './api';
 
 const PREFIX = '/logistics/auth/agreements';
@@ -23,10 +25,14 @@ function query(scope: AgreementScope, locale: string): string {
   return params.toString();
 }
 
-const path = (role: AgreementRole): string => `${PREFIX}/${role === 'TERMS' ? 'terms' : 'privacy'}`;
+const path = (role: AgreementRole): string => `${PREFIX}/${role === 'TERMS' ? 'terms' : role === 'SERVICES' ? 'services' : 'privacy'}`;
 
 export const agreementsClient: AgreementsClient = {
-  status: (scope, locale) => api.get<AgreementStatus>(`${PREFIX}?${query(scope, locale)}`),
+  status: async (scope, locale) => {
+    // What was ticked on the sign-in form is recorded first, so the answer includes it.
+    await flushSignInAgreements(scope, (role, documentIds) => agreementsClient.record(scope, role, documentIds, locale));
+    return api.get<AgreementStatus>(`${PREFIX}?${query(scope, locale)}`);
+  },
   record: (scope, role, documentIds, locale) =>
     api.post<AgreementStatus>(path(role), {
       documentIds,
@@ -35,6 +41,8 @@ export const agreementsClient: AgreementsClient = {
     }),
   clear: (scope, role, locale) => api.delete<AgreementStatus>(`${path(role)}?${query(scope, locale)}`),
   history: async () => (await api.get<{ entries: AgreementHistoryEntry[] }>(`${PREFIX}/history`)).entries,
+  currentDocument: (kind, locale) =>
+    api.get<CurrentAgreementDocument>(`/legal/current?${new URLSearchParams({ kind, locale }).toString()}`),
   pdfUrl: (documentId) => `${BASE_URL}/legal/documents/${encodeURIComponent(documentId)}/pdf`,
   // No public document page in this app: the PDF is the copy to keep.
   pageUrl: () => null,

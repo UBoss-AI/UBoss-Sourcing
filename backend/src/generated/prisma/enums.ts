@@ -1491,6 +1491,8 @@ export type SellerPayoutStatus = (typeof SellerPayoutStatus)[keyof typeof Seller
 
 export const SellerNotificationKind = {
   APPLICATION_STATUS: 'APPLICATION_STATUS',
+  SELLER_ASSESSMENT: 'SELLER_ASSESSMENT',
+  SHIPMENT_ASSESSMENT: 'SHIPMENT_ASSESSMENT',
   LISTING_DECISION: 'LISTING_DECISION',
   NEW_ORDER: 'NEW_ORDER',
   DISPATCH_SLA_WARNING: 'DISPATCH_SLA_WARNING',
@@ -2912,8 +2914,13 @@ export const ConsentPurpose = {
   PLATFORM_TERMS: 'PLATFORM_TERMS',
   LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS',
   SELLER_TERMS: 'SELLER_TERMS',
+  SELLER_SERVICES_AGREEMENT: 'SELLER_SERVICES_AGREEMENT',
   STAFF_TERMS: 'STAFF_TERMS',
-  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS'
+  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS',
+  B2B_BUYER_TERMS: 'B2B_BUYER_TERMS',
+  B2B_BUYER_SERVICES_AGREEMENT: 'B2B_BUYER_SERVICES_AGREEMENT',
+  B2C_CONSUMER_TERMS: 'B2C_CONSUMER_TERMS',
+  B2C_PLATFORM_SERVICES_AGREEMENT: 'B2C_PLATFORM_SERVICES_AGREEMENT'
 } as const
 
 export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]
@@ -2932,7 +2939,9 @@ export const AgreementScope = {
   SELLER: 'SELLER',
   LOGISTICS: 'LOGISTICS',
   STAFF: 'STAFF',
-  AUDIT: 'AUDIT'
+  AUDIT: 'AUDIT',
+  COMPANY_BUYER: 'COMPANY_BUYER',
+  CONSUMER: 'CONSUMER'
 } as const
 
 export type AgreementScope = (typeof AgreementScope)[keyof typeof AgreementScope]
@@ -2975,7 +2984,12 @@ export const LegalDocumentKind = {
   PROHIBITED_PRODUCTS: 'PROHIBITED_PRODUCTS',
   RETURNS_POLICY: 'RETURNS_POLICY',
   STAFF_TERMS: 'STAFF_TERMS',
-  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS'
+  AUDIT_CONSOLE_TERMS: 'AUDIT_CONSOLE_TERMS',
+  SELLER_SERVICES_AGREEMENT: 'SELLER_SERVICES_AGREEMENT',
+  B2B_BUYER_TERMS: 'B2B_BUYER_TERMS',
+  B2B_BUYER_SERVICES_AGREEMENT: 'B2B_BUYER_SERVICES_AGREEMENT',
+  B2C_CONSUMER_TERMS: 'B2C_CONSUMER_TERMS',
+  B2C_PLATFORM_SERVICES_AGREEMENT: 'B2C_PLATFORM_SERVICES_AGREEMENT'
 } as const
 
 export type LegalDocumentKind = (typeof LegalDocumentKind)[keyof typeof LegalDocumentKind]
@@ -3997,3 +4011,123 @@ export const SubLotReleaseState = {
 } as const
 
 export type SubLotReleaseState = (typeof SubLotReleaseState)[keyof typeof SubLotReleaseState]
+
+
+export const SellerBadgeTier = {
+  PLATINUM: 'PLATINUM',
+  GOLD: 'GOLD',
+  SILVER: 'SILVER',
+  BRONZE: 'BRONZE'
+} as const
+
+export type SellerBadgeTier = (typeof SellerBadgeTier)[keyof typeof SellerBadgeTier]
+
+
+export const ShipmentAssessmentStatus = {
+  AWAITING_L1: 'AWAITING_L1',
+  READY_FOR_ASSESSMENT: 'READY_FOR_ASSESSMENT',
+  IN_PROGRESS: 'IN_PROGRESS',
+  AWAITING_QA: 'AWAITING_QA',
+  WAIVER_REVIEW: 'WAIVER_REVIEW',
+  APPROVED_FOR_L2: 'APPROVED_FOR_L2',
+  FAILED: 'FAILED',
+  ON_HOLD: 'ON_HOLD',
+  REASSESSMENT_REQUIRED: 'REASSESSMENT_REQUIRED',
+  DISPATCHED: 'DISPATCHED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ShipmentAssessmentStatus = (typeof ShipmentAssessmentStatus)[keyof typeof ShipmentAssessmentStatus]
+
+
+export const ShipmentAssessmentRequirement = {
+  ASSESSMENT_REQUIRED: 'ASSESSMENT_REQUIRED',
+  WAIVER_ELIGIBLE: 'WAIVER_ELIGIBLE',
+  WAIVER_ELIGIBLE_WITH_REVIEW: 'WAIVER_ELIGIBLE_WITH_REVIEW'
+} as const
+
+export type ShipmentAssessmentRequirement = (typeof ShipmentAssessmentRequirement)[keyof typeof ShipmentAssessmentRequirement]
+
+
+export const ShipmentAssessmentBadgeRule = {
+  WAIVER_ELIGIBLE: 'WAIVER_ELIGIBLE',
+  WAIVER_ELIGIBLE_WITH_REVIEW: 'WAIVER_ELIGIBLE_WITH_REVIEW',
+  ASSESSMENT_REQUIRED: 'ASSESSMENT_REQUIRED'
+} as const
+
+export type ShipmentAssessmentBadgeRule = (typeof ShipmentAssessmentBadgeRule)[keyof typeof ShipmentAssessmentBadgeRule]
+
+
+export const ShipmentCheckOutcome = {
+  PASS: 'PASS',
+  FAIL: 'FAIL',
+  HOLD: 'HOLD',
+  NOT_APPLICABLE: 'NOT_APPLICABLE'
+} as const
+
+export type ShipmentCheckOutcome = (typeof ShipmentCheckOutcome)[keyof typeof ShipmentCheckOutcome]
+
+
+export const ShipmentAssessmentRoundKind = {
+  ASSESSMENT: 'ASSESSMENT',
+  WAIVER: 'WAIVER'
+} as const
+
+export type ShipmentAssessmentRoundKind = (typeof ShipmentAssessmentRoundKind)[keyof typeof ShipmentAssessmentRoundKind]
+
+
+export const ShipmentRoundOutcome = {
+  PASSED: 'PASSED',
+  FAILED: 'FAILED',
+  HELD: 'HELD'
+} as const
+
+export type ShipmentRoundOutcome = (typeof ShipmentRoundOutcome)[keyof typeof ShipmentRoundOutcome]
+
+
+export const ShipmentWaiverDecisionKind = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ShipmentWaiverDecisionKind = (typeof ShipmentWaiverDecisionKind)[keyof typeof ShipmentWaiverDecisionKind]
+
+
+export const ShipmentReleaseKind = {
+  ASSESSMENT: 'ASSESSMENT',
+  WAIVER: 'WAIVER'
+} as const
+
+export type ShipmentReleaseKind = (typeof ShipmentReleaseKind)[keyof typeof ShipmentReleaseKind]
+
+
+export const ShipmentReleaseStatus = {
+  ACTIVE: 'ACTIVE',
+  CONSUMED: 'CONSUMED',
+  INVALIDATED: 'INVALIDATED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type ShipmentReleaseStatus = (typeof ShipmentReleaseStatus)[keyof typeof ShipmentReleaseStatus]
+
+
+export const AuditDocumentKind = {
+  SELLER_VERIFICATION_CERTIFICATE: 'SELLER_VERIFICATION_CERTIFICATE',
+  SELLER_TRADING_APPROVAL: 'SELLER_TRADING_APPROVAL',
+  SHIPMENT_ASSESSMENT_CERTIFICATE: 'SHIPMENT_ASSESSMENT_CERTIFICATE',
+  SHIPMENT_WAIVER_AUTHORIZATION: 'SHIPMENT_WAIVER_AUTHORIZATION',
+  SHIPMENT_FINDINGS_REPORT: 'SHIPMENT_FINDINGS_REPORT'
+} as const
+
+export type AuditDocumentKind = (typeof AuditDocumentKind)[keyof typeof AuditDocumentKind]
+
+
+export const AuditDocumentStatus = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  REVOKED: 'REVOKED',
+  SUPERSEDED: 'SUPERSEDED',
+  USED: 'USED'
+} as const
+
+export type AuditDocumentStatus = (typeof AuditDocumentStatus)[keyof typeof AuditDocumentStatus]

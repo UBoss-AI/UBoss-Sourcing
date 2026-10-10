@@ -548,10 +548,19 @@ documents that are published and in force are asked for.
 | Surface | Prefix | Scope | Terms |
 |---|---|---|---|
 | Storefront | `/api/v1/auth` | `BUYER` | `PLATFORM_TERMS` |
-| Seller Hub | `/api/v1/auth` with `scope=SELLER` | `SELLER` | `PLATFORM_TERMS`, `SELLER_TERMS` |
+| Storefront, shopping for yourself, once `B2C_CONSUMER_TERMS`, `B2C_PLATFORM_SERVICES_AGREEMENT` and `PRIVACY_POLICY` are all in force | `/api/v1/auth` (the session's individual context) | `CONSUMER` | `B2C_CONSUMER_TERMS`; and `B2C_PLATFORM_SERVICES_AGREEMENT` under its own box |
+| Storefront, acting for a company | `/api/v1/auth` (the session's confirmed company context) | `COMPANY_BUYER` | `B2B_BUYER_TERMS`; and `B2B_BUYER_SERVICES_AGREEMENT` under its own box, once per company |
+| Seller Hub | `/api/v1/auth` with `scope=SELLER` | `SELLER` | `PLATFORM_TERMS`, `SELLER_TERMS`; and `SELLER_SERVICES_AGREEMENT` under its own box |
 | Carrier portal | `/api/v1/logistics/auth` | `LOGISTICS` | `LOGISTICS_PARTNER_TERMS` |
 | Admin console | `/api/v1/admin/auth` | `STAFF` | `STAFF_TERMS` |
 | Audit Console | `/api/v1/audit/auth` | `AUDIT` | `AUDIT_CONSOLE_TERMS` |
+
+The browser always asks as `BUYER`; the answer's `scope` says which screen
+applies. `CONSUMER` is used only when all three of its documents are in force,
+so a missing one never blocks anybody. Before agreeing, an individual can still
+reach their orders (list, detail, invoice, cancel, tracking, milestones, order
+documents), returns and claims: those routes use `requireCustomerForRemedies`.
+A company session still owes the company screen for them.
 
 Every scope also needs `PRIVACY_POLICY`. The scope comes from the surface; on
 the storefront `scope=SELLER` is allowed only for a member of a seller
@@ -562,6 +571,9 @@ the storefront `scope=SELLER` is allowed only for a member of a seller
 | `GET /agreements?locale=&scope=` | Where the person stands: `{ scope, terms: [...], privacy, termsComplete, privacyComplete, complete }`. Each entry has `kind`, `current` (the document to read, as `GET /legal/current` returns it, or null), `record` (the record that counts, or null) and `unavailable` |
 | `POST /agreements/terms` | "I agree". Body `{ documentIds, scope?, locale }`. Records Terms acceptance only. Answers the new status |
 | `POST /agreements/privacy` | "I acknowledge". Same body. Records the Privacy Policy acknowledgment only |
+| `POST /agreements/services`, `DELETE /agreements/services?scope=SELLER` | Storefront only, `scope: SELLER` only. "I agree" to, or clear, the Seller Platform Services Agreement. Its own box: never touches the Terms or the Privacy Policy. The record names the seller from the person's membership; a seller id in the body is ignored |
+| `POST /agreements/services`, `DELETE /agreements/services` in a company session | `COMPANY_BUYER`: "I agree" to, or clear, the B2B Buyer Platform Services Agreement for the company. Only an `OWNER` or `COMPANY_ADMIN` (403 `COMPANY_SIGNATORY_REQUIRED` otherwise). Accepted once, it counts for every member; only the member who gave it can clear it. The status adds `company { companyId, companyName, canBind }`, `awaitingSignatory`, and `record.byOtherMember` |
+| `POST /agreements/services`, `DELETE /agreements/services` in an individual session | `CONSUMER`: "I agree" to, or clear, the B2C Platform Services Agreement. Refused with `AGREEMENT_DOCUMENT_NOT_APPLICABLE` while the consumer screen is not in use, or for any other document |
 | `DELETE /agreements/terms?scope=`, `DELETE /agreements/privacy?scope=` | Clear that box before Continue. The record is kept, marked cleared, with an audit event. Answers the new status |
 | `GET /agreements/history` | `{ entries }`: every acceptance and acknowledgment, newest first, cleared ones included |
 
@@ -573,6 +585,14 @@ Rules the server keeps:
   `meta.currentVersion`). Nothing is written by a refusal.
 - Repeating a request writes nothing new: one active record per person per
   document.
+- The status adds `services: [...]` and `servicesComplete` beside `terms` and
+  `privacy`. `services` is empty for every scope except `SELLER`, and
+  `complete` needs all three.
+- `POST /api/v1/seller/submit` refuses with 409 `SELLER_AGREEMENTS_REQUIRED`
+  unless the person sending it has accepted the current published
+  `SELLER_TERMS` and `SELLER_SERVICES_AGREEMENT`. `details[].field` names the
+  kind and `details[].code` is `AGREEMENT_NOT_PUBLISHED` or
+  `AGREEMENT_NOT_ACCEPTED`. Off with `FEATURE_AGREEMENT_GATE`.
 - Version, language, hash and time come from the stored document and the
   database, never from the request. No IP address or browser string is stored.
 - A new version asks again only when it was published with
@@ -2594,9 +2614,9 @@ A seller is a customer who has applied to sell. Sign in as a customer
 ```powershell
 # 1. Apply (once)
 # While SELLER_TURNOVER_REQUIRED is on (the default), turnover is required.
-# amountMinor is whole minor units as a string (here 30 crore and one paisa).
+# amountMinor is whole minor units as a string (here exactly 30 crore, which qualifies).
 # Take the year from GET /config -> sellerEligibility.suggestedFinancialYear.
-$turnover = @{ amountMinor = '30000000001'; currency = 'INR'; financialYearStart = '2025-04-01'; financialYearEnd = '2026-03-31'; declarationAccepted = $true }
+$turnover = @{ amountMinor = '30000000000'; currency = 'INR'; financialYearStart = '2025-04-01'; financialYearEnd = '2026-03-31'; declarationAccepted = $true }
 $body = @{ legalName = 'Rao Medical Supplies GmbH'; displayName = 'Rao Medical'; registrationCountry = 'DE'; kind = 'WHOLESALER'; turnover = $turnover } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "$api/sellers/apply" -Headers $headers -ContentType 'application/json' -Body $body
 
@@ -4256,3 +4276,66 @@ Off: every route answers `FEATURE_DISABLED`.
   refusing. `OFF` (default) never refuses.
 - Quantities in inspection records cross the API as exact decimal strings,
   never JSON numbers.
+
+## Shipment Assessment (`/api/v1/audit/shipment-assessments`, read-only `/api/v1/admin/shipment-assessments`)
+
+The full list with guards is in `docs/reference/API-ENDPOINTS.md`. What a
+client needs to know:
+
+- **Audit Console** (Audit session with second factor): queues
+  (`GET ?queue=ready|inProgress|awaitingQa|waiver|approved|failed|reassessment|awaitingL1|history`
+  or `?rollout=true`), one case, waiver history, and the writes `rounds`,
+  `checks`, `quantities` (PUT), `evidence` (multipart), `submit`, `qa`,
+  `waiver-review`, `waiver`, `hold`, `reassessment`,
+  `exceptions/:id/resolve`, `audit-documents/:id/revoke`, the badge
+  (`GET/PUT /audit/sellers/:id/badge`), the policy (`GET/POST .../policy`), and
+  seller certificates (`GET/POST /audit/seller-verification/:id/certificates`).
+- **Decisions carry the version read** (`expectedVersion`). A decision made
+  meanwhile answers 409 `SHIPMENT_ASSESSMENT_TRANSITION_NOT_ALLOWED` with
+  `details[0].code = VERSION`.
+- **Idempotency**: evidence uploads, policy publishing and certificate issuing
+  require an `Idempotency-Key`; the other writes honour one when sent.
+- **Admin panel**: GET only. There is no admin write route.
+- **Seller Hub**: `GET /seller/orders/:id/shipment-assessment`,
+  `GET /seller/shipment-assessments[/:id]`, `POST .../:id/response`,
+  `POST .../:id/evidence`, document downloads, and
+  `GET /seller/audit-certificates[/:id]`.
+- **Carrier portal**: `GET /logistics/legs/:id/shipment-assessment`,
+  `POST .../checks` (loading checks only, after release), `POST .../evidence`.
+- **Buyer**: `GET /orders/:id/shipment-assessments` and the certificate or
+  waiver PDF of an own order. Findings reports are not shared.
+- **Public check**: `GET /documents/verify?kind=audit-document&number=&code=`
+  answers status, version, dates and the stated scope only.
+
+New error codes: `SHIPMENT_ASSESSMENT_NOT_RELEASED` (409; L2 refused,
+`details[0].code` says why), `SHIPMENT_ASSESSMENT_TRANSITION_NOT_ALLOWED`,
+`SHIPMENT_ASSESSMENT_INCOMPLETE` (409; `details` lists each missing item),
+`SHIPMENT_WAIVER_NOT_ALLOWED`, `SHIPMENT_ASSESSMENT_INDEPENDENCE_REQUIRED`,
+`SHIPMENT_ASSESSMENT_POLICY_INVALID` (400), `AUDIT_DOCUMENT_NOT_ALLOWED`.
+
+`SHIPMENT_ASSESSMENT_NOT_RELEASED` can now also come back from the existing
+L2 leg transition routes and from consignment status events moving goods
+onward after L1, when `FEATURE_SHIPMENT_ASSESSMENT` is on.
+
+## Seller Assessment (`/api/v1/audit/seller-assessments`, read-only `/api/v1/admin/seller-assessments`, `/api/v1/seller/assessment`)
+
+Every route is listed in `docs/reference/API-ENDPOINTS.md`. What a client needs to know:
+
+- **Who:** Audit routes need `audit.assessment.read` or `audit.assessment.work`; each write also needs an assessment capability, checked in the service (`403 SELLER_ASSESSMENT_CAPABILITY_REQUIRED`). Independence failures answer `403 SELLER_ASSESSMENT_INDEPENDENCE_REQUIRED`. The admin panel has GET routes only (`customer.read`). Seller routes are scoped to the signed-in seller account and answer 404 outside it.
+- **Writes that create a record or file** (evidence, findings, workpapers, certification appointment, policy draft, applications, appeals, changes, incidents, bank changes) require an `Idempotency-Key`. Decisions carry `expectedVersion` where a stale view must be refused.
+- **Money:** `financial.revenueMinor` and insurance `limitMinor` are digit strings of paise; the minimum is `30000000000` and exactly that qualifies.
+- **New error codes:** `SELLER_SCOPE_NOT_APPROVED` (409, buyer-facing, `details[].meta.offerId`), `SELLER_ASSESSMENT_NOT_ALLOWED` (409, `details` list each gap), `SELLER_ASSESSMENT_CAPABILITY_REQUIRED` (403), `SELLER_ASSESSMENT_INDEPENDENCE_REQUIRED` (403), `SELLER_ASSESSMENT_RELEASE_BLOCKED` (409, every gap in `details`), `SELLER_ASSESSMENT_POLICY_NOT_ADOPTED` (409), `SELLER_ORDER_DISPOSITION_REQUIRED` (409).
+- **Purchase paths** (basket, checkout, preorders, payment start, AutoPay charge, RFQ conversion) answer `409 SELLER_SCOPE_NOT_APPROVED` only when `SELLER_ASSESSMENT_PURCHASE_GATE=enforce`. Capture never refuses money; dispatch answers `409 SELLER_ORDER_DISPOSITION_REQUIRED`.
+- **Files:** evidence and approval PDFs stream with `cache-control: no-store`, `x-content-type-options: nosniff`, as attachments, after the scope check; every Audit and Admin evidence view writes an audit-log entry.
+
+## Delivery, cases and commercial controls (`/api/v1/admin/commercial/...`, `/api/v1/audit/product-evidence`, `/api/v1/audit/safety-cases`, `/api/v1/seller/orders/:id/controls`)
+
+Every route is listed in `docs/reference/API-ENDPOINTS.md`. What a client needs to know:
+
+- **Who:** schedules, recovery, security and insurance need `finance.policy.read` / `finance.policy.write` (verifications `finance.tax.verify`); launch and import routes `settings.read` / `settings.write`, with enabling a country and reviewing a launch decision on `feature_flag.write`; bookings and evidence `logistics.read` / `logistics.write`; case controls `dispute.view` / `dispute.manage`, appeal reviewers `dispute.approve`. Product evidence and safety cases are decided in the Audit Console (`audit.assessment.read` / `audit.assessment.work`, verification `audit.seller.verify`, release `audit.release.request`); the admin routes for them are GET only. Seller and buyer routes are scoped to their own records and answer 404 outside them.
+- **Separation of duties:** the same person may not prepare and approve a schedule, record and verify a cost, evidence item or insurance policy, own and review a launch decision, open and release a safety case, or take part in a decision and review its appeal - `403 SEPARATION_OF_DUTIES_REQUIRED` with `details[0].code` naming the step.
+- **Writes that create a record** (custody handovers, partial shipments, evidence requests, programmes, security proposals, product evidence, safety cases and actions, recall rehearsals) require an `Idempotency-Key`.
+- **Money:** every amount is a digit string of minor units; rates are integer basis points.
+- **Claims:** `POST /api/v1/disputes` takes an optional `case` object (`category`, `urgency`, `statutoryBasis`, `lateExplanation`, `affectedQuantity`, `lotsOrSerials`). Without it the claim behaves exactly as before. With a safety, defect, warranty or fraud category, or `statutoryBasis: true`, a claim past the window is accepted for review instead of `DISPUTE_WINDOW_CLOSED`.
+- **Refunds:** an unknown provider outcome answers `503 PAYMENT_PROVIDER_ERROR` with `details[0].code = OUTCOME_UNKNOWN`; retrying with the same `Idempotency-Key` reconciles instead of refunding again.
+- **New error codes:** `COMMERCIAL_SCHEDULE_NOT_EDITABLE`, `COMMERCIAL_SCHEDULE_NOT_ACTIVATABLE` (details list each missing item), `SEPARATION_OF_DUTIES_REQUIRED`, `IMPORT_ROUTE_NOT_APPROVED`, `ORDER_ACCEPTANCE_CONTROLS_MISSING`, `DISPATCH_EVIDENCE_MISSING`, `PARTIAL_SHIPMENT_NOT_ALLOWED`, `CASE_DECISION_NOT_REASONED`, `CERTIFICATION_COST_DUPLICATE`, `SECURITY_EXPOSURE_REQUIRED`, `COUNTRY_NOT_LAUNCHED`, `COUNTRY_LAUNCH_BLOCKED`, `SAFETY_RELEASE_NOT_READY`, `PRODUCT_UNDER_SAFETY_HOLD`. `SELLER_SCOPE_NOT_APPROVED` gains the detail code `EVIDENCE_NOT_CURRENT`.

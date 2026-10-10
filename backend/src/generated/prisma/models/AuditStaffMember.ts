@@ -64,6 +64,7 @@ export type AuditStaffMemberCountAggregateOutputType = {
   fullName: number
   jobTitle: number
   competenceCategoryIdsJson: number
+  assessmentCapabilitiesJson: number
   invitedByUserId: number
   activatedAt: number
   disabledAt: number
@@ -112,6 +113,7 @@ export type AuditStaffMemberCountAggregateInputType = {
   fullName?: true
   jobTitle?: true
   competenceCategoryIdsJson?: true
+  assessmentCapabilitiesJson?: true
   invitedByUserId?: true
   activatedAt?: true
   disabledAt?: true
@@ -201,6 +203,7 @@ export type AuditStaffMemberGroupByOutputType = {
   fullName: string
   jobTitle: string | null
   competenceCategoryIdsJson: runtime.JsonValue | null
+  assessmentCapabilitiesJson: runtime.JsonValue | null
   invitedByUserId: string | null
   activatedAt: Date | null
   disabledAt: Date | null
@@ -238,6 +241,7 @@ export type AuditStaffMemberWhereInput = {
   fullName?: Prisma.StringFilter<"AuditStaffMember"> | string
   jobTitle?: Prisma.StringNullableFilter<"AuditStaffMember"> | string | null
   competenceCategoryIdsJson?: Prisma.JsonNullableFilter<"AuditStaffMember">
+  assessmentCapabilitiesJson?: Prisma.JsonNullableFilter<"AuditStaffMember">
   invitedByUserId?: Prisma.StringNullableFilter<"AuditStaffMember"> | string | null
   activatedAt?: Prisma.DateTimeNullableFilter<"AuditStaffMember"> | Date | string | null
   disabledAt?: Prisma.DateTimeNullableFilter<"AuditStaffMember"> | Date | string | null
@@ -254,6 +258,7 @@ export type AuditStaffMemberOrderByWithRelationInput = {
   fullName?: Prisma.SortOrder
   jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   competenceCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessmentCapabilitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   disabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +279,7 @@ export type AuditStaffMemberWhereUniqueInput = Prisma.AtLeast<{
   fullName?: Prisma.StringFilter<"AuditStaffMember"> | string
   jobTitle?: Prisma.StringNullableFilter<"AuditStaffMember"> | string | null
   competenceCategoryIdsJson?: Prisma.JsonNullableFilter<"AuditStaffMember">
+  assessmentCapabilitiesJson?: Prisma.JsonNullableFilter<"AuditStaffMember">
   invitedByUserId?: Prisma.StringNullableFilter<"AuditStaffMember"> | string | null
   activatedAt?: Prisma.DateTimeNullableFilter<"AuditStaffMember"> | Date | string | null
   disabledAt?: Prisma.DateTimeNullableFilter<"AuditStaffMember"> | Date | string | null
@@ -290,6 +296,7 @@ export type AuditStaffMemberOrderByWithAggregationInput = {
   fullName?: Prisma.SortOrder
   jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   competenceCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessmentCapabilitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   disabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -312,6 +319,7 @@ export type AuditStaffMemberScalarWhereWithAggregatesInput = {
   fullName?: Prisma.StringWithAggregatesFilter<"AuditStaffMember"> | string
   jobTitle?: Prisma.StringNullableWithAggregatesFilter<"AuditStaffMember"> | string | null
   competenceCategoryIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"AuditStaffMember">
+  assessmentCapabilitiesJson?: Prisma.JsonNullableWithAggregatesFilter<"AuditStaffMember">
   invitedByUserId?: Prisma.StringNullableWithAggregatesFilter<"AuditStaffMember"> | string | null
   activatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AuditStaffMember"> | Date | string | null
   disabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AuditStaffMember"> | Date | string | null
@@ -328,6 +336,7 @@ export type AuditStaffMemberCreateInput = {
   fullName: string
   jobTitle?: string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: string | null
   activatedAt?: Date | string | null
   disabledAt?: Date | string | null
@@ -344,6 +353,7 @@ export type AuditStaffMemberUncheckedCreateInput = {
   fullName: string
   jobTitle?: string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: string | null
   activatedAt?: Date | string | null
   disabledAt?: Date | string | null
@@ -360,6 +370,7 @@ export type AuditStaffMemberUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -376,6 +387,7 @@ export type AuditStaffMemberUncheckedUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -392,6 +404,7 @@ export type AuditStaffMemberCreateManyInput = {
   fullName: string
   jobTitle?: string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: string | null
   activatedAt?: Date | string | null
   disabledAt?: Date | string | null
@@ -408,6 +421,7 @@ export type AuditStaffMemberUpdateManyMutationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -424,6 +438,7 @@ export type AuditStaffMemberUncheckedUpdateManyInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   competenceCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   invitedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -446,6 +461,7 @@ export type AuditStaffMemberCountOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   jobTitle?: Prisma.SortOrder
   competenceCategoryIdsJson?: Prisma.SortOrder
+  assessmentCapabilitiesJson?: Prisma.SortOrder
   invitedByUserId?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrder
   disabledAt?: Prisma.SortOrder
@@ -502,6 +518,7 @@ export type AuditStaffMemberSelect<ExtArgs extends runtime.Types.Extensions.Inte
   fullName?: boolean
   jobTitle?: boolean
   competenceCategoryIdsJson?: boolean
+  assessmentCapabilitiesJson?: boolean
   invitedByUserId?: boolean
   activatedAt?: boolean
   disabledAt?: boolean
@@ -520,6 +537,7 @@ export type AuditStaffMemberSelectScalar = {
   fullName?: boolean
   jobTitle?: boolean
   competenceCategoryIdsJson?: boolean
+  assessmentCapabilitiesJson?: boolean
   invitedByUserId?: boolean
   activatedAt?: boolean
   disabledAt?: boolean
@@ -528,7 +546,7 @@ export type AuditStaffMemberSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AuditStaffMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "role" | "status" | "fullName" | "jobTitle" | "competenceCategoryIdsJson" | "invitedByUserId" | "activatedAt" | "disabledAt" | "disabledReason" | "createdAt" | "updatedAt", ExtArgs["result"]["auditStaffMember"]>
+export type AuditStaffMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "role" | "status" | "fullName" | "jobTitle" | "competenceCategoryIdsJson" | "assessmentCapabilitiesJson" | "invitedByUserId" | "activatedAt" | "disabledAt" | "disabledReason" | "createdAt" | "updatedAt", ExtArgs["result"]["auditStaffMember"]>
 
 export type $AuditStaffMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AuditStaffMember"
@@ -544,6 +562,11 @@ export type $AuditStaffMemberPayload<ExtArgs extends runtime.Types.Extensions.In
      * Categories this reviewer is competent to decide. Null is none.
      */
     competenceCategoryIdsJson: runtime.JsonValue | null
+    /**
+     * Seller Assessment capabilities on top of the role (HEAD_OF_ASSURANCE, ASSESS,
+     * REGULATORY, FINANCE, OPERATIONS, LEGAL, RELEASE, APPEAL_REVIEW). One person may hold several.
+     */
+    assessmentCapabilitiesJson: runtime.JsonValue | null
     invitedByUserId: string | null
     activatedAt: Date | null
     disabledAt: Date | null
@@ -926,6 +949,7 @@ export interface AuditStaffMemberFieldRefs {
   readonly fullName: Prisma.FieldRef<"AuditStaffMember", 'String'>
   readonly jobTitle: Prisma.FieldRef<"AuditStaffMember", 'String'>
   readonly competenceCategoryIdsJson: Prisma.FieldRef<"AuditStaffMember", 'Json'>
+  readonly assessmentCapabilitiesJson: Prisma.FieldRef<"AuditStaffMember", 'Json'>
   readonly invitedByUserId: Prisma.FieldRef<"AuditStaffMember", 'String'>
   readonly activatedAt: Prisma.FieldRef<"AuditStaffMember", 'DateTime'>
   readonly disabledAt: Prisma.FieldRef<"AuditStaffMember", 'DateTime'>

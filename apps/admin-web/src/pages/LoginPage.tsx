@@ -7,9 +7,11 @@
  * way to enumerate who has an account. This page shows what the server said
  * and adds nothing.
  *
- * There is no terms tick here. The staff terms (`STAFF_TERMS`) and the Privacy
- * Policy are accepted on the agreement screen after signing in
- * (`auth/PortalAgreementGate.tsx`), recorded against the person's own account
+ * The staff terms (`STAFF_TERMS`) and the Privacy Policy are ticked under the
+ * password (`SignInAgreements`, each box opening its document) and recorded
+ * by the first agreement request after sign-in; the agreement screen after
+ * signing in (`auth/PortalAgreementGate.tsx`) asks for anything not recorded.
+ * Records are made against the person's own account
  * on the server - never against a browser - and asked for again only when a
  * new version requires it. A document nobody has published yet is not asked
  * for, so a fresh deployment never locks out the staff who publish it.
@@ -20,7 +22,7 @@
  * every word and control on this screen is in the column beside it, and the
  * page is finished on a narrow window and on a machine with no WebGL.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -37,6 +39,9 @@ import {
 } from '@/components/ui/auth-form';
 import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
+import { SignInAgreements } from '@/components/agreement-kit/SignInAgreements';
+import { setPendingSignInAgreements, type SignInAgreementValue } from '@/components/agreement-kit/sign-in-agreements';
+import { agreementsClient } from '@/lib/agreements';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError } from '@/lib/api';
 import { PARENT_ATTRIBUTION } from '@/lib/brand';
@@ -77,6 +82,12 @@ export function LoginPage(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useI18n();
+  // The agreement boxes under the password: the ids of each document agreed to.
+  const [agreements, setAgreements] = useState<SignInAgreementValue>({});
+  const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const onAgreementsComplete = useCallback((complete: boolean) => {
+    setAgreementsComplete(complete);
+  }, []);
   const [formError, setFormError] = useState<string | null>(null);
 
   // A flag, not a rendered sentence: somebody who has just failed to sign in
@@ -116,9 +127,9 @@ export function LoginPage(): React.JSX.Element {
     setIsRateLimited(false);
 
     try {
-      // `acceptedTerms` gates the submit and is not sent: `/auth/login` takes
-      // an email and a password, and adding a field the endpoint does not
-      // declare would be rejected by its schema.
+      // Recorded by the first agreement request after sign-in; the screen
+      // after sign-in still asks for anything that could not be recorded.
+      setPendingSignInAgreements('STAFF', agreements);
       await login(values.email, values.password);
       const from = (location.state as LocationState | null)?.from;
       void navigate(from ?? '/', { replace: true });
@@ -226,12 +237,21 @@ export function LoginPage(): React.JSX.Element {
               brand system at three densities, not one API, and widening that
               component for a single call site would be a change to something
               sixty screens use. */}
+          <SignInAgreements
+            client={agreementsClient}
+            scope="STAFF"
+            value={agreements}
+            onChange={setAgreements}
+            onCompleteChange={onAgreementsComplete}
+          />
+
           <Button
             type="submit"
             variant="primary"
             size="lg"
             isLoading={isSubmitting}
-            className={`w-full ${GRADIENT_CTA}`}
+            disabled={!agreementsComplete}
+            className={`w-full ${GRADIENT_CTA} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {t('auth.login.submit')}
             {/* Decoration, and hidden as such. In the accessible name this

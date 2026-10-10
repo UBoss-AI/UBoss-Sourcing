@@ -42,6 +42,7 @@ import { useConsoleMutation } from '@/lib/use-console-mutation';
 import { KybReviewPanel } from './KybReviewPanel';
 import { NEEDS_REASON, STATUS_TONE, decisionsFor } from './status';
 import { TurnoverPanel } from './TurnoverPanel';
+import { AuditBadgePanel } from './AuditBadgePanel';
 
 const DECISION_LABEL: Record<VerificationDecisionStatus, TranslationKey> = {
   UNDER_REVIEW: 'sellerVerification.action.UNDER_REVIEW',
@@ -175,6 +176,8 @@ function DetailScreen({ detail, back }: { detail: SellerVerificationDetail; back
         <KybReviewPanel sellerAccountId={seller.id} legalName={seller.legalName} kyb={{ ...seller.kyb, readiness: detail.readiness }} />
 
         <TurnoverPanel sellerAccountId={seller.id} review={detail.turnover} />
+
+        <AuditBadgePanel sellerAccountId={seller.id} approved={seller.status === 'APPROVED'} />
 
         <Card title={t('sellerVerification.historyCard')} description={t('sellerVerification.historyHint')} bodyClassName="px-5 py-4">
           <HistoryList

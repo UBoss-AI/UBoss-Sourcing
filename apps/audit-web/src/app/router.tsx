@@ -115,6 +115,60 @@ export const router = createBrowserRouter(
           ),
         },
         {
+          path: 'seller-assessments',
+          ...lazyRoute(
+            () => import('@/pages/seller-assessment/SellerAssessmentQueuePage').then((m) => m.SellerAssessmentQueuePage),
+            [Permission.ASSESSMENT_READ],
+          ),
+        },
+        {
+          path: 'seller-assessments/assurance',
+          ...lazyRoute(
+            () => import('@/pages/seller-assessment/SellerAssuranceOfficePage').then((m) => m.SellerAssuranceOfficePage),
+            [Permission.ASSESSMENT_READ],
+          ),
+        },
+        {
+          path: 'seller-assessments/:id',
+          ...lazyRoute(
+            () => import('@/pages/seller-assessment/SellerAssessmentDetailPage').then((m) => m.SellerAssessmentDetailPage),
+            [Permission.ASSESSMENT_READ],
+          ),
+        },
+        {
+          path: 'product-evidence',
+          ...lazyRoute(() => import('@/pages/product-safety/ProductEvidencePage').then((m) => m.ProductEvidencePage), [Permission.ASSESSMENT_READ]),
+        },
+        {
+          path: 'safety-cases',
+          ...lazyRoute(() => import('@/pages/product-safety/SafetyCasesPage').then((m) => m.SafetyCasesPage), [Permission.ASSESSMENT_READ]),
+        },
+        {
+          path: 'safety-cases/:id',
+          ...lazyRoute(() => import('@/pages/product-safety/SafetyCaseDetailPage').then((m) => m.SafetyCaseDetailPage), [Permission.ASSESSMENT_READ]),
+        },
+        {
+          path: 'shipment-assessment',
+          ...lazyRoute(
+            () => import('@/pages/shipment-assessment/ShipmentAssessmentQueuePage').then((m) => m.ShipmentAssessmentQueuePage),
+            [Permission.SHIPMENT_READ],
+          ),
+        },
+        {
+          path: 'shipment-assessment/policy',
+          ...lazyRoute(
+            () => import('@/pages/shipment-assessment/ShipmentPolicyPage').then((m) => m.ShipmentPolicyPage),
+            [Permission.SHIPMENT_READ],
+          ),
+        },
+        {
+          path: 'shipment-assessment/:id',
+          ...lazyRoute(
+            () => import('@/pages/shipment-assessment/ShipmentAssessmentDetailPage').then((m) => m.ShipmentAssessmentDetailPage),
+            [Permission.SHIPMENT_READ],
+          ),
+        },
+        {
           path: 'sellers',
           ...lazyRoute(
             () => import('@/pages/SellersPage').then((m) => m.SellersPage),

@@ -137,9 +137,9 @@ export function minorToEntry(minor: bigint, unit: TurnoverUnit, exponent: number
   return fraction.length === 0 ? whole : `${whole}.${fraction}`;
 }
 
-/** Strictly greater - exactly the minimum is not eligible. */
-export function exceedsMinimum(amountMinor: bigint, policy: Pick<TurnoverPolicy, 'minimumMinor'>): boolean {
-  return amountMinor > BigInt(policy.minimumMinor);
+/** At least the minimum - exactly the minimum is eligible (policy v1.0). */
+export function meetsMinimum(amountMinor: bigint, policy: Pick<TurnoverPolicy, 'minimumMinor'>): boolean {
+  return amountMinor >= BigInt(policy.minimumMinor);
 }
 
 /** Minor units as an exact decimal string of the major unit, for `Intl`. */

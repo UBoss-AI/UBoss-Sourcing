@@ -173,6 +173,10 @@ async function maintenance(): Promise<void> {
     const slot = String(Math.floor(Date.now() / MAINTENANCE_INTERVAL_MS));
 
     await queue.enqueue(JobType.RESERVATION_SWEEP, {}, { dedupeKey: `reservation_sweep:${slot}` });
+    // Shipment Assessment queues and release re-checks. The L2 gate never waits for this.
+    await queue.enqueue(JobType.SHIPMENT_ASSESSMENT_SWEEP, {}, { dedupeKey: `shipment_assessment_sweep:${slot}` });
+    // Seller Assessment surveillance, once a day. A failed run retries and then shows as a dead job; purchases never depend on it.
+    await queue.enqueue(JobType.SELLER_ASSESSMENT_SURVEILLANCE, {}, { dedupeKey: `seller_assessment_surveillance:${new Date().toISOString().slice(0, 10)}` });
 
     // Delivery offers nobody accepted. The same beat as the reservation sweep
     // and for a related reason - both hold a claim on stock that has stopped
@@ -222,6 +226,13 @@ async function maintenance(): Promise<void> {
       JobType.DISPUTE_SLA_SWEEP,
       {},
       { dedupeKey: `dispute_sla_sweep:${slot}` },
+    );
+
+    // Doc 07 / Doc 08 clocks and reviews. Idempotent; a quiet pass is a few indexed reads.
+    await queue.enqueue(
+      JobType.COMMERCIAL_POLICY_SWEEP,
+      {},
+      { dedupeKey: `commercial_policy_sweep:${slot}` },
     );
 
     // A document expires on a day, so hourly is plenty: an approved seller

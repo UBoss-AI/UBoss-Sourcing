@@ -116,6 +116,7 @@ async function bootPayload(request: FastifyRequest) {
       role: member.role,
       agency: member.agency,
       permissions: [...member.permissions],
+      assessmentCapabilities: [...member.capabilities],
     },
     mfa: await readAuditMfaState(member.userId, auth.sessionMfaVerifiedAt),
   };

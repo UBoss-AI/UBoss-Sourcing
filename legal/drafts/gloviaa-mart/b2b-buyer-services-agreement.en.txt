@@ -1,0 +1,128 @@
+kind: B2B_BUYER_SERVICES_AGREEMENT
+version: 1.0
+locale: en
+title: B2B Buyer Platform Services Agreement
+---
+Gloviaa Mart | Uboss AI Private Limited
+
+Version 1.0 | Prepared 9 October 2026 | Effective date __________________
+
+For approval before implementation or signature. Proposed commercial and operational defaults become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
+
+Agreement date __________________. Parties are Uboss AI Private Limited operating Gloviaa Mart, incorporated in India, registered address __________________, corporate registration __________________, tax registration __________________, called Gloviaa; and Buyer legal name __________________, country and registered address __________________, business registration __________________, tax and importer numbers __________________, called Buyer. Signatories warrant authority to bind their respective entities.
+
+## 1 Purpose and transaction structure
+
+Gloviaa provides a managed purchasing interface and the services specified below. Buyer may purchase approved goods through one checkout, but each confirmed line identifies its actual Indian seller. Unless a separately signed reviewed contract provides otherwise, goods are sold by Seller to Buyer; Gloviaa supplies platform and managed services. Buyer authorises Gloviaa as disclosed limited agent for order coordination and broker or logistics arrangements within the agreed mandate, not for unlimited commitments or regulatory declarations in Buyer's name.
+
+The goods contract specifies product requirements seller price delivery title warranty and remedies. Gloviaa's services agreement governs its own deliverables and fees. No label removes duties arising from Gloviaa's actual activities or applicable law.
+
+## 2 Verification and purchasing authority
+
+Buyer supplies registration beneficial ownership where needed signatory authority tax numbers import licences end use and reliable billing and consignee details. Gloviaa and Payment Partner may conduct lawful checks and request updated evidence. Buyer keeps its authorised staff and spending limits current and protects account credentials. Unverified businesses cannot use restricted business purchasing functionality. Buyer confirms that products bought under this agreement are for business purposes; legally qualifying consumer transactions use consumer terms.
+
+## 3 Services mandate and acceptance
+
+Schedule A identifies sourcing supplier selection quote comparison inspection order administration warehouse and packaging coordination transport customs support installation commissioning or after-sales administration actually ordered. For each item specify whether Gloviaa itself performs it or appoints a named competent provider, measurable outputs milestones charges and dependencies. Gloviaa uses reasonable skill and care for undertaken services; subcontracting does not erase its own agreed duties.
+
+Buyer provides exact intended use specifications quantities drawings compatibility needs installation conditions and compliance constraints. Sample inspection has stated coverage and limitations. A passed sample is not a blanket assurance about every unit. AI suggestions need human validation and do not bind a seller change a price or establish legal compliance.
+
+## 4 Orders RFQs and repeat purchasing
+
+RFQs and estimates become binding only upon express acceptance within quote validity. Buyer purchase orders cannot vary platform or service terms merely by upload. A confirmed order records actual seller approved SKU country Incoterm named place price and charges acceptance tests lead time payment and goods remedies. A payment authorisation or automated receipt alone does not confirm a sale.
+
+Standing purchases and autopay require a separate consent recording limits frequency price-change handling notification and cancellation. Each execution rechecks seller scope stock current compliance and available funds. Buyer may revoke future mandates; already accepted orders follow agreed cancellation terms. ERP imports do not grant an employee authority beyond approved roles.
+
+## 5 Fees and buyer-funded certification
+
+Schedule B states service fees and buyer-specific charges. The default proposal is no separate routine buyer transaction commission, while a clearly disclosed certification-recovery allocation may fund independent seller assurance. Buyer accepts only the amount or capped formula displayed before its order. Gloviaa cannot impose historical onboarding cost after acceptance. A bespoke inspection or certification is separately scoped and priced; it does not buy a positive conclusion.
+
+Provide separate goods and Gloviaa service invoices with applicable taxes currency FX methodology and third-party costs. A service advance is not automatically earned; fees are earned against the agreed performed deliverable. Refund unperformed services and cancelled goods according to law provider rules and the accepted schedule. Where consumer rules apply despite account classification, those rules prevail.
+
+## 6 Payment and escrow administration
+
+Appointed regulated Payment Partner __________________. Agreement and account structure __________________. Buyer pays only through approved routes and receives itemised confirmation. Provider rules govern lawful escrow or collection account operation refunds settlement and chargebacks. Gloviaa transmits authorised instructions and does not promise unrestricted custody of protected funds. Confirm partner ability to support milestones currencies countries holding periods and reserve handling before using them.
+
+For larger bespoke business orders an approved milestone plan or documentary credit may replace card settlement. No credit interest or guarantee is implied. Defaulted or failed orders receive the lawful refund or release treatment; nonrefundable charges require an actual separately performed service and valid prior agreement.
+
+## 7 Export import transport and ownership
+
+Seller is exporter of record and Buyer importer of record for the international B2B launch. Buyer maintains customs and product licences and appoints a lawful broker; Gloviaa coordinates documents and partners through limited written authority. Product-specific responsible-person or importer obligations cannot be assigned to an incapable purchaser. Do not dispatch until a compliant route is confirmed.
+
+Default goods delivery is DAP named destination Incoterms 2020. Seller bears transit risk to the agreed place ready for unloading. Buyer bears import clearance duties taxes and unloading. An order may use FCA with Buyer bearing main-carriage risk only where expressly agreed. DDP is unavailable without a reviewed lawful importer and tax arrangement. Title transfers at the expressly stated goods-contract point, separate from transit risk. Goods invoicing and customs descriptions must match the true transaction.
+
+## 8 Receipt inspection installation and claims
+
+Buyer provides receiving access and promptly reports visible transit damage within the proposed forty-eight-hour administrative target and other apparent nonconformity within seven days. Standard platform claim access continues thirty days after delivery. These administrative limits do not bar latent defects warranty fraud safety statutory claims or expressly longer acceptance periods.
+
+Preserve affected goods packaging lot IDs and test evidence; quarantine suspected unsafe goods. Installation and commissioning have separate written tests and sign-off. Seller or service provider supplies agreed repair replacement refunds and support. Gloviaa coordinates cases within its adopted policy; a platform determination cannot extinguish legal remedies.
+
+## 9 Buyer duties and indemnity
+
+Buyer warrants truthful identity declarations lawful end use proper import capability rights to supplied designs and no prohibited diversion. It follows approved safe use maintenance storage and receipt conditions. Buyer pays reasonable attributable costs for its documented breach incorrect specifications import failure or unjustified refusal, with lawful mitigation and no automatic punitive penalty.
+
+Buyer indemnifies Gloviaa against third-party claims and reasonable documented losses caused by buyer infringement unlawful import false information misuse or breach, excluding the portion caused by Gloviaa's breach negligence fraud or wilful misconduct. Claims receive prompt notice competent defence cooperation and consent before imposing admissions non-monetary duties or unreleased liability on Gloviaa.
+
+## 10 Confidentiality privacy and liability
+
+Keep confidential prices drawings supplier intelligence and personal information secure; share only for authorised transaction needs lawful checks and required reporting. Confidentiality survives five years and trade-secret protection while secret. Apply the adopted privacy notice processor terms international-transfer controls and purpose-based retention. Buyer may not extract seller or customer data for unrelated solicitation.
+
+Proposed Gloviaa cap for ordinary contractual service loss is service fees paid or payable by Buyer during the preceding twelve months, excluding goods money taxes and pass-through costs. Exclude indirect or consequential loss where lawful, except covered third-party indemnities. These limits do not restrict fraud wilful misconduct gross negligence unlawful injury exclusions safeguarding or return of funds mandatory liabilities or confidentiality data and IP breaches. They do not cap Seller's goods obligations. Local legal review is required before adoption.
+
+## 11 Term suspension and termination
+
+Initial term one year from __________________ with renewal by agreement. Either party may terminate on thirty days' notice; ordinary remediable material breach has fifteen days to cure. Safety illegality fraud nonpayment or security risk may justify immediate suspension of affected services. Give reasons and a correction route where lawful. Termination preserves confirmed orders refunds warranties recalls accrued dues and necessary records. Release unrelated undisputed balances through provider rules.
+
+## 12 Disputes and general terms
+
+Proposed governing law Indian law with mandatory destination rules preserved. Escalate commercially for fifteen days, then arbitrate under the Arbitration and Conciliation Act 1996 before a mutually appointed sole arbitrator or statutory appointment if needed. Proposed seat New Delhi India; final approved seat __________________; English proceedings. Competent courts retain interim and non-arbitrable jurisdiction. This clause does not govern consumer purchases.
+
+Notices Buyer __________________; Gloviaa __________________. Signed or explicitly accepted versioned amendments only. Force majeure requires prompt notice mitigation and lawful cancellation or delay handling and does not remove required refunds. No unrestricted agency partnership or joint venture. Mandatory law prevails; signed schedules govern services and confirmed goods orders govern goods-specific matters; adopted B2B terms and policy supplement process.
+
+## Schedule A Service and authority record
+
+Buyer account and signatory authority __________________.
+
+Approved countries and product classes __________________.
+
+Service provider deliverable acceptance test milestone and dependency for each selected service __________________.
+
+Budget spending limits and order acceptance authority __________________.
+
+Broker importer and local-actor mandates __________________.
+
+Installation site requirements __________________.
+
+Repeat-order and autopay mandate reference __________________.
+
+## Schedule B Commercial and order controls
+
+Buyer service fee __________________.
+
+Certification allocation disclosed formula cap and programme ID __________________.
+
+Buyer-specific test or inspection charge __________________.
+
+Currency FX taxes and payment charge __________________.
+
+Cancellation and earned-service calculation __________________.
+
+Goods seller order and specification references __________________.
+
+DAP named place or approved alternative __________________.
+
+Title passage __________________.
+
+Payment milestones and partner approval __________________.
+
+Warranty acceptance and after-sales conditions __________________.
+
+## Schedule C Signatures
+
+Buyer authorised signatory name title authority signature and date __________________.
+
+Gloviaa authorised signatory name title authority signature and date __________________.
+
+Witnesses if required __________________.
+
+All incomplete commercial and mandate fields must be completed or expressly marked not applicable before execution or trading.

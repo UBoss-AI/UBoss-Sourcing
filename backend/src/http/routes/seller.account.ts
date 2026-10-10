@@ -983,7 +983,7 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     '/submit',
     { config: { rateLimit: { max: 10, timeWindow: '1 hour' } } },
     async (request, reply) => {
-      await submitApplication(currentSeller(request), request.correlationId);
+      await submitApplication(currentSeller(request), request.correlationId, currentUser(request).id);
       return reply.status(204).send();
     },
   );

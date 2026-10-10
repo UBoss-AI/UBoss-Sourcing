@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   compactEquivalent,
   croreFigure,
-  exceedsMinimum,
+  meetsMinimum,
   financialYearOptions,
   formatTurnover,
   minorToEntry,
@@ -53,8 +53,9 @@ describe('switching units keeps the exact figure', () => {
 
 describe('the threshold', () => {
   it('is strictly greater than', () => {
-    expect(exceedsMinimum(30_000_000_000n, POLICY)).toBe(false);
-    expect(exceedsMinimum(30_000_000_001n, POLICY)).toBe(true);
+    expect(meetsMinimum(30_000_000_000n, POLICY)).toBe(true);
+    expect(meetsMinimum(29_999_999_999n, POLICY)).toBe(false);
+    expect(meetsMinimum(30_000_000_001n, POLICY)).toBe(true);
   });
 
   it('formats the minimum as 30 crore and as INR 300 million', () => {

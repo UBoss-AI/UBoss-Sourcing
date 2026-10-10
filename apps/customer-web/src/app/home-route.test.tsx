@@ -18,6 +18,9 @@ import { HOME } from '@/lib/return-target';
 import { LoginPage } from '@/pages/LoginPage';
 import { makeSession, renderWithProviders } from '@/test/harness';
 
+// The boxes themselves are tested in the agreement kit; here they are ticked.
+vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/components/agreement-kit/sign-in-agreements-stub'));
+
 /** Where the router ended up, printed so a test can read it. */
 function Where(): React.JSX.Element {
   const { pathname, search, hash } = useLocation();

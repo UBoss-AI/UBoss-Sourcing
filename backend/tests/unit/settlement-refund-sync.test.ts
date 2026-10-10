@@ -40,6 +40,8 @@ function fakeTx(input: { refunds: { status: string; amountMinor: bigint }[]; ope
         Promise.resolve({ orderNumber: 'UB-1', currency: 'INR', paidMinor: 118_000n, grandTotalMinor: 118_000n }),
     },
     refund: {
+      // Commission reversals read the succeeded refunds; with no line snapshots here none is proposed.
+      findMany: () => Promise.resolve([]),
       aggregate: ({ where }: { where: { status: string } }) =>
         Promise.resolve({
           _sum: {

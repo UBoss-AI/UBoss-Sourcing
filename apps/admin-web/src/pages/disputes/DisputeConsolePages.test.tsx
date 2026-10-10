@@ -9,6 +9,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter } from 'react-router-dom';
+import { SessionContext, type SessionState } from '@/auth/session-context';
 import { ToastProvider } from '@/components/toast';
 import { i18n } from '@/i18n/config';
 import { api, downloadFile } from '@/lib/api';
@@ -83,14 +84,19 @@ const dispute = {
   can: { manage: true, note: true, decide: false, approve: false, assign: true },
 };
 
+/** The case controls card reads permissions; this suite is about the case itself, so it may manage nothing. */
+const session = { user: { id: 'U1', email: 'ana@ops.test' }, isLoading: false, can: () => false, canAny: () => false } as unknown as SessionState;
+
 function show(): void {
   render(
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}>
         <ToastProvider>
-          <MemoryRouter>
-            <DisputeCasePage />
-          </MemoryRouter>
+          <SessionContext.Provider value={session}>
+            <MemoryRouter>
+              <DisputeCasePage />
+            </MemoryRouter>
+          </SessionContext.Provider>
         </ToastProvider>
       </QueryClientProvider>
     </I18nextProvider>,

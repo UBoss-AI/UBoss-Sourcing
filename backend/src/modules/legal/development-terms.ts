@@ -56,10 +56,15 @@ These terms are governed by the laws of the jurisdiction where the website is pr
 const TITLES: Record<AgreementDocumentKind, string> = {
   PLATFORM_TERMS: 'Terms and Conditions (development placeholder)',
   LOGISTICS_PARTNER_TERMS: 'Logistics Partner Terms (development placeholder)',
-  SELLER_TERMS: 'Seller Addendum (development placeholder)',
+  SELLER_TERMS: 'Seller Terms and Conditions (development placeholder)',
+  SELLER_SERVICES_AGREEMENT: 'Seller Platform Services Agreement (development placeholder)',
   STAFF_TERMS: 'Staff Terms (development placeholder)',
   AUDIT_CONSOLE_TERMS: 'Audit Console Terms (development placeholder)',
   PRIVACY_POLICY: 'Privacy Policy (development placeholder)',
+  B2B_BUYER_TERMS: 'B2B Buyer Terms and Conditions (development placeholder)',
+  B2B_BUYER_SERVICES_AGREEMENT: 'B2B Buyer Platform Services Agreement (development placeholder)',
+  B2C_CONSUMER_TERMS: 'B2C Consumer Terms and Conditions (development placeholder)',
+  B2C_PLATFORM_SERVICES_AGREEMENT: 'B2C Platform Services Agreement (development placeholder)',
 };
 
 /** Publish the placeholder for each kind that has nothing published yet. Idempotent. */

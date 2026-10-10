@@ -159,6 +159,24 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   OrderStatusHistory:
     'Who moved an order between statuses - staff activity against the order. The order itself ' +
     'is disclosed; who in the warehouse touched it is their data, not the customer’s.',
+  CommercialScheduleEvent:
+    'The approval history of an internal commercial schedule (Doc 08). `actorUserId` names the staff ' +
+    'member who drafted, approved or activated it in their working role; it is about the marketplace’s ' +
+    'own pricing, not about any buyer.',
+  SafetyCaseAction:
+    'The actions on a product safety case - reporting decisions, notices, recall steps - recorded by ' +
+    'Audit staff in their working role. It is about a product and its recall, not about a buyer; a ' +
+    'buyer’s own claim that started a case is disclosed through the disputes section.',
+  SellerAssessmentEvent:
+    'The decision history of a seller assessment - auditors, specialist reviewers and seller ' +
+    'members acting for a business applicant. `actorUserId` names the person in their working role; ' +
+    'it is about the seller business and its products, not a buyer. A person exercising this right ' +
+    'gets the account section and their role memberships.',
+  ShipmentAssessmentEvent:
+    'The history of a shipment assessment between L1 and L2 - auditors, the seller and the carrier ' +
+    'acting on a business shipment. `actorUserId` names the auditor, seller member or carrier ' +
+    'employee who acted, in their working role; it is about the goods, not a buyer. A person ' +
+    'exercising this right gets the account section and their role memberships.',
   LogisticsShipmentEvent:
     'Who moved a consignment between statuses - a carrier\u2019s staff acting against a parcel. ' +
     'The events themselves belong to the shipment and are shown to the buyer on the tracking ' +

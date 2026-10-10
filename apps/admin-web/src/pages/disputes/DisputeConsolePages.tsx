@@ -21,6 +21,7 @@ import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageH
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { api, downloadFile } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
+import { CaseControlsCard } from './CaseControlsCard';
 import { currencyExponent, formatDateTime, formatMoney, humanise, minorToMajor, type Money } from '@/lib/format';
 
 interface QueueRow {
@@ -570,6 +571,9 @@ export function DisputeCasePage(): React.JSX.Element {
           )}
         </Card>
       </div>
+
+      {/* Doc 07 case controls: clocks, evidence requests, testing, reasoned decision, appeal, recoveries. */}
+      <CaseControlsCard disputeId={id} />
 
       <Card title={t('disputes.threadTitle')} className="mt-4" bodyClassName="space-y-3 px-5 py-4 text-sm">
         <ol className="space-y-3">

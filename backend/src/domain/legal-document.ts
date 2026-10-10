@@ -32,6 +32,11 @@ export type TermsKindName = (typeof TERMS_KINDS)[number];
  */
 export const POLICY_KINDS = [
   'SELLER_TERMS',
+  'SELLER_SERVICES_AGREEMENT',
+  'B2B_BUYER_TERMS',
+  'B2B_BUYER_SERVICES_AGREEMENT',
+  'B2C_CONSUMER_TERMS',
+  'B2C_PLATFORM_SERVICES_AGREEMENT',
   'PRIVACY_POLICY',
   'RETURNS_POLICY',
   'BUYER_PROTECTION_POLICY',
@@ -49,6 +54,78 @@ export const STAFF_TERMS_KIND = 'STAFF_TERMS' as const;
 
 /** The terms Audit Console users - inspection agencies, auditors - accept. */
 export const AUDIT_CONSOLE_TERMS_KIND = 'AUDIT_CONSOLE_TERMS' as const;
+
+/**
+ * The Seller Platform Services Agreement: what the marketplace does for a
+ * seller and on what terms. Accepted on the Seller Hub's agreement screen
+ * under its OWN box, never bundled with the Terms, and required again at
+ * application submission. Accepting it is a click-through record of one
+ * published version - not a countersignature, and not agreement to the
+ * seller-specific schedules, which are negotiated and signed separately.
+ */
+export const SELLER_SERVICES_AGREEMENT_KIND = 'SELLER_SERVICES_AGREEMENT' as const;
+
+/**
+ * The B2B Buyer Terms and Conditions: accepted by each person acting for a
+ * buyer company, for that company, on the storefront's company agreement
+ * screen. Never shown to somebody shopping for themselves.
+ */
+export const B2B_BUYER_TERMS_KIND = 'B2B_BUYER_TERMS' as const;
+
+/**
+ * The B2B Buyer Platform Services Agreement. A COMPANY-level acceptance: given
+ * once for the company by a member with authority to bind it
+ * (`canBindCompany`), and then it counts for every member - nobody else is
+ * asked to countersign. Accepting the published text records the buyer's
+ * side only. It is not Gloviaa's signature and does not complete Schedules
+ * A-C, which are executed separately before trading on negotiated terms.
+ */
+export const B2B_BUYER_SERVICES_AGREEMENT_KIND = 'B2B_BUYER_SERVICES_AGREEMENT' as const;
+
+/**
+ * The B2C Consumer Terms and Conditions: accepted by somebody shopping for
+ * themselves, on the storefront's consumer screen. Mandatory consumer rights
+ * apply whatever the account is called and whatever the document says; the
+ * B2B fee cap, indemnities, arbitration and short acceptance deadlines are
+ * never part of it.
+ */
+export const B2C_CONSUMER_TERMS_KIND = 'B2C_CONSUMER_TERMS' as const;
+
+/**
+ * The B2C Platform Services Agreement: the consumer screen's own box. Never
+ * the Seller or the B2B Buyer Services Agreement under another title, and
+ * never the B2C Terms twice.
+ */
+export const B2C_PLATFORM_SERVICES_AGREEMENT_KIND = 'B2C_PLATFORM_SERVICES_AGREEMENT' as const;
+
+/**
+ * Every document the consumer screen needs in force before it is used at all.
+ * Until each has a published version in force an individual is asked on the
+ * BUYER screen as before, so an unfinished set can never become a sign-in
+ * nobody can pass.
+ */
+export const CONSUMER_ACTIVATION_KINDS = [
+  B2C_CONSUMER_TERMS_KIND,
+  B2C_PLATFORM_SERVICES_AGREEMENT_KIND,
+  'PRIVACY_POLICY',
+] as const;
+
+/** Kinds accepted once per company rather than once per person. */
+export const COMPANY_LEVEL_KINDS: readonly string[] = [B2B_BUYER_SERVICES_AGREEMENT_KIND];
+
+export function isCompanyLevelKind(kind: string): boolean {
+  return COMPANY_LEVEL_KINDS.includes(kind);
+}
+
+/**
+ * The company roles that may bind the company to an agreement: the owner who
+ * registered it (and declared authority to act for it) and the admins they
+ * appoint. A buyer, approver, finance or viewer member may read the agreement
+ * but never accept it for the company.
+ */
+export function canBindCompany(role: string): boolean {
+  return role === 'OWNER' || role === 'COMPANY_ADMIN';
+}
 
 /** Every kind the legal-document service manages. */
 export const LEGAL_DOCUMENT_KINDS = [
@@ -82,7 +159,7 @@ export const TERMS_ACCEPTANCE_SOURCES = [
  * and SELLER in the Seller Hub. The scope decides which Terms apply, never
  * whether the Privacy Policy does - it always does.
  */
-export const AGREEMENT_SCOPES = ['BUYER', 'SELLER', 'LOGISTICS', 'STAFF', 'AUDIT'] as const;
+export const AGREEMENT_SCOPES = ['BUYER', 'SELLER', 'LOGISTICS', 'STAFF', 'AUDIT', 'COMPANY_BUYER', 'CONSUMER'] as const;
 export type AgreementScopeName = (typeof AGREEMENT_SCOPES)[number];
 
 /** The Terms kinds an agreement screen can ask for. */
@@ -90,8 +167,13 @@ export const AGREEMENT_TERMS_KINDS = [
   'PLATFORM_TERMS',
   'SELLER_TERMS',
   'LOGISTICS_PARTNER_TERMS',
+  SELLER_SERVICES_AGREEMENT_KIND,
   STAFF_TERMS_KIND,
   AUDIT_CONSOLE_TERMS_KIND,
+  B2B_BUYER_TERMS_KIND,
+  B2B_BUYER_SERVICES_AGREEMENT_KIND,
+  B2C_CONSUMER_TERMS_KIND,
+  B2C_PLATFORM_SERVICES_AGREEMENT_KIND,
 ] as const;
 export type AgreementTermsKind = (typeof AGREEMENT_TERMS_KINDS)[number];
 
@@ -103,8 +185,8 @@ export type AgreementDocumentKind = AgreementTermsKind | typeof PRIVACY_NOTICE_K
 /**
  * The Terms a scope must have accepted, in the order they are read.
  *
- * A seller accepts the buyer-facing Terms of Use AND the Seller Addendum: the
- * addendum supplements the Terms of Use and makes no sense alone. A buyer
+ * A seller accepts the buyer-facing Terms of Use AND the Seller Terms and
+ * Conditions, read together in one dialog under one box. A buyer
  * never sees the addendum - nobody accepts obligations of a role they do not
  * hold. Carrier staff, operator staff and Audit Console users each have one
  * document that carries the common terms and their own part.
@@ -121,8 +203,32 @@ export function termsKindsForScope(scope: AgreementScopeName): readonly Agreemen
       return [STAFF_TERMS_KIND];
     case 'AUDIT':
       return [AUDIT_CONSOLE_TERMS_KIND];
+    case 'COMPANY_BUYER':
+      return [B2B_BUYER_TERMS_KIND];
+    case 'CONSUMER':
+      return [B2C_CONSUMER_TERMS_KIND];
   }
 }
+
+/**
+ * The agreements a scope accepts under a box of their own, beside the Terms.
+ * A seller has the Seller Platform Services Agreement; somebody acting for a
+ * buyer company has the B2B Buyer Platform Services Agreement; a consumer has
+ * the B2C Platform Services Agreement.
+ */
+export function servicesKindsForScope(scope: AgreementScopeName): readonly AgreementTermsKind[] {
+  if (scope === 'SELLER') return [SELLER_SERVICES_AGREEMENT_KIND];
+  if (scope === 'COMPANY_BUYER') return [B2B_BUYER_SERVICES_AGREEMENT_KIND];
+  if (scope === 'CONSUMER') return [B2C_PLATFORM_SERVICES_AGREEMENT_KIND];
+  return [];
+}
+
+/**
+ * What a seller must have accepted, in a version that still counts, before an
+ * application can be submitted. Both must be PUBLISHED: a kind with nothing in
+ * force does not block the agreement screen, but it does block submission.
+ */
+export const SELLER_SUBMISSION_KINDS = ['SELLER_TERMS', SELLER_SERVICES_AGREEMENT_KIND] as const;
 
 export function isAgreementTermsKind(kind: string): kind is AgreementTermsKind {
   return (AGREEMENT_TERMS_KINDS as readonly string[]).includes(kind);
@@ -168,10 +274,34 @@ export function acceptableVersions(newestFirst: readonly VersionRequirementRow[]
  */
 export const LEGAL_PLACEHOLDER_PATTERN = /\[\[[^\]\n]{0,300}\]\]/g;
 
+/**
+ * A fill-in line, the way a Word draft leaves one: "registered address
+ * __________". Five underscores or more; nothing in real prose has that.
+ */
+export const LEGAL_FILL_IN_PATTERN = /[^\n_.;:]{0,40}_{5,}/g;
+
+/**
+ * The notice a draft supplied for approval opens with. Its own words say the
+ * text is not ready to be relied on, so a document still carrying it cannot be
+ * published: removing it is part of approving the text, and that is a
+ * person's decision, never this software's.
+ */
+export const LEGAL_APPROVAL_NOTICE = 'For approval before implementation or signature';
+
+/**
+ * Everything that keeps a document from being published: `[[...]]` decisions,
+ * fill-in lines, and the approval notice. Each is reported once, a fill-in
+ * line with the words before it so the editor can find it.
+ */
 export function findLegalPlaceholders(text: string): string[] {
   const found = [...new Set(text.match(LEGAL_PLACEHOLDER_PATTERN) ?? [])];
   // An opening "[[" whose close was lost in editing is still a blank.
   if (found.length === 0 && text.includes('[[')) found.push('[[');
+  for (const match of text.match(LEGAL_FILL_IN_PATTERN) ?? []) {
+    const blank = match.trim();
+    if (!found.includes(blank)) found.push(blank);
+  }
+  if (text.toLowerCase().includes(LEGAL_APPROVAL_NOTICE.toLowerCase())) found.push(LEGAL_APPROVAL_NOTICE);
   return found;
 }
 export type TermsAcceptanceSource = (typeof TERMS_ACCEPTANCE_SOURCES)[number];

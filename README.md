@@ -596,8 +596,9 @@ verification change from the Admin Panel, whatever the role. This needs
 
 **Only a business above a turnover minimum may apply.** This is the
 marketplace's own rule, not a legal one, and it is a setting. By default the
-annual turnover for the most recently completed financial year must be **more
-than** ₹30 crore (INR 300 million); exactly ₹30 crore is not enough. The
+annual turnover for the most recently completed financial year must be **at
+least** ₹30 crore (INR 300 million); exactly ₹30 crore qualifies (Seller Assessment
+policy v1.0 changed this from the earlier "more than"). The
 **Seller eligibility** card on `/sell` and at the top of the Business identity
 step asks for the year, the figure (in crore or rupees, converted exactly) and
 a ticked declaration, and keeps the application closed until the figure is
@@ -1660,12 +1661,38 @@ separate boxes: "I agree to the Terms & Conditions." and "I acknowledge that I
 have read the Privacy Policy." Clicking a box or a document's name opens the
 document; the box is ticked only when the server has saved the record, after
 **I agree** or **I acknowledge** at the end of the text. **Continue** is enabled
-once both are saved. Before Continue a box can be cleared again.
+once every box is saved. Before Continue a box can be cleared again.
+
+In the Seller Hub there is a **third box**, "I agree to the Seller Platform
+Services Agreement.", with its own dialog and its own read-to-the-end check.
+A seller application cannot be sent until the person sending it has accepted
+both the Seller terms and the Seller Platform Services Agreement in their
+current published versions; the onboarding page says which is missing. A tick
+is a record of one published version, not a signature, and it approves
+nothing: seller verification stays with the Audit Console.
+
+Somebody signing in on the **Company** tab - or switching into a company - is
+asked for the **B2B Buyer Terms & Conditions**, the Privacy Policy and the **B2B
+Buyer Platform Services Agreement**. The services agreement is accepted once per
+company, by its owner or a company admin; other members wait for them. Every
+sign-in form now shows its agreement boxes under the password, one line each,
+and Sign in waits until each is ticked from its own document.
+
+Somebody **shopping for themselves** is asked for the **B2C Consumer Terms &
+Conditions**, the Privacy Policy and the **B2C Platform Services Agreement** -
+but only once all three are published. Until then they get the Buyer Terms and
+Conditions screen as before, so a document still being written or approved can
+never lock anybody out; publishing the last of the three switches it on. The
+boxes consent to nothing else (no marketing, cookies, repeat orders, AutoPay or
+paid extras) and waive no consumer right. While the screen waits, the shopper
+can still open their orders, cancel, return, claim and contact support.
 
 | Account | Terms asked for |
 |---|---|
 | Buyer | Buyer Terms and Conditions |
-| Seller (in the Seller Hub) | Buyer Terms and Conditions and Seller terms |
+| Buyer shopping for themselves, once all three consumer documents are published | B2C Consumer Terms and Conditions; B2C Platform Services Agreement (its own box) |
+| Buyer acting for a company | B2B Buyer Terms and Conditions; B2B Buyer Platform Services Agreement (its own box, once per company) |
+| Seller (in the Seller Hub) | Buyer Terms and Conditions and Seller terms (one box); Seller platform services agreement (its own box) |
 | Carrier staff | Logistics partner terms |
 | Operator staff | Staff terms |
 | Audit Console user | Audit Console terms |
@@ -4591,10 +4618,16 @@ seam that would have to change.
       nobody is asked again.
     - Publish the **Privacy policy**, and the terms for every other kind of
       account you have: *Seller terms* if you have sellers, *Staff terms* for
-      your own staff, *Audit Console terms* if the Audit Console is on. Each
+      your own staff, *Audit Console terms* if the Audit Console is on, and the
+      *Seller platform services agreement* if you have sellers, and the
+      *B2C consumer terms and conditions* and *B2C platform services
+      agreement* if individuals shop for themselves (the consumer screen
+      starts only once both and the Privacy policy are published). Each
       is asked for on the agreement screen after sign-in as soon as it is
       published; existing accounts are asked on their next visit.
-    - A document that still contains a `[[...]]` blank cannot be published.
+    - A document that still contains a `[[...]]` blank, a `____` fill-in line
+      or the words "For approval before implementation or signature" cannot be
+      published.
     - Drafts adapted for Gloviaa Mart are in `legal/drafts/gloviaa-mart/`. Load
       them as drafts with:
 
@@ -5089,6 +5122,7 @@ inspection agencies and the marketplace's own compliance staff. **Off unless
 | Variable | What it does |
 |---|---|
 | `FEATURE_AUDIT_CONSOLE` | The whole console. Default `false` |
+| `FEATURE_SHIPMENT_ASSESSMENT` | L2 may start only on an Audit release (assessment or approved badge waiver). Existing shipments awaiting L2 are queued for review. Default `false` |
 | `AUDIT_WEB_ORIGIN` | The console's exact origin, for CORS. Development `http://localhost:5176` |
 | `AUDIT_WEB_PUBLIC_URL` | Where invitation and reset links point. Required when the console is on |
 | `AUDIT_INVITE_TTL_HOURS` | How long an invitation lasts. Default `48` |
@@ -5104,6 +5138,10 @@ advice and accredits nobody. The sampling table is MIL-STD-105E / ANSI Z1.4,
 not ISO 2859-1.
 
 
+## Shipment Assessment
+
+Between L1 (plant to port of loading) and L2 (port of loading to destination port), the Audit Team either assesses the shipment physically or approves a waiver for a seller whose Audit badge allows it. L2 cannot start without the resulting release. Badges (Platinum, Gold, Silver, Bronze) are set by Audit supervisors only; every seller starts with none. Certificates, waiver authorizations and findings reports are PDFs with a QR to a public status check. Off by default: set `FEATURE_SHIPMENT_ASSESSMENT=true` (needs `FEATURE_AUDIT_CONSOLE=true`). Shipments already waiting for L2 when it is switched on are listed for review, never waived. Full description: `PROJECT-GUIDE.md`, section "Shipment Assessment".
+
 ## Documentation
 
 | File | Answers |
@@ -5117,7 +5155,9 @@ not ISO 2859-1.
 | **[`docs/DATABASE-DESIGN.md`](docs/DATABASE-DESIGN.md)** | Why the database is shaped as it is: the principles, each domain with its diagram, and the life of an order in rows |
 | **[`docs/API.md`](docs/API.md)** | How to call the API: signing in, permissions, money, errors, webhooks, and worked examples |
 | **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
-| [`legal/README.md`](legal/README.md) | The policy drafts (Terms, Seller Addendum, Privacy Policy, carrier, staff and Audit Console terms), how they were adapted, the open decisions, and how to load them as drafts |
+| **[`docs/SELLER-ASSESSMENT-MATRIX.md`](docs/SELLER-ASSESSMENT-MATRIX.md)** | Seller Assessment and Onboarding v1.0: each requirement, what was built, the test evidence and what still needs people |
+| **[`docs/DELIVERY-COMMERCIAL-MATRIX.md`](docs/DELIVERY-COMMERCIAL-MATRIX.md)** | Doc 07 and Doc 08: every delivery, case, refund, commercial, certification, insurance and launch requirement, what was built, the evidence and what still needs people |
+| [`legal/README.md`](legal/README.md) | The policy drafts (Terms, Seller Terms and Conditions, Seller Platform Services Agreement, Privacy Policy, carrier, staff and Audit Console terms), how they were adapted or supplied, the open decisions, and how to load them as drafts |
 | [`docs/compliance/REGULATORY-SOURCES.md`](docs/compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with |
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |
@@ -5193,3 +5233,23 @@ words remain editable at their destination; unavailable features say so. The
 Indian manufacturer wording requires an actual approved public manufacturer
 registered in India with a valid recorded verification date. Supplier browsing has its own public page, bounded to 24
 name matches with retry and empty guidance.
+
+## Seller Assessment and Onboarding
+
+The marketplace's eight-gate seller assessment, from the *Seller Assessment and Onboarding Process and Checklist* v1.0: application and eligibility, identity and financial verification, product and destination classification per country and channel, site audit and sampling, independent external certification appointed and paid by the marketplace, corrective action, contracts and readiness, and an independent human release of the exact sites, product versions, countries and B2B/B2C channels. The Audit Console decides (`/seller-assessments`), the Seller Hub applies and appeals (`/seller/assessment`), the Admin Panel only reads (`/seller-assessments`).
+
+- **Eligible:** Indian manufacturers and Indian brand owners with documented brand rights, declared Indian facilities, manufacturing and quality agreements and audit access, with revenue from operations (excluding GST) of **at least INR 30 crore** for the last completed financial year.
+- **Score:** seven weighted dimensions; release needs at least 80/100 and every dimension at least 3/5. Hard stops override any score.
+- **Purchase gate:** `SELLER_ASSESSMENT_PURCHASE_GATE` = `off` (default) | `report` | `enforce`. Enforced, a seller listing is purchasable only inside a current trading approval with a current authenticated certificate - checked at basket, checkout, preorder, payment start, AutoPay charge, RFQ conversion, capture and dispatch. **Turning it on blocks every seller without an approval**; read the activation impact report first.
+- **Policy:** v1.0 is seeded as a DRAFT. Its proposed defaults bind only once an adoption reference, effective date and disclosure are recorded. `SELLER_ASSESSMENT_ALLOW_DRAFT_POLICY` allows decisions under a draft for development and tests; production refuses it.
+- **Not done by the software:** the real assessments, visits, laboratory tests, certificates and policy adoption. See PROJECT-GUIDE.md, "Seller Assessment and Onboarding".
+
+## Delivery, returns, disputes and commercial schedules
+
+From the *Delivery Returns Refunds and Dispute Administration Policy* (Doc 07) and the *Commercial Certification and Launch Approval Guide* (Doc 08), both v1.0 approval drafts.
+
+- **Proposals stay drafts.** Every proposed number - the 25-department B2B/B2C commission table, the large-B2B incremental discount, logistics cost-plus-5%, certification recovery up to 1%, seller reserves (5%/90 days or 10%/180 days), the three insurance groups, the 30/60/10 plan, subscriptions and the case windows - is a DRAFT commercial schedule (Admin Panel, finance). A second person approves it with evidence; activation needs a signed-schedule reference, an effective date and, where money is held or split, the payment provider's written confirmation. Nothing activates by itself, and a change never rewrites a confirmed order.
+- **Every order line is frozen at confirmation:** actual seller and manufacturer, approved version and site, destination, B2B/B2C, delivery term (DAP by default for international B2B; FCA and DDP only when approved), importer and local actors, commission rate, base and rule version, and the policy versions in force.
+- **Gates:** `DELIVERY_POLICY_GATES` = `off` (default) | `report` | `enforce` refuses seller acceptance without the recorded controls, consumer checkout across a border without an approved import route, and dispatch without its evidence. `COUNTRY_LAUNCH_GATE` = `off` (default) | `enforce` refuses checkout to any country not enabled on approved launch evidence. No country is enabled by default.
+- **Always on:** independent appeal review; late safety, defect, warranty and statutory claims taken in for review; safety containment from the Audit Console stopping purchase, repeat orders and dispatch; an unknown refund outcome kept pending and reconciled under the same key, never marked failed.
+- **Not done by the software:** adopting the schedules, signatures, provider confirmations, broker-reviewed insurance, legal review, contacts, the safety officer and country tax decisions. Charging the certification allocation at checkout is not built yet. See [`docs/DELIVERY-COMMERCIAL-MATRIX.md`](docs/DELIVERY-COMMERCIAL-MATRIX.md) and PROJECT-GUIDE.md, "Delivery, returns, disputes and commercial schedules".

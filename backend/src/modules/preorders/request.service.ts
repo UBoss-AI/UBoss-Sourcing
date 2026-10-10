@@ -20,6 +20,7 @@
  *     the policy on every preview and submission, and the order is built from
  *     the confirmed revision's own stored figures.
  */
+import { assertOffersEligible, channelFor } from '../seller-assessment/purchase-gate.service.js';
 import { captureOrderItemSnapshots } from '../orders/order-item-snapshot.service.js';
 import { priceForQuantity } from '../../domain/quantity-tier.js';
 import { z } from 'zod';
@@ -1113,6 +1114,8 @@ export async function submitPreorder(
 
   const assessment = await assess(actor.customerProfileId, input, actor.buyerCompanyId ?? null);
   const { eligibility, price, conversion } = assessment;
+  // Seller Assessment scope for this destination and buyer type.
+  await assertOffersEligible(prisma, [input.offerId ?? null], assessment.address.country, channelFor((actor.buyerCompanyId ?? null) !== null), 'preorder');
   const policy: PolicyTerms = eligibility.policy;
   const now = new Date();
   const id = newId();
@@ -2738,6 +2741,8 @@ export async function buyerConfirm(
       [{ code: 'OFFER_INACTIVE' }],
     );
   }
+  // Asked again when the preorder becomes an order: a suspension since the request blocks it here.
+  await assertOffersEligible(prisma, [request.offerId], request.destinationCountry, channelFor((actor.buyerCompanyId ?? null) !== null), 'preorder-confirm');
 
   // The same function that priced the terms on the buyer's review screen.
   const priced = await priceTerms(request, offer, {
