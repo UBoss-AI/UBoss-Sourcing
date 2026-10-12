@@ -302,7 +302,8 @@ export function WarehouseMapGoogle<T extends MappablePlace>({
         gmpClickable: true,
       });
 
-      marker.addListener('click', () => {
+      // `gmp-click` is the marker's DOM event; `addListener('click')` is deprecated.
+      marker.addEventListener('gmp-click', () => {
         onSelectRef.current(warehouse.id);
       });
 

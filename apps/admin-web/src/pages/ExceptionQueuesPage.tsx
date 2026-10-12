@@ -53,7 +53,7 @@ const ROLE_OPTIONS = [
   'compliance_officer',
 ] as const;
 
-export const EXCEPTION_QUEUES_KEY = ['admin-exception-queues'] as const;
+const EXCEPTION_QUEUES_KEY =['admin-exception-queues'] as const;
 
 function EditQueueDialog({ queue, onClose }: { queue: ExceptionQueue; onClose: () => void }): React.JSX.Element {
   const { t } = useI18n();
