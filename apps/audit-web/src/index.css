@@ -768,10 +768,9 @@
    * A pane that scrolls inside the page - a dialog's body, a long list in a
    * card.
    *
-   * Two things a bare `overflow-y-auto` does not do. It draws a slim scrollbar
-   * in the page's own colours instead of the operating system's grey gutter
-   * with arrow buttons, which on the dark theme was a light stripe down the
-   * middle of the dialog. And it shades the edge where there is more to see:
+   * What a bare `overflow-y-auto` does not do: shade the edge where there is
+   * more to see. (The scrollbar itself is drawn by ScrollArea, or by the
+   * global rule at the end of this file.) It does so with
    * a soft shadow at the top once the reader has scrolled down, and at the
    * bottom until they reach the end, so a form that continues below the fold
    * looks like it continues.
@@ -782,8 +781,6 @@
    * no layout, and nothing for a screen reader to read.
    */
   .scroll-pane {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--border)) transparent;
     background:
       linear-gradient(rgb(var(--surface)) 30%, rgb(var(--surface) / 0)) center top,
       linear-gradient(rgb(var(--surface) / 0), rgb(var(--surface)) 70%) center bottom,
@@ -1463,5 +1460,255 @@
     --brand-wordmark-glow: 0 0 14px rgb(138 180 255 / 0.28), 0 1px 1px rgb(2 6 23 / 0.45);
     color-scheme: dark;
     background-image: linear-gradient(180deg, rgb(18 42 98), rgb(10 26 64));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * ScrollArea (components/ui/scroll-area.tsx) - the drawn scrollbar.
+ *
+ * Kept identical in all four apps' index.css. The colours are the theme's
+ * own tokens, so the dark theme needs nothing of its own except the violet,
+ * which has no token: it is defined here, for both of the theme's dark
+ * selectors (the device's preference, and an explicit choice).
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .scroll-area {
+    --sa-start: rgb(var(--brand));
+    --sa-end: rgb(var(--operational));
+    --sa-track: rgb(var(--brand) / 0.06);
+    --sa-track-hover: rgb(var(--brand) / 0.12);
+    --sa-glow: rgb(var(--operational) / 0.3);
+    --sa-violet-start: 99 102 241;
+    --sa-violet-end: 139 92 246;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .scroll-area {
+      --sa-violet-start: 129 140 248;
+      --sa-violet-end: 167 139 250;
+    }
+  }
+
+  :root[data-theme='dark'] .scroll-area {
+    --sa-violet-start: 129 140 248;
+    --sa-violet-end: 167 139 250;
+  }
+
+  .scroll-area[data-variant='violet'] {
+    --sa-start: rgb(var(--sa-violet-start));
+    --sa-end: rgb(var(--sa-violet-end));
+    --sa-track: rgb(var(--sa-violet-end) / 0.07);
+    --sa-track-hover: rgb(var(--sa-violet-end) / 0.14);
+    --sa-glow: rgb(var(--sa-violet-end) / 0.3);
+  }
+
+  .scroll-area[data-variant='minimal'] {
+    --sa-start: rgb(var(--ink-subtle));
+    --sa-end: rgb(var(--ink-subtle));
+    --sa-track: transparent;
+    --sa-track-hover: rgb(var(--ink) / 0.06);
+    --sa-glow: transparent;
+  }
+
+  /* The viewport grows into the root, so a root that is itself a shrinking
+     flex child (a dialog body) hands its height down. */
+  .scroll-area__viewport {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+  }
+
+  /* Contain only the axis the pane scrolls on: a wheel going up and down over
+     a wide table has to reach the page, not stop dead at the table. */
+  .scroll-area:not([data-orientation='horizontal']) > .scroll-area__viewport {
+    overscroll-behavior-y: contain;
+  }
+
+  .scroll-area:not([data-orientation='vertical']) > .scroll-area__viewport {
+    overscroll-behavior-x: contain;
+  }
+
+  .scroll-area__viewport:focus-visible {
+    outline: 2px solid rgb(var(--brand));
+    outline-offset: -2px;
+  }
+
+  /* Radix wraps the content in `display: table` so it can measure its width.
+     On a pane that only scrolls up and down that lets a long word or a wide
+     child push the content wider than the pane instead of wrapping. */
+  .scroll-area[data-orientation='vertical'] > .scroll-area__viewport > div {
+    display: block !important;
+  }
+
+  /* The horizontal bar is an overlay along the bottom: leave it a strip so it
+     never sits on the last row's text. */
+  .scroll-area:not([data-orientation='vertical']) > .scroll-area__viewport > div {
+    padding-bottom: 12px;
+  }
+
+  .scroll-area__track {
+    z-index: 2;
+    display: flex;
+    box-sizing: border-box;
+    padding: 2px;
+    touch-action: none;
+    user-select: none;
+    background: var(--sa-track);
+    border-radius: 9999px;
+    transition: background-color 180ms ease;
+  }
+
+  .scroll-area__track[data-orientation='vertical'] {
+    width: 10px;
+  }
+
+  .scroll-area__track[data-orientation='horizontal'] {
+    height: 10px;
+    flex-direction: column;
+  }
+
+  .scroll-area__track:hover,
+  .scroll-area:focus-within > .scroll-area__track {
+    background: var(--sa-track-hover);
+  }
+
+  .scroll-area__thumb {
+    position: relative;
+    flex: 1;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, var(--sa-start), var(--sa-end));
+    transition:
+      filter 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .scroll-area__track[data-orientation='horizontal'] .scroll-area__thumb {
+    background: linear-gradient(90deg, var(--sa-start), var(--sa-end));
+  }
+
+  /* A 24px target to grab, without a bulky bar to look at. */
+  .scroll-area__thumb::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    min-width: 24px;
+    min-height: 24px;
+    transform: translate(-50%, -50%);
+  }
+
+  .scroll-area__track:hover .scroll-area__thumb,
+  .scroll-area:focus-within > .scroll-area__track .scroll-area__thumb {
+    box-shadow: 0 0 6px var(--sa-glow);
+  }
+
+  .scroll-area__thumb:active {
+    filter: brightness(1.12);
+  }
+
+  .scroll-area__corner {
+    background: var(--sa-track);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-area__track,
+    .scroll-area__thumb {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .scroll-area__track,
+    .scroll-area__corner {
+      background: Canvas;
+    }
+
+    .scroll-area__thumb {
+      background: ButtonText;
+      box-shadow: none;
+      filter: none;
+    }
+  }
+}
+
+/* Every other scrollbar - the page itself, and any pane that still scrolls
+   natively - is drawn to match: the same 10px track and gradient thumb. In
+   `base`, so `.scrollbar-none` and friends still hide a bar on purpose. The
+   standard properties only for browsers without the WebKit pseudo-elements,
+   because Chromium ignores those pseudo-elements on any element that sets
+   them. */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--brand) / 0.06);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+    background-image: linear-gradient(180deg, rgb(var(--brand)), rgb(var(--operational)));
+  }
+
+  ::-webkit-scrollbar-thumb:horizontal {
+    background-image: linear-gradient(90deg, rgb(var(--brand)), rgb(var(--operational)));
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(var(--brand)) rgb(var(--brand) / 0.06);
+    }
+  }
+}
+
+/*
+ * Page transitions.
+ *
+ * Every navigation to another page runs as a view transition (see
+ * `lib/page-transitions.ts`): the browser photographs the old page, renders
+ * the new one, and cross-fades between the two. Parts that are the same on
+ * both, such as the header, blend into themselves and do not move; only what
+ * changed fades.
+ *
+ * Both halves share one duration and one curve on purpose. The pair is
+ * blended additively, so the two opacities have to add up to one at every
+ * moment, or the unchanged header dims for a frame in the middle.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* A named part (the storefront's cart tabs, for one) glides into place on
+   the same curve, rather than fading with the page around it. */
+::view-transition-group(*) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

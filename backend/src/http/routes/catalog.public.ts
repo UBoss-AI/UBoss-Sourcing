@@ -37,6 +37,7 @@ import type { VariantAxis } from '../../domain/variants/axis.js';
 import { VARIANT_TEMPLATES, findTemplate } from '../../domain/variants/registry.js';
 import { prisma } from '../../infra/prisma.js';
 import { env } from '../../config/env.js';
+import { withPlatformB2cCap } from '../../modules/cart/b2c-limit.service.js';
 import { ratingBadges, withRatingBadges } from '../../modules/catalog/product-review.service.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
 import { assertNotMalware } from '../../infra/malware-scan.js';
@@ -655,15 +656,16 @@ function serialiseProduct(
        * The B2C maximum order quantity: the most units of this product a
        * buyer who is not an approved company may order at once, in pieces.
        * The offer's on a seller's product - the offer the basket will bind -
-       * and the product row's on the operator's own. Null when none is set.
+       * and the product row's on the operator's own, capped by the
+       * marketplace-wide B2C_PLATFORM_MAX_ORDER_QUANTITY. Null when neither is set.
        *
        * A purchasing limit, never stock: the page words it as such. Shown to
        * everybody, and applied by the server to everybody but an approved
        * company, whatever the page does with it.
        */
-      b2cMaxOrderQuantity: product.isMarketplaceProduct
-        ? (offerTerms?.b2cMaxOrderQuantity ?? null)
-        : product.b2cMaxOrderQuantity,
+      b2cMaxOrderQuantity: withPlatformB2cCap(
+        product.isMarketplaceProduct ? (offerTerms?.b2cMaxOrderQuantity ?? null) : product.b2cMaxOrderQuantity,
+      ),
     },
 
     /**

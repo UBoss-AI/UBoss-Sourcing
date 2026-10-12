@@ -41,6 +41,7 @@ import {
   type PricingResult,
 } from '../../domain/pricing.js';
 import { findB2cViolations } from '../../domain/b2c-order-limit.js';
+import { withPlatformB2cCap } from '../cart/b2c-limit.service.js';
 import { variantKeyOf } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
@@ -438,7 +439,7 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
       productId: line.productId,
       sellerAccountId: null,
       quantity: line.quantity,
-      limit: line.b2cMaxOrderQuantity,
+      limit: withPlatformB2cCap(line.b2cMaxOrderQuantity),
     })),
   )) {
     problems.push({

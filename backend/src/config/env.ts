@@ -542,6 +542,13 @@ const envSchema = z
     // A plan may override both. These are the deployment's defaults for plans
     // that do not.
     SCHEDULE_PRICE_TOLERANCE_PERCENT: z.coerce.number().min(0).max(100).default(5),
+    /// The most pieces of one product a B2C buyer (anyone but an approved
+    /// company) may order at once, across the whole marketplace.
+    ///
+    /// Applied on top of each listing's own B2C limit: the lower of the two
+    /// wins, so a seller can be stricter than this but never looser. 0 turns
+    /// the marketplace-wide cap off and leaves only the per-listing limits.
+    B2C_PLATFORM_MAX_ORDER_QUANTITY: intFromString(0, 1_000_000).default(5),
     SCHEDULE_PRICE_TOLERANCE_MINOR: intFromString(0, 100_000_000).default(500),
     /// How long before a run a plan stops accepting edits, in minutes.
     ///

@@ -1,12 +1,20 @@
-# Source-to-adapted change table — Gloviaa Mart policy drafts
+# Source-to-adapted change table — Gloviaa Mart policy documents
 
-**Status: DRAFT. Automated drafting is not legal approval.** These documents were
-adapted by an AI assistant from two third-party source files, against what the
-Gloviaa Mart software is documented to do (`docs/PRD.md`). They are not legal
-advice. Every document stays a **DRAFT** until the operator's legal counsel has
-reviewed it, every `[[DECISION: ...]]` has been resolved, and the opening
-"DRAFT - not legal advice..." paragraph has been removed. The Platform refuses to
-publish any document whose body still contains `[[`.
+**Status: finalised text, version 1.0, effective 12 October 2026, with sample
+company details. Not reviewed by counsel.** These documents were adapted by an
+AI assistant from two third-party source files and the operator's own Word
+files, against what the Gloviaa Mart software is documented to do
+(`docs/PRD.md`). On 12 October 2026, at the owner's request, every
+`[[DECISION: ...]]` was settled (see "Decisions taken" below), every `______`
+blank was filled, and every "DRAFT - not legal advice..." notice and "For
+approval before implementation or signature" line was removed. The company
+details written into the text are **samples** that must be replaced before
+going live (see "Sample values to replace before going live"). Automated
+drafting is not legal advice and not legal approval.
+
+The tables in (a) and (b) record how the source was adapted. Where they say
+`[[DECISION]]`, that decision has since been taken; the value used is in
+"Decisions taken".
 
 Sources (unchanged copies in `legal/source/`, not in git):
 
@@ -15,18 +23,19 @@ Sources (unchanged copies in `legal/source/`, not in git):
 | `T&C of Flipkart Seller Hub.txt` | `75209e373798b31ec24c03241d68d472538aca3c0a5e5fa9d5e824334c1aac60` |
 | `Privacy Policy of Flipkart Seller Hub.txt` | `68bdad052baf4a2f429301289ddd99d34412194c3726a37454217612bacb3d79` |
 
-Drafts (version `2026-10-draft-1`, English):
+Documents (all version `1.0`, effective 12 October 2026, English):
 
 | File | Kind | Who agrees / acknowledges |
 |---|---|---|
 | `platform-terms.en.txt` | `PLATFORM_TERMS` | Every buyer (Part A common + Part B buyer) |
 | `seller-terms.en.txt` | `SELLER_TERMS` | Sellers, in addition to the Terms of Use. **Replaced 2026-10-09** by the operator's own text - see (z) below |
 | `seller-services-agreement.en.txt` | `SELLER_SERVICES_AGREEMENT` | Sellers, in its own box. Operator's own text - see (z) below |
-| `b2b-buyer-terms.en.txt` | `B2B_BUYER_TERMS` | Each member acting for a buyer company, for that company. Operator's own text, word for word |
-| `b2b-buyer-services-agreement.en.txt` | `B2B_BUYER_SERVICES_AGREEMENT` | A buyer company, once, through its owner or a company admin. Operator's own text, word for word |
-| `b2c-consumer-terms.en.txt` | `B2C_CONSUMER_TERMS` | Each person shopping for themselves, on the consumer screen. Operator's own text, word for word |
-| *(not supplied)* | `B2C_PLATFORM_SERVICES_AGREEMENT` | Each person shopping for themselves, in its own box. **No text has been supplied**; nothing is drafted for it here |
+| `b2b-buyer-terms.en.txt` | `B2B_BUYER_TERMS` | Each member acting for a buyer company, for that company. Operator's own text, filled in on 12 October 2026 |
+| `b2b-buyer-services-agreement.en.txt` | `B2B_BUYER_SERVICES_AGREEMENT` | A buyer company, once, through its owner or a company admin. Operator's own text, filled in on 12 October 2026 |
+| `b2c-consumer-terms.en.txt` | `B2C_CONSUMER_TERMS` | Each person shopping for themselves, on the consumer screen. Operator's own text, filled in on 12 October 2026 |
+| `b2c-platform-services-agreement.en.txt` | `B2C_PLATFORM_SERVICES_AGREEMENT` | Each person shopping for themselves, in its own box. Written on 12 October 2026 (no operator text had been supplied) |
 | `privacy-policy.en.txt` | `PRIVACY_POLICY` | Everyone — acknowledged, not consented to |
+| `delivery-returns-disputes-policy.en.txt` | `RETURNS_POLICY` | Buyers — the Delivery, Returns, Refunds and Disputes Policy |
 | `logistics-partner-terms.en.txt` | `LOGISTICS_PARTNER_TERMS` | Carrier staff (Part A + Part L) |
 | `staff-terms.en.txt` | `STAFF_TERMS` | Operator staff (Part A + Part S) |
 | `audit-console-terms.en.txt` | `AUDIT_CONSOLE_TERMS` | Audit Console users (Part A + Part C) |
@@ -192,11 +201,12 @@ was put in a document buyers, carriers or staff agree to.
 | (new) Children | | Added → §14 | |
 | (new) Data about other people | | Added → §13 | |
 
-## (c) Open business and legal decisions
+## (c) Business and legal decisions that were open (all taken 12 October 2026)
 
-Each item names the exact placeholder text and the documents containing it.
-The literal `[[DECISION: ...]]` in each document's opening DRAFT paragraph is
-not a decision; it is removed with that paragraph when the document is approved.
+This is the list as it stood before 12 October 2026. Each item names the marker
+that used to be in the text and the documents that held it. None of these
+markers is left in any file; the value used for each is in "Decisions taken"
+and "Sample values to replace before going live" below.
 
 1. `[[DECISION: registered legal name of the operator]]` — platform, privacy, logistics, staff, audit
 2. `[[DECISION: company registration number and register]]` — platform, privacy, logistics, staff, audit
@@ -244,25 +254,93 @@ not a decision; it is removed with that paragraph when the document is approved.
 44. `[[DECISION: relationship to staff employment contracts and the staff acceptable-use policy]]` — staff
 45. `[[DECISION: audit agency contract reference, independence and conflict-of-interest rules]]` — audit
 
-Also needed before publication, outside the text: translations into the other
-seven interface languages (each must be reviewed by a person; legal text should
-not be published from machine translation alone), and the separate Returns,
-Buyer Protection, Inspection and Prohibited Products policies that these
-documents refer to, which were not part of the source material.
+## Sample values to replace before going live
+
+The owner chose to fill the company details with **sample** values so the
+text reads as complete. They are written into the documents as if real, with
+no marker around them. Every one of them must be replaced with the operator's
+real details before going live. Search the files for each value below.
+
+| Sample value in the text | What it stands for |
+|---|---|
+| Uboss AI Private Limited | The operator's registered legal name |
+| 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India | The registered office address |
+| `U62099HR2024PTC118452` (Registrar of Companies, NCT of Delhi and Haryana) | The Corporate Identity Number (CIN) and its register. This is also `SAMPLE_LEGAL_MARKER`: the software flags any published document containing it |
+| `06AADCU4821K1Z3` | The GSTIN |
+| `AADCU4821K` | The PAN |
+| www.gloviaamart.com | The website address |
+| support@gloviaamart.com, +91 124 456 7800, Monday to Saturday 9:30 to 18:30 IST | Customer support contact and hours |
+| legal@gloviaamart.com | Address for legal notices |
+| Mr Arjun Mehta, grievance@gloviaamart.com, +91 124 456 7801 | The Grievance Officer |
+| Ms Priya Nair, privacy@gloviaamart.com | The privacy contact / Data Protection Officer |
+| EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, eu-representative@gloviaamart.com | The EU representative under GDPR Art. 27 |
+| ip@gloviaamart.com ("Legal - Content Complaints" by post) | Intellectual-property and illegal-content complaints |
+| returns@gloviaamart.com | Returns and cancellations |
+| sellers@gloviaamart.com | Seller support |
+| logistics@gloviaamart.com | Logistics partner contact |
+| audit@gloviaamart.com | Audit Console contact |
+| security@gloviaamart.com | Security incident reports |
+| DPIA-2026-03 | The reference of the staff sign-in location impact assessment |
+| 12 October 2026, version 1.0 | Effective date and version. Set the real date when the operator publishes |
+
+## Decisions taken
+
+Settled on 12 October 2026 with standard Indian defaults, at the owner's
+request. These are business choices written into the text, not legal advice.
+Counsel should confirm them.
+
+| Topic | Decision |
+|---|---|
+| Governing law | The laws of India |
+| Disputes with business users | Courts at New Delhi have exclusive jurisdiction. First 15 days of good-faith escalation, then arbitration under the Arbitration and Conciliation Act, 1996: one arbitrator, seat and venue New Delhi, in English. Courts may still grant interim relief |
+| Consumers | Keep every mandatory right. In India they may go to the Consumer Commissions (Consumer Protection Act, 2019). Consumers in the EU keep the protections and home-court rights of their country. Arbitration never applies to consumers |
+| Who may buy | Age 18 or over. Both individual consumers (B2C) and verified business buyers (B2B) |
+| Markets | India and the member states of the European Union. Where a product can be delivered is shown on the product page and at checkout |
+| Changes to terms | At least 30 days' notice by email and on the Platform for material changes. Changes required by law or for security may apply sooner. Re-acceptance, where needed, is asked at the next sign-in |
+| Language | The English version prevails, unless mandatory law lets a consumer rely on their own language |
+| Liability cap | Business users only: the fees the user paid Gloviaa in the 12 months before the event. No cap for fraud, wilful misconduct, death or personal injury caused by negligence, or anything the law does not allow to be limited. Consumers' statutory rights are never limited |
+| Licence over uploaded content | Non-exclusive, worldwide, royalty-free, while the content is on the Platform plus a reasonable period for backups and legal records. Only to run and promote the marketplace. No training of general-purpose AI models and no third-party advertising without separate consent. The user keeps ownership |
+| Seller of record | The seller named on the product page for marketplace listings; Uboss AI Private Limited for goods Gloviaa sells itself. Gloviaa acts as marketplace and payment facilitator |
+| Payment providers | Stripe (Stripe Payments Europe Ltd / Stripe, Inc.) for cards, international payments and Stripe Connect seller payouts; Razorpay Software Private Limited in India |
+| Returns and refunds | Consumers in India: 7 days from delivery for eligible products. Consumers in the EU: 14-day right of withdrawal. Business buyers: defects or shortages reported within 7 days of delivery, otherwise the order terms. Refunds within 14 days of approval, to the original payment method |
+| AI provider | Google Gemini, on paid API terms under which Google does not train on the prompts. No special-category data is sent |
+| Bot protection | Cloudflare Turnstile; no advertising cookies |
+| Hosting | A cloud hosting provider with servers in India and the European Union |
+| International transfers | EU adequacy decisions where they exist, otherwise the Standard Contractual Clauses (Decision 2021/914) with supplementary measures. Recipients: Stripe (Ireland/USA), Razorpay (India), Google (USA), Cloudflare (USA), the email delivery provider |
+| Supervisory authority | The Data Protection Board of India; people in the EU may also complain to their own country's authority |
+| Retention | Orders, invoices and tax records 8 years; KYC/KYB documents 5 years after the relationship ends; closed accounts' profile data deleted or anonymised within 90 days except what law requires; security logs 180 days |
+| Controller roles | Gloviaa is an independent controller for platform data; each seller is an independent controller for the buyer data it receives, and uses it only for that order |
+| Staff | The staff terms supplement the employment or engagement contract and the IT Acceptable Use Policy; on employment matters the contract prevails |
+| Staff sign-in location | Recorded at city level from the IP address, for security only |
+| Driver location tracking | Switched off. At least 30 days' written notice and a separate driver notice before it is ever switched on |
+| Audit agencies | Work under a written engagement agreement; no financial or family interest in an audited seller; declare any conflict first; must not audit a seller they advised in the previous 12 months |
+| Carriers | Liable from collection to proof of delivery, up to the declared value, capped at INR 50,000 per shipment unless a higher value is declared and insured; must hold goods-in-transit insurance; damage claims within 7 days of delivery, loss claims within 30 days of the expected delivery date |
+| Per-customer fields in the services agreements | Read "as recorded in the Buyer's verified account", "as shown in the order confirmation" or "as set out in the Seller Hub fee schedule". Signature blocks became an electronic-acceptance clause: accepting on the Platform is a signature, and Gloviaa stores the name, role, date, time and IP address of the acceptance |
+| Model withdrawal form | Keeps its lines; each blank reads "(insert ...)" |
+
+Still needed, outside the text: translations into the other seven interface
+languages (each must be reviewed by a person; legal text should not be
+published from machine translation alone), and the separate Buyer Protection,
+Inspection and Prohibited Products policies that these documents refer to.
 
 ## (d) Not legal approval
 
-These drafts were produced by automated drafting from competitor source text.
-They have not been reviewed by a lawyer. They must not be published, shown to
-users as live policies, or relied on, until the operator's legal counsel has
-reviewed and approved them and every decision above has been made.
+These documents were produced by automated drafting, partly from competitor
+source text, and finalised on the owner's instructions. They have not been
+reviewed by a lawyer. Before real customers rely on them, the operator must
+replace every sample value above with its own details and have its own counsel
+review the text and the decisions taken.
 
 ## (z) Seller documents supplied by the operator (2026-10-09)
 
 Two documents were supplied by the operator as Word files. They were **not
-adapted**: each draft is the Word text **word for word**, with only the layout
-changed (a numbered heading or schedule title becomes a `## ` line, every other
-Word paragraph becomes one paragraph). The adapted Seller Addendum (version
+adapted**: each file was first the Word text **word for word**, with only the
+layout changed (a numbered heading or schedule title becomes a `## ` line, every
+other Word paragraph becomes one paragraph). **On 12 October 2026 they were
+filled in** like every other document here (approval notice removed, blanks
+filled with the sample values and decisions above, terse lines written out in
+full), so they are no longer word-for-word copies; their headings are
+unchanged. The adapted Seller Addendum (version
 `2026-10-draft-1`, rows S1-S22 in the tables above) is **superseded** as the
 file in this folder; a DRAFT row already imported into a database is left as it
 is and simply never published. `backend/tests/unit/seller-legal-drafts.test.ts`
@@ -276,59 +354,39 @@ they are present in `legal/source/` (gitignored).
 | `03_B2B_Buyer_Terms_and_Conditions.docx` | `ba56768db33e3b9bf6223445b7dc508ffeedb4f298f0224736627966387c57f2` | `b2b-buyer-terms.en.txt` (14 sections) | `B2B_BUYER_TERMS` | `1.0` |
 | `05_B2B_Buyer_Platform_Services_Agreement.docx` | `e60e177d0302a06c7eea0e2aac2ba894ec634d680e2b5833ea4c9c7d368904da` | `b2b-buyer-services-agreement.en.txt` (12 sections, Schedules A-C, final completion requirement) | `B2B_BUYER_SERVICES_AGREEMENT` | `1.0` |
 
-**The two B2B documents - inputs still needed before publication or execution.**
-Both carry the approval notice and these blanks, which the software will not fill
-in: effective date; Uboss AI Private Limited's registered address, corporate and
-tax registration and notices email; the approved arbitration seat; the buyer's
-legal name, address, registration, tax and importer numbers, signatory and
-authority, and signature or electronic acceptance record (T&C section 14). The
-services agreement also needs: agreement date; the appointed Payment Partner and
-its agreement and account structure; the initial term start date; notice
-addresses; and every line of Schedules A (service and authority record), B
-(commercial and order controls) and C (signatures of both parties and any
-witnesses) - completed or expressly marked not applicable before execution or
-trading. A buyer's click-through acceptance is not Gloviaa's signature and does
-not complete the schedules.
+**The two B2B documents (filled in 12 October 2026).** Both used to carry the
+approval notice and blanks: effective date; Uboss AI Private Limited's
+registered address, corporate and tax registration and notices email; the
+arbitration seat; the buyer's details, signatory and signature; the Payment
+Partner; notice addresses; and every line of Schedules A, B and C. The company
+details now hold the sample values above, the seat is New Delhi, the Payment
+Partner is Stripe (and Razorpay in India), and the per-buyer fields read "as
+recorded in the Buyer's verified account" or "as shown in the order
+confirmation". The signature blocks became an electronic-acceptance clause.
 
-**The B2C Consumer Terms (2026-10-09).** `06_B2C_Consumer_Terms.docx`
-(SHA-256 `d3769c672b7e278af276f813bfcc985156a4a8cd783ce453331c2b8acc66b1f3`) is
-stored word for word as `b2c-consumer-terms.en.txt`, version `1.0`: title,
-company line, version line, approval notice, introduction, sections 1-11 and
-the whole model withdrawal notice, one paragraph per line. Nothing was
-summarised, reordered or reworded. Inputs still needed before publication:
-the effective date (it appears twice); Uboss AI Private Limited's registered
-address and corporate registration; the support contact; the complaints
-contact; the appointed grievance officer's name, address and contact (s. 7);
-the privacy contact (s. 8); the seller name and address and the Gloviaa
-cancellation contact in the model withdrawal notice (s. 11); market-specific
-contact, ADR and language disclosures before each country is enabled (s. 10);
-and approval - removing the approval notice is the approver's act. The
-notice's own consumer fill-in lines (goods or services, order number, ordered
-on, received on, consumer name and address, signature, date) are blanks to
-the publishing check too, so the approved version must decide how that form
-is presented. Also not supplied: a **B2C Platform Services Agreement**, and an
-**approved** consumer Privacy Policy (`privacy-policy.en.txt` is an adapted
-draft). The consumer screen stays off until all three are published.
+**The B2C Consumer Terms (2026-10-09, filled in 12 October 2026).**
+`06_B2C_Consumer_Terms.docx` (SHA-256
+`d3769c672b7e278af276f813bfcc985156a4a8cd783ce453331c2b8acc66b1f3`) was first
+stored word for word as `b2c-consumer-terms.en.txt`. On 12 October 2026 the
+approval notice was removed and the blanks were filled: effective date,
+registered address and CIN, support, complaints, grievance officer and privacy
+contacts, and market disclosures for India and the EU. The model withdrawal
+notice keeps its lines; each consumer fill-in line now reads "(insert ...)",
+and it is addressed to the seller named in the order confirmation or to
+returns@gloviaamart.com. Sections and headings are unchanged.
 
-**What must happen before either can be published.** Both say "For approval
-before implementation or signature", and publishing refuses a document that
-still says so or still holds a `____` fill-in line. Before publishing, the
-operator and its counsel must:
+**The B2C Platform Services Agreement (12 October 2026).** No operator text
+had been supplied, so `b2c-platform-services-agreement.en.txt` was written to
+the decisions above. With it, the consumer Terms and the Privacy Policy, all
+three consumer documents now exist.
 
-- Approve the text, and remove the approval notice as part of that approval.
-- Fill the company details: registered address, corporate registration number,
-  tax registration and notice email (both documents), and the effective date.
-- Decide the arbitration seat ("Insert the approved seat ... before adoption" in
-  T&C 14; "approved seat ____" in PSA 12) and confirm the proposed liability cap
-  after local legal review (T&C 11, PSA 10).
-- Decide how the per-seller blanks read in a click-through version: the T&C 15
-  acceptance fields (seller legal name, signatory, signature, date, Gloviaa
-  signatory), the PSA party details (date entered, seller name, registered
-  office, company registration, PAN, GST, IEC), the payment partner details in
-  PSA 5, the notice addresses in PSA 12, and **every field of Schedules A-F**.
-  These are seller-specific: they are completed and signed per seller (the
-  executed contract is the Audit Console's CONTRACT workpaper), and the
-  click-through acceptance never fills or agrees them.
+**What still has to happen before real use.** The publishing check no longer
+finds anything to refuse in these files. Before real customers rely on them,
+the operator and its counsel must:
+
+- Replace every sample value listed above with the operator's own details.
+- Review the text and the decisions taken, and change any that do not suit
+  the business.
 - Decide whether a seller still accepts the Terms of Use beside the Seller T&C.
   The software asks for both today under one box (`termsKindsForScope`).
 - Provide approved translations, if any. Only English exists; nothing has been

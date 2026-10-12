@@ -32,7 +32,7 @@ describe('B2cLimitDialog', () => {
     open();
     const dialog = screen.getByRole('dialog', { name: 'Individual purchase limit' });
     expect(dialog).toHaveAccessibleDescription(
-      'Individual buyers can order up to 100 units of this product. To order a larger quantity, switch to an approved Company account.',
+      'Cannot add more than 100 items. To order a larger quantity, switch to an approved Company account.',
     );
     expect(screen.getByRole('link', { name: 'Create Company Account' })).toHaveAttribute('href', '/register/company');
     expect(screen.queryByRole('button', { name: /Switch to/ })).not.toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('B2cLimitDialog', () => {
   it('offers a guest sign-in as a company, registration and a reduction', () => {
     open(makeSession({ user: null, isCustomer: false }));
     expect(screen.getByRole('dialog')).toHaveAccessibleDescription(
-      'Individual purchases are limited to 100 units. Sign in with an approved Company account to order a larger quantity.',
+      'Cannot add more than 100 items. Sign in with an approved Company account to order a larger quantity.',
     );
     expect(screen.getByRole('link', { name: 'Sign in as Company' })).toHaveAttribute('href', '/login?buyerType=company');
     expect(screen.getByRole('link', { name: 'Create Company Account' })).toBeInTheDocument();

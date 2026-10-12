@@ -548,10 +548,10 @@ bullets([
   'Read a note under the total saying that import duties and customs charges are not included. They depend on the delivery country and are settled with customs or the carrier.',
 ]);
 h2('4.1a How much one person can buy at once');
-p('A seller can set the most units of a product that one person may buy in a single order. It is called the individual purchase limit. It applies to people buying for themselves, to visitors who have not signed in, and to anybody buying for a company that has not been approved yet. A company the marketplace has approved can buy more. The limit is about buying, not about stock: it never changes how many the seller has.');
+p('A seller can set the most units of a product that one person may buy in a single order. It is called the individual purchase limit. It applies to people buying for themselves, to visitors who have not signed in, and to anybody buying for a company that has not been approved yet. On top of that, the marketplace lets such a buyer have at most 5 pieces of any one product, whatever the seller set; the seller can only make it lower. A company the marketplace has approved can buy more. The limit is about buying, not about stock: it never changes how many the seller has.');
 table(['What the customer does', 'What the system does back'], [
-  ['Opens a product that has a limit.', 'Shows “Individual purchase limit: 50 units” under the quantity box. A buyer who is buying for an approved company is told the limit does not apply to them.'],
-  ['Chooses more than the limit, or presses Add to Cart with too many.', 'Opens a short message: “Individual buyers can order up to 50 units of this product. To order a larger quantity, switch to an approved Company account.” It says how many are already in the basket.'],
+  ['Opens a product that has a limit.', 'Shows “Individual purchase limit: 5 units” under the quantity box. A buyer who is buying for an approved company is told the limit does not apply to them.'],
+  ['Chooses more than the limit, or presses Add to Cart with too many.', 'Opens a short message: “Cannot add more than 5 items. To order a larger quantity, switch to an approved Company account.” It says how many are already in the basket.'],
   ['Reads the choices in that message.', 'Offers the next step that fits them. A visitor can sign in as a company or create a company account. Somebody with an approved company can switch to it. Somebody whose company is still being checked can see how that is going. Somebody with no company can create one. Everybody can press “Reduce to” the largest amount they may still add, or Cancel to put the quantity back.'],
   ['Adds the same product again, or several sizes of it.', 'Counts every size and every basket line of that seller’s product together, so the limit cannot be got round by adding it in pieces.'],
   ['Opens the basket after the seller lowered the limit.', 'Keeps the basket exactly as it was, but warns on each line of that product how many the basket holds and what the limit is, with “Reduce to” and “See options”. Checkout waits until it is fixed. Lowering a quantity always works; raising it past the limit does not.'],
@@ -702,7 +702,7 @@ p('Deadlines show as a live countdown: how long a seller has left to quote, how 
 p('A product\'s bulk offers include a quantity slider. As the buyer moves it, they see the price per piece for that quantity, the total, roughly how many weeks the seller needs at their stated capacity, and the stated lead time. A link carries the figures into the landed-cost estimator.');
 p('A seller\'s dashboard opens with a ranked list of what to do next: disputes to answer, orders to send and quotes to give. Anything late comes first, then whatever is due soonest; when two are due at the same time, the one with more at stake comes first. Each line opens the task and shows how long is left.');
 p('Staff see one list of everything that went wrong: payments that failed, documents that are missing, inspections that failed, shipments running late, settlements that do not add up and connections to other systems that stopped working. The most urgent come first, and each line opens the screen where it is fixed.');
-p('A buyer can fill the cart from a spreadsheet: upload a CSV or Excel list of product codes and quantities, check what was found and what was not, and then add everything in one go. Nothing is added until they confirm.');
+p('A business buyer, while buying for their company, can fill the cart from a spreadsheet: upload a CSV or Excel list of product codes and quantities, check what was found and what was not, and then add everything in one go. Nothing is added until they confirm. Someone shopping for themselves does not see this option.');
 p('A Quick actions button sits at the bottom of every page. It opens shortcuts to create a request for quotation, search with a photo, ask the AI assistant, reorder, track an order and contact support. Only the shortcuts that work for the visitor are shown.');
 p('When comparing quotes, a short summary says which supplier is cheapest, which can deliver soonest and which accepts the smallest order. It is worked out only from what the suppliers wrote, and each line links to the exact figure it comes from.');
 p('The request-for-quotation form explains its harder terms in plain words and can suggest values from the buyer\'s last request, such as the destination and delivery terms. A suggestion is only used when the buyer chooses it.');
@@ -2428,14 +2428,14 @@ table(['Settings group', 'Examples of what it controls'], [
   ['Shipping and delivery policy', 'Delivery-related configuration and customer-facing policy information.'],
   ['Notifications', 'Email/notification settings and delivery behaviour.'],
   ['Appearance and policy links', 'Brand-facing configuration and links such as terms or privacy documents.'],
-  ['Legal documents', 'Write the Terms and Conditions buyers agree to, the Seller Terms and Conditions, the Seller Platform Services Agreement, the separate terms for delivery companies, for your own staff and for Audit Console users, the Privacy Policy and the other policies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. When publishing, choose whether everyone must agree again or whether it is only a correction. A draft that still has a blank to fill in (marked [[...]] or a line of underscores), or that still says it is for approval, cannot be published. Drafts of the Terms, the Seller Terms and Conditions, the Seller Platform Services Agreement and the Privacy Policy prepared for Gloviaa Mart can be loaded into this list; they stay drafts until a lawyer approves them and every blank is filled in. The list shows which version applies today and how many people agreed to each, never who.'],
+  ['Legal documents', 'Write the Terms and Conditions buyers agree to, the Seller Terms and Conditions, the Seller Platform Services Agreement, the separate terms for delivery companies, for your own staff and for Audit Console users, the Privacy Policy and the other policies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. When publishing, choose whether everyone must agree again or whether it is only a correction. A draft that still has a blank to fill in (marked [[...]] or a line of underscores), or that still says it is for approval, cannot be published. Ready-written Gloviaa Mart documents can be loaded into this list as drafts: the Terms, the seller, business buyer and consumer terms and services agreements, the Privacy Policy, the returns policy, and the terms for delivery companies, staff and Audit Console users. Their wording is complete, but the company details in them (address, registration numbers, complaints officer, contact addresses) are samples. Replace those with your own and have your own lawyer review the text before you publish. Nobody has reviewed it as legal advice. The list shows which version applies today and how many people agreed to each, never who.'],
   ['Feature configuration', 'Which optional customer/admin capabilities appear in a specific deployment.'],
 ], [3000, 7000]);
 h2('12.2a Is everything ready to go live?');
 p('Before the first real customer arrives, a lot of basic information has to be in place: product categories, currencies and today’s exchange rates, tax rates, countries, delivery prices, the published terms and privacy policy, units of measure, and the inspection lists if inspections are used. The Master data page opens with a card that checks all of this for the operator.');
 bullets([
   'Each list is shown with how many entries it has and whether it is present, missing, or simply empty. A missing list is one a customer would trip over, for example no tax rate or no published terms. An empty list marked “advised” only means part of the marketplace will have nothing in it yet.',
-  'The card also points out anything left over from the demonstration data: sample products, placeholder terms, the sample delivery company, and test accounts. These should be removed before going live.',
+  'The card also points out anything left over from the demonstration data: sample products, legal documents that still carry the sample company details, the sample delivery company, and test accounts. These should be removed before going live. Terms that still carry the sample company details do not count as published terms.',
   'The card says Ready only when nothing required is missing and nothing from the demonstration data is left. It only reads; each list is fixed on its own screen.',
 ]);
 h2('12.3 Integrations and ERP');
@@ -2819,6 +2819,7 @@ bullets([
   'The limit is checked on the marketplace’s side every time the basket changes, and again at the moment the order is created. Two requests sent at the same time cannot both slip under it.',
   'Each order records whether it was bought by a person or by a company, and each line records the limit that applied. These records never change afterwards, so an old order still shows the rule it was bought under.',
   'The message a buyer sees says only the limit and the quantities. It never reveals anything about the seller or about any company.',
+  'The marketplace-wide cap of 5 pieces is a setting the operator can change or switch off. It can only make a seller’s limit lower, never higher.',
 ]);
 h2('14.1d Support tickets');
 bullets([
@@ -3162,13 +3163,13 @@ table(['Step', 'Who acts', 'What happens'], [
 
 h2('Example N — A shopper asks for more than one person may buy');
 table(['Step', 'Who acts', 'What happens'], [
-  ['1', 'A seller', 'Lists hand sanitiser and sets the most one person may buy in one order to 50 units. The listing is approved and goes on sale.'],
-  ['2', 'A shopper, signed in as themselves', 'Opens the product and sees “Individual purchase limit: 50 units” under the quantity box. They type 80.'],
-  ['3', 'The system', 'Opens a message saying individual buyers can order up to 50 units, and that larger quantities need an approved company account. Because the shopper belongs to a clinic that the marketplace has approved, it offers “Switch to” the clinic, “Reduce to 50” and Cancel.'],
+  ['1', 'A seller', 'Lists hand sanitiser and sets the most one person may buy in one order to 3 units (the marketplace allows at most 5). The listing is approved and goes on sale.'],
+  ['2', 'A shopper, signed in as themselves', 'Opens the product and sees “Individual purchase limit: 3 units” under the quantity box. They type 8.'],
+  ['3', 'The system', 'Opens a message saying they cannot add more than 3 items, and that larger quantities need an approved company account. Because the shopper belongs to a clinic that the marketplace has approved, it offers “Switch to” the clinic, “Reduce to 50” and Cancel.'],
   ['4', 'The shopper', 'Presses “Switch to” the clinic. They are now buying for the clinic, whose basket is separate from their own.'],
-  ['5', 'The shopper', 'Adds 80 units to the clinic’s basket. No limit applies, because the clinic is approved.'],
-  ['6', 'The seller', 'Later lowers the limit to 30. Nothing changes for the clinic, and no order already placed changes.'],
-  ['7', 'Another shopper, buying for themselves', 'Already has 40 in their basket. The basket keeps all 40, but warns that the limit is now 30 and offers “Reduce to 30”. Checkout waits until they reduce it or buy through an approved company.'],
+  ['5', 'The shopper', 'Adds 8 units to the clinic’s basket. No limit applies, because the clinic is approved.'],
+  ['6', 'The seller', 'Later lowers the limit to 2. Nothing changes for the clinic, and no order already placed changes.'],
+  ['7', 'Another shopper, buying for themselves', 'Already has 3 in their basket. The basket keeps all 3, but warns that the limit is now 2 and offers “Reduce to 2”. Checkout waits until they reduce it or buy through an approved company.'],
 ], [700, 2300, 7000]);
 
 h2('Example P — A hospital group buys made-to-order gloves through a request for quotation');

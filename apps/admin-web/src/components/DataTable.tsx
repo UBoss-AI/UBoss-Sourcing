@@ -12,6 +12,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { cx } from '@/lib/cx';
 import { EmptyState, ErrorState, LoadingState, NoAccessState } from './ui';
+import { ScrollArea } from './ui/scroll-area';
 import { useI18n } from '@/i18n/i18n-context';
 
 export interface Column<T> {
@@ -157,12 +158,11 @@ export function DataTable<T>({
     // scrolled by dragging is unreachable without a mouse. Making it focusable
     // lets a keyboard user arrow the columns into view, and the accessible name
     // is what tells them which of the page's tables they have just landed in.
-    <div
-      className="overflow-x-auto"
-      role="region"
-      aria-label={caption}
-      aria-busy={isRefreshing}
-      tabIndex={0}
+    <ScrollArea
+      orientation="horizontal"
+      variant="minimal"
+      label={caption}
+      viewportProps={{ 'aria-busy': isRefreshing }}
     >
       <table
         className={cx(
@@ -251,7 +251,7 @@ export function DataTable<T>({
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollArea>
   );
 }
 

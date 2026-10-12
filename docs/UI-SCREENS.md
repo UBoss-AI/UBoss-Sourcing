@@ -289,6 +289,15 @@ existing one is never reused for something else.
   do harm (placing an order, paying, refunding, moving stock), the request
   also carries a one-time key, so even a retry is applied only once.
 
+#### Moving between pages and tabs
+
+- Opening another page cross-fades the old page into the new one. The header
+  and sidebar stay still.
+- Switching tabs inside a page, in every app, slides the selected tab's
+  highlight across to the new tab, and the content below fades in from that
+  side. Any tab row gets this on its own; no screen has to ask for it.
+- Both are switched off for people who ask their system for reduced motion.
+
 #### Who can open what
 
 A screen that needs a sign-in or a permission is guarded twice: the app hides
@@ -855,14 +864,17 @@ dead jobs, undelivered notifications). Counts and permission gating come from th
 operations overview; a type the member may not act on is absent, not zero. Rows
 are ranked urgent first, then by count, and link to the screen that fixes them.
 
-**SKU list upload (ENH-016).** On the cart, a buyer can upload a CSV or Excel
+**SKU list upload (ENH-016).** For business (B2B) buying only: on the cart, a
+buyer who is buying for a company can upload a CSV or Excel
 (.xlsx) file of SKUs and quantities (header `sku` and `quantity`/`qty`, or the
 first two columns). `POST /cart/items/upload/preview` reads it with the seller
 bulk-import reader and only previews: each row resolves to a published product
 or variant SKU, and every unusable row is reported (no SKU, invalid quantity,
 unknown SKU, duplicate SKU, more than 50 lines). Limits: 1 MB and 50 lines. The
 buyer reviews the list and presses Add, which uses the existing all-or-nothing
-bulk add, so nothing reaches the cart unseen.
+bulk add, so nothing reaches the cart unseen. It is not shown on a
+person's own account (B2C), and the preview refuses it there with
+`BUYER_CONTEXT_COMPANY_REQUIRED` (403).
 
 **Quick-action dock (ENH-005).** Every storefront page (except full-height
 application panes) has a "Quick actions" button at the bottom right. It opens
@@ -1238,9 +1250,10 @@ not sent to the API.
   approved) settles on more than it — typed, stepped or pasted — presses
   **Add to cart** over it, or the server refuses an add because the basket
   plus the new units would pass it. Title *Individual purchase limit*;
-  message *"Individual buyers can order up to N units of this product. To
-  order a larger quantity, switch to an approved Company account."* (a guest
-  sees *"… Sign in with an approved Company account …"*), what the basket
+  message *"Cannot add more than N items. To order a larger quantity, switch
+  to an approved Company account."* (a guest sees *"Cannot add more than N
+  items. Sign in with an approved Company account …"*). N is the lower of the
+  listing's limit and the marketplace-wide cap (5 by default), what the basket
   already holds, and *"This is a purchasing limit, not a stock level."* The
   buttons depend on who is asking:
   - a guest: **Sign in as Company**, **Create Company Account**;
@@ -2172,7 +2185,8 @@ always what the server holds.
 - The progress bar, with Cart as the current step.
 - Two tabs, **Instant Buy** (this page) and **Schedule Cart**
   (`/accounts/schedule`). The tabs appear only when the store has recurring
-  orders switched on.
+  orders switched on. Clicking the other tab slides the selected pill across
+  to it first, and the page changes once the pill has landed.
 - "Your cart", how many items across how many products, and **Empty the
   cart**.
 - A row per line:
@@ -7243,8 +7257,11 @@ tax classes, countries, country market rules, delivery prices, inspection
 rules, plans and agencies, published Terms, published privacy policy, units,
 defect codes, Incoterms) with its count and Present, Missing or Empty; the
 optional ones are marked "(advised)". Below it, **Left over from the
-demonstration data** names demo products, placeholder Terms, the demo carrier
-and accounts on the `.local` domain, or says nothing is left. Then the list
+demonstration data** names demo products, **Legal documents published with
+sample company details** (the old development placeholder, or any published
+document still carrying the sample company details), the demo carrier and
+accounts on the `.local` domain, or says nothing is left. Terms that still
+carry the sample company details do not count as published Terms. Then the list
 picker, the entries of the chosen list, and the add or edit form.
 
 **API calls**
@@ -8742,7 +8759,7 @@ Changes elsewhere:
 | Product evidence, safety cases (read only) | Admin Panel `/commercial/product-evidence`, `/commercial/safety-cases[/:id]` | The Audit Console's records with "Read only here; the Audit Console decides." No action buttons | `GET /admin/commercial/product-evidence`, `GET /admin/commercial/safety-cases[/:id]` |
 | Commercial terms and refunds | Admin Panel order detail | Each line's frozen snapshot, the seller orders' acceptance and dispatch controls, and refunds with instruction date and provider status | `GET /admin/orders/:id/commercial-controls`, `/admin/seller-orders/:id/controls`, `/dispatch-controls` |
 | Case controls | Admin Panel dispute case | Category, urgency, late intake, clocks, evidence sufficiency, evidence requests, testing, reasoned decision and remedies, appeal reviewer, loss recoveries, legal notice | `/admin/disputes/:id/case-controls[/...]`, `/admin/orders/:id/loss-recoveries` |
-| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry", what it does not prove; record, verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as reviewer prompts | `/audit/product-evidence[/...]` |
+| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry" (amber inside 90 days, red inside 30), what it does not prove; five counts on top (records, verified, not verified, blocks trading, expire within 90 days); filter by seller, country, status and "blocks trading", rows that block trading tinted red; record (grouped form: product and place, evidence, dates, trading), verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as one card per department | `/audit/product-evidence[/...]` |
 | Safety cases | Audit Console `/safety-cases[/:id]` | Cases and the annual rehearsal status; open, contain (listings, shipments, repeat orders), trace, reporting decisions by a qualified role (no AI option), notices and recall actions, correction, release by another person | `/audit/safety-cases[/...]`, `/audit/recall-rehearsals` |
 | Claim form | Storefront `orders/:id/claim` | Optional kind of problem (12 categories), urgency, statutory-rights box, late explanation, quantity, lots; a safety note for safety reports | `POST /disputes` (with `case`) |
 | Case progress | Storefront dispute detail | Category, acknowledgement, due dates, reasoning and remedies, requests to the buyer with an answer form, legal notice | `GET /disputes/:reference/case-controls`, `POST .../evidence-requests/:requestId` |

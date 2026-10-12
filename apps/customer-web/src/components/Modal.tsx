@@ -13,6 +13,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode, RefObject } from 'react';
 import { Button } from './ui';
+import { ScrollArea } from './ui/scroll-area';
 import { cx } from '@/lib/cx';
 import { lockPageScroll } from '@/lib/scroll-lock';
 import { useI18n } from '@/i18n/i18n-context';
@@ -257,15 +258,17 @@ export function Modal({
       {/* `min-h-0` is what makes the cap above work: a flex child's default
           minimum is its content, so without it the body refuses to shrink and
           the dialog grows past the viewport again. */}
-      <div
-        ref={bodyRef}
-        {...(bodyLabel === undefined
-          ? {}
-          : { tabIndex: 0, role: 'region', 'aria-label': bodyLabel })}
-        className="relative min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:px-6"
+      <ScrollArea
+        className="min-h-0 flex-1"
+        viewportRef={bodyRef}
+        focusable={bodyLabel !== undefined}
+        {...(bodyLabel === undefined ? {} : { label: bodyLabel })}
+        viewportProps={{
+          className: 'relative scroll-pane px-4 py-5 sm:px-6',
+        }}
       >
         {children}
-      </div>
+      </ScrollArea>
 
       {footer !== undefined && (
         <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">

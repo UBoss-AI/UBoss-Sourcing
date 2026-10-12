@@ -891,6 +891,10 @@ export function CartPage(): React.JSX.Element {
   // after it - the server refuses it anyway (BUYER_COMPANY_NOT_APPROVED).
   const { buyerContext } = useSession();
   const companyBlocked = buyerContext.kind === 'COMPANY' && buyerContext.companyStatus !== 'APPROVED';
+  // The SKU list upload is for business (B2B) buying: shown only while buying
+  // for a company, never on a person's own account. The server refuses it
+  // there too (BUYER_CONTEXT_COMPANY_REQUIRED).
+  const showSkuUpload = buyerContext.kind === 'COMPANY';
   // The shopper's market, which is the destination the delivery options are
   // measured to. Null until they have answered the country question, and the
   // panel has a state that says so rather than guessing one.
@@ -1046,7 +1050,7 @@ export function CartPage(): React.JSX.Element {
             is on offer, and a control that appears only once there is
             something to buy is a control they meet too late. */}
         <CartModeTabs current="instant" />
-        <CartUploadPanel />
+        {showSkuUpload && <CartUploadPanel />}
         <PageEmptyState
           title={t('cart.emptyTitle')}
           description={t('cart.emptyBody')}
@@ -1103,7 +1107,7 @@ export function CartPage(): React.JSX.Element {
        * two screens down the summary panel.
        */}
       <CartModeTabs current="instant" />
-        <CartUploadPanel />
+      {showSkuUpload && <CartUploadPanel />}
 
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">

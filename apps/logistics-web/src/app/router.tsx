@@ -16,6 +16,7 @@
  */
 import { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import { withPageTransitions } from '@/lib/page-transitions';
 import { RequirePermission, RequireSession } from '@/auth/guards';
 import { AppShell } from '@/layout/AppShell';
 import { ActivatePage } from '@/pages/ActivatePage';
@@ -60,7 +61,7 @@ function lazyRoute(
   };
 }
 
-export const router = createBrowserRouter([
+const routes = createBrowserRouter([
   // The two screens that work while signed out. Activation has to live here by
   // definition: somebody redeeming an invitation has no session yet.
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage fullScreen /> },
@@ -195,3 +196,6 @@ export const router = createBrowserRouter([
   // three apps share one hostname through a single tunnel in development.
   basename: import.meta.env.BASE_URL,
 });
+
+/** Every in-app page change cross-fades. See `lib/page-transitions.ts`. */
+export const router = withPageTransitions(routes);

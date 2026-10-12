@@ -1,94 +1,96 @@
 kind: RETURNS_POLICY
-version: 2026-10-draft-1
+version: 1.0
 locale: en
 title: Gloviaa Mart Delivery, Returns, Refunds and Disputes Policy
 ---
-For approval before implementation or signature. Proposed operating targets become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
+Version 1.0 | Effective 12 October 2026
 
-Effective date: [[DECISION: effective date, set when adopted]]
+This buyer policy explains how delivery, receipt, returns, refunds, complaints and disputes are handled on Gloviaa Mart, the marketplace at www.gloviaamart.com operated by Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number (CIN) U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India ("Gloviaa", "we", "us"). It is the buyer-facing part of the marketplace's Delivery, Returns, Refunds and Dispute Administration Policy. Internal seller security and reserve terms are not part of it.
 
-This buyer policy explains how delivery, receipt, returns, refunds, complaints and disputes are handled on Gloviaa Mart, operated by [[DECISION: registered company name, address and registration number]]. It is the buyer-facing part of the marketplace's Delivery, Returns, Refunds and Dispute Administration Policy. Internal seller security and reserve terms are not part of it.
+Mandatory law and the rules of the applicable payment provider prevail over this policy wherever they conflict with it. Nothing in this policy limits a consumer's statutory rights.
 
 ## 1 Who does what
 
-- Each confirmed order line names the actual seller. The seller supplies the goods and is responsible for their conformity.
-- For international business orders the business buyer is ordinarily the importer of record. A consumer is never assumed to be a qualified importer.
-- Gloviaa routes orders and coordinates appointed logistics and customs providers within written mandates. Carriers, warehouses and installers keep their own service duties and claims routes.
-- Before an order is accepted, the seller, manufacturer, product version, site, destination, business or consumer context, importer, price, taxes, charges, payment milestones, delivery term, named delivery place, lead time, packaging, transport restrictions, insurance and return route are confirmed. A payment confirmation alone does not accept an order.
+- Each confirmed order line names the actual seller. For marketplace listings, the seller named on the product page is the seller of record; for goods Gloviaa sells itself, Uboss AI Private Limited is the seller of record. The seller supplies the goods and is responsible for their conformity with the order.
+- For international business orders, the business buyer is ordinarily the importer of record. A consumer is never assumed to be a qualified importer.
+- Gloviaa acts as the marketplace and payment facilitator. It routes orders and coordinates the logistics and customs providers it appoints, within the limits of their written mandates. Carriers, warehouses and installers remain responsible for their own services and keep their own claims procedures.
+- Before an order is accepted, the following are confirmed: the seller, the manufacturer, the product version, the site, the destination, whether the order is a business or consumer order, the importer, the price, taxes, charges, payment milestones, the delivery term, the named delivery place, the lead time, packaging, transport restrictions, insurance and the return route. A payment confirmation on its own does not mean that an order has been accepted.
 
 ## 2 Delivery terms
 
-- International business orders: by default DAP (Incoterms 2020) to a precise named destination. The seller pays transport and bears transit risk until the goods are ready for unloading there. The buyer handles import clearance, duties, taxes and unloading.
-- FCA at a named Indian pickup point or terminal is used only where a business buyer expressly elects main-carriage responsibility and the election is approved.
-- DDP is used only with an approved importer, tax and regulatory arrangement.
-- Indian domestic orders state delivery risk, tax invoicing, e-way documentation where required and receiving conditions directly.
-- Consumer orders use consumer-compliant risk and import terms. Commercial delivery terms never remove consumer protections. Consumer checkout is not offered where no lawful import route exists.
-- A delivery term is not a delivery date, a title clause, an inspection protocol or a warranty. These are stated separately on the order.
+- International business orders: unless otherwise agreed, these are delivered DAP (Delivered at Place, Incoterms 2020) to a precise named destination. The seller pays for transport and bears the risk of loss or damage in transit until the goods are ready for unloading at that destination. The buyer is responsible for import clearance, duties, import taxes and unloading.
+- FCA (Free Carrier, Incoterms 2020) at a named pickup point or terminal in India is used only where a business buyer expressly chooses to take responsibility for the main carriage and that choice is approved.
+- DDP (Delivered Duty Paid, Incoterms 2020) is used only where an approved importer, tax and regulatory arrangement is in place.
+- For domestic orders within India, the order states directly when risk passes, how tax invoicing is handled, whether e-way bill documentation is required, and the conditions for receiving the goods.
+- Consumer orders use risk and import terms that comply with consumer law. Commercial delivery terms never remove consumer protections. Consumer checkout is not offered for a destination to which no lawful import route exists. The countries to which a product can be delivered are shown on the product page and at checkout.
+- A delivery term is not a delivery date, a clause on transfer of ownership, an inspection procedure or a warranty. Each of these is stated separately on the order.
 
 ## 3 Dispatch, tracking and proof of delivery
 
-- Orders are dispatched only when payment, any required inspection and the required documents are in order.
-- You receive tracking, shipment splits, contact details and meaningful delay updates.
-- Partial shipments happen only with your approval and are billed in proportion.
-- Proof of delivery records the date, time, place, recipient, quantities and any exceptions. It does not by itself prove that the goods conform to their specification.
-- Refunds and statutory remedies do not wait indefinitely for a carrier or insurer claim.
+- An order is dispatched only when payment, any required inspection and the required documents are in order.
+- You receive tracking information, notice of any split shipments, contact details and updates about any significant delay.
+- Goods are shipped in parts only with your approval, and each part is billed in proportion to what it contains.
+- Proof of delivery records the date, time, place, recipient, quantities and any exceptions noted on delivery. Proof of delivery does not by itself prove that the goods conform to their specification.
+- Refunds and statutory remedies owed to you are not held back indefinitely while a claim against a carrier or insurer is pending.
 
 ## 4 Reporting problems after receipt
 
-These are service and evidence targets. They never take away a legal right.
+The time limits below are service and evidence targets that help us investigate quickly. They never take away a right you have under the law.
 
-- Visible package damage or shortage: please tell us within 48 hours of receipt. Latent defect, statutory and safety claims remain.
-- Apparent quantity or specification issue on a business order: please tell us within 7 calendar days. Agreed technical acceptance and warranty remain, and a longer agreed acceptance test follows its own timetable.
-- General platform claim: please file within 30 days after delivery. There is no limit on your applicable legal rights.
-- Voluntary eligible return: request within 14 days after delivery. Broader withdrawal rights in your country prevail.
+- Visible damage to the package, or a shortage: please tell us within 48 hours of receipt. Claims for hidden defects, statutory claims and safety claims are not affected by this time limit.
+- Defects or shortages on a business order, including apparent quantity or specification issues: please tell us within 7 days of delivery. After that, the matter is governed by the terms of the order. Any agreed technical acceptance process and warranty continue to apply, and a longer acceptance test agreed for the order follows its own timetable.
+- General platform claims: please file within 30 days after delivery. This does not limit any legal right that applies to you.
+- Returns by consumers in India: you may request the return of an eligible product within 7 days from delivery. Whether a product is eligible for return is shown on the product page before you buy.
+- Withdrawal by consumers in the European Union: you have the right to withdraw from the contract within 14 days without giving any reason, as provided by the law of your country of residence. You may use the model withdrawal form or any other clear statement, sent to the seller named in your order confirmation or to us at returns@gloviaamart.com.
 
-If you report late, tell us why. A late safety, defect, warranty or statutory claim is taken in and reviewed; it is not refused automatically.
+If you report a problem late, please tell us why. A late safety, defect, warranty or statutory claim is accepted and reviewed; it is not refused automatically.
 
 ## 5 How a case is handled
 
-- You receive a case reference. We acknowledge it ordinarily within one business day.
-- We ask only for proportionate evidence, such as photographs, the invoice, the delivery record or a test report. We never ask for an identity document unrelated to the dispute.
-- The seller is asked to respond, ordinarily within 72 hours. Where the seller produces material evidence against your account, you get a reasonable chance to answer it.
-- Independent tests are arranged where needed, under an agreed protocol, with costs reallocated according to fault and the agreed terms.
-- Credible safety incidents go to our safety team at once, and affected listings, shipments and repeat orders can be stopped while they are reviewed.
-- We aim to decide within 7 days after the evidence is sufficient, and keep you updated on complex matters.
+- You receive a case reference when you raise a case. We ordinarily acknowledge it within one business day.
+- We ask only for evidence that is proportionate to the issue, such as photographs, the invoice, the delivery record or a test report. We never ask for an identity document that is unrelated to the dispute.
+- The seller is asked to respond, ordinarily within 72 hours. Where the seller produces material evidence that contradicts your account, you are given a reasonable opportunity to respond to it.
+- Where needed, independent tests are arranged under an agreed procedure. Their costs are allocated according to fault and the terms agreed for the order.
+- Credible safety incidents are passed to our safety team immediately. The affected listings, shipments and repeat orders may be stopped while they are reviewed.
+- We aim to decide a case within 7 days after we have sufficient evidence, and we keep you updated on complex matters.
 
 ## 6 Decisions and remedies
 
-- Remedies include correction, repair, replacement, delivery of a missing quantity, price adjustment, return, refund and re-performance of a service.
-- A decision names the amounts, who pays return freight, the expected completion date and how to appeal.
-- No decision is made by an automated system alone.
-- Gloviaa administers the platform case. It is not an arbitral tribunal and does not decide final legal liability.
+- Available remedies include correction, repair, replacement, delivery of a missing quantity, a price adjustment, return, refund and re-performance of a service.
+- A decision states the amounts involved, who pays for return freight, the expected completion date and how to appeal.
+- No decision is made by an automated system alone. A member of our staff makes every decision.
+- Gloviaa administers the case on the Platform. It is not an arbitral tribunal and does not decide final legal liability between the buyer and the seller.
 
 ## 7 Appeals
 
-- You may appeal a decision within 7 days. An uninvolved reviewer handles the appeal and aims to finish within ten business days where practical.
-- You keep your rights to go to court, to arbitration where agreed, to a regulator and to your payment provider.
+- You may appeal a decision within 7 days of receiving it. The appeal is handled by a reviewer who was not involved in the original decision, and we aim to complete it within ten business days where practical.
+- You keep your right to go to court, to arbitration where it has been agreed, to a regulator and to your payment provider. If you are a consumer in India, you may approach the Consumer Commissions under the Consumer Protection Act, 2019. If you are a consumer in the European Union, you keep the mandatory protections and the right to bring proceedings in the courts of your country of residence. Arbitration never applies to consumers.
 
 ## 8 Refunds and cancellations
 
-- Before an order is accepted, funds are released or refunded where due.
-- After acceptance, business cancellations follow the agreed terms and evidenced irrecoverable work. There is no blanket forfeiture.
-- Consumer cancellation refunds include every amount the law of your country requires. Labels such as certification or administration charges do not reduce them.
-- Refunds go to the original payment method where required.
-- We tell you when a refund was instructed and show its actual status at the payment provider. A refund still pending at the provider is never shown as completed, and we do not promise bank-credit timing outside the provider's control.
-- A valid defect remedy never depends on original packaging, on there being no earlier complaint, or on a seller's insurer paying.
-- A deduction for damage you caused needs evidence and a legal basis.
-- Exclusions for change-of-mind returns are disclosed before purchase and do not affect your rights for defective goods.
+- If an order is cancelled before it is accepted, any funds paid are released or refunded where due.
+- After an order has been accepted, the cancellation of a business order follows the agreed terms of that order, and a deduction may be made only for work that is evidenced and cannot be recovered. Payments are never forfeited as a blanket rule.
+- A refund on a consumer cancellation includes every amount that the law of your country requires to be refunded. Charges described as certification, administration or similar fees do not reduce it.
+- Once a refund is approved, we issue it within 14 days of approval, to the original payment method.
+- We tell you when a refund has been instructed and show its actual status at the payment provider. A refund that is still pending at the payment provider is never shown as completed, and we do not promise when your bank will credit it, because that is outside our control.
+- A valid remedy for a defect never depends on the original packaging being returned, on there having been no earlier complaint, or on a seller's insurer paying the claim.
+- Any deduction for damage you caused must be supported by evidence and have a legal basis.
+- Any exclusions from change-of-mind returns are shown before you buy, and they do not affect your rights where goods are defective.
 
 ## 9 Product safety and recalls
 
-- Suspected unsafe goods and affected listings are stopped promptly.
-- If you are affected by a recall, you receive plain-language instructions and a workable remedy.
-- Reinstatement of a product needs evidence of containment, cause, correction, tests and current certificates, and a human release decision.
+- Goods suspected of being unsafe, and the affected listings, are stopped promptly.
+- If you are affected by a recall, you receive clear instructions in plain language and a practical remedy.
+- A product is reinstated only after evidence is provided of containment, cause, correction, testing and current certificates, and after a member of our staff decides to release it.
 
 ## 10 Contacts
 
-- Complaints and grievance officer: [[DECISION: name and contact]]
-- Safety contact: [[DECISION: name and contact]]
-- Privacy contact: [[DECISION: name and contact]]
-- Returns and logistics contact: [[DECISION: contact]]
-- Payments contact: [[DECISION: contact]]
+- Complaints and Grievance Officer: Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; grievance@gloviaamart.com; +91 124 456 7801.
+- Product safety: customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Please mark your message "Product safety" so that it is passed to our safety team at once.
+- Privacy: Ms Priya Nair, Data Protection Officer, privacy@gloviaamart.com, at our registered office.
+- Returns and cancellations: returns@gloviaamart.com. Delivery and logistics questions: support@gloviaamart.com or +91 124 456 7800.
+- Payments and refunds: support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST).
+- Legal notices: legal@gloviaamart.com, or by post to our registered office.
 
 ## 11 Versions
 

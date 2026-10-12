@@ -1,0 +1,74 @@
+kind: B2C_PLATFORM_SERVICES_AGREEMENT
+version: 1.0
+locale: en
+title: B2C Platform Services Agreement
+---
+Gloviaa Mart | Uboss AI Private Limited
+
+Version 1.0 | Effective 12 October 2026
+
+This agreement covers your use of the Gloviaa Mart platform at www.gloviaamart.com, which is operated by Uboss AI Private Limited, a company incorporated in India with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, Corporate Identity Number U62099HR2024PTC118452, GSTIN 06AADCU4821K1Z3 ("Gloviaa", "we", "us"). It applies to you as a consumer, meaning a person using the Platform for purposes that applicable law protects as consumer use. Mandatory consumer rights apply regardless of the account label or a term in this agreement.
+
+## 1 What this agreement covers
+
+This agreement governs the platform services we provide to you: your account, search, the AI shopping assistant, the cart and checkout, payment facilitation, order tracking, scheduled and repeat orders, support and dispute handling, and notifications. It does not govern the sale of goods. When you buy a product, the B2C Consumer Terms and Conditions govern that purchase, including delivery, cancellation, returns, refunds and remedies for defective goods. For marketplace listings the seller named on the product page is the seller of record; for goods we sell ourselves, Uboss AI Private Limited is the seller of record. How we handle your personal data is explained in the Gloviaa Privacy Policy. If this agreement and the B2C Consumer Terms and Conditions conflict on a matter about a purchase, the B2C Consumer Terms and Conditions prevail.
+
+## 2 Your account
+
+You must be at least 18 years old to open an account. You must give accurate and complete information and keep it up to date. Keep your password and sign-in details secure and do not share your account. Tell us promptly at support@gloviaamart.com if you think someone else has used your account. You are responsible for activity on your account unless it results from our failure or from a security incident that you did not cause. We use bot protection provided by Cloudflare Turnstile to help keep accounts safe; it sets no advertising cookies. You may close your account at any time from your account settings or by contacting support.
+
+## 3 Search and the AI shopping assistant
+
+You can search the catalogue and browse products that can be delivered to your country. The countries a product can be delivered to are shown on the product page and at checkout; we serve India and the member states of the European Union.
+
+The AI shopping assistant helps you find and compare products. It is powered by Google Gemini, which we use on paid terms under which Google does not use your prompts to train its models, and we do not send it special-category personal data. Answers from the assistant are generated assistance. They may be incomplete or wrong, they do not change any price or product specification, and they do not replace the product page, the safety instructions or professional advice where it is needed. Please check any important statement against the product page before you buy. Do not enter health details or other sensitive personal information into the assistant.
+
+## 4 Cart and checkout
+
+You can add products from one or more sellers to your cart and pay for them in a single checkout. Before you pay, we show the seller of each product, the total price including all known mandatory charges, any delivery charges, and the cancellation and return information that applies. A basket from several sellers may create a separate sale contract with each seller. Your order is accepted only when you receive an order confirmation; a payment authorisation or order receipt is not acceptance on its own.
+
+## 5 Payment facilitation
+
+Gloviaa acts as the marketplace and payment facilitator. Payments are processed by Stripe Payments Europe Ltd and Stripe, Inc. (cards and international payments) and by Razorpay Software Private Limited (payments in India), each under its own terms. Payments to sellers are made through Stripe Connect. We do not store your full card details; they are held only by the payment provider. Refunds that are approved are paid within 14 days of approval to your original payment method. You retain applicable payment dispute and chargeback rights.
+
+## 6 Order tracking and notifications
+
+You can follow the progress of each order in your account, from confirmation through dispatch to delivery. We send you service notifications by email and on the Platform about your account, orders, payments, deliveries, refunds and changes to our terms. These service messages are part of the platform services and you cannot switch off the ones the law or the security of your account requires. Marketing messages are sent only where you have given separate consent where required, and you can withdraw that consent at any time.
+
+## 7 Scheduled and repeat orders
+
+You can set up scheduled or repeat orders that are placed automatically at a frequency you choose. Recurring purchases and autopay require your specific consent to the frequency, any spending limits, how price changes are handled and how to cancel. Before each scheduled order is placed, we check its price and availability and tell you in advance if the price has changed in a way you have not already agreed to. You can pause, change or cancel a schedule at any time in your account; cancelling stops future orders, and orders already accepted keep the cancellation rights set out in the B2C Consumer Terms and Conditions.
+
+## 8 Support and disputes
+
+You can contact customer support at support@gloviaamart.com or +91 124 456 7800, Monday to Saturday, 9:30 to 18:30 IST. If you have a problem with an order, you can open a case in your account. We contact the seller, collect proportionate evidence and explain our decision. You can appeal a decision made on the Platform within seven days, but this is not a deadline for bringing a legal claim.
+
+Our Grievance Officer is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, at our registered office; email grievance@gloviaamart.com; telephone +91 124 456 7801. The Grievance Officer acknowledges your complaint within forty-eight hours and resolves it within one month of receiving it. Using our support and dispute process never prevents you from going to a regulator, a consumer court or Consumer Commission, an eligible alternative dispute resolution body or your payment provider.
+
+## 9 Fees for the platform services
+
+The platform services described in this agreement are free of charge to consumers. If a fee applies to a particular service, it is shown clearly before checkout, and you pay it only if you agree to it at that point. We never add optional paid services without your express consent.
+
+## 10 Acceptable use
+
+You must use the Platform lawfully and must not misuse it. In particular, you must not give false information, buy products for unlawful use, interfere with the Platform or its security, use automated tools to scrape or overload it, or harass sellers, staff or other users. We may restrict or suspend activity that is fraudulent, abusive, illegal or unsafe. We will tell you why where the law permits and give you a way to ask us to review the decision. A restriction does not remove any valid refund, complaint or warranty.
+
+## 11 Your content
+
+If you post reviews, questions or images, you keep ownership of them. You give us a non-exclusive, worldwide, royalty-free licence to host, store, reproduce, display, resize, translate and format that content to operate and promote the marketplace, for as long as it is on the Platform and for a reasonable period afterwards for backups and legal records. We do not use your content to train general-purpose AI models, or in third-party advertising, without your separate consent. Your content must be honest and lawful. You can report illegal content or an intellectual property infringement to ip@gloviaamart.com.
+
+## 12 Availability and our responsibility
+
+We aim to keep the Platform available and secure, but it may sometimes be unavailable for maintenance or for reasons outside our control. We provide the platform services with reasonable skill and care and are responsible for our own services and legal duties. Nothing in this agreement limits your statutory rights as a consumer or excludes our liability for fraud, wilful misconduct, death or personal injury caused by negligence, or any other liability that cannot lawfully be excluded. The commercial B2B fee cap, indemnities, arbitration and short acceptance deadlines do not apply to you.
+
+## 13 Privacy
+
+We process your personal data as described in the Gloviaa Privacy Policy. Providers that are essential to the platform services, such as our payment providers, our AI provider and our hosting provider with servers in India and the European Union, receive only the information they need. You can contact our Data Protection Officer, Ms Priya Nair, at privacy@gloviaamart.com or at our registered office.
+
+## 14 Changes and ending this agreement
+
+We give you at least 30 days' notice by email and on the Platform before a material change to this agreement takes effect, although changes required by law or for security may take effect sooner. Where a change needs your re-acceptance, the Platform asks for it at your next sign-in. If you do not agree to a change, you may close your account. You may end this agreement at any time by closing your account. Closing your account does not affect orders already confirmed, refunds due to you or records the law requires us to keep.
+
+## 15 Applicable law and dispute routes
+
+This agreement is governed by the laws of India. This does not take away the protection given to you by the mandatory law of the country where you live. If you are a consumer in India, you may bring a complaint before the Consumer Commissions under the Consumer Protection Act, 2019. If you are a consumer in the European Union, you keep the mandatory protections of your country of residence and the right to bring proceedings in the courts of that country. Arbitration never applies to consumers. The English version of this agreement prevails, except where mandatory law entitles you to rely on the version in your own language.

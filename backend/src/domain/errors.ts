@@ -1771,6 +1771,11 @@ export const ErrorCode = {
   /// for a company - recurring orders are the one today. The storefront offers
   /// to switch to the individual context.
   BUYER_CONTEXT_UNSUPPORTED: 'BUYER_CONTEXT_UNSUPPORTED',
+  /// The reverse: this feature is for business (B2B) buying only, so it works
+  /// while buying for a company and not on a person's own account - the cart's
+  /// SKU list upload is the one today. The storefront hides it there, so this
+  /// is reached only by a request the storefront would not send.
+  BUYER_CONTEXT_COMPANY_REQUIRED: 'BUYER_CONTEXT_COMPANY_REQUIRED',
 
   // --- Product reviews ---
   /// Only a buyer with a delivered order containing the product may review

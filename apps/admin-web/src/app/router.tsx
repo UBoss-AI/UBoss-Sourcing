@@ -16,6 +16,7 @@
  */
 import { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import { withPageTransitions } from '@/lib/page-transitions';
 import { RequireAuth, RequirePermission } from '@/auth/guards';
 import { AppShell } from '@/layout/AppShell';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
@@ -61,7 +62,7 @@ function lazyRoute(
   };
 }
 
-export const router = createBrowserRouter([
+const routes = createBrowserRouter([
   // The screens that work while signed out. Password recovery has to live here
   // by definition: somebody who cannot sign in cannot pass RequireAuth.
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage fullScreen /> },
@@ -723,3 +724,6 @@ export const router = createBrowserRouter([
   // apps share one hostname through a single tunnel.
   basename: import.meta.env.BASE_URL,
 });
+
+/** Every in-app page change cross-fades. See `lib/page-transitions.ts`. */
+export const router = withPageTransitions(routes);

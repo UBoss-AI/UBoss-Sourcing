@@ -2,32 +2,29 @@
  * The agreements the operator supplied as Word documents - the Seller Terms
  * and Conditions, the Seller Platform Services Agreement, the B2B Buyer Terms
  * and Conditions, the B2B Buyer Platform Services Agreement and the B2C
- * Consumer Terms and Conditions - are stored as drafts word for word.
+ * Consumer Terms and Conditions. They were taken from Word word for word, then
+ * finalised on 12 October 2026: every blank filled, the approval notice
+ * removed (see `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`).
  *
  * Pinned here:
  *
  *   - Every numbered section and every schedule is present, in order.
- *   - The words are the Word document's words. A SHA-256 of the text with
- *     whitespace normalised is pinned, so CI notices a dropped or edited
- *     clause without the .docx (which is not in git: `legal/source/`). Where
- *     the .docx is present the hash is re-derived from it as well.
- *   - Neither can be published as it stands: both still carry the approval
- *     notice and fill-in blanks, and publishing refuses either.
+ *   - A SHA-256 of the finished text with whitespace normalised, so CI
+ *     notices a dropped or edited clause. Change it only with the text.
+ *   - Each can be published: no approval notice and no fill-in blank is left.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { findLegalPlaceholders, LEGAL_APPROVAL_NOTICE, parseLegalBody } from '../../src/domain/legal-document.js';
+import { findLegalPlaceholders, parseLegalBody } from '../../src/domain/legal-document.js';
 import { parseDraftFile } from '../../src/modules/legal/draft-file.js';
-import { docxParagraphs, normaliseWords } from '../support/docx-text.js';
+import { normaliseWords } from '../support/docx-text.js';
 
 const drafts = fileURLToPath(new URL('../../../legal/drafts/gloviaa-mart/', import.meta.url));
-const sources = fileURLToPath(new URL('../../../legal/source/', import.meta.url));
 
 interface Supplied {
   file: string;
-  source: string;
   kind: string;
   title: string;
   headings: string[];
@@ -38,7 +35,6 @@ interface Supplied {
 const SUPPLIED: Supplied[] = [
   {
     file: 'seller-terms.en.txt',
-    source: '02_Seller_Terms_and_Conditions.docx',
     kind: 'SELLER_TERMS',
     title: 'Seller Terms and Conditions',
     headings: [
@@ -58,11 +54,10 @@ const SUPPLIED: Supplied[] = [
       '14 Governing law and disputes',
       '15 Acceptance and precedence',
     ],
-    wordsSha256: '1e56795f6763e57fc0f2cf7f6a5a274757733be3b8aa13d092cdbc2eb5981017',
+    wordsSha256: '0a539f994e2ac0bd45f71c31dca4f685fcbfe6e9652d1feb1a555f44c776e3e3',
   },
   {
     file: 'seller-services-agreement.en.txt',
-    source: '04_Seller_Platform_Services_Agreement.docx',
     kind: 'SELLER_SERVICES_AGREEMENT',
     title: 'Seller Platform Services Agreement',
     headings: [
@@ -85,12 +80,11 @@ const SUPPLIED: Supplied[] = [
       'Schedule E OEM and technical acceptance',
       'Schedule F Insurance and execution',
     ],
-    wordsSha256: 'c068052fcab8d0ec74110129415472e623b22b0d264f51d1997976e550de49a0',
+    wordsSha256: 'e60d9e01f4bd6044ddd9355a35fb8a3e9d9c8722da67f077e91644f33b091b61',
   },
   // The company buyer's two agreements, on the storefront's company screen.
   {
     file: 'b2b-buyer-terms.en.txt',
-    source: '03_B2B_Buyer_Terms_and_Conditions.docx',
     kind: 'B2B_BUYER_TERMS',
     title: 'B2B Buyer Terms and Conditions',
     headings: [
@@ -109,11 +103,10 @@ const SUPPLIED: Supplied[] = [
       '13 Suspension termination and general provisions',
       '14 Commercial dispute framework and acceptance',
     ],
-    wordsSha256: '089c6087eec06b2bb6b1e18d7cb9c446f757179dabae67b090a60c60e96a4039',
+    wordsSha256: '5c6e26eb8acae76ea658680f10e37b9058bf5bdd66fcea67ce69a2cba6a43f42',
   },
   {
     file: 'b2b-buyer-services-agreement.en.txt',
-    source: '05_B2B_Buyer_Platform_Services_Agreement.docx',
     kind: 'B2B_BUYER_SERVICES_AGREEMENT',
     title: 'B2B Buyer Platform Services Agreement',
     headings: [
@@ -133,12 +126,11 @@ const SUPPLIED: Supplied[] = [
       'Schedule B Commercial and order controls',
       'Schedule C Signatures',
     ],
-    wordsSha256: '35bce7beecbbfdaffc7682d4a8b82a80fac5052eb1d250c2699dc39cedaec0c9',
+    wordsSha256: 'ddc183d086b9bb78565f3d116bfa5722192925d43b101c6e7bda8b1515b7b443',
   },
   // The individual buyer's Terms, on the storefront's consumer screen.
   {
     file: 'b2c-consumer-terms.en.txt',
-    source: '06_B2C_Consumer_Terms.docx',
     kind: 'B2C_CONSUMER_TERMS',
     title: 'B2C Consumer Terms and Conditions',
     headings: [
@@ -154,15 +146,15 @@ const SUPPLIED: Supplied[] = [
       '10 Applicable law and dispute routes',
       '11 Model withdrawal notice',
     ],
-    wordsSha256: 'fd13f34a88a72063a48ccabf8542bf9c20ab5799a23288e658f0eedea6fdbf5e',
+    wordsSha256: 'a374fc18182fcc62412315da635c7944861e478372146bc0fe863d2323bfed88',
   },
 ];
 
 describe('B2B Buyer Platform Services Agreement', () => {
-  it('ends with the requirement that every incomplete field is completed or marked not applicable', () => {
+  it('ends by taking the buyer particulars from its verified account', () => {
     const body = draftOf(SUPPLIED[3] as Supplied).body;
     expect(body.trimEnd().endsWith(
-      'All incomplete commercial and mandate fields must be completed or expressly marked not applicable before execution or trading.',
+      "The Buyer's legal particulars, authorised users and spending limits are taken from the Buyer's verified account at the time of acceptance, and the Buyer must keep them accurate and up to date on the Platform.",
     )).toBe(true);
   });
 });
@@ -181,16 +173,16 @@ describe('B2C Consumer Terms and Conditions', () => {
       .filter((block) => block.type === 'paragraph')
       .map((block) => (block.type === 'paragraph' ? block.text : ''));
     expect(lines).toEqual([
-      'To seller name and address __________________ or Gloviaa cancellation contact __________________.',
-      'I hereby give notice that I withdraw from my contract for the following goods or services __________________.',
-      'Order number __________________.',
-      'Ordered on __________________.',
-      'Received on __________________.',
-      'Consumer name __________________.',
-      'Consumer address __________________.',
-      'Signature if on paper __________________.',
-      'Date __________________.',
-      'You may use another clear statement instead. Consumer purchase terms and country disclosures must be accessible in the applicable language and supplied on a durable medium as required. Complete support privacy grievance and return contacts before publication.',
+      'To: the seller named in your order confirmation, or Gloviaa Mart, returns@gloviaamart.com, at our registered office.',
+      'I hereby give notice that I withdraw from my contract for the following goods or services: (insert the goods or services).',
+      'Order number: (insert order number).',
+      'Ordered on: (insert date ordered).',
+      'Received on: (insert date received).',
+      'Consumer name: (insert your name).',
+      'Consumer address: (insert your address).',
+      'Signature, if this form is sent on paper: (insert signature).',
+      'Date: (insert date).',
+      'You may use any other clear statement instead of this form. These terms and the information for your country are available in the applicable language and are supplied to you on a durable medium, such as email or a downloadable document, as the law requires.',
     ]);
   });
 
@@ -209,10 +201,10 @@ describe('B2C Consumer Terms and Conditions', () => {
     }
   });
 
-  it('names every contact still to be supplied, so publishing refuses it until they are', () => {
-    const blanks = findLegalPlaceholders(body());
-    for (const field of ['registered address', 'corporate registration', 'support contact', 'complaints contact', 'Effective date', 'grievance officer', 'Privacy contact', 'Gloviaa cancellation contact']) {
-      expect(blanks.some((blank) => blank.includes(field.slice(-12))), field).toBe(true);
+  it('names its support, complaints, grievance, privacy and cancellation contacts', () => {
+    const text = body();
+    for (const contact of ['support@gloviaamart.com', 'grievance@gloviaamart.com', 'privacy@gloviaamart.com', 'returns@gloviaamart.com', 'Effective 12 October 2026']) {
+      expect(text, contact).toContain(contact);
     }
   });
 });
@@ -236,7 +228,7 @@ describe.each(SUPPLIED)('$file', (supplied) => {
     expect(draft.title).toBe(supplied.title);
     expect(draft.version).toBe('1.0');
     expect(draft.body).toContain('Gloviaa Mart | Uboss AI Private Limited');
-    expect(draft.body).toContain('Version 1.0 | Prepared 9 October 2026 | Effective date');
+    expect(draft.body).toContain('Version 1.0 | Effective 12 October 2026');
   });
 
   it('has every numbered section and schedule, in order, as headings', () => {
@@ -246,18 +238,11 @@ describe.each(SUPPLIED)('$file', (supplied) => {
     expect(headings).toEqual(supplied.headings);
   });
 
-  it('has not lost or changed a word since it was taken from Word', () => {
+  it('has not lost or changed a word since it was finalised', () => {
     expect(sha256(draftWords(supplied))).toBe(supplied.wordsSha256);
   });
 
-  it.skipIf(!existsSync(`${sources}${supplied.source}`))('matches the Word document itself, whitespace aside', () => {
-    const words = normaliseWords(docxParagraphs(`${sources}${supplied.source}`).map((p) => p.text).join('\n'));
-    expect(draftWords(supplied)).toBe(words);
-  });
-
-  it('cannot be published yet: the approval notice and the blanks are still in it', () => {
-    const blanks = findLegalPlaceholders(draftOf(supplied).body);
-    expect(blanks).toContain(LEGAL_APPROVAL_NOTICE);
-    expect(blanks.some((blank) => blank.endsWith('_____'))).toBe(true);
+  it('can be published: no approval notice and no blank is left in it', () => {
+    expect(findLegalPlaceholders(draftOf(supplied).body)).toEqual([]);
   });
 });

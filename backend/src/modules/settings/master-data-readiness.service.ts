@@ -21,7 +21,7 @@
  * Read-only. Nothing here changes data.
  */
 import { prisma } from '../../infra/prisma.js';
-import { DEVELOPMENT_TERMS_VERSION } from '../legal/development-terms.js';
+import { DEVELOPMENT_TERMS_VERSION, SAMPLE_LEGAL_MARKER } from '../legal/development-terms.js';
 
 export type ReadinessStatus = 'OK' | 'MISSING' | 'WARNING';
 
@@ -87,7 +87,11 @@ export async function masterDataReadiness(now: Date = new Date()): Promise<Maste
     prisma.inspectionPlan.count({ where: { isActive: true } }),
     prisma.inspectionAgency.count({ where: { status: 'ACTIVE' } }),
     prisma.legalDocument.count({
-      where: { kind: 'PLATFORM_TERMS', status: 'PUBLISHED', version: { not: DEVELOPMENT_TERMS_VERSION } },
+      where: {
+        kind: 'PLATFORM_TERMS',
+        status: 'PUBLISHED',
+        NOT: [{ version: { startsWith: DEVELOPMENT_TERMS_VERSION } }, { body: { contains: SAMPLE_LEGAL_MARKER } }],
+      },
     }),
     prisma.legalDocument.count({ where: { kind: 'PRIVACY_POLICY', status: 'PUBLISHED' } }),
     prisma.masterDataEntry.count({ where: { kind: 'UOM', isActive: true } }),
@@ -127,7 +131,13 @@ export async function masterDataReadiness(now: Date = new Date()): Promise<Maste
 
   const [demoProducts, developmentTerms, seedCarrier, localAccounts] = await Promise.all([
     prisma.demoCatalogEntry.count(),
-    prisma.legalDocument.count({ where: { version: DEVELOPMENT_TERMS_VERSION, status: 'PUBLISHED' } }),
+    // The old generic sample, or the Gloviaa texts the seed publishes with sample company details.
+    prisma.legalDocument.count({
+      where: {
+        status: 'PUBLISHED',
+        OR: [{ version: { startsWith: DEVELOPMENT_TERMS_VERSION } }, { body: { contains: SAMPLE_LEGAL_MARKER } }],
+      },
+    }),
     prisma.logisticsPartner.count({ where: { partnerCode: SEED_CARRIER_CODE } }),
     prisma.user.count({
       where: { emailNormalized: { endsWith: '.local' }, archivedAt: null, erasedAt: null, status: { not: 'DEACTIVATED' } },

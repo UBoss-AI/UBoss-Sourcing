@@ -1,9 +1,9 @@
 kind: PLATFORM_TERMS
-version: 2026-10-draft-1
+version: 1.0
 locale: en
 title: Gloviaa Mart Terms of Use
 ---
-DRAFT - not legal advice and not approved for publication. This text was adapted from third-party source material and must be reviewed and approved by the operator's legal counsel. Every passage marked [[DECISION: ...]] needs a business or legal decision before this document can be published.
+Version 1.0 | Effective 12 October 2026
 
 These Terms of Use apply to everyone who visits or uses Gloviaa Mart, and to everyone who buys on it, whether for themselves or for a company. Part A applies to every user. Part B applies to buyers. Sellers, logistics partners, our own staff and Audit Console users agree to separate terms written for those roles; nothing in these Terms of Use makes a buyer take on a seller's obligations.
 
@@ -13,7 +13,7 @@ Please read these terms carefully. You will be asked to agree to them before you
 
 ## A1. About these terms
 
-These terms are an agreement between you and [[DECISION: registered legal name of the operator]], a company registered under number [[DECISION: company registration number and register]] with its registered office at [[DECISION: registered office address of the operator]] ("Gloviaa Mart", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace.
+These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("Gloviaa Mart", "Gloviaa", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace at www.gloviaamart.com.
 
 "Platform" means the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
 
@@ -27,7 +27,7 @@ As long as you comply with these terms, we give you a personal, non-exclusive, n
 
 ## A2. Who may use the Platform
 
-You may use the Platform only if you can form a legally binding contract under the law that applies to you. You must not use the Platform if you are under [[DECISION: minimum age and whether individual consumers may buy, or business buyers only]] or if the law otherwise prevents you from contracting.
+You may use the Platform only if you can form a legally binding contract under the law that applies to you. You must not use the Platform if you are under 18 years of age or if the law otherwise prevents you from contracting. Both individual consumers and verified business buyers may buy on the Platform.
 
 If you use the Platform for a business, a company or any other organisation, you confirm that you are authorised to accept these terms for it and to bind it to them. The organisation is then also bound, and "you" includes it.
 
@@ -37,7 +37,7 @@ We may refuse or end access to the Platform if we learn that a user does not mee
 
 Some parts of the Platform need an account. When we ask for information to open or maintain an account, you agree to give information that is true, accurate, current and complete, and to keep it up to date.
 
-You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel if you believe someone else has used your account.
+You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@gloviaamart.com, if you believe someone else has used your account.
 
 Where we offer or require two-step sign-in, you agree to set it up and keep it working. Some roles must use it.
 
@@ -51,11 +51,11 @@ Service messages (for example a payment receipt, a security alert or a change to
 
 ## A5. What the marketplace is, and what it is not
 
-The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Gloviaa Mart is the seller of those goods.
+The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
 
 For goods sold by other sellers:
 
-- The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order.
+- The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order and is the seller of record.
 - The contract of sale is between the seller and the buyer. Gloviaa Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
 - Gloviaa Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. Gloviaa Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
 - You should take reasonable care when you deal with other users. Use the Platform's own messages and payment flow; never pay outside it.
@@ -108,13 +108,15 @@ You must not:
 - use any device, software or routine to interfere with the proper working of the Platform or any transaction on it;
 - forge headers or manipulate identifiers to disguise the origin of a message you send through the Platform.
 
+If you discover a security weakness in the Platform, please report it to security@gloviaamart.com.
+
 We may take any lawful action, including claiming damages, against a user who breaches this section.
 
 ## A8. Content you provide
 
 You are responsible for the content you post or send on the Platform - listings, photographs, documents, reviews, messages and anything else - and for having every right needed to provide it. Content must be accurate and must not breach section A6.
 
-You keep ownership of your content. You give us a non-exclusive, worldwide, royalty-free licence to host, store, copy, reproduce, translate, adapt for display, and show your content on the Platform and in communications about the Platform, for as long as is needed to run the Platform and to keep the records the law requires. [[DECISION: scope of the licence over content users upload - the source asked for a perpetual, irrevocable, sub-licensable licence including generative-AI use and use in advertising]]
+You keep ownership of your content. You give us a non-exclusive, worldwide, royalty-free licence to host, store, reproduce, display, resize, translate and format your content in order to operate and promote the marketplace. The licence lasts for as long as your content is on the Platform, and for a reasonable period after that for backups and for the records the law requires us to keep. We will not use your content to train general-purpose artificial-intelligence models, and we will not use it in third-party advertising, unless you give us separate consent to do so.
 
 Some content is translated automatically so that users can read it in their own language; a translation is offered for convenience and the original wording prevails.
 
@@ -130,7 +132,7 @@ The Gloviaa Mart name and logo are our trade marks. You may not use them without
 
 ## A10. Complaints about infringing or unlawful content
 
-We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at [[DECISION: address for intellectual-property and illegal-content complaints]] or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
+We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@gloviaamart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
 
 ## A11. Other services and links
 
@@ -169,9 +171,9 @@ Nothing in these terms excludes or limits any guarantee, warranty or right that 
 
 To the extent the applicable law allows, we are not liable for any indirect, incidental, special or consequential loss, or for loss of profit, revenue, business, goodwill or data, arising out of or in connection with these terms or the Platform, even if we were told such loss was possible.
 
-[[DECISION: liability cap amount and carve-outs permitted by the governing law]]
+If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to Gloviaa in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
 
-Nothing in these terms limits liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, or for anything else that the applicable law does not allow to be limited.
+Nothing in these terms limits or excludes liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, for wilful misconduct, or for anything else that the applicable law does not allow to be limited or excluded.
 
 ## A16. Indemnity
 
@@ -181,17 +183,21 @@ To the extent the applicable law allows, you will indemnify and hold harmless Gl
 
 We may change these terms, for example to reflect a change in the law, in our services or in how the Platform works. When we do, we publish a new version with a new version number, an effective date and, where useful, a summary of what changed. Earlier versions stay available to read.
 
-When a change materially affects you, we tell you in advance through the Platform or by email, at least [[DECISION: notice period before changed terms take effect]] before it takes effect, unless the change is needed sooner to comply with the law. Where a new version requires it, we ask you to read and agree to it before you continue to use your account; if you do not agree, you may close your account. We never record that you agreed to a version you were not shown.
+When a change materially affects you, we tell you in advance by email and on the Platform, at least 30 days before it takes effect, unless the change is required by law or is needed for security reasons, in which case it may take effect sooner. Where a new version requires it, we ask you to read and agree to it the next time you sign in, before you continue to use your account; if you do not agree, you may close your account. We never record that you agreed to a version you were not shown.
 
 ## A18. Governing law and disputes
 
-These terms are governed by [[DECISION: governing law]]. The courts of [[DECISION: courts with jurisdiction, and whether consumers keep their home-court rights]] have jurisdiction over disputes arising out of them. If you are a consumer, this does not take away the protection of the mandatory rules of the country where you live, or your right to bring proceedings there.
+These terms are governed by the laws of India.
 
-Before going to court, we encourage you to contact us so we can try to resolve the matter. Disputes between a buyer and a seller about an order can be raised through the claims process described in Part B.
+If you use the Platform as a business user, the courts at New Delhi, India have exclusive jurisdiction over disputes arising out of or in connection with these terms. Before starting proceedings, a business user and we will first try in good faith to resolve the dispute by escalating it to senior representatives for 15 days. If the dispute is not resolved within that period, it will be finally resolved by arbitration under the Arbitration and Conciliation Act, 1996, before a sole arbitrator. The seat and venue of the arbitration is New Delhi and the language of the arbitration is English. Either party may still ask a court for interim relief.
+
+If you are a consumer, arbitration does not apply to you and you keep every right that mandatory law gives you. Consumers in India may approach the Consumer Commissions under the Consumer Protection Act, 2019. Consumers in the European Union keep the protection of the mandatory rules of the country where they live, and their right to bring proceedings in the courts of that country.
+
+Before going to court, we encourage you to contact us so we can try to resolve the matter. Disputes between a buyer and a seller about an order can be raised through the order claims process on the Platform.
 
 ## A19. Where the Platform operates
 
-The Platform serves buyers and sellers in several countries, languages and currencies. The markets in which goods can be sold and delivered are shown on the Platform and are [[DECISION: markets and countries where the marketplace sells and delivers]]. A product may be restricted in some markets; the product page and checkout say where it can be delivered.
+The Platform serves buyers and sellers in several countries, languages and currencies. The markets in which goods can be sold and delivered are shown on the Platform and are India and the member states of the European Union. A product may be restricted in some markets; the product page and checkout show the countries to which it can be delivered.
 
 If you use the Platform from another country, you are responsible for complying with the law that applies to you there, including import, export, customs and sanctions rules.
 
@@ -203,13 +209,13 @@ If any provision is found invalid or unenforceable, the rest remains in force. I
 
 You may not transfer your rights or obligations under these terms without our written consent. We may transfer ours to a company that takes over the Platform or the relevant part of our business, provided your rights are not reduced; we will tell you if this happens.
 
-These terms are published in several languages. [[DECISION: which language version prevails if translations differ]]
+These terms are published in several languages. If the language versions differ, the English version prevails, except where mandatory law entitles a consumer to rely on the version in their own language.
 
 ## A21. Contact and complaints
 
-For questions about these terms or the Platform, use the support page on the Platform or write to [[DECISION: contact email address for legal notices]].
+For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@gloviaamart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
 
-Complaints are handled by [[DECISION: grievance officer or complaints contact - name, address, email]]. We acknowledge a complaint and tell you how and when we will answer it.
+Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
 
 ## Part B - Terms for buyers
 
@@ -251,9 +257,9 @@ Before payment you may be asked to agree to the version of these terms in force,
 
 ## B6. Payment
 
-Payments are taken by the payment provider named at checkout, on that provider's own secure page or sheet. Your card number and security code are entered there, not on the Platform, and we never store them. Your bank may ask for extra authentication.
+Payments are taken by the payment provider named at checkout, on that provider's own secure page or sheet. Our payment providers are Stripe Payments Europe Ltd and Stripe, Inc. (for cards and international payments) and Razorpay Software Private Limited (for payments in India). Your card number and security code are entered on the provider's page, not on the Platform, and we never store them. Your bank may ask for extra authentication.
 
-[[DECISION: who is the seller of record for operator's own goods vs marketplace sellers; merchant-of-record / payment facilitator wording approved by the payment provider]]
+For goods listed by marketplace sellers, the seller named on the product page is the seller of record. For goods that Gloviaa sells itself, Uboss AI Private Limited is the seller of record. For marketplace sales, Gloviaa acts as the marketplace operator and as payment facilitator: payments are collected through Stripe and Razorpay, and paid out to sellers through Stripe, including Stripe Connect.
 
 Where the payment for goods sold by other sellers is collected by us or our payment provider, it is collected on the seller's behalf and released to the seller only on the conditions described to sellers, which include that the order has been delivered, that any required inspection has passed and that no claim or chargeback is open. This holding of funds is a service to buyers and sellers; it is not a bank account, a deposit or a financial service offered to you.
 
@@ -269,7 +275,7 @@ Autopay is a separate authority you may give us to charge a card you enrolled fo
 
 ## B8. Quotes, preorders, samples and purchase orders
 
-You may ask sellers for quotes, ask a seller to make or reserve a quantity (a preorder), ask for samples, or submit a purchase order for review. Each of these follows the steps shown on the Platform. A seller's quote, preorder terms or proposed delivery schedule binds you only when you accept it on the Platform; the exact terms you accepted are recorded and identified so that neither side can change them afterwards. A preorder may require a deposit or carry a risk of delay or expiry, which the seller's terms must state before you accept.
+You may ask sellers for quotes, ask a seller to make or reserve a quantity (a preorder), ask for samples, or submit a purchase order for review. Each of these follows the steps shown on the Platform. A seller's quote, preorder terms or delivery schedule binds you only when you accept it on the Platform; the exact terms you accepted are recorded and identified so that neither side can change them afterwards. A preorder may require a deposit or carry a risk of delay or expiry, which the seller's terms must state before you accept.
 
 ## B9. Delivery, risk and customs
 
@@ -279,7 +285,13 @@ Inspect goods on delivery where you can and note any visible damage. Who bears t
 
 ## B10. Cancellations, returns, refunds and claims
 
-You may cancel an order you placed while the order allows it; the order page shows whether it can still be cancelled. Returns, refunds and replacements follow the Returns Policy that applies to the order, which states the return window and what can be returned. [[DECISION: returns window and refund rules (to be set in the Returns Policy)]]
+You may cancel an order you placed while the order allows it; the order page shows whether it can still be cancelled. Returns, refunds and replacements follow the Returns Policy that applies to the order, which states the return window and what can be returned. In summary:
+
+- consumers in India may return eligible products within 7 days of delivery;
+- consumers in the European Union have a 14-day right of withdrawal;
+- business buyers must report defects or shortages within 7 days of delivery; otherwise the terms of the order apply.
+
+Approved refunds are made within 14 days of approval. Requests about returns and cancellations can also be sent to returns@gloviaamart.com.
 
 If something is wrong with an order - it did not arrive, it arrived damaged, it is not what was described, or the quantity is wrong - you can raise a claim about the whole order or about one line from the order page. You choose the remedy you are asking for (a full refund, a partial refund or a replacement), describe the problem and add evidence. The seller is given time to answer. If you cannot agree, a member of our staff reviews the claim, the evidence and any inspection result, and records a decision with reasons. Where the claims process allows it, you may appeal a decision once within the appeal period shown.
 
@@ -303,7 +315,7 @@ You may review a product you bought. A review must be your own honest opinion of
 
 ## B14. Search, AI Mode and image search
 
-The Platform offers an assistant that answers questions about the catalogue, and an image search that recognises products in a picture you upload. The assistant answers from the catalogue and from information we publish; it does not see your account or order data. Image search sends your picture to an artificial-intelligence service to identify the product; we do not keep the picture. Answers and matches may be incomplete or wrong, and the product page is what counts. The assistant does not give medical, legal or financial advice. How these features process personal data is explained in the Privacy Policy.
+The Platform offers an assistant that answers questions about the catalogue, and an image search that recognises products in a picture you upload. The assistant answers from the catalogue and from information we publish; it does not see your account or order data. Image search sends your picture to an artificial-intelligence service, Google Gemini (provided by Google LLC), to identify the product; we do not keep the picture. Google provides this service to us on paid terms under which it does not use the prompts to train its models. Answers and matches may be incomplete or wrong, and the product page is what counts. The assistant does not give medical, legal or financial advice. How these features process personal data is explained in the Privacy Policy.
 
 ## B15. Connecting your own purchasing system
 
@@ -315,4 +327,6 @@ You can close your account from your account settings. Before it is closed you a
 
 ## B17. Your rights as a consumer
 
-If you buy as a consumer, you have rights under the consumer law of the country where you live that a contract cannot take away. Nothing in these terms limits those rights. [[DECISION: confirm whether individual consumers may buy on the Platform and, if so, the consumer-law information each market requires (for example withdrawal rights and the trader's identity)]]
+If you buy as a consumer, you have rights under the consumer law of the country where you live that a contract cannot take away. Nothing in these terms limits those rights.
+
+Individual consumers aged 18 or over may buy on the Platform. For goods sold by marketplace sellers, the seller named on the product page and in your order is the trader you contract with; for goods Gloviaa sells itself, the trader is Uboss AI Private Limited, whose details are set out in section A1. Consumers in India may return eligible products within 7 days of delivery and may approach the Consumer Commissions under the Consumer Protection Act, 2019. Consumers in the European Union have the right to withdraw from a distance contract within 14 days without giving any reason, as described in the Returns Policy.

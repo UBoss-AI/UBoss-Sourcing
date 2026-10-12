@@ -492,7 +492,7 @@
   "readiness.check.defectCodes": "Inspection defect codes",
   "readiness.check.incoterms": "Incoterms",
   "readiness.demo.demoProducts": "Demonstration catalogue products",
-  "readiness.demo.developmentTerms": "Placeholder terms published by the development setup",
+  "readiness.demo.developmentTerms": "Legal documents published with sample company details",
   "readiness.demo.seedCarrier": "The demonstration carrier",
   "readiness.demo.localAccounts": "Accounts on the test-only .local address domain",
   "notificationTemplates.title": "Notification templates",

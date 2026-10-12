@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   B2C_MAX_ORDER_QUANTITY_CEILING,
+  effectiveB2cLimit,
   findB2cViolations,
   isB2cChangeRefused,
   isB2cLimitApplicable,
@@ -150,5 +151,21 @@ describe('isB2cChangeRefused', () => {
     expect(
       isB2cChangeRefused({ kind: 'COMPANY', companyId: 'c1', companyStatus: 'UNDER_REVIEW' }, change),
     ).toBe(true);
+  });
+});
+
+describe('effectiveB2cLimit', () => {
+  it('takes the lower of the listing limit and the marketplace-wide cap', () => {
+    expect(effectiveB2cLimit(100, 5)).toBe(5);
+    expect(effectiveB2cLimit(3, 5)).toBe(3);
+  });
+
+  it('applies the cap to a listing with no limit of its own', () => {
+    expect(effectiveB2cLimit(null, 5)).toBe(5);
+  });
+
+  it('treats a cap of 0 or null as no cap', () => {
+    expect(effectiveB2cLimit(100, 0)).toBe(100);
+    expect(effectiveB2cLimit(null, null)).toBeNull();
   });
 });

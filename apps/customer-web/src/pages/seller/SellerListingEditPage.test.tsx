@@ -349,7 +349,10 @@ describe('a listing that is still on sale', () => {
     // Prices and stock still are, because those are routine changes.
     const table = screen.getByRole('table', { name: /every version of this listing/i });
     expect(within(table).getByLabelText('Price for 7')).toBeEnabled();
-    expect(within(table).getByLabelText('Stock for 7')).toBeEnabled();
+    // Stock waits for the seller's warehouses, which arrive on their own request.
+    await waitFor(() => {
+      expect(within(table).getByLabelText('Stock for 7')).toBeEnabled();
+    });
 
     await user.click(screen.getByRole('button', { name: /pause & edit/i }));
 

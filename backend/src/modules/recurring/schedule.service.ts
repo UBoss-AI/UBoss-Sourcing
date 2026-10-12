@@ -27,6 +27,7 @@
  */
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
+import { withPlatformB2cCap } from '../cart/b2c-limit.service.js';
 import { findB2cViolations } from '../../domain/b2c-order-limit.js';
 import { todayIn } from '../../domain/delivery-dates.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
@@ -729,7 +730,7 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
       productId: item.productId,
       sellerAccountId: null,
       quantity: item.quantity,
-      limit: productById.get(item.productId)?.b2cMaxOrderQuantity ?? null,
+      limit: withPlatformB2cCap(productById.get(item.productId)?.b2cMaxOrderQuantity ?? null),
     })),
   )) {
     const index = items.findIndex((item) => item.productId === violation.productId);

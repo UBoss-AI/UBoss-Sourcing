@@ -5,102 +5,100 @@ title: B2C Consumer Terms and Conditions
 ---
 Gloviaa Mart | Uboss AI Private Limited
 
-Version 1.0 | Prepared 9 October 2026 | Effective date __________________
+Version 1.0 | Effective 12 October 2026
 
-For approval before implementation or signature. Proposed commercial and operational defaults become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
-
-These terms explain consumer purchases through Gloviaa Mart operated by Uboss AI Private Limited, registered address __________________, corporate registration __________________, support contact __________________, complaints contact __________________. Effective date __________________. Consumer means a person buying for purposes protected as consumer use under applicable law. Mandatory consumer rights apply regardless of the account label or a term in this document.
+These terms explain how consumers buy goods through Gloviaa Mart, the marketplace at www.gloviaamart.com operated by Uboss AI Private Limited, a company incorporated in India with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, Corporate Identity Number U62099HR2024PTC118452, GSTIN 06AADCU4821K1Z3 ("Gloviaa", "we", "us"). You can reach customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST), and our Grievance Officer at grievance@gloviaamart.com. A consumer is a person who buys for purposes that applicable law protects as consumer use. You must be at least 18 years old to buy. Mandatory consumer rights apply regardless of the account label or a term in this document.
 
 ## 1 Who supplies your goods and services
 
-You order through Gloviaa Mart. Before you pay, each product and order identifies the actual seller and manufacturer, its address and contact route. Unless an expressly disclosed arrangement says otherwise, that seller supplies your goods and Gloviaa provides the stated platform and managed services. A basket from several sellers may create separate sale contracts. Your order confirmation and invoices identify those parties.
+You place your order through Gloviaa Mart. Before you pay, each product and each order shows the actual seller and the manufacturer, with their address and how to contact them. For marketplace listings, the seller named on the product page is the seller of record and supplies your goods, and Gloviaa provides the platform and the managed services described in these terms. For goods that Gloviaa sells itself, Uboss AI Private Limited is the seller of record. A basket containing products from several sellers may create a separate sale contract with each seller. Your order confirmation and invoices identify each of those parties.
 
-Gloviaa administers ordering payment support and any selected fulfilment services. Seller verification and independent certification relate to defined products facilities and countries and do not remove your legal rights or promise that every item is defect-free. Gloviaa remains responsible for its own services and legal obligations.
+Gloviaa administers ordering, payment, support and any fulfilment services you select. Seller verification and independent certification relate to specific products, facilities and countries. They do not reduce your legal rights and do not promise that every item is free from defects. Gloviaa remains responsible for its own services and legal obligations.
 
 ## 2 Accounts and ordering
 
-Provide accurate contact delivery and payment information and use the platform lawfully. Do not buy products for unlawful use or restricted destinations. Some products require professional status prescription licences age restrictions or other eligibility; they cannot be sold to ordinary consumers where prohibited. Verification must be appropriate and lawful.
+You must give accurate contact, delivery and payment information and use the Platform lawfully. You must not buy products for unlawful use or for delivery to restricted destinations. Some products require professional status, a prescription, a licence, a minimum age or other eligibility, and they are not sold to consumers where the law prohibits it. Any verification we carry out is appropriate and lawful.
 
-We display product characteristics intended use safety warnings seller identity full payable price applicable fees shipping charges and available cancellation and warranty information before order submission. A payment authorisation or order receipt is not necessarily acceptance. A separate confirmation identifies acceptance and seller. If an order cannot be accepted, release the payment authorisation or arrange the lawful prompt refund. Save the downloadable terms and confirmation supplied to you.
+Before you submit an order we show you the main characteristics and intended use of the product, its safety warnings, the seller's identity, the full price payable, any applicable fees, the delivery charges, and the cancellation and warranty information that applies. The countries a product can be delivered to are shown on the product page and at checkout; we deliver within India and the member states of the European Union. A payment authorisation or an order receipt does not by itself mean your order has been accepted. A separate confirmation tells you that your order has been accepted and by which seller. If an order cannot be accepted, we release the payment authorisation or refund you promptly as the law requires. Please save the terms and the confirmation we provide to you so that you can download them later.
 
 ## 3 Price payment and certification charge
 
-Display the total payable amount before the payment button, including known mandatory charges. Show any import duty or tax estimate and clearly state if you will pay a separately assessed amount, where that arrangement is lawful. Do not add optional services without express consent.
+We show the total amount you will pay, including all known mandatory charges, before you press the payment button. Where import duty or tax may apply, we show an estimate and tell you clearly if a separately assessed amount will be payable by you, where that arrangement is lawful. We never add optional services without your express consent.
 
-Any buyer-funded certification recovery charge must appear before purchase and is part of the disclosed transaction economics. It does not buy a guarantee and is not automatically nonrefundable. On lawful consumer cancellation or seller failure, refund treatment follows mandatory law; a charge cannot be retained by calling it certification or administration. Separately requested services require a stated scope and lawful consent.
+Any buyer-funded certification recovery charge is shown before you buy and forms part of the price you agree to. It does not buy a guarantee and is not automatically non-refundable. If you lawfully cancel, or the seller fails to perform, the charge is refunded as mandatory law requires; it cannot be kept simply because it is called a certification or administration charge. Any service you request separately has a stated scope and requires your lawful consent.
 
-Payments use the approved Payment Partner. Escrow availability and protection depend on its actual authorised arrangement; no blanket fund or delivery guarantee is promised. You retain applicable payment dispute and chargeback rights. We do not store full card credentials unless a compliant provider's separately consented service does so.
+Payments are processed by Stripe Payments Europe Ltd and Stripe, Inc. (cards and international payments) and by Razorpay Software Private Limited (payments in India). Gloviaa acts as the marketplace and payment facilitator. The protection of your payment depends on the provider's authorised arrangements, and we do not promise any blanket guarantee of funds or delivery. You retain applicable payment dispute and chargeback rights. We do not store your full card details; they are held only by the payment provider.
 
 ## 4 Delivery imports and risk
 
-Show dispatch and delivery expectations destinations carrier options and any known import requirements before commitment. Gloviaa coordinates logistics, and seller or the responsible service provider fulfils its stated obligations. Consumer transit risk transfers only at the point permitted by applicable consumer law, normally physical receipt by you or your nominated recipient, rather than a business Incoterm that removes protection.
+Before you commit to buy, we show the expected dispatch and delivery times, the destinations, the carrier options and any known import requirements. Gloviaa coordinates the logistics, and the seller or the responsible service provider performs its stated obligations. The risk of loss or damage in transit passes to you only at the point permitted by applicable consumer law, which is normally when you or a recipient you have nominated physically receives the goods. No business delivery term is used to take that protection away from you.
 
-Do not automatically treat every consumer as a legally qualified importer for regulated goods. Where direct-to-consumer import is lawful, clearly explain the required importer identity documents duties taxes and clearance steps before purchase and offer a support route. Where a qualified importer or local responsible person is required and not arranged, checkout is unavailable. Warehousing packaging or fulfilment may give Gloviaa additional statutory responsibilities; those responsibilities are preserved.
+We do not treat consumers as qualified importers of regulated goods. Where a direct import by a consumer is lawful, we explain clearly before you buy the importer identity documents, duties, taxes and clearance steps required, and we offer a support route. Where a qualified importer or a local responsible person is required and has not been arranged, checkout is not available. Where Gloviaa provides warehousing, packaging or fulfilment, it accepts any additional legal responsibilities that come with those activities.
 
-If delivery is delayed or goods cannot be supplied, we notify you and offer revised timing or the required cancellation and refund choices. USA shipment promises follow the applicable FTC rule; do not retain funds indefinitely while asking you to wait. EU and UK delivery and cancellation requirements apply where relevant. Refused illegal or unsafe shipments receive lawful handling and refund decisions.
+If delivery is delayed or goods cannot be supplied, we tell you and offer you a revised delivery time or the cancellation and refund choices the law requires. We do not keep your money indefinitely while asking you to wait. The delivery and cancellation requirements of Indian law and of the law of your EU member state apply where relevant. If a shipment is refused because it is illegal or unsafe, it is handled lawfully and any refund is decided in accordance with the law.
 
 ## 5 Cancellation before and after dispatch
 
-Before acceptance you may withdraw your offer through support or your account; return funds where due. After acceptance use the applicable cancellation right or displayed voluntary policy. Bespoke or specially manufactured goods may have lawful cancellation exceptions, which must be specifically disclosed before purchase and cannot remove remedies for defects.
+Before your order is accepted, you may withdraw it through your account or by contacting support, and any money already taken is returned. After acceptance, you may use the cancellation right that applies to you or the voluntary policy shown at checkout. Bespoke or specially made goods may be subject to lawful exceptions to the cancellation right. Any such exception is clearly disclosed before you buy and never removes your remedies for defects.
 
-For most qualifying EU distance purchases, you may withdraw without giving a reason within fourteen days after receiving the goods. For separately supplied services the period generally runs from contract conclusion. Where one order is delivered in parts, apply the legal commencement rule for the relevant transaction. UK qualifying distance purchases have a corresponding fourteen-day cancellation period. Country-specific mandatory rules and more favourable rights prevail.
+If you are a consumer in the European Union, for most distance purchases you may withdraw from the contract without giving any reason within 14 days after you receive the goods. For services supplied separately, the period generally runs from the day the contract is concluded. Where one order is delivered in several parts, the period starts as the law provides for that type of order. Any more favourable mandatory rule of your country prevails.
 
-Notify the seller or Gloviaa by a clear statement within the cancellation period; a sample form is supplied below but is not compulsory. For qualifying EU goods returns, return the goods within fourteen days of notifying withdrawal. Reimburse the amounts legally due, including standard outbound delivery where required, within fourteen days after withdrawal notice, subject to lawful withholding until goods or evidence of return are received. Refund by the original method unless you expressly agree otherwise without fees. Extra cost of a more expensive delivery option need not be refunded where law permits.
+You can cancel by sending a clear statement to the seller or to Gloviaa within the cancellation period; a sample form is supplied below but is not compulsory. For returns of goods from the European Union, you must send the goods back within 14 days of telling us you are withdrawing. We refund all amounts legally due, including standard outbound delivery costs where required, within 14 days after we receive your withdrawal notice; we may lawfully wait to refund until we receive the goods or proof that you have sent them back. We refund to your original payment method unless you expressly agree otherwise, and you will not pay any fee for the refund. Where the law permits, we do not refund the extra cost of a more expensive delivery option you chose.
 
-You pay change-of-mind return postage only if told beforehand and law permits; disclose an estimate for goods that cannot normally be posted. Seller-fault or defective-goods returns are handled at the responsible supplier's cost as required. You may inspect goods as you would in a shop; a deduction for diminished value is permitted only on the legal basis and with evidence, not a standard restocking penalty.
+You pay the cost of returning goods because you changed your mind only if we told you this before you bought and the law permits it. For goods that cannot normally be sent by post, we give you an estimate of the return cost in advance. Returns of faulty or defective goods, or goods sent in error, are at the cost of the responsible supplier as the law requires. You may handle and inspect goods as you would in a shop. A deduction for reduced value is made only where the law allows it and only with evidence; we do not charge a standard restocking fee.
 
-Exceptions such as genuinely personalised goods certain perishables sealed hygiene goods unsealed after delivery and qualifying digital content require item-specific legal review and pre-purchase disclosure. A catalogue category name alone is not an exception. Services begun during a cancellation period need your express request and required information; proportionate charges or loss of cancellation rights arise only when all applicable legal conditions are met.
+Exceptions to the cancellation right, such as genuinely personalised goods, certain perishable goods, sealed hygiene goods unsealed after delivery and certain digital content, apply only where the law allows them for that particular item and where they were disclosed to you before you bought it. The name of a catalogue category is not, on its own, an exception. A service begins during the cancellation period only at your express request and after you have been given the required information; you pay a proportionate amount, or lose the right to cancel, only when all the legal conditions for that are met.
 
 ## 6 Voluntary returns and defective goods
 
-The proposed platform voluntary return window is fourteen days after delivery for eligible products in markets without a broader legal right, subject to disclosed condition and exclusions. This supplements mandatory rights. Do not present a thirty-day platform claim window as a statutory limitation.
+If you are a consumer in India, you may return eligible products within 7 days from delivery, subject to the condition requirements and exclusions shown on the product page. Consumers in the European Union have the 14-day right of withdrawal described in section 5. These return windows are in addition to your mandatory rights, and no time limit set by the Platform replaces a legal limitation period. Approved refunds are made within 14 days of approval, to the original payment method.
 
-For defective wrong unsafe counterfeit or nonconforming goods, contact support with order and problem details. Available repair replacement price reduction refund warranty and recall remedies depend on applicable law and facts; an optional commercial warranty does not replace statutory protection. EU goods generally have a minimum two-year legal guarantee, with country rules potentially more favourable; UK and US remedies require their own country or state assessment. Seller must provide appropriate support; Gloviaa administers cases and fulfils its own duties.
+If goods are defective, wrong, unsafe, counterfeit or do not match their description, contact support at support@gloviaamart.com or returns@gloviaamart.com with your order number and details of the problem. The remedies available to you, such as repair, replacement, price reduction, refund, warranty and recall, depend on the applicable law and the facts. An optional commercial warranty does not replace your statutory protection. In the European Union, goods generally have a legal guarantee of at least two years, and the rules of your country may be more favourable. The seller must provide appropriate support, and Gloviaa administers the case and performs its own duties.
 
-Report safety problems immediately and stop using suspected unsafe goods. Preserve packaging lot numbers and evidence where reasonable. Lack of original packaging does not automatically defeat a valid statutory defect claim. Remedies cannot depend solely on the seller agreeing or an insurer paying.
+Report any safety problem immediately and stop using goods you suspect are unsafe. Keep the packaging, lot numbers and other evidence where reasonable. The absence of the original packaging does not by itself defeat a valid legal claim for a defect. Your remedies never depend only on the seller agreeing or on an insurer paying.
 
 ## 7 Claims refunds and complaints
 
-The ordinary platform target is acknowledgement within one business day, seller response within seventy-two hours, and an initial decision within seven days after sufficient evidence. Complex cases receive updates at least every seven days. Faster statutory periods apply. You can appeal an administrative decision within seven days, but this is not the deadline for legal claims.
+We aim to acknowledge your claim within one business day, to obtain the seller's response within seventy-two hours, and to make an initial decision within seven days after we have enough evidence. For complex cases we update you at least every seven days. Any shorter period set by law applies instead. You can appeal a decision made on the Platform within seven days, but this is not a deadline for bringing a legal claim.
 
-We ask only for proportionate evidence and provide a usable return route. Refund approved amounts through the Payment Partner promptly within applicable legal deadlines. We identify the responsible seller or service supplier and explain the decision. You may contact a regulator competent consumer court eligible ADR body or payment provider as permitted by law; platform procedures do not require you to waive those routes.
+We ask only for evidence that is proportionate to your claim, and we provide a practical way to return goods. Approved refunds are paid through the payment provider promptly and within the legal deadlines, and in any event within 14 days of approval. We tell you which seller or service provider is responsible and explain our decision. You may contact a regulator, a competent consumer court or Consumer Commission, an eligible alternative dispute resolution body or your payment provider as the law permits; using our procedures never requires you to give up those routes.
 
-India-facing consumer complaints require the applicable grievance-officer disclosures and timelines, including acknowledgement within forty-eight hours and redress within one month under the relevant e-commerce rules. Final appointed grievance officer name address and contact __________________.
+Our Grievance Officer is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801. In line with the Consumer Protection (E-Commerce) Rules, 2020, the Grievance Officer acknowledges your complaint within forty-eight hours and resolves it within one month of receiving it.
 
 ## 8 AI tools repeat orders and privacy
 
-AI answers are generated assistance; they do not replace confirmed product specifications safety instructions or professional advice where needed. Material product assertions must be verified. Recurring purchases and autopay require your specific consent to frequency limits price handling and cancellation. You may stop future scheduled orders or revoke a mandate through the disclosed route; accepted orders retain lawful cancellation rights.
+Answers from the AI shopping assistant are generated assistance. They do not replace the confirmed product specifications, the safety instructions or professional advice where it is needed, and you should check any important statement about a product against the product page. Recurring purchases and autopay require your specific consent to frequency limits price handling and cancellation. You may stop future scheduled orders or cancel a mandate at any time in your account; orders already accepted keep their lawful cancellation rights.
 
-We process personal data under the separate privacy notice for orders payments delivery support security and legal compliance. Essential providers receive only necessary information. Marketing consent is separate where required. Privacy contact __________________. No clause authorises unrestricted international data transfers or use of personal data in public AI services.
+We process personal data as described in the Gloviaa Privacy Policy, to handle orders, payments, delivery, support, security and legal compliance. Providers that are essential to these services receive only the information they need. Marketing consent is separate where required. You can contact our Data Protection Officer, Ms Priya Nair, at privacy@gloviaamart.com or at our registered office. No clause authorises unrestricted international data transfers or use of personal data in public AI services.
 
 ## 9 Responsibility and fair contract terms
 
-Seller is accountable for its goods; Gloviaa is accountable for the services and statutory duties it undertakes. Nothing excludes mandatory rights product-safety duties required refunds liability for fraud or other liability that cannot lawfully be excluded. The commercial B2B fee cap indemnities arbitration and short acceptance deadlines do not apply to consumers automatically.
+The seller is responsible for its goods, and Gloviaa is responsible for the services and legal duties it takes on. Nothing in these terms excludes your mandatory rights, product-safety duties, refunds that are required by law, liability for fraud, or any other liability that cannot lawfully be excluded. The commercial B2B fee cap indemnities arbitration and short acceptance deadlines do not apply to consumers automatically.
 
-You must provide accurate information and use goods lawfully; any claim against you must have a lawful proportionate basis. We may restrict fraudulent abusive illegal or unsafe activity and explain the decision where permitted. Restriction does not eliminate valid refunds complaints or warranties. Material future changes apply prospectively; an already confirmed order cannot be changed without your agreement except where law allows.
+You must provide accurate information and use goods lawfully, and any claim against you must have a lawful and proportionate basis. We may restrict fraudulent, abusive, illegal or unsafe activity and will explain our decision where the law permits. A restriction does not remove any valid refund, complaint or warranty. We give you at least 30 days' notice by email and on the Platform before a material change to these terms takes effect, although changes required by law or for security may take effect sooner. Changes apply only to future orders; an order already confirmed cannot be changed without your agreement except where the law allows.
 
 ## 10 Applicable law and dispute routes
 
-These terms propose Indian law for platform administration only to the extent it does not deprive you of mandatory protection in the country applicable to your purchase. You retain courts and dispute routes required by consumer law. No mandatory New Delhi arbitration or exclusive India court clause is imposed on protected consumer disputes. Market-specific contact ADR and language disclosures must be completed before a country is enabled.
+These terms are governed by the laws of India. This does not take away the protection given to you by the mandatory law of the country where you live. If you are a consumer in India, you may bring a complaint before the Consumer Commissions under the Consumer Protection Act, 2019. If you are a consumer in the European Union, you keep the mandatory protections of your country of residence and the right to bring proceedings in the courts of that country. Arbitration never applies to consumers, and no exclusive court clause is imposed on consumer disputes. The English version of these terms prevails, except where mandatory law entitles you to rely on the version in your own language.
 
 ## 11 Model withdrawal notice
 
-To seller name and address __________________ or Gloviaa cancellation contact __________________.
+To: the seller named in your order confirmation, or Gloviaa Mart, returns@gloviaamart.com, at our registered office.
 
-I hereby give notice that I withdraw from my contract for the following goods or services __________________.
+I hereby give notice that I withdraw from my contract for the following goods or services: (insert the goods or services).
 
-Order number __________________.
+Order number: (insert order number).
 
-Ordered on __________________.
+Ordered on: (insert date ordered).
 
-Received on __________________.
+Received on: (insert date received).
 
-Consumer name __________________.
+Consumer name: (insert your name).
 
-Consumer address __________________.
+Consumer address: (insert your address).
 
-Signature if on paper __________________.
+Signature, if this form is sent on paper: (insert signature).
 
-Date __________________.
+Date: (insert date).
 
-You may use another clear statement instead. Consumer purchase terms and country disclosures must be accessible in the applicable language and supplied on a durable medium as required. Complete support privacy grievance and return contacts before publication.
+You may use any other clear statement instead of this form. These terms and the information for your country are available in the applicable language and are supplied to you on a durable medium, such as email or a downloadable document, as the law requires.

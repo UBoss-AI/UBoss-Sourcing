@@ -17,6 +17,9 @@ beforeAll(async () => {
   const product = await prisma.product.findFirstOrThrow({ where: { slug: { startsWith: PREFIX }, status: 'ACTIVE', isPublished: true }, select: { id: true, sku: true } });
   sku = product.sku;
   productId = product.id;
+  // The upload is for business buying: the owner acts for the fixture's approved company.
+  const switched = await as(world, world.owner, 'PUT', '/auth/buyer-context', { kind: 'COMPANY', companyId: world.companyId });
+  expect(switched.statusCode, switched.body).toBe(200);
 }, 240_000);
 
 afterAll(async () => {
@@ -25,7 +28,7 @@ afterAll(async () => {
 });
 
 const send = (fileName: string, text: string) =>
-  as(world, world.buyer, 'POST', '/cart/items/upload/preview', { fileName, contentBase64: Buffer.from(text).toString('base64') });
+  as(world, world.owner, 'POST', '/cart/items/upload/preview', { fileName, contentBase64: Buffer.from(text).toString('base64') });
 
 describe('SKU list upload (ENH-016)', () => {
   it('resolves a CSV with headers into lines and reports every unusable row', async () => {
@@ -49,6 +52,11 @@ describe('SKU list upload (ENH-016)', () => {
     expect(capped.problems.filter((p) => p.code === 'TOO_MANY_LINES')).toHaveLength(2);
     expect((await send('list.pdf', 'a,b')).statusCode).toBe(400);
     expect(() => readRows('big.csv', Buffer.alloc(1_000_001))).toThrow();
+  });
+  it('is refused on a personal account (B2C)', async () => {
+    const response = await as(world, world.buyer, 'POST', '/cart/items/upload/preview', { fileName: 'order.csv', contentBase64: Buffer.from(`${sku},2`).toString('base64') });
+    expect(response.statusCode).toBe(403);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe('BUYER_CONTEXT_COMPANY_REQUIRED');
   });
   it('never touches the cart and needs a signed-in customer', async () => {
     const before = await prisma.cartItem.count();

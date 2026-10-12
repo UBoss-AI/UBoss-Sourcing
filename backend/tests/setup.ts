@@ -59,6 +59,11 @@ process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
 // different TOTP for every helper login; dedicated MFA tests cover that gate.
 process.env.FEATURE_ADMIN_MFA = 'false';
 
+// The marketplace-wide B2C cap (5 by default) would refuse most fixtures,
+// which add far more than five of a thing as an individual. Off for the
+// suite; b2c-max-order-quantity.test.ts turns it on where it is the subject.
+process.env.B2C_PLATFORM_MAX_ORDER_QUANTITY = '0';
+
 // The agreement screen after sign-in, for the same reason: every suite that
 // signs somebody in would first have to publish Terms and a Privacy Policy and
 // accept both. `agreement-gate.test.ts` switches it back on for itself.

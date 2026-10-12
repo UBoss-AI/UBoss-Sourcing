@@ -13,6 +13,7 @@
 import { useEffect, useId, useRef } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import { Button } from './ui';
+import { ScrollArea } from './ui/scroll-area';
 import { cx } from '@/lib/cx';
 import { lockPageScroll } from '@/lib/scroll-lock';
 import { useI18n } from '@/i18n/i18n-context';
@@ -180,20 +181,18 @@ export function Modal({
           nobody reports and everybody notices. An attribute rather than a
           forwarded ref, so a caller ten components deep can find it without
           every layer in between having to pass one down. */}
-      <div
-        ref={bodyRef}
-        data-dialog-body
-        {...(bodyLabel === undefined ? {} : { tabIndex: 0, role: 'region', 'aria-label': bodyLabel })}
-        className={cx(
-          'min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-4 sm:px-6',
-          // A text region is focusable, so it shows where focus is; and it is
-          // `relative` so nothing visually hidden inside it escapes the clip.
-          bodyLabel !== undefined &&
-            'relative focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand',
-        )}
+      <ScrollArea
+        className="min-h-0 flex-1"
+        viewportRef={bodyRef}
+        focusable={bodyLabel !== undefined}
+        {...(bodyLabel === undefined ? {} : { label: bodyLabel })}
+        viewportProps={{
+          'data-dialog-body': '',
+          className: 'relative scroll-pane px-4 py-4 sm:px-6',
+        }}
       >
         {children}
-      </div>
+      </ScrollArea>
 
       {footer !== undefined && (
         <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">

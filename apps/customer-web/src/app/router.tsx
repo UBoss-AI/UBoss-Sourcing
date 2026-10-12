@@ -16,6 +16,7 @@
  */
 import { Suspense } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { withPageTransitions } from '@/lib/page-transitions';
 import { RequireCustomer } from '@/auth/RequireCustomer';
 import { StoreLayout } from '@/layout/StoreLayout';
 import { StoreAgreementGate } from '@/layout/StoreAgreementGate';
@@ -100,7 +101,7 @@ function accountPage(load: () => Promise<PageComponent>): LazyRoute {
   };
 }
 
-export const router = createBrowserRouter([
+const routes = createBrowserRouter([
   {
     path: '/',
     // The agreement screen covers the whole frame for a signed-in buyer who
@@ -1019,3 +1020,6 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+/** Every in-app page change cross-fades. See `lib/page-transitions.ts`. */
+export const router = withPageTransitions(routes);

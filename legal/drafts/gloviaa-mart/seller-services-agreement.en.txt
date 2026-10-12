@@ -5,184 +5,184 @@ title: Seller Platform Services Agreement
 ---
 Gloviaa Mart | Uboss AI Private Limited
 
-Version 1.0 | Prepared 9 October 2026 | Effective date __________________
+Version 1.0 | Effective 12 October 2026
 
-For approval before implementation or signature. Proposed commercial and operational defaults become binding only when adopted and disclosed. Mandatory law and applicable payment-provider rules prevail.
+Mandatory law and the rules of the payment providers named in this agreement prevail over anything in it that conflicts with them.
 
-This agreement is entered on __________________ between Uboss AI Private Limited operating Gloviaa Mart, a company incorporated in India, registered office __________________, corporate registration __________________, tax registration __________________, called Gloviaa, and seller legal name __________________, Indian registered office __________________, company registration __________________, PAN __________________, GST __________________, IEC __________________, called Seller. Each party acts through the authorised signatory below.
+This agreement is made between Uboss AI Private Limited, a company incorporated in India, Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, GSTIN 06AADCU4821K1Z3, PAN AADCU4821K, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, which operates the marketplace Gloviaa Mart at www.gloviaamart.com ("Gloviaa"), and the seller whose legal name, Indian registered office, company registration number, PAN, GSTIN and Importer-Exporter Code are recorded in its verified Seller Hub account ("Seller"). This agreement takes effect on the date on which Seller's authorised signatory accepts it on the Platform. Each party acts through an authorised signatory.
 
 ## 1 Appointment and purpose
 
-Seller appoints Gloviaa on a non-exclusive basis to host approved listings receive and administer orders and perform the services expressly included in the schedules. Seller is the supplier of goods and exporter of record. Seller retains product ownership until transfer under the sale contract and bears its manufacturing product and export responsibilities. Gloviaa does not become buyer reseller manufacturer or importer merely because it administers transactions; any different arrangement requires a signed legally reviewed amendment.
+Seller appoints Gloviaa, on a non-exclusive basis, to host Seller's approved listings, to receive and administer orders, and to perform the services expressly included in the schedules to this agreement. Seller is the supplier of the goods and the exporter of record. Seller keeps ownership of its products until ownership passes to the buyer under the sale contract, and Seller bears all manufacturing, product and export responsibilities. Gloviaa does not become a buyer, reseller, manufacturer or importer merely because it administers transactions. Any different arrangement requires a written amendment signed by both parties after legal review.
 
-Seller authorises Gloviaa as disclosed limited agent to accept orders only within Schedule B limits and to arrange identified third-party services. No authority exists to change seller price create credit settle litigation make regulatory declarations outside a broker mandate or bind Seller beyond those limits. Buyer-facing documents disclose the actual goods seller and Gloviaa service provider.
+Seller authorises Gloviaa to act as its disclosed and limited agent to accept orders only within the limits set out in Schedule B and to arrange identified third-party services. Gloviaa has no authority to change Seller's prices, to grant credit, to settle litigation, to make regulatory declarations outside a separate broker mandate, or to bind Seller beyond those limits. Documents issued to buyers disclose both the actual seller of the goods and Gloviaa as the service provider.
 
 ## 2 Conditions precedent
 
-No trading access until legal status Indian manufacturing or brand rights turnover at least INR 30 crore internal verification independent certification product-country clearance insurance and signed payment mandates have passed. Gloviaa records the approved facilities products countries and channels in Schedule A. Conditions continue throughout the term. An expired or suspended requirement blocks affected new orders and scheduled purchases.
+Seller has no trading access until all of the following have been verified and passed: its legal status; its Indian manufacturing or brand rights; an annual turnover of at least INR 30 crore; Gloviaa's internal verification; independent certification; clearance of each product for each destination country; insurance; and signed payment mandates. Gloviaa records the approved facilities, products, countries and sales channels in Schedule A. These conditions must continue to be met throughout the term. If any requirement expires or is suspended, new orders and scheduled purchases affected by it are blocked until it is restored.
 
 ## 3 Services and standards
 
-Schedule B must specify whether Gloviaa performs a task itself or appoints a provider, the deliverable, standard, dependencies, responsible party and fee. Available services include supplier assessment sourcing inspection order administration warehousing packaging shipping customs coordination installation and after-sales administration. Gloviaa exercises reasonable skill and care in services it undertakes. An inspection is limited to its agreed sample method and scope; it does not guarantee all units or relieve Seller of conformity.
+Schedule B specifies, for each service, whether Gloviaa performs the task itself or appoints a provider, together with the deliverable, the standard, the dependencies, the responsible party and the fee. The services available include supplier assessment, sourcing, inspection, order administration, warehousing, packaging, shipping, customs coordination, installation and after-sales administration. Gloviaa exercises reasonable skill and care in the services it undertakes. An inspection is limited to its agreed sampling method and scope. It does not guarantee every unit and does not relieve Seller of its obligation to supply conforming goods.
 
-Seller provides accurate specifications documents access stock availability manufacturing capacity and trained contacts. Gloviaa selects competent logistics and technical partners and provides instructions within authority. Provider liability and insurance must be preserved through partner contracts; Gloviaa cannot disclaim its own obligations simply by subcontracting. No operational service begins without lawful local permissions.
+Seller provides accurate specifications and documents, access to its sites, information on stock availability and manufacturing capacity, and trained contact persons. Gloviaa selects competent logistics and technical partners and gives them instructions within its authority. Gloviaa keeps the liability and insurance of those providers in place through its partner contracts, and Gloviaa cannot avoid its own obligations simply by subcontracting them. No operational service begins until the lawful local permissions it needs are in place.
 
 ## 4 Fees invoices and certification funding
 
-Schedule C contains the binding commercial arrangement. Commission applies to net accepted goods value after seller-funded discounts and excludes itemised taxes duties freight insurance and buyer service fees. State commission percentage by category and B2B or B2C tier; do not leave blank when trading begins. Optional subscription onboarding and service fees must identify deliverables and refund treatment.
+Schedule C and the Seller Hub fee schedule contain the binding commercial arrangement. Commission is charged on the net value of accepted goods after any discounts funded by Seller, and excludes separately itemised taxes, duties, freight, insurance and buyer service fees. The commission percentage for each product category, and for the B2B and B2C tiers, is set out in the Seller Hub fee schedule and is shown to Seller before trading begins. Any optional subscription, onboarding or service fee identifies what Seller receives for it and how a refund of it is treated.
 
-Gloviaa appoints and pays independent certification bodies. The agreed buyer-funded recovery is disclosed before order placement and attributed in the ledger to the relevant programme; it is not imposed on a buyer retrospectively. Seller-specific retesting re-audit or remediation costs are payable by Seller only under the agreed fault-based schedule. No fee buys approval. Supplier-fault cancellations reverse relevant commission and return unearned service amounts under adopted terms.
+Gloviaa appoints and pays independent certification bodies. Any recovery of certification costs funded by buyers is disclosed to the buyer before the order is placed and is recorded in the ledger against the relevant certification programme. It is never imposed on a buyer after the order. Seller pays for retesting, re-audit or remediation that relates specifically to Seller only where the fault-based schedule in Schedule C makes Seller responsible. No fee buys approval. Where an order is cancelled because of the supplier's fault, the commission on it is reversed and any service amounts not yet earned are returned in accordance with Schedule C.
 
-Invoices separately identify platform services taxes and pass-through expenses. Currency conversion method and payment processing allocation are agreed before orders. Disputes about an invoice must identify specific lines; undisputed sums remain due. No unannounced double charging of freight or certification.
+Invoices show platform service fees, taxes and pass-through expenses as separate items. The method of currency conversion and the allocation of payment processing costs are set out in the Seller Hub fee schedule before any order is accepted. A dispute about an invoice must identify the specific lines disputed, and undisputed amounts remain payable. Freight and certification costs are never charged twice, and no charge is made that has not been disclosed to Seller in advance.
 
 ## 5 Escrow settlement and security
 
-Payment Partner name and authorisation __________________. Bank and account structure __________________. Separate provider agreement reference __________________. Seller accepts provider onboarding and settlement terms. Gloviaa may transmit allocation refund and hold instructions only as permitted; this agreement creates no unlicensed payment service or right to appropriate protected goods funds.
+Payments are collected and paid out through Gloviaa's authorised payment partners: Stripe Payments Europe Ltd and Stripe, Inc. (cards, international payments and seller payouts through Stripe Connect) and Razorpay Software Private Limited (India). Funds are held and settled in the bank and account structure operated by those providers under their own authorisations. Seller accepts the onboarding and settlement terms of the relevant provider, which Seller agrees to separately when it connects its payout account in the Seller Hub. Gloviaa may send allocation, refund and hold instructions to a provider only as that provider's terms permit. This agreement does not create any unlicensed payment service and gives Gloviaa no right to appropriate funds held for goods.
 
-Schedule D records payout milestones permitted deductions reserve percentage cap duration dispute handling and release. Mandatory settlement deadlines override commercial holds. Security may be a separate guarantee or other approved collateral where prolonged retention of proceeds is unavailable. Give reasons for risk holds when lawful, review at least monthly and release excess promptly. Deposits or guarantees are refundable or discharged after covered exposures end subject to evidenced claims.
+Schedule D records the payout milestones, the deductions permitted, the reserve percentage, its cap and duration, the handling of disputes and the release of funds. Settlement deadlines required by law or by the provider override any commercial hold. Where proceeds cannot lawfully be held for a long period, security may be provided by a separate guarantee or other approved collateral. Gloviaa gives reasons for a risk hold where it is lawful to do so, reviews each hold at least once a month, and promptly releases any amount that exceeds the exposure it covers. Deposits and guarantees are refunded or discharged once the exposures they cover have ended, subject to any claims supported by evidence.
 
 ## 6 Product compliance warranties and territory
 
-Seller warrants goods are authentic new unless specifically agreed fit for the expressly accepted intended use conform to specifications free from manufacturing defects and lawfully marketable in each approved country. It holds required licences technical files labels declarations brand rights and traceability. It meets all recall incident and regulator-cooperation duties assigned by law. Gloviaa approval does not create authorisation in an unapproved country.
+Seller warrants that its goods are authentic; are new unless otherwise specifically agreed; are fit for the intended use that has been expressly accepted; conform to their specifications; are free from manufacturing defects; and may lawfully be marketed in each approved country. Seller holds every required licence, technical file, label, declaration and brand right, and maintains traceability. Seller performs every recall, incident-reporting and regulator-cooperation duty that the law assigns to it. Gloviaa's approval of a product does not authorise its sale in a country that has not been approved.
 
-For OEM orders use Schedule E to allocate designs tooling intellectual property samples acceptance tests manufacturing approvals and confidentiality. No change to factory materials critical process formulation design or safety software without approval and revalidation. Seller controls downstream claims and instructions and must not make unsupported certification representations.
+For OEM orders, Schedule E allocates designs, tooling, intellectual property, reference units, acceptance tests, manufacturing approvals and confidentiality. Seller must not change the factory, materials, any critical process, the formulation, the design or any safety software without prior approval and revalidation. Seller controls the claims and instructions that accompany its goods downstream and must not make any representation about certification that it cannot support.
 
 ## 7 Transport custody title and import responsibilities
 
-Default international B2B sale term is DAP named destination Incoterms 2020 with Seller exporter and Buyer importer. Seller bears transport risk to the specified DAP point ready for unloading, regardless of who books carriage. Buyer pays import duties taxes clearance and unloading unless the accepted order lawfully provides otherwise. Gloviaa logistics costs and coordination charges are funded by Seller under Schedule C and may be reflected in the buyer's disclosed delivery price; reconciliation prevents duplicate recovery.
+The default term of sale for international B2B orders is DAP (named place of destination) under Incoterms 2020, with Seller as exporter and the buyer as importer. Seller bears the transport risk until the goods are made available at the named DAP place, ready for unloading, regardless of which party books the carriage. The buyer pays import duties, taxes, clearance and unloading unless the accepted order lawfully provides otherwise. Gloviaa's logistics and coordination charges are paid by Seller under Schedule C and may be included in the delivery price disclosed to the buyer. Reconciliation ensures that the same cost is never recovered twice.
 
-Each custody leg identifies goods count seal condition temperature and risk owner. Cargo insurance is separately arranged where appropriate. Gloviaa or warehouse liability for a custody breach follows the services scope law and insurance; seller remains responsible for pre-existing defects. Title passage is separately stated in the goods order and is not defined by Incoterms. B2C risk and import disclosures follow mandatory consumer law and the consumer terms.
+For each leg of custody, the records identify the goods, the count, the seal, the condition, the temperature where relevant, and the party bearing the risk. Cargo insurance is arranged separately where appropriate. Liability of Gloviaa or a warehouse for a breach of custody follows the agreed scope of services, the law and the insurance in place, and Seller remains responsible for defects that existed before custody began. The passing of ownership is stated separately in the goods order and is not determined by Incoterms. For B2C sales, risk and import disclosures follow mandatory consumer law and the Gloviaa consumer terms.
 
 ## 8 Complaints recalls and insurance
 
-Seller responds to ordinary cases within seventy-two hours, reports serious safety events immediately under applicable deadlines and follows the recall playbook. It funds reasonable attributable goods remedies and investigation costs. Gloviaa administers cases and payment instructions without preventing regulator or court access. Settlement recovery is limited to actual supported amounts and lawful set-off.
+Seller responds to ordinary complaints within seventy-two hours, reports serious safety events immediately and within any deadline set by applicable law, and follows the recall procedure. Seller pays for reasonable remedies relating to the goods and for investigation costs to the extent they are attributable to Seller. Gloviaa administers cases and payment instructions and does not prevent any party from approaching a regulator or a court. Any recovery in a settlement is limited to amounts actually incurred and supported by evidence, and to lawful set-off.
 
-Required policy limits territories exclusions deductibles additional-insured endorsements and expiry appear in Schedule F. Product liability and recall insurance are mandatory within Approved Scope. An insurer refusal does not remove Seller's obligations. Seller provides renewal evidence before expiry and promptly reports cover reductions or cancellation.
+Schedule F sets out the required policy limits, territories, exclusions, deductibles, additional-insured endorsements and expiry dates. Product liability insurance and recall insurance are mandatory for every product within the approved scope. A refusal by an insurer to pay does not remove any of Seller's obligations. Seller provides evidence of renewal before each policy expires and promptly reports any reduction or cancellation of cover.
 
 ## 9 Confidentiality data and intellectual property
 
-Protect confidential commercial technical customer and assessment information with reasonable controls. Exceptions cover information lawfully public independently developed or received without restriction. Compelled disclosures receive notice where lawful. Confidentiality survives five years after termination; trade secrets remain protected while confidential.
+Each party protects the other's confidential commercial, technical, customer and assessment information with reasonable controls. This obligation does not apply to information that is lawfully public, that a party developed independently, or that it received without restriction. Where a party is legally compelled to disclose confidential information, it notifies the other party first where it is lawful to do so. Confidentiality obligations survive for five years after termination, and trade secrets remain protected for as long as they remain confidential.
 
-Seller grants a non-exclusive licence for supplied listing content for platform operation and approved marketing, warrants rights and reviews translated safety claims. Buyer data cannot be sold or used for unrelated marketing. Apply required processor and international-transfer terms; AI assessment needs source evidence and human decisions. Personal data retention follows the relevant legal purpose rather than a blanket commercial archive period.
+Seller keeps ownership of the listing content it supplies and grants Gloviaa a non-exclusive, worldwide, royalty-free licence to host, store, reproduce, display, resize, translate and format that content in order to operate and promote the marketplace and for approved marketing. The licence lasts for as long as the content is on the Platform, plus a reasonable period for backups and legal records. It does not permit Gloviaa to use the content to train general-purpose AI models or in third-party advertising without Seller's separate consent. Seller warrants that it holds the rights to the content it supplies and reviews any translated safety claims. Gloviaa is an independent controller of platform data. Seller is an independent controller of the buyer data it receives to fulfil an order, and must use that data only for that order; Seller must not sell buyer data or use it for unrelated marketing. Both parties apply any processor and international-transfer terms required by law. Any AI-assisted assessment must be based on source evidence, and decisions are taken by people. Personal data is retained only for as long as its legal purpose requires, rather than under a general commercial archive period.
 
 ## 10 Indemnity and limitations
 
-Seller indemnifies Gloviaa for third-party claims and reasonable documented loss caused by seller defective unsafe counterfeit infringing or unlawful goods inaccurate declarations export breach recall or other Seller breach. Exclude the portion caused by Gloviaa's own breach negligence fraud or wilful misconduct. Provide prompt claim notice reasonable defence control and cooperation; no settlement imposing Gloviaa admissions non-monetary obligations or unprotected liability without consent.
+Seller indemnifies Gloviaa against third-party claims, and against reasonable documented losses, caused by goods supplied by Seller that are defective, unsafe, counterfeit, infringing or unlawful, by inaccurate declarations, by a breach of export rules, by a recall, or by any other breach by Seller. This indemnity does not cover any part of a loss caused by Gloviaa's own breach, negligence, fraud or wilful misconduct. Gloviaa gives Seller prompt notice of a claim and reasonable control of its defence, and cooperates in it. Seller must not settle any claim in a way that requires an admission by Gloviaa, imposes a non-monetary obligation on Gloviaa or leaves Gloviaa exposed to unprotected liability, without Gloviaa's consent.
 
-Proposed cap for Gloviaa ordinary contractual service liability is seller-paid or payable Gloviaa service fees for the twelve months preceding the event; pass-through costs taxes and goods funds are excluded. Exclude indirect losses where lawful, without excluding covered third-party indemnity claims. Cap and exclusions do not restrict fraud wilful misconduct gross negligence unlawfully excluded injury safeguarding or returning funds non-excludable statutory duties or confidentiality data and intellectual-property breaches. Seller's goods safety warranty recall and indemnity obligations are not subject to that cap. Adopt only after jurisdictional legal review.
+Gloviaa's total liability for ordinary contractual claims relating to its services is limited to the total fees paid by Seller to Gloviaa in the twelve months before the event giving rise to the claim. Pass-through costs, taxes and funds for goods are not fees for this purpose. To the extent the law allows, neither party is liable for indirect losses, but this exclusion does not apply to third-party claims covered by an indemnity. The cap and the exclusions do not limit liability for fraud, wilful misconduct, gross negligence, death or personal injury caused by negligence, the safeguarding or return of funds, statutory duties that cannot be excluded, breaches of confidentiality, data protection or intellectual property, or any other liability that cannot be limited by law. Seller's warranty, safety, recall and indemnity obligations for its goods are not subject to the cap.
 
 ## 11 Term termination and unresolved orders
 
-Initial term is one year from effectiveness, renewable by agreement or recorded renewal acceptance. Renewal requires all eligibility conditions and scope evidence to remain valid. Either party may terminate for convenience on thirty days' notice. Ordinary material breach has fifteen days to cure; illegality critical safety fraud or loss of mandatory authorisation permits immediate suspension or termination.
+The initial term is one year from the date this agreement takes effect. It may be renewed by agreement or by a renewal acceptance recorded on the Platform. Renewal requires every eligibility condition and all scope evidence to remain valid. Either party may terminate this agreement for convenience on thirty days' written notice. A party in material breach has fifteen days from notice to remedy it. Illegality, a critical safety issue, fraud or the loss of a mandatory authorisation entitles Gloviaa to suspend or terminate this agreement immediately.
 
-Termination stops new orders while preserving accepted lawful orders refunds complaints warranties recalls evidence and accrued payment duties. Produce a closing statement and release collateral and undisputed amounts according to provider rules and covered exposure. Data and content are removed or retained according to law and agreed purposes. No automatic security forfeiture.
+On termination, no new orders are accepted, but accepted lawful orders, refunds, complaints, warranties, recalls, evidence and accrued payment obligations continue to be honoured. Gloviaa produces a closing statement and releases collateral and undisputed amounts in accordance with the provider's rules and the exposure that remains covered. Data and content are removed or retained in accordance with the law and the agreed purposes. Security is never forfeited automatically.
 
 ## 12 Disputes notices and precedence
 
-Proposed law Indian law subject to mandatory destination obligations. First escalate for fifteen days, then use arbitration under the Arbitration and Conciliation Act 1996 with one mutually appointed arbitrator and statutory appointment if agreement fails. Proposed seat New Delhi India; approved seat __________________; language English. Competent courts may grant lawful interim relief and hear non-arbitrable matters. Neither party appoints the sole arbitrator unilaterally.
+This agreement is governed by the laws of India, subject to any mandatory obligations of the destination country. Subject to the arbitration agreement below, the courts at New Delhi, India have exclusive jurisdiction. The parties first escalate any dispute to their authorised representatives for fifteen days of good-faith discussion. If the dispute is not resolved, it is referred to arbitration under the Arbitration and Conciliation Act, 1996 before a sole arbitrator appointed by mutual agreement, or through the statutory appointment process if the parties cannot agree. Neither party may appoint the sole arbitrator alone. The seat and venue of arbitration is New Delhi, India, and the language is English. The courts may still grant lawful interim relief and hear matters that cannot be arbitrated.
 
-Notices Seller __________________ and Gloviaa __________________. Written signed or expressly accepted versioned electronic amendments only. Force majeure requires notice mitigation and a lawful disposition of delayed orders; it does not excuse required refunds. Assignment by Seller requires consent; Gloviaa successor assignment preserves obligations. No employment partnership general agency or joint venture is created.
+Notices to Seller are sent to the email address and registered office recorded in Seller's verified Seller Hub account. Notices to Gloviaa are sent to legal@gloviaamart.com and by post to its registered office. This agreement may be amended only in writing, either signed or accepted electronically as a new version on the Platform. A party relying on force majeure must give notice, take reasonable steps to mitigate, and deal with delayed orders lawfully; force majeure does not excuse any refund that is due. Seller may not assign this agreement without Gloviaa's consent. Gloviaa may assign it to a successor that takes over its obligations. Nothing in this agreement creates employment, a partnership, a general agency or a joint venture.
 
-Mandatory law prevails. This agreement and signed schedules govern Gloviaa Seller services; seller terms supplement account duties; confirmed orders govern goods specifics. Conflicting seller goods terms cannot bind Gloviaa without explicit acceptance or limit consumer rights. No website update silently overrides a negotiated signed schedule.
+Mandatory law prevails. This agreement and its schedules govern the services Gloviaa provides to Seller. The Gloviaa seller terms supplement Seller's account obligations, and confirmed orders govern the specific details of the goods. Seller's own terms for its goods do not bind Gloviaa unless Gloviaa expressly accepts them, and they cannot limit consumer rights. No update to the website overrides a schedule that has been individually negotiated and accepted, unless Seller accepts the change.
 
 ## Schedule A Approved scope
 
-Seller and financial year turnover __________________.
+Seller's identity and its turnover for the latest financial year are as recorded in Seller's verified Seller Hub account.
 
-Brands __________________.
+The approved brands are as recorded in Seller's verified Seller Hub account.
 
-Manufacturing sites and outsourced processes __________________.
+The approved manufacturing sites and any outsourced processes are as recorded in Seller's verified Seller Hub account.
 
-SKUs and versions __________________.
+The approved SKUs and their versions are those shown as approved in the Seller Hub.
 
-Countries and channels __________________.
+The approved countries and sales channels for each SKU are those shown as approved in the Seller Hub.
 
-External scheme body certificate and expiry __________________.
+The external certification scheme, certifying body, certificate number and expiry date for each approved item are as recorded in Seller's verified Seller Hub account.
 
-Internal approval date and approver __________________.
+The date of Gloviaa's internal approval and the name of the approver are recorded in the Seller Hub approval history.
 
-Restrictions and review dates __________________.
+Any restrictions on the approved scope, and the dates on which it will be reviewed, are as recorded in Seller's verified Seller Hub account.
 
 ## Schedule B Service mandate
 
-For each service complete service __________________; provider Gloviaa or named partner __________________; deliverable __________________; care standard __________________; access dependencies __________________; acceptance test __________________; timing __________________; responsibility __________________; fee __________________.
+For each service Seller selects, the Seller Hub records: the service; whether it is provided by Gloviaa or by a named partner; the deliverable; the standard of care; the access and dependencies required; the acceptance test; the timing; the party responsible; and the fee, as set out in the Seller Hub fee schedule.
 
-Order acceptance authority limits for price stock quantity countries payment and delivery __________________.
+Gloviaa's authority to accept orders on Seller's behalf is limited to the prices, stock, quantities, countries, payment terms and delivery terms that Seller has set in the Seller Hub.
 
-Export and broker mandates are attached separately.
+Export and customs broker mandates are given separately.
 
 ## Schedule C Binding fees
 
-Category and channel commission __________________.
+Commission for each category and sales channel is as set out in the Seller Hub fee schedule.
 
-Goods-value calculation and volume tiers __________________.
+The calculation of goods value and any volume tiers are as set out in the Seller Hub fee schedule.
 
-Subscription deliverable and fee __________________.
+Any subscription, its deliverables and its fee are as set out in the Seller Hub fee schedule.
 
-Onboarding deliverable and fee __________________.
+Any onboarding service, its deliverables and its fee are as set out in the Seller Hub fee schedule.
 
-Seller-funded third-party costs __________________.
+Third-party costs funded by Seller are as set out in the Seller Hub fee schedule.
 
-Logistics coordination percentage and cap __________________.
+The logistics coordination percentage and its cap are as set out in the Seller Hub fee schedule.
 
-Buyer certification recovery schedule reference __________________.
+The schedule for recovering certification costs from buyers is as set out in the Seller Hub fee schedule.
 
-Payment FX and taxes __________________.
+Payment processing charges, the currency conversion method and the treatment of taxes are as set out in the Seller Hub fee schedule.
 
-Refund cancellation and credit rules __________________.
+The rules on refunds, cancellations and credits, including the fault-based allocation of retesting, re-audit and remediation costs, are as set out in the Seller Hub fee schedule.
 
-Effective date __________________.
+Each version of the Seller Hub fee schedule takes effect on the date shown on it, and a change that is unfavourable to Seller takes effect only after at least thirty days' notice.
 
 ## Schedule D Settlement and risk security
 
-Provider permitted payout cycle __________________.
+Payouts are made on the cycle permitted by the payment provider, as shown in Seller's Seller Hub payout settings.
 
-Funding and fulfilment milestones __________________.
+Funds become payable at the funding and fulfilment milestones shown for each order in the Seller Hub.
 
-Reserve percentage cap and duration __________________.
+Any reserve percentage, its cap and its duration are as notified to Seller in the Seller Hub before the reserve is applied.
 
-Guarantee amount issuer validity and claim process __________________.
+Any guarantee, including its amount, issuer, validity and claim process, is as recorded in Seller's verified Seller Hub account.
 
-Allowed deductions __________________.
+The deductions allowed are those set out in the Seller Hub fee schedule, together with refunds and taxes that the law requires to be deducted.
 
-Notice appeal and review __________________.
+Seller is notified of each hold or reserve with reasons where lawful, may appeal it through sellers@gloviaamart.com, and each hold is reviewed at least once a month.
 
-Release and closing rules __________________.
+Funds are released when the covered exposure ends, and on termination in accordance with the closing statement described in section 11.
 
-Provider confirmation reference __________________.
+The payment provider's confirmation reference for Seller's connected account is shown in the Seller Hub.
 
 ## Schedule E OEM and technical acceptance
 
-Specifications drawings and versions __________________.
+The specifications, drawings and their versions are as shown in the order confirmation for each OEM order.
 
-Ownership of background and new IP __________________.
+Each party keeps its background intellectual property, and ownership of new intellectual property is as shown in the order confirmation.
 
-Tooling title and access __________________.
+Ownership of tooling and the right of access to it are as shown in the order confirmation.
 
-Approved sample __________________.
+The approved reference unit is the one identified in the order confirmation.
 
-Acceptance tests and tolerances __________________.
+The acceptance tests and tolerances are as shown in the order confirmation.
 
-Production change rules __________________.
+Production changes are governed by section 6 and by any additional rules shown in the order confirmation.
 
-Confidentiality and permitted use __________________.
+Confidential information and its permitted use are governed by section 9 and by any additional terms shown in the order confirmation.
 
-Cancellation milestone costs __________________.
+The costs payable on cancellation at each milestone are as shown in the order confirmation.
 
 ## Schedule F Insurance and execution
 
-Product liability policy and per-occurrence aggregate limits __________________.
+The product liability policy, with its per-occurrence and aggregate limits, is as recorded in Seller's verified Seller Hub account.
 
-Recall policy and limit __________________.
+The recall policy and its limit are as recorded in Seller's verified Seller Hub account.
 
-Territories and exclusions __________________.
+The territories covered and the exclusions are as recorded in Seller's verified Seller Hub account.
 
-Cargo custody installation cover __________________.
+Cover for cargo, custody and installation, where applicable, is as recorded in Seller's verified Seller Hub account.
 
-Deductibles additional-insured wording and expiry __________________.
+Deductibles, additional-insured wording and expiry dates are as recorded in Seller's verified Seller Hub account.
 
-Seller signatory name title authority signature and date __________________.
+This agreement is executed electronically. Acceptance on the Platform by Seller's authorised signatory is Seller's signature, and the signatory confirms that they have authority to bind Seller. Gloviaa stores the name, role, date, time and IP address of the acceptance.
 
-Gloviaa signatory name title authority signature and date __________________.
+Gloviaa executes this agreement by making it available for acceptance on the Platform, acting through Uboss AI Private Limited.
 
-Witness details if required __________________.
+No witness is required for electronic acceptance.

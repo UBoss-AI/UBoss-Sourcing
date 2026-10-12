@@ -3118,7 +3118,7 @@ Defined in `backend/src/http/routes/cart.customer.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/cart` | Customer | Customer | Current cart, repriced |
 | POST | `/api/v1/cart/items` | Customer | Customer | Add an item |
-| POST | `/api/v1/cart/items/upload/preview` | Customer | Customer | Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016). |
+| POST | `/api/v1/cart/items/upload/preview` | Customer | Customer | Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016). Business (B2B) buying only. |
 | POST | `/api/v1/cart/items/bulk` | Customer | Customer | Add several options in one request |
 | PATCH | `/api/v1/cart/items/:itemId` | Customer | Customer | Change quantity (0 removes the line) |
 | PATCH | `/api/v1/cart/items/:itemId/packs` | Customer | Customer | Change how many packs of a line the customer wants. |

@@ -1,91 +1,71 @@
 /**
- * Placeholder Terms for a developer's machine, so the sign-up form can be used
- * before anybody has written real ones.
+ * The legal documents a developer's machine starts with, so every agreement
+ * screen shows a complete, real-reading text from the first sign-up.
  *
  * Called by the development seed only, which refuses to run in production.
- * The text says on its face that it is not an agreement: it is the generic
- * sample supplied with the dialog design, and publishing it for real customers
- * would bind them to words nobody approved. A real deployment publishes its own
- * Terms from Administration → Legal documents, written by its own counsel.
+ * It publishes the Gloviaa Mart texts in `legal/drafts/gloviaa-mart/`. Those
+ * carry SAMPLE company details (registered office, CIN, GSTIN, grievance
+ * officer and contacts) that were made up to stand in for the real ones, so a
+ * deployment must never go live with them: Settings → Master data lists every
+ * published document that still contains them (`SAMPLE_LEGAL_MARKER`), and
+ * `legal/drafts/gloviaa-mart/CHANGE-TABLE.md` lists each value to replace.
  */
-import { legalContentHash, type AgreementDocumentKind } from '../../domain/legal-document.js';
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { legalContentHash } from '../../domain/legal-document.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { parseDraftFile } from './draft-file.js';
 
+/** The version prefix an earlier seed published its generic sample text under (`dev-placeholder`, `dev-placeholder-2`). */
 export const DEVELOPMENT_TERMS_VERSION = 'dev-placeholder';
 
-const NOTICE =
-  'DEVELOPMENT PLACEHOLDER - NOT A LEGAL AGREEMENT. This text was installed by the development seed so ' +
-  'the sign-up form can be tried out. Before going live, publish Terms and Conditions approved by your ' +
-  'own legal counsel from Administration > Legal documents.';
+/** The sample CIN in every seeded document: a published body containing it has not been made real. */
+export const SAMPLE_LEGAL_MARKER = 'U62099HR2024PTC118452';
 
-const SAMPLE_BODY = `${NOTICE}
-
-## Acceptance of Terms
-By accessing and using this website, users agree to comply with and be bound by these Terms of Service. Users who do not agree with these terms should discontinue use of the website immediately.
-
-## User Account Responsibilities
-Users are responsible for maintaining the confidentiality of their account credentials. Any activities occurring under a user's account are the sole responsibility of the account holder. Users must notify the website administrators immediately of any unauthorized account access.
-
-## Content Usage and Restrictions
-The website and its original content are protected by intellectual property laws. Users may not reproduce, distribute, modify, create derivative works, or commercially exploit any content without explicit written permission from the website owners.
-
-## Limitation of Liability
-The website provides content "as is" without any warranties. The website owners shall not be liable for direct, indirect, incidental, consequential, or punitive damages arising from user interactions with the platform.
-
-## User Conduct Guidelines
-- Not upload harmful or malicious content
-- Respect the rights of other users
-- Avoid activities that could disrupt website functionality
-- Comply with applicable local and international laws
-
-## Modifications to Terms
-The website reserves the right to modify these terms at any time. Continued use of the website after changes constitutes acceptance of the new terms.
-
-## Termination Clause
-The website may terminate or suspend user access without prior notice for violations of these terms or for any other reason deemed appropriate by the administration.
-
-## Governing Law
-These terms are governed by the laws of the jurisdiction where the website is primarily operated, without regard to conflict of law principles.`;
+const DRAFTS = fileURLToPath(new URL('../../../../legal/drafts/gloviaa-mart/', import.meta.url));
 
 /**
- * Every document the agreement screen can ask for, so each surface's screen
- * can be tried out. The Privacy Policy placeholder reuses the sample text: it
- * describes nothing, which its notice says.
+ * Publish each document in `legal/drafts/gloviaa-mart/` whose kind has nothing
+ * published, or only what a seed published. An operator's own published text
+ * is never superseded. Idempotent.
  */
-const TITLES: Record<AgreementDocumentKind, string> = {
-  PLATFORM_TERMS: 'Terms and Conditions (development placeholder)',
-  LOGISTICS_PARTNER_TERMS: 'Logistics Partner Terms (development placeholder)',
-  SELLER_TERMS: 'Seller Terms and Conditions (development placeholder)',
-  SELLER_SERVICES_AGREEMENT: 'Seller Platform Services Agreement (development placeholder)',
-  STAFF_TERMS: 'Staff Terms (development placeholder)',
-  AUDIT_CONSOLE_TERMS: 'Audit Console Terms (development placeholder)',
-  PRIVACY_POLICY: 'Privacy Policy (development placeholder)',
-  B2B_BUYER_TERMS: 'B2B Buyer Terms and Conditions (development placeholder)',
-  B2B_BUYER_SERVICES_AGREEMENT: 'B2B Buyer Platform Services Agreement (development placeholder)',
-  B2C_CONSUMER_TERMS: 'B2C Consumer Terms and Conditions (development placeholder)',
-  B2C_PLATFORM_SERVICES_AGREEMENT: 'B2C Platform Services Agreement (development placeholder)',
-};
-
-/** Publish the placeholder for each kind that has nothing published yet. Idempotent. */
 export async function seedDevelopmentTerms(): Promise<number> {
   let published = 0;
-  for (const kind of Object.keys(TITLES) as AgreementDocumentKind[]) {
-    const existing = await prisma.legalDocument.count({ where: { kind, status: 'PUBLISHED' } });
-    if (existing > 0) continue;
+  for (const name of readdirSync(DRAFTS).filter((file) => file.endsWith('.txt')).sort()) {
+    const draft = parseDraftFile(name, readFileSync(`${DRAFTS}${name}`, 'utf8'));
+    const { kind, version, locale } = draft;
 
-    const content = { kind, version: DEVELOPMENT_TERMS_VERSION, locale: 'en', title: TITLES[kind], body: SAMPLE_BODY };
-    const now = new Date();
-    await prisma.legalDocument.create({
-      data: {
-        id: newId(),
-        ...content,
+    const operatorOwn = await prisma.legalDocument.count({
+      where: {
+        kind,
         status: 'PUBLISHED',
-        effectiveAt: now,
-        publishedAt: now,
-        contentSha256: legalContentHash(content),
+        NOT: [{ version: { startsWith: DEVELOPMENT_TERMS_VERSION } }, { body: { contains: SAMPLE_LEGAL_MARKER } }],
       },
     });
+    if (operatorOwn > 0) continue;
+
+    const existing = await prisma.legalDocument.findUnique({
+      where: { kind_version_locale: { kind, version, locale } },
+      select: { id: true, status: true },
+    });
+    if (existing?.status === 'PUBLISHED') continue;
+
+    const now = new Date();
+    const data = {
+      ...draft,
+      status: 'PUBLISHED' as const,
+      effectiveAt: now,
+      publishedAt: now,
+      contentSha256: legalContentHash(draft),
+    };
+    // A draft of the same version, loaded by `legal:import-drafts`, becomes the published row.
+    // Conditioned on DRAFT, like the service, so a published row can never be rewritten.
+    if (existing === null) await prisma.legalDocument.create({ data: { id: newId(), ...data } });
+    else {
+      const { count } = await prisma.legalDocument.updateMany({ where: { id: existing.id, status: 'DRAFT' }, data });
+      if (count === 0) continue;
+    }
     published += 1;
   }
   return published;

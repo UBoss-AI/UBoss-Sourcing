@@ -3503,6 +3503,16 @@ many units a seller has.
 - The operator's own stock (no seller) uses a limit set on the product by an
   admin in the console.
 
+### The marketplace-wide cap
+
+On top of each listing's own figure, the marketplace caps every buyer who is
+held to the limit at **5 pieces of one product**. The setting is
+`B2C_PLATFORM_MAX_ORDER_QUANTITY` (default `5`). The lower of the two wins:
+a seller can be stricter than the cap, never looser, and a listing with no
+limit of its own is still held to the cap. `0` switches the cap off and leaves
+only the per-listing limits. Approved companies are not held to it. A buyer
+who tries to go over is told **"Cannot add more than 5 items."**
+
 ### What a seller sets
 
 - The field is in the new-listing wizard (*Price, stock and shipping*) and on
@@ -3520,8 +3530,8 @@ many units a seller has.
 - A change applies to **future** basket changes and checkouts. An order already
   placed never changes, and a basket already filled is never trimmed.
 
-Listings that existed before this have **no limit** ("not configured") and keep
-selling exactly as before. Seller Hub marks each one **B2C limit not
+Listings that existed before this have no limit of their own ("not configured"),
+so only the marketplace-wide cap applies to them. Seller Hub marks each one **B2C limit not
 configured** with a link to set it. No figure was invented for them.
 
 ### What a buyer sees
@@ -4628,23 +4638,30 @@ seam that would have to change.
     - A document that still contains a `[[...]]` blank, a `____` fill-in line
       or the words "For approval before implementation or signature" cannot be
       published.
-    - Drafts adapted for Gloviaa Mart are in `legal/drafts/gloviaa-mart/`. Load
-      them as drafts with:
+    - Ready-written Gloviaa Mart documents are in `legal/drafts/gloviaa-mart/`:
+      finalised text, version 1.0, effective 12 October 2026, for every kind
+      above including the B2C platform services agreement. **Their company
+      details are samples** (registered office, CIN, GSTIN, grievance officer,
+      contact addresses). Load them as drafts with:
 
       ```powershell
       cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart
       ```
 
-      This never publishes. They are not legal advice and are not approved:
-      fill in every blank and have your own counsel approve them first. See
-      `legal/README.md` and `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`.
+      This never publishes. They are not legal advice and have not been
+      reviewed by a lawyer: replace every sample value with your own details
+      and have your own counsel review them first. See `legal/README.md` and
+      `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`, which lists each sample
+      value to replace.
 20. **Run the go-live check of your reference data.** Open **Settings → Master
     data** in the admin console. The **Ready to go live?** card lists every
     reference list the marketplace needs (categories, currencies and fresh
     exchange rates, tax classes, countries, delivery prices, published Terms
     and privacy policy, units, and the inspection lists you use) and names
-    anything the demonstration data left behind: demo products, placeholder
-    Terms, the demo carrier, accounts on the `.local` domain. Go live when it
+    anything the demonstration data left behind: demo products, legal
+    documents published with sample company details, the demo carrier,
+    accounts on the `.local` domain. Terms that still contain the sample
+    company details do not count as published Terms. Go live when it
     says **Ready**.
 21. **Review who has privileged access, and keep doing it.** A Business Owner
     opens **Staff → Staff access review** and records Keep, Reduce or Revoke for
@@ -5157,7 +5174,7 @@ Between L1 (plant to port of loading) and L2 (port of loading to destination por
 | **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
 | **[`docs/SELLER-ASSESSMENT-MATRIX.md`](docs/SELLER-ASSESSMENT-MATRIX.md)** | Seller Assessment and Onboarding v1.0: each requirement, what was built, the test evidence and what still needs people |
 | **[`docs/DELIVERY-COMMERCIAL-MATRIX.md`](docs/DELIVERY-COMMERCIAL-MATRIX.md)** | Doc 07 and Doc 08: every delivery, case, refund, commercial, certification, insurance and launch requirement, what was built, the evidence and what still needs people |
-| [`legal/README.md`](legal/README.md) | The policy drafts (Terms, Seller Terms and Conditions, Seller Platform Services Agreement, Privacy Policy, carrier, staff and Audit Console terms), how they were adapted or supplied, the open decisions, and how to load them as drafts |
+| [`legal/README.md`](legal/README.md) | The Gloviaa Mart policy documents (Terms, Seller, B2B buyer and B2C consumer terms and services agreements, Privacy Policy, returns policy, carrier, staff and Audit Console terms) - finalised text with sample company details, not reviewed by counsel - how they were adapted or supplied, the decisions taken, the sample values to replace, and how to load them as drafts |
 | [`docs/compliance/REGULATORY-SOURCES.md`](docs/compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with |
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |

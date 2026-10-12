@@ -21,6 +21,7 @@
  */
 import type { LightMyRequestResponse } from 'fastify';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { env } from '../../src/config/env.js';
 import { isAppError } from '../../src/domain/errors.js';
 import { buildApp } from '../../src/http/app.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -403,6 +404,25 @@ describe('an individual buyer', () => {
     expect(view.checkoutReady).toBe(true);
   });
 
+  it('is held to the marketplace-wide cap, which a looser listing limit cannot lift', async () => {
+    env.B2C_PLATFORM_MAX_ORDER_QUANTITY = 5;
+    try {
+      await addItem(individual('alice'), { productId: unlimitedProductId, quantity: 5 });
+      const refused = await addItem(individual('alice'), { productId: unlimitedProductId, quantity: 1 }).then(
+        () => null,
+        (error: unknown) => error,
+      );
+      expect(isAppError(refused) && refused.code).toBe('B2C_MAX_ORDER_QUANTITY_EXCEEDED');
+      expect(isAppError(refused) && refused.message).toBe('Cannot add more than 5 items.');
+      // The listing allows 100; the cap still wins.
+      await expect(addItem(individual('alice'), { productId, variantId: variantA, quantity: 6 })).rejects.toMatchObject({
+        code: 'B2C_MAX_ORDER_QUANTITY_EXCEEDED',
+      });
+    } finally {
+      env.B2C_PLATFORM_MAX_ORDER_QUANTITY = 0;
+    }
+  });
+
   it('cannot get round it with two requests at once', async () => {
     await addItem(individual('alice'), { productId, variantId: variantA, quantity: 10 });
     // Each request, on its own, fits: 10 + 60 = 70. Together they are 130.
@@ -600,7 +620,7 @@ describe('over HTTP', () => {
     expect(response.statusCode).toBe(409);
     const body = response.json<{ error: { code: string; message: string; details: { meta: Record<string, unknown> }[] } }>();
     expect(body.error.code).toBe('B2C_MAX_ORDER_QUANTITY_EXCEEDED');
-    expect(body.error.message).toBe('Individual buyers can order up to 100 units of this product.');
+    expect(body.error.message).toBe('Cannot add more than 100 items.');
     expect(body.error.details[0]?.meta).toMatchObject({ allowedQuantity: 100, requestedQuantity: 150 });
   });
 

@@ -1153,10 +1153,10 @@ async function main(): Promise<void> {
   await seedStaff();
   await seedCustomers();
 
-  // Clearly-labelled placeholder Terms, so sign-up works on a development
-  // machine. Only where nothing is published; never real legal text.
+  // The Gloviaa Mart legal documents, with sample company details, so every
+  // agreement screen works on a development machine. Never over an operator's own.
   const terms = await seedDevelopmentTerms();
-  if (terms > 0) console.log(`  placeholder terms published: ${String(terms)} (development only)`);
+  if (terms > 0) console.log(`  legal documents published: ${String(terms)} (sample company details - replace before going live)`);
 
   // The Seller Hub last: it seeds configuration rather than data, and it needs
   // the categories above to already exist for an operator to attach

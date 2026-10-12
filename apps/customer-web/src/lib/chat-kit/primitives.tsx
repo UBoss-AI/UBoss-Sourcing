@@ -11,6 +11,7 @@
  */
 import { forwardRef, useId } from 'react';
 import { cx } from '@/lib/cx';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useChatComposer } from './composer';
 import { initialsOf, linkify } from './timeline';
 
@@ -34,26 +35,23 @@ export const ChatViewport = forwardRef<
   HTMLDivElement,
   { label: string; onScroll: () => void; children: React.ReactNode; className?: string }
 >(function ChatViewport({ label, onScroll, children, className }, ref) {
+  // The bar is drawn by ScrollArea; the element that scrolls - the one
+  // `ref` points at and `onScroll` hears - is still a plain div, so the
+  // place-keeping in chat-scroll.ts measures exactly what it always did.
   return (
-    <div
-      ref={ref}
-      role="log"
-      aria-live="off"
-      aria-label={label}
-      // A scrolling region has to take focus, or somebody without a mouse
-      // cannot scroll it at all (WCAG 2.1.1). A log is not "interactive" to
-      // the linter, and is to a keyboard.
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      onScroll={onScroll}
-      className={cx(
-        'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [overflow-anchor:none]',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand',
-        className,
-      )}
+    <ScrollArea
+      className="min-h-0 flex-1"
+      viewportRef={ref}
+      onViewportScroll={onScroll}
+      viewportProps={{
+        role: 'log',
+        'aria-live': 'off',
+        'aria-label': label,
+        className: cx('[overflow-anchor:none]', className),
+      }}
     >
       {children}
-    </div>
+    </ScrollArea>
   );
 });
 

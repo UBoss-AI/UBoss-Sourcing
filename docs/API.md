@@ -2207,6 +2207,12 @@ It counts **one seller's units of one product**: every variant and every line
 are added together. Two sellers of the same catalogue product are counted
 separately.
 
+The marketplace also caps it at `B2C_PLATFORM_MAX_ORDER_QUANTITY` (default `5`;
+`0` turns the cap off). The lower of the listing's figure and the cap is the
+limit in force, and is what `maxQuantity`, `allowedQuantity` and
+`product.purchaseRules.b2cMaxOrderQuantity` report. A listing with no limit of
+its own reports the cap. The refusal's message is `Cannot add more than N items.`
+
 - **Each line** carries `b2cLimit`: `{ maxQuantity, productQuantity, applies,
   exceeded }`, or `null` when no limit is set. `productQuantity` is the
   seller's whole product total in this basket, not the line's own quantity.
@@ -2225,11 +2231,11 @@ The refusal:
 {
   "error": {
     "code": "B2C_MAX_ORDER_QUANTITY_EXCEEDED",
-    "message": "Individual buyers can order up to 500 units of this product.",
+    "message": "Cannot add more than 500 items.",
     "details": [
       {
         "code": "B2C_MAX_ORDER_QUANTITY_EXCEEDED",
-        "message": "Individual buyers can order up to 500 units of this product.",
+        "message": "Cannot add more than 500 items.",
         "meta": {
           "productId": "01J9Z3K4M5N6P7Q8R9S0T1V2W3",
           "allowedQuantity": 500,

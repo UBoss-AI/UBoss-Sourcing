@@ -32,6 +32,7 @@ import { cx } from '@/lib/cx';
 import { AI_MODE_PATH } from '@/lib/ai-mode';
 import { conversationLabel } from './conversations';
 import type { ConversationSummary } from './conversations';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useI18n } from '@/i18n/i18n-context';
 
 function RenameRow({
@@ -184,7 +185,12 @@ export function AiSidebar({
             {t('aiMode.history')}
           </p>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-3">
+          <ScrollArea
+            className="min-h-0 flex-1"
+            variant="violet"
+            label={t('aiMode.history')}
+            viewportProps={{ className: 'px-1.5 pb-3' }}
+          >
             {isLoading && (
               <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-ink-muted">
                 <Spinner className="h-3.5 w-3.5" />
@@ -273,7 +279,7 @@ export function AiSidebar({
                 );
               })}
             </ul>
-          </div>
+          </ScrollArea>
         </>
       )}
 

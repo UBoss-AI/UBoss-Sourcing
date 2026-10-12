@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**584 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**585 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -60,7 +60,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Seller commission invoices](#seller-commission-invoices) | 8 |
 | [Terms and Conditions](#terms-and-conditions) | 10 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
-| [Buyer companies](#buyer-companies) | 18 |
+| [Buyer companies](#buyer-companies) | 19 |
 | [Product reviews](#product-reviews) | 3 |
 | [Message centre (JOURNEY-055)](#message-centre-journey-055) | 2 |
 | [Notification centre (JOURNEY-056)](#notification-centre-journey-056) | 1 |
@@ -706,6 +706,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `BUYER_COMPANY_ALREADY_MEMBER` | That person is already an active member of the company. |
 | `BUYER_COMPANY_MEMBER_PROTECTED` | That member cannot be changed by the caller: the owner, the caller themselves, or an administrator when the caller is not the owner. `details[0].code` is OWNER, SELF or ADMIN_NEEDS_OWNER. |
 | `BUYER_CONTEXT_UNSUPPORTED` | This feature works for the person's own account only, not while buying for a company - recurring orders are the one today. The storefront offers to switch to the individual context. |
+| `BUYER_CONTEXT_COMPANY_REQUIRED` | The reverse: this feature is for business (B2B) buying only, so it works while buying for a company and not on a person's own account - the cart's SKU list upload is the one today. The storefront hides it there, so this is reached only by a request the storefront would not send. |
 
 ## Product reviews
 

@@ -25,12 +25,14 @@
 import type { B2cBuyer, B2cLine } from '../../domain/b2c-order-limit.js';
 import {
   b2cGroupKey,
+  effectiveB2cLimit,
   findB2cViolations,
   isB2cChangeRefused,
   isB2cLimitApplicable,
   totalB2cGroups,
   type B2cGroupTotal,
 } from '../../domain/b2c-order-limit.js';
+import { env } from '../../config/env.js';
 import { AppError, ErrorCode, type ErrorDetail } from '../../domain/errors.js';
 import type { prisma, PrismaTransaction } from '../../infra/prisma.js';
 
@@ -101,6 +103,14 @@ export async function loadCartB2cLines(db: Db, cartId: string): Promise<B2cLine[
 }
 
 /**
+ * A listing's own limit with the marketplace-wide cap
+ * (`B2C_PLATFORM_MAX_ORDER_QUANTITY`) applied: the lower of the two.
+ */
+export function withPlatformB2cCap(listingLimit: number | null): number | null {
+  return effectiveB2cLimit(listingLimit, env.B2C_PLATFORM_MAX_ORDER_QUANTITY);
+}
+
+/**
  * One line's limit: the seller's offer when it is a seller's line, the
  * product row when it is the operator's own stock. Never both - a seller's
  * line does not inherit the operator's figure, or an administrator's setting
@@ -117,13 +127,13 @@ export function b2cLineOf(item: {
         productId: item.productId,
         sellerAccountId: null,
         quantity: item.quantity,
-        limit: item.product.b2cMaxOrderQuantity,
+        limit: withPlatformB2cCap(item.product.b2cMaxOrderQuantity),
       }
     : {
         productId: item.productId,
         sellerAccountId: item.sellerOffer.sellerAccountId,
         quantity: item.quantity,
-        limit: item.sellerOffer.b2cMaxOrderQuantity,
+        limit: withPlatformB2cCap(item.sellerOffer.b2cMaxOrderQuantity),
       };
 }
 
@@ -145,9 +155,14 @@ export function b2cLimitError(input: {
   return new AppError({
     statusCode: 409,
     code: ErrorCode.B2C_MAX_ORDER_QUANTITY_EXCEEDED,
-    message: `Individual buyers can order up to ${String(input.allowedQuantity)} units of this product.`,
+    message: b2cLimitMessage(input.allowedQuantity),
     details: [b2cLimitDetail(input)],
   });
+}
+
+/** The sentence a B2C buyer is shown when a change would take them over. */
+export function b2cLimitMessage(allowedQuantity: number): string {
+  return `Cannot add more than ${String(allowedQuantity)} items.`;
 }
 
 export function b2cLimitDetail(input: {
@@ -160,7 +175,7 @@ export function b2cLimitDetail(input: {
   return {
     ...(input.field === undefined ? {} : { field: input.field }),
     code: ErrorCode.B2C_MAX_ORDER_QUANTITY_EXCEEDED,
-    message: `Individual buyers can order up to ${String(input.allowedQuantity)} units of this product.`,
+    message: b2cLimitMessage(input.allowedQuantity),
     meta: {
       productId: input.productId,
       allowedQuantity: input.allowedQuantity,

@@ -119,6 +119,18 @@ export function isB2cLimitApplicable(buyer: B2cBuyer): boolean {
   return !(buyer.kind === 'COMPANY' && buyer.companyStatus === 'APPROVED');
 }
 
+/**
+ * The limit actually in force: the lower of the listing's own figure and the
+ * marketplace-wide cap. A cap of 0 (or null) means no marketplace-wide cap.
+ * Either alone is enough to impose a limit; null only when neither does.
+ */
+export function effectiveB2cLimit(listingLimit: number | null, platformCap: number | null): number | null {
+  const cap = platformCap !== null && platformCap > 0 ? platformCap : null;
+  if (listingLimit === null) return cap;
+  if (cap === null) return listingLimit;
+  return Math.min(listingLimit, cap);
+}
+
 /** One basket line, reduced to what the limit needs. */
 export interface B2cLine {
   productId: string;

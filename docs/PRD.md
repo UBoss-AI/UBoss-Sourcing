@@ -63,6 +63,7 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.16 | 2026-10-09 | The company buyer's agreements (FR-IDN-024): a session acting for a buyer company answers to the `COMPANY_BUYER` screen - B2B Buyer Terms and Conditions (per member, for that company), Privacy Policy, and the B2B Buyer Platform Services Agreement accepted once per company by an owner or company admin (`COMPANY_SIGNATORY_REQUIRED` otherwise). Agreement boxes on every sign-in form (FR-IDN-025). Both B2B documents stay drafts until approved; accepting is not execution and approves nothing. |
 | 1.17 | 2026-10-09 | The consumer buyer's agreements (FR-IDN-026): somebody shopping for themselves answers to the `CONSUMER` screen - B2C Consumer Terms and Conditions, Privacy Policy, B2C Platform Services Agreement - once all three are in force, and the `BUYER` screen until then. Existing orders, returns and claims stay reachable before agreeing |
 | 1.14 | 2026-10-08 | Seller verification moves to the Audit Team (FR-SEL-004, FR-AUD-034): reviewing, asking for corrections, approving and rejecting seller applications, deciding their documents and turnover, and recording screenings are done in the Audit Console with the new `audit.seller.verify` key (audit `SUPERVISOR` and `COMPLIANCE_REVIEWER`). The Admin Panel reads verification - with who decided and the history - and keeps only suspend and lift-suspension; every other write answers `SELLER_VERIFICATION_AUDIT_ONLY`. Decisions are conditional on the version read; a reviewer connected to the seller is refused (`SELLER_VERIFICATION_NOT_INDEPENDENT`). New applications, resubmissions and uploads notify audit reviewers. Earlier admin decisions keep their attribution |
+| 1.18 | 2026-10-12 | Gloviaa Mart legal documents finalised (FR-IDN-018, FR-IDN-022, FR-IDN-023, FR-IDN-024, FR-IDN-026, FR-SET-020, FR-DCP-019): every file in `legal/drafts/gloviaa-mart/` is now version 1.0, effective 12 October 2026, with the draft notices, approval lines, `[[DECISION]]` markers and fill-in blanks removed and filled; open decisions settled with standard Indian defaults; company details (registered office, CIN, GSTIN, grievance officer, contacts) are sample values to replace before going live; not reviewed by counsel. New `b2c-platform-services-agreement.en.txt`. The development seed now publishes these documents instead of a "DEVELOPMENT PLACEHOLDER" for every kind. The master-data check no longer counts Terms with the sample CIN as published Terms, and flags every published document with the sample company details as demonstration data |
 
 ### Keeping this document true
 
@@ -863,7 +864,7 @@ How each requirement is written:
   4. A reader gets the version in force in their own language when published, otherwise English, otherwise any language of that version - and is told which language it is. An older version in their language is never offered instead.
   5. The PDF is built from the stored text and is the same file every time for the same document.
   6. The console shows how many people accepted each version, never who.
-- **Rules.** The software supplies no legal wording. The development seed installs a clearly marked placeholder for every kind on development machines only. Each version says whether earlier acceptances keep counting (`requiresReacceptance`, the **Ask everyone to accept this version again** option, on by default); existing accounts are asked again on the agreement screen (FR-IDN-022) only when it is on. A document that still contains a `[[...]]` blank cannot be published (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). Kinds include `AUDIT_CONSOLE_TERMS` (added 8 Oct 2026).
+- **Rules.** The software never publishes legal wording on its own in a real deployment: the operator publishes its own. On development machines only, the seed publishes the Gloviaa Mart documents from `legal/drafts/gloviaa-mart/` (finalised text with sample company details) for each kind that has nothing published or only seed-published text; it never replaces an operator's own published text. Each version says whether earlier acceptances keep counting (`requiresReacceptance`, the **Ask everyone to accept this version again** option, on by default); existing accounts are asked again on the agreement screen (FR-IDN-022) only when it is on. A document that still contains a `[[...]]` blank cannot be published (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). Kinds include `AUDIT_CONSOLE_TERMS` (added 8 Oct 2026).
 - **Status.** Built. Permissions `legal_document.read`, `legal_document.write`, `legal_document.publish` (Business Owner by default).
 
 ### FR-IDN-022 — The agreement screen after sign-in
@@ -899,13 +900,13 @@ How each requirement is written:
   11. A new version asks again only when it was published with **Ask everyone to accept this version again** on. A buyer who becomes a seller is asked for the Seller Terms and Conditions and the Seller Platform Services Agreement in the Seller Hub.
   12. **FR-IDN-024 - Company buyer agreements (built).** The screen follows the session's confirmed company context, never the sign-in tab. The B2B Buyer Terms are accepted by each member for that company; the B2B Buyer Platform Services Agreement once per company by an `OWNER` or `COMPANY_ADMIN` and then counts for every member. A member without that authority sees "Authorised company representative required". Accepting is a record of one published version: not Gloviaa's signature, not completed Schedules A-C, not business approval, and no AutoPay mandate or marketing consent.
   13. **FR-IDN-025 - Agreement boxes on sign-in (built).** Every sign-in form (storefront Individual and Company tabs, Seller Hub, admin console, carrier portal, Audit Console) shows its agreement boxes under the password, one line each. Each box opens its document in the read-to-the-end dialog; opening ticks nothing; **Sign in** stays disabled until every published document is ticked, and fails closed if the documents cannot be fetched. What was ticked is recorded by the first agreement request after sign-in, against the account (and company) the server resolves; the agreement screen after sign-in remains the server-enforced fallback.
-  14. **FR-IDN-026 - Consumer buyer agreements (built; off until its documents are published).** Somebody shopping for themselves sees three boxes - B2C Consumer Terms & Conditions, Privacy Policy, B2C Platform Services Agreement - each opened in the read-to-the-end dialog and recorded on its own under scope `CONSUMER`. The screen is used only once all three kinds have a version in force (`individualAgreementScope`); with any missing, the individual is asked on the `BUYER` screen as before, so no sign-in can become impossible. Decided by the session, never the tab; a company session and the Seller Hub are unchanged. It applies prospectively: a Terms of Use acceptance is kept, never copied across. Orders, cancellation, tracking, order documents, returns, refunds and claims stay reachable before agreeing (`requireCustomerForRemedies`); shopping does not. The boxes consent to nothing else - no marketing, cookies, recurring order, AutoPay or paid service - and waive no consumer right. **Documents:** the B2C Consumer Terms (`06_B2C_Consumer_Terms.docx`, version 1.0) are a draft word for word, not publishable until approved and their contacts and effective date are filled in; **no B2C Platform Services Agreement has been supplied**; the Privacy Policy is an unapproved draft.
+  14. **FR-IDN-026 - Consumer buyer agreements (built; off until its documents are published).** Somebody shopping for themselves sees three boxes - B2C Consumer Terms & Conditions, Privacy Policy, B2C Platform Services Agreement - each opened in the read-to-the-end dialog and recorded on its own under scope `CONSUMER`. The screen is used only once all three kinds have a version in force (`individualAgreementScope`); with any missing, the individual is asked on the `BUYER` screen as before, so no sign-in can become impossible. Decided by the session, never the tab; a company session and the Seller Hub are unchanged. It applies prospectively: a Terms of Use acceptance is kept, never copied across. Orders, cancellation, tracking, order documents, returns, refunds and claims stay reachable before agreeing (`requireCustomerForRemedies`); shopping does not. The boxes consent to nothing else - no marketing, cookies, recurring order, AutoPay or paid service - and waive no consumer right. **Documents (12 Oct 2026):** all three exist as finalised text, version 1.0, effective 12 October 2026, with sample company details and no review by counsel - the B2C Consumer Terms (from `06_B2C_Consumer_Terms.docx`, now filled in and no longer word for word), the new `b2c-platform-services-agreement.en.txt` and the Privacy Policy. None is published in a real deployment until the operator publishes it; the development seed publishes all three, so the consumer screen is on there.
   12. A kind with nothing published is not asked for.
   13. The records are shown, read-only, on the account's profile page (the console: user menu → **Terms and privacy**). Privacy requests are reachable before agreeing (`/privacy-requests` on the storefront).
 - **Rules.** The database is the source of truth. A record holds the person, the document id, version, language and SHA-256 copied from the stored document, the scope, the action (terms accepted or privacy notice acknowledged) and the server's time. No IP address or browser string. The Privacy Policy box is an acknowledgment, not a consent, and enables no optional processing.
 - **Flag.** `FEATURE_AGREEMENT_GATE` (default `true`; production refuses `false`).
 - **Errors.** `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `TERMS_VERSION_OUTDATED`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` (publishing).
-- **Status.** Built (8 Oct 2026). **The documents are not.** Gloviaa Mart drafts adapted from third-party source material are in `legal/drafts/gloviaa-mart/` with a change table and about 45 open business and legal decisions. They are drafts, are not published, and have no legal approval.
+- **Status.** Built (8 Oct 2026). **Documents (12 Oct 2026):** the Gloviaa Mart documents in `legal/drafts/gloviaa-mart/` are finalised text, version 1.0, effective 12 October 2026. The 45 open decisions were settled with standard Indian defaults at the owner's request, and the company details are sample values to replace before going live (both listed in the change table). They have not been reviewed by counsel. They are published only by the development seed; a real deployment publishes its own.
 
 ### FR-IDN-023 — The seller agreements: Seller Terms and Conditions and Seller Platform Services Agreement
 
@@ -925,7 +926,7 @@ How each requirement is written:
 - **Rules.** The tick is a click-through record of one published version. It is not the operator's countersignature and does not agree the seller-specific schedules (A-F), which are negotiated and signed separately; the executed contract is recorded by the Audit Console's CONTRACT workpaper.
 - **Flag.** `FEATURE_AGREEMENT_GATE` (the submission check is off with it).
 - **Errors.** `SELLER_AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `TERMS_VERSION_OUTDATED`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` (publishing).
-- **Status.** Built (9 Oct 2026). **The documents are not published.** Both texts were supplied by the operator as Word files and are stored word for word as DRAFT version 1.0 in `legal/drafts/gloviaa-mart/` (`seller-terms.en.txt`, `seller-services-agreement.en.txt`). Both are marked "For approval before implementation or signature" and leave the effective date, company registration, tax and notice details, the arbitration seat, the seller's details and every schedule blank. They are English only; no translation is approved.
+- **Status.** Built (9 Oct 2026). **Documents (12 Oct 2026):** both texts were supplied by the operator as Word files and are stored as version 1.0 in `legal/drafts/gloviaa-mart/` (`seller-terms.en.txt`, `seller-services-agreement.en.txt`). On 12 October 2026 they were filled in: the approval notice is gone, the company, tax and notice details hold sample values to replace before going live, the arbitration seat is New Delhi, the seller's details and schedules point to the seller's verified account and the Seller Hub fee schedule, and signature blocks became an electronic-acceptance clause. So they keep their headings but are no longer word for word. Not reviewed by counsel. English only; no translation is approved.
 
 ### FR-IDN-006 — Sessions, tokens and CSRF
 
@@ -1865,14 +1866,17 @@ dead jobs, undelivered notifications). Counts and permission gating come from th
 operations overview; a type the member may not act on is absent, not zero. Rows
 are ranked urgent first, then by count, and link to the screen that fixes them. Built.
 
-**SKU list upload (ENH-016).** On the cart, a buyer can upload a CSV or Excel
+**SKU list upload (ENH-016).** For business (B2B) buying only: on the cart, a
+buyer who is buying for a company can upload a CSV or Excel
 (.xlsx) file of SKUs and quantities (header `sku` and `quantity`/`qty`, or the
 first two columns). `POST /cart/items/upload/preview` reads it with the seller
 bulk-import reader and only previews: each row resolves to a published product
 or variant SKU, and every unusable row is reported (no SKU, invalid quantity,
 unknown SKU, duplicate SKU, more than 50 lines). Limits: 1 MB and 50 lines. The
 buyer reviews the list and presses Add, which uses the existing all-or-nothing
-bulk add, so nothing reaches the cart unseen. Built.
+bulk add, so nothing reaches the cart unseen. It is not shown on a
+person's own account (B2C), and the preview refuses it there with
+`BUYER_CONTEXT_COMPANY_REQUIRED` (403). Built.
 
 **Quick-action dock (ENH-005).** Every storefront page (except full-height
 application panes) has a "Quick actions" button at the bottom right. It opens
@@ -2448,6 +2452,12 @@ figures exist yet.
 - **Status.** Built.
 
 ### FR-PRC-011 — B2C Maximum Order Quantity (the individual purchase limit)
+
+- **Marketplace-wide cap (built).** Every buyer held to the limit is also
+  capped at `B2C_PLATFORM_MAX_ORDER_QUANTITY` pieces of one product (default
+  5; 0 turns it off). The lower of the listing's figure and the cap applies,
+  so a listing with no limit of its own is held to the cap. Going over is
+  refused with "Cannot add more than N items."
 
 - **Statement.** A seller sets, on each listing, the **most units of that
   product an Individual buyer may buy in one order**. On every screen it is
@@ -6740,6 +6750,7 @@ VAT), `gpsrEnforced`, `mdrEnforced`, automatic exchange-rate updates and
 | `AUTOPAY_CONSENT_VERSION` / `AUTOPAY_PLATFORM_MAX_MINOR` | `v1` / 0 (no ceiling) |
 | `SCHEDULE_PRICE_TOLERANCE_PERCENT` / `_MINOR` | 5 / 500 |
 | `SCHEDULE_EDIT_CUTOFF_MINUTES` | 1440 |
+| `B2C_PLATFORM_MAX_ORDER_QUANTITY` | 5 (0 = no marketplace-wide cap; the lower of this and a listing's own B2C limit applies) |
 | `SCHEDULE_MATERIALISE_AHEAD_DAYS` | 35 |
 | `SCHEDULE_REMINDER_LEAD_HOURS` | 48 |
 | `SCHEDULE_MAX_PAYMENT_ATTEMPTS` | 3 |
@@ -7260,9 +7271,9 @@ Inspection responses now expose report as the latest report visible to that audi
 
 - **Statement.** **Settings → Master data** opens with a **Ready to go live?** card. It lists each reference list the marketplace needs with a count and a status, and names anything the demonstration data left behind. `GET /api/v1/admin/master-data-readiness` (needs `settings.read`) returns the same.
 - **Rules.**
-  1. Required lists (missing breaks a flow): active categories, active currencies, exactly one base currency, exchange rates fetched in the last 7 days when more than one currency is active, tax classes, countries, delivery prices (an active shipping method or a published delivery-level rate), published Terms and Conditions that are not the development placeholder, a published privacy policy, and units of measure. Inspection defect codes are required once an inspection rule exists.
+  1. Required lists (missing breaks a flow): active categories, active currencies, exactly one base currency, exchange rates fetched in the last 7 days when more than one currency is active, tax classes, countries, delivery prices (an active shipping method or a published delivery-level rate), published Terms and Conditions that are neither the old development placeholder nor text containing the sample company details (`SAMPLE_LEGAL_MARKER`, the sample CIN), a published privacy policy, and units of measure. Inspection defect codes are required once an inspection rule exists.
   2. Advised lists (the marketplace works, but part of it is empty): country market rules, inspection rules, inspection plans, inspection agencies and Incoterms.
-  3. Demonstration rows are found by what the seed itself writes: demo catalogue products, the development placeholder Terms, the seed's carrier, and accounts on the test-only `.local` email domain.
+  3. Demonstration rows are found by what the seed itself writes: demo catalogue products, published legal documents that are the old development placeholder or contain the sample company details ("Legal documents published with sample company details"), the seed's carrier, and accounts on the test-only `.local` email domain.
   4. **Ready** means no required list is missing and nothing from the demonstration data is left. The check only reads.
 - **Status.** Built.
 
@@ -7663,5 +7674,5 @@ Sources: Doc 07 *Delivery Returns Refunds and Dispute Administration Policy* v1.
 | FR-DCP-016 | Product evidence per SKU/version, site and country, verified in the Audit Console; withdrawn or expired required evidence blocks purchase and dispatch at once; 90/60/30 reminders; assurance matrix as reviewer prompts | built (blocking behind `SELLER_ASSESSMENT_PURCHASE_GATE`) |
 | FR-DCP-017 | Safety cases: containment read live at checkout, dispatch and repeat orders; trace; reporting decisions by qualified people (AI refused); release by another person; annual recall rehearsal | built |
 | FR-DCP-018 | Country launch readiness: every Doc 08 s11 decision plus EU / US / India tax reviews; enable refused while any is open; checkout gate | behind `COUNTRY_LAUNCH_GATE` |
-| FR-DCP-019 | Buyer-facing Delivery, Returns, Refunds and Disputes Policy draft (RETURNS_POLICY) separate from internal reserve terms | built (publication blocked until legal review fills its blanks) |
+| FR-DCP-019 | Buyer-facing Delivery, Returns, Refunds and Disputes Policy draft (RETURNS_POLICY) separate from internal reserve terms | built (finalised text, version 1.0, with sample company details, 12 Oct 2026; not reviewed by counsel) |
 | FR-DCP-020 | Adoption, signatures, provider confirmations, legal review, contacts, safety officer, certification bodies, country tax decisions, real launch tests | not built / human action |

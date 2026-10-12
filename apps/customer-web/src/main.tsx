@@ -12,6 +12,7 @@ import { I18nProvider } from '@/i18n/I18nProvider';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/app/router';
+import { installTabMotion } from '@/lib/tab-motion';
 import { ToastProvider } from '@/components/toast';
 import { subscribeScrollActivity } from '@/lib/scroll-activity';
 // The interface face, served from this site rather than from Google Fonts: a
@@ -28,6 +29,9 @@ import './index.css';
 // gesture, which index.css uses to hold hover effects still so the scroll is
 // never competing with them. See lib/scroll-activity.ts.
 subscribeScrollActivity(() => undefined);
+
+// Every tab row's selection glides and its content fades in. See lib/tab-motion.ts.
+installTabMotion();
 
 const container = document.getElementById('root');
 

@@ -71,7 +71,7 @@ describe('b2cRefusalOf', () => {
   it('reads the figures from a B2C refusal', () => {
     const error = new ApiError(409, {
       code: 'B2C_MAX_ORDER_QUANTITY_EXCEEDED',
-      message: 'Individual buyers can order up to 100 units of this product.',
+      message: 'Cannot add more than 100 items.',
       details: [
         {
           code: 'B2C_MAX_ORDER_QUANTITY_EXCEEDED',

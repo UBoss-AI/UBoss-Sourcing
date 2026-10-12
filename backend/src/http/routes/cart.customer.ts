@@ -10,7 +10,7 @@ import { previewUpload } from '../../modules/cart/upload.service.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { assertAcceptableTerms } from '../../modules/legal/legal-document.service.js';
 import { z } from 'zod';
-import { ErrorCode, badRequest } from '../../domain/errors.js';
+import { ErrorCode, badRequest, forbidden } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
 import {
   MAX_LINE_NOTE_CHARS,
@@ -348,8 +348,13 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(201).send({ cart: toCartView(resolved) });
   });
 
-    // Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016).
+  // Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016). Business (B2B) buying only.
   app.post('/items/upload/preview', { bodyLimit: 1_500_000 }, async (request, reply) => {
+    // A SKU list is how a business reorders; a person buying for themselves
+    // has no use for one, so the upload exists only while buying for a company.
+    if (buyerCompanyIdOf(request) === null) {
+      throw forbidden(ErrorCode.BUYER_CONTEXT_COMPANY_REQUIRED, 'The SKU list upload is for buying for a company.');
+    }
     const body = z.object({ fileName: z.string().trim().min(1).max(200), contentBase64: z.string().max(1_400_000) }).strict().parse(request.body);
     const preview = await previewUpload(body.fileName, Buffer.from(body.contentBase64, 'base64'));
     return reply.header('cache-control', 'no-store').status(200).send(preview);

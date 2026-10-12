@@ -557,6 +557,26 @@ page. A page stamped `data-theme="dark"` on a machine set to light would
 otherwise get a light scrollbar on a dark page, which is worse than no dark
 theme at all.
 
+
+### Scrollbars
+
+Every scrollbar in all four apps is drawn the same way: a 10px track and a
+thumb in the theme's blue-to-teal (`--brand` to `--operational`), lighter in
+the dark theme because the tokens are.
+
+- **Panes inside a page** use `components/ui/scroll-area.tsx`, built on Radix
+  ScrollArea: every dialog body (so every legal dialog), every `DataTable`
+  (horizontal, the plain `minimal` look) and the chat history. The AI Mode
+  transcript and its history list use the `violet` look. Scrolling itself is
+  still the browser's, so wheel, touch, keyboard and screen readers behave as
+  before. Code that reads `scrollTop` or waits for the end of a document is
+  handed the *viewport* (`viewportRef`), which is the element that scrolls.
+- **The page itself, and any pane not converted**, keeps native scrolling and
+  gets the same look from a global rule at the end of each `index.css`.
+  The desktop sidebar rail still hides its bar on purpose.
+- The component and the CSS block are kept identical in the four apps;
+  `scroll-area-sync.test.ts` fails the build when they drift.
+
 ### How the product reflows
 
 Both apps are used on phones — a buyer reordering from a ward, a manager
@@ -4606,6 +4626,51 @@ working middle-click, open-in-new-tab and back button. The selected state is
 carried in the markup as well as in the fill, because a control whose state
 lives only in a background colour is invisible to a screen reader and to
 anybody who cannot tell the two blues apart.
+
+**Switching tabs moves the pill before it moves the page.** A plain click on
+the other tab stretches the selected pill across both tabs, springs it onto
+the new one with a small squash at the end, and turns each label brand-blue
+exactly where the pill covers it. About a third of a second later the route
+changes. Each page mounts its own copy of the row, so the animation has to
+finish on the page being left. A modified click (new tab, and so on) and
+`prefers-reduced-motion` skip it and navigate at once. The row carries
+`view-transition-name: cart-mode-tabs`, so during the page fade it holds
+still while the content beneath it changes.
+
+### Every page change cross-fades
+
+All four web apps run each in-app navigation to a different page as a browser
+view transition: the old page and the new one cross-fade over 260 ms, and
+whatever is identical on both — the header, the sidebar — stays put. It is
+switched on once per app in `app/router.tsx` by `withPageTransitions` from
+`lib/page-transitions.ts`, which wraps the router's `navigate`, so a new link
+gets it without asking. The look is the "Page transitions" block at the end of
+each app's `index.css`.
+
+It deliberately does **not** run when only the query string changes (filters,
+tabs and search boxes that write to the address bar, sometimes on every
+keystroke), for back/forward, in a background tab, or under
+`prefers-reduced-motion`. Browsers without the View Transitions API get the
+ordinary instant swap.
+
+### Every tab switch glides
+
+Switching tabs *inside* a page moves the same way the cart's two tabs do, in
+all four apps (admin, audit, logistics, and the storefront with Seller Hub).
+The selected tab's look — pill, underline or chip — stretches across the old
+and the new tab, lands on the new one with a few pixels of squash, and the
+content under the row fades in from the side the tab moved towards (260 ms).
+
+Nothing opts in. `installTabMotion()` from `lib/tab-motion.ts` runs once in each
+app's `main.tsx` and watches the document for any `role="tablist"` whose
+`aria-selected` moves, whether the tab lives in component state or in `?tab=`.
+A ghost copying the new tab's computed look travels under the row while the
+new tab's own background is held transparent, so there is one pill on screen.
+The content it animates is the tab's `aria-controls` panel, else the nearest
+`role="tabpanel"`, else the element straight after the row. So a new tab row
+gets the motion just by being correct ARIA. The module changes no state, focus
+or ARIA; it is off under `prefers-reduced-motion`, in a background tab and in
+jsdom. It is kept identical in all four apps.
 
 The row appears on the **empty** cart too. Somebody with nothing in their
 cart is exactly the person who has not yet found out that a standing order is
@@ -10041,14 +10106,17 @@ dead jobs, undelivered notifications). Counts and permission gating come from th
 operations overview; a type the member may not act on is absent, not zero. Rows
 are ranked urgent first, then by count, and link to the screen that fixes them.
 
-**SKU list upload (ENH-016).** On the cart, a buyer can upload a CSV or Excel
+**SKU list upload (ENH-016).** For business (B2B) buying only: on the cart, a
+buyer who is buying for a company can upload a CSV or Excel
 (.xlsx) file of SKUs and quantities (header `sku` and `quantity`/`qty`, or the
 first two columns). `POST /cart/items/upload/preview` reads it with the seller
 bulk-import reader and only previews: each row resolves to a published product
 or variant SKU, and every unusable row is reported (no SKU, invalid quantity,
 unknown SKU, duplicate SKU, more than 50 lines). Limits: 1 MB and 50 lines. The
 buyer reviews the list and presses Add, which uses the existing all-or-nothing
-bulk add, so nothing reaches the cart unseen.
+bulk add, so nothing reaches the cart unseen. It is not shown on a
+person's own account (B2C), and the preview refuses it there with
+`BUYER_CONTEXT_COMPANY_REQUIRED` (403).
 
 **Quick-action dock (ENH-005).** Every storefront page (except full-height
 application panes) has a "Quick actions" button at the bottom right. It opens
@@ -10530,11 +10598,17 @@ storefront's profile page, the carrier portal's and the Audit Console's profile
 pages, and the admin console's user menu (**Terms and privacy**, `/my-agreements`)
 show every record with a link to the exact version.
 
-**Policy documents.** The Gloviaa Mart drafts are in `legal/drafts/gloviaa-mart/`
-(see `legal/README.md`). `cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart`
-loads them as DRAFTS only. Publishing refuses a document that still holds a
-`[[...]]` blank (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). They are not published and
-not legally approved.
+**Policy documents.** The Gloviaa Mart documents are in `legal/drafts/gloviaa-mart/`
+(see `legal/README.md`). Since 12 October 2026 they are **finalised text,
+version 1.0, effective 12 October 2026, with sample company details**: every
+draft notice, approval line, `[[DECISION]]` marker and `______` blank was
+filled at the owner's request, open decisions were settled with standard Indian
+defaults, and the registered office, CIN, GSTIN, grievance officer and contact
+addresses are **samples** to replace before going live (listed in
+`CHANGE-TABLE.md`). They have not been reviewed by counsel.
+`cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart`
+still loads them as DRAFTS only. Publishing still refuses a document that holds
+a `[[...]]` blank (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`); these files hold none.
 
 ### Agreement boxes on every sign-in form, and the company buyer's agreements
 
@@ -10606,14 +10680,16 @@ member of two companies holds one record per company. `activeCompanyKey` is
 distinct.
 
 **The words.** `03_B2B_Buyer_Terms_and_Conditions.docx` and
-`05_B2B_Buyer_Platform_Services_Agreement.docx` are stored word for word as
-drafts in `legal/drafts/gloviaa-mart/b2b-buyer-terms.en.txt` (14 sections) and
+`05_B2B_Buyer_Platform_Services_Agreement.docx` are stored in
+`legal/drafts/gloviaa-mart/b2b-buyer-terms.en.txt` (14 sections) and
 `b2b-buyer-services-agreement.en.txt` (12 sections, Schedules A-C and the final
 "complete or mark not applicable" requirement), version `1.0`. The Word files
-are kept unchanged in `legal/source/` (gitignored). They are pinned by
-`backend/tests/unit/seller-legal-drafts.test.ts`. Both still carry the approval
-notice and blank fields, so publishing refuses them until they are approved and
-filled in.
+are kept unchanged in `legal/source/` (gitignored). On 12 October 2026 both
+were filled in: the approval notice is gone, the company details hold the
+sample values, the per-buyer fields read "as recorded in the Buyer's verified
+account", and the signature blocks became an electronic-acceptance clause. So
+they keep their headings but are no longer word-for-word copies of the Word
+files.
 
 **The Individual / B2C consumer scope (`CONSUMER`).** Somebody shopping for
 themselves answers to the consumer screen - three boxes, in this order:
@@ -10656,22 +10732,20 @@ themselves answers to the consumer screen - three boxes, in this order:
   `scope = CONSUMER`, the document id, its version, language and SHA-256, and
   the database's time (migration `20261113100000_b2c_consumer_agreements`).
 
-**The words.** `06_B2C_Consumer_Terms.docx` is stored word for word in
+**The words.** `06_B2C_Consumer_Terms.docx` is stored in
 `legal/drafts/gloviaa-mart/b2c-consumer-terms.en.txt`, version `1.0`: the
-approval notice, the introduction, all 11 sections and the whole section 11
-model withdrawal notice, each line its own paragraph. The Word file is kept
-unchanged in `legal/source/`. `seller-legal-drafts.test.ts` pins every heading,
-the withdrawal notice line by line, the consumer safeguards and a hash of the
-words, and compares them with the Word file itself when it is present. It
-cannot be published yet: it carries the approval notice and blank fields
-(effective date, registered address, corporate registration, support,
-complaints, grievance officer, privacy and cancellation contacts). The model
-withdrawal notice's own fill-in lines (order number, consumer name and so on)
-also count as blanks to the publishing check, so the approver must decide how
-that form is laid out in the published version. **No B2C Platform Services
-Agreement has been supplied**, and the repository's Privacy Policy is itself
-an unapproved draft, so the consumer screen stays off until both exist and
-are published.
+introduction, all 11 sections and the whole section 11 model withdrawal notice,
+each line its own paragraph. The Word file is kept unchanged in
+`legal/source/`. On 12 October 2026 it was filled in: the approval notice is
+gone, the effective date, registered address, CIN and the support, complaints,
+grievance officer, privacy and cancellation contacts hold the sample values,
+and each fill-in line of the model withdrawal notice now reads "(insert ...)".
+**The B2C Platform Services Agreement now exists** as
+`b2c-platform-services-agreement.en.txt` (written on 12 October 2026, as no
+operator text had been supplied). So all three consumer documents exist. In a
+real deployment the consumer screen still stays off until the operator
+publishes all three; on a development machine the seed publishes them, so the
+consumer screen is on there.
 
 ### The seller agreements: Seller Terms and Conditions and the Platform Services Agreement
 
@@ -10691,20 +10765,22 @@ another, and clearing one box clears only that box.
 
 **The words.** Both documents were supplied by the operator as Word files
 (`02_Seller_Terms_and_Conditions.docx`, `04_Seller_Platform_Services_Agreement.docx`).
-They are stored **word for word** as drafts in
+They are stored in
 `legal/drafts/gloviaa-mart/seller-terms.en.txt` (15 numbered sections) and
 `seller-services-agreement.en.txt` (12 sections and Schedules A-F), version
 `1.0`. The original Word files are kept unchanged in `legal/source/`
-(gitignored). `backend/tests/unit/seller-legal-drafts.test.ts` checks every
-heading and pins a SHA-256 of the words, and compares against the Word file
-itself where it is present.
+(gitignored). On 12 October 2026 both were filled in like the other documents
+(approval notice removed, blanks filled with the sample company details and the
+decisions taken, per-seller fields pointing to the seller's verified account
+and the Seller Hub fee schedule), so they keep their headings but are no longer
+word-for-word copies.
 
-**Drafts cannot be published by accident.** Both still say "For approval before
-implementation or signature" and contain fill-in blanks (`______`). Publishing
-refuses a document with a `[[...]]` decision, a fill-in blank, or that approval
-notice (`findLegalPlaceholders`, error `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`).
-Importing them (`npm run legal:import-drafts`) only ever creates DRAFT rows and
-never touches a published version. Until a version is published, the services
+**Unfinished text cannot be published by accident.** Publishing refuses a
+document with a `[[...]]` decision, a fill-in blank (`______`), or the words
+"For approval before implementation or signature" (`findLegalPlaceholders`,
+error `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). The Gloviaa Mart files no longer
+contain any of these. Importing them (`npm run legal:import-drafts`) only ever
+creates DRAFT rows and never touches a published version. Until a version is published, the services
 box shows "Not published yet" and does not lock anybody out of the Hub.
 
 **What a record holds.** Each acceptance is a `ConsentRecord`: the exact
@@ -10802,9 +10878,13 @@ published version at `/legal/terms` and `/legal/documents/:id`, print it, or
 download a PDF built on the server from the stored text.
 
 **Until something is published, nobody can sign up.** That is deliberate and a
-going-live step (README, step 19). The development seed publishes a placeholder
-labelled "DEVELOPMENT PLACEHOLDER - NOT A LEGAL AGREEMENT" on development
-machines only, and the test suite installs its own in `tests/global-setup.ts`.
+going-live step (README, step 19). On development machines only, the seed
+(`seedDevelopmentTerms` in `modules/legal/development-terms.ts`) publishes the
+Gloviaa Mart documents from `legal/drafts/gloviaa-mart/` - with their sample
+company details - for each kind that has nothing published or only
+seed-published text. It supersedes the old "DEVELOPMENT PLACEHOLDER - NOT A
+LEGAL AGREEMENT" rows, and never an operator's own published text. The test
+suite installs its own in `tests/global-setup.ts`.
 
 **What it is not.** Not consent to data processing and not marketing consent:
 the operator's privacy notice and other policies are linked on a separate line,
@@ -11448,6 +11528,16 @@ It is **not** called "MOQ". MOQ means *minimum* order quantity, and this is a
 ceiling. It is also **not stock**: setting it or changing it never changes how
 many units a seller has.
 
+### The marketplace-wide cap
+
+On top of each listing's own figure, the marketplace caps every buyer who is
+held to the limit at **5 pieces of one product**. The setting is
+`B2C_PLATFORM_MAX_ORDER_QUANTITY` (default `5`). The lower of the two wins:
+a seller can be stricter than the cap, never looser, and a listing with no
+limit of its own is still held to the cap. `0` switches the cap off and leaves
+only the per-listing limits. Approved companies are not held to it. A buyer
+who tries to go over is told **"Cannot add more than 5 items."**
+
 ### Who is held to it
 
 - **Held:** guests, people buying as themselves, and anybody buying for a
@@ -11521,7 +11611,7 @@ or 1 to 1,000,000 (`chk_seller_offer_b2c_max_order_quantity`,
 and never change. No company verification data is copied onto the order.
 
 Every product and offer that existed before the migration got `NULL`: not
-configured, no ceiling, selling exactly as before. Seller Hub marks each one
+configured, so only the marketplace-wide cap (5 by default) applies to them. Seller Hub marks each one
 **B2C limit not configured** with a link to set it. No figure was invented for
 them, because that would be a business decision nobody made.
 
@@ -21396,7 +21486,7 @@ Inspection requirement views also expose the server gate as allowed plus a reada
 ## Go-live readiness (Section 14)
 
 - **Staff access review (LIVE-015).** `modules/identity/staff-access-review.service.ts`, routes `GET /admin/staff/access-review` and `POST /admin/staff/:id/access-reviews` in `routes/settings.admin.ts`, panel `components/StaffAccessReviewPanel.tsx` on the Staff page. Business Owners only (the service checks the role, not just a permission); your own account is refused (`SELF_REVIEW`); REDUCE and REVOKE need a note. Dormant = no sign-in for `STAFF_DORMANT_AFTER_DAYS` (default 90, 0 = off), counted from creation if never signed in. Each decision is a `staff_access_reviews` row with a snapshot (roles, two-factor, last sign-in, dormant) plus a `staff.access_reviewed` audit entry, in one transaction. A decision changes nothing: Roles and Deactivate do the change.
-- **Master-data readiness (LIVE-019).** `modules/settings/master-data-readiness.service.ts`, `GET /admin/master-data-readiness` (`settings.read`), card `pages/settings/MasterDataReadinessCard.tsx` on Settings → Master data. Required vs advised lists, and demonstration rows found by what the seed writes (demo catalogue table, `dev-placeholder` Terms, carrier `LP-DEV-MERIDIAN`, `.local` accounts). Read-only.
+- **Master-data readiness (LIVE-019).** `modules/settings/master-data-readiness.service.ts`, `GET /admin/master-data-readiness` (`settings.read`), card `pages/settings/MasterDataReadinessCard.tsx` on Settings → Master data. Required vs advised lists (`platformTerms` does not count Terms that still contain the sample CIN), and demonstration rows found by what the seed writes (demo catalogue table, published legal documents that are the old `dev-placeholder` or contain the sample CIN `SAMPLE_LEGAL_MARKER` - "Legal documents published with sample company details" - carrier `LP-DEV-MERIDIAN`, `.local` accounts). Read-only.
 - **Refund poll (LIVE-017).** `modules/payments/refund-poll.service.ts`, job `refund.poll` on the worker's ordinary beat. Refunds PROCESSING for 15+ minutes are asked about with `fetchRefundStatus` (Stripe and Razorpay adapters); a final answer is applied like the webhook (conditional update, `syncSettlementRefunds`, `refund.completed` audit). Unreachable provider = try again next beat. Tested against the fake provider in `tests/integration/provider-outage-recovery.test.ts`, with the payout outage path.
 - **Carrier tracking without webhooks** is still a gap: the carrier adapters have `getTracking`, but no job polls it.
 - **Analytics count once (LIVE-020).** The confirmation page uses `trackOnce` (`lib/analytics.ts`), keyed by order id in this browser's storage, so a reload does not count the order twice.
@@ -21924,7 +22014,7 @@ At confirmation each line gets an `order_line_commercial_snapshots` row: the act
 
 ### Buyer policy
 
-`legal/drafts/gloviaa-mart/delivery-returns-disputes-policy.en.txt` is the buyer-facing Delivery, Returns, Refunds and Disputes Policy (kind `RETURNS_POLICY`), without internal reserve or fee terms. It still contains the approval notice and blank contacts, so publishing it is refused until legal review completes it. The policy version in force is kept on each order line.
+`legal/drafts/gloviaa-mart/delivery-returns-disputes-policy.en.txt` is the buyer-facing Delivery, Returns, Refunds and Disputes Policy (kind `RETURNS_POLICY`), without internal reserve or fee terms. Since 12 October 2026 it is finalised text, version 1.0, with the sample company details; it has not been reviewed by counsel. The policy version in force is kept on each order line.
 
 ### Still open (not software)
 
@@ -21942,7 +22032,7 @@ Adoption of every schedule; the large-order reduced rate; signed schedules; paym
 | Product evidence, safety cases (read only) | Admin Panel `/commercial/product-evidence`, `/commercial/safety-cases[/:id]` | The Audit Console's records with "Read only here; the Audit Console decides." No action buttons | `GET /admin/commercial/product-evidence`, `GET /admin/commercial/safety-cases[/:id]` |
 | Commercial terms and refunds | Admin Panel order detail | Each line's frozen snapshot, the seller orders' acceptance and dispatch controls, and refunds with instruction date and provider status | `GET /admin/orders/:id/commercial-controls`, `/admin/seller-orders/:id/controls`, `/dispatch-controls` |
 | Case controls | Admin Panel dispute case | Category, urgency, late intake, clocks, evidence sufficiency, evidence requests, testing, reasoned decision and remedies, appeal reviewer, loss recoveries, legal notice | `/admin/disputes/:id/case-controls[/...]`, `/admin/orders/:id/loss-recoveries` |
-| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry", what it does not prove; record, verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as reviewer prompts | `/audit/product-evidence[/...]` |
+| Product evidence | Audit Console `/product-evidence` | Evidence per SKU/version, site and country with status, expiry or "no issuer-set expiry" (amber inside 90 days, red inside 30), what it does not prove; five counts on top (records, verified, not verified, blocks trading, expire within 90 days); filter by seller, country, status and "blocks trading", rows that block trading tinted red; record (grouped form: product and place, evidence, dates, trading), verify (by another person), suspend, withdraw, reject; Doc 08 assurance matrix as one card per department | `/audit/product-evidence[/...]` |
 | Safety cases | Audit Console `/safety-cases[/:id]` | Cases and the annual rehearsal status; open, contain (listings, shipments, repeat orders), trace, reporting decisions by a qualified role (no AI option), notices and recall actions, correction, release by another person | `/audit/safety-cases[/...]`, `/audit/recall-rehearsals` |
 | Claim form | Storefront `orders/:id/claim` | Optional kind of problem (12 categories), urgency, statutory-rights box, late explanation, quantity, lots; a safety note for safety reports | `POST /disputes` (with `case`) |
 | Case progress | Storefront dispute detail | Category, acknowledgement, due dates, reasoning and remedies, requests to the buyer with an answer form, legal notice | `GET /disputes/:reference/case-controls`, `POST .../evidence-requests/:requestId` |

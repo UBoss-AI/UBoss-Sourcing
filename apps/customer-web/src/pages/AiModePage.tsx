@@ -87,6 +87,7 @@ import { stockedCategories } from '@/lib/category-tree';
 import type { CategoryNode } from '@/lib/types';
 import { AiComposer } from './ai/AiComposer';
 import { AiMessage } from './ai/AiMessage';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { AiSidebar } from './ai/AiSidebar';
 import type { ChatMessage } from './ai/AiMessage';
 import type { ConversationSummary } from './ai/conversations';
@@ -854,7 +855,13 @@ export function AiModePage(): React.JSX.Element {
           </p>
         </header>
 
-        <div ref={transcriptRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-6 sm:px-6">
+        <ScrollArea
+          className="min-h-0 flex-1"
+          variant="violet"
+          label={t('aiMode.title')}
+          viewportRef={transcriptRef}
+          viewportProps={{ className: 'px-3 py-6 sm:px-6' }}
+        >
           <div className="mx-auto max-w-3xl space-y-5">
             {isEmpty ? (
               <div className="pt-8 text-center sm:pt-16">
@@ -1048,7 +1055,7 @@ export function AiModePage(): React.JSX.Element {
               </div>
             )}
           </div>
-        </div>
+        </ScrollArea>
 
         {mustSignIn ? (
           /*

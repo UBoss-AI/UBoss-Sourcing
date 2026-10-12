@@ -19,6 +19,7 @@ import {
   termsKindsForScope,
   CONSUMER_ACTIVATION_KINDS,
 } from '../../src/domain/legal-document.js';
+import { SAMPLE_LEGAL_MARKER } from '../../src/modules/legal/development-terms.js';
 import { parseDraftFile } from '../../src/modules/legal/draft-file.js';
 
 describe('acceptableVersions', () => {
@@ -120,9 +121,8 @@ describe('the Gloviaa Mart policy drafts', () => {
       'AUDIT_CONSOLE_TERMS',
       'B2B_BUYER_SERVICES_AGREEMENT',
       'B2B_BUYER_TERMS',
-      // No B2C Platform Services Agreement has been supplied: its kind exists
-      // and the consumer screen stays off until one is published.
       'B2C_CONSUMER_TERMS',
+      'B2C_PLATFORM_SERVICES_AGREEMENT',
       'LOGISTICS_PARTNER_TERMS',
       'PLATFORM_TERMS',
       'PRIVACY_POLICY',
@@ -135,14 +135,20 @@ describe('the Gloviaa Mart policy drafts', () => {
     ]);
   });
 
-  it.each(files)('%s says it is a draft and still has decisions to make, so it cannot be published', (file) => {
+  it.each(files)('%s is a finished version 1.0 with no blank, decision or draft notice left in it', (file) => {
     const text = readFileSync(join(folder, file), 'utf8');
-    // The adapted drafts open with their own DRAFT notice; the two the operator
-    // supplied as Word documents carry theirs ("For approval before ...").
-    expect(
-      text.includes('DRAFT - not legal advice and not approved for publication.') || text.includes(LEGAL_APPROVAL_NOTICE),
-    ).toBe(true);
-    expect(findLegalPlaceholders(text).length).toBeGreaterThan(0);
+    const { version, body } = parseDraftFile(file, text);
+    expect(version).toBe('1.0');
+    expect(body).toContain('Version 1.0 | Effective 12 October 2026');
+    expect(findLegalPlaceholders(text)).toEqual([]);
+    expect(text).not.toContain(LEGAL_APPROVAL_NOTICE);
+    expect(text).not.toMatch(/\bdraft\b|placeholder|\bTBD\b|to be confirmed/i);
+  });
+
+  // The company details are invented stand-ins: the readiness card finds a
+  // published document by the sample CIN, so every document must carry it.
+  it.each(files)('%s names the operator by the sample company details the readiness card looks for', (file) => {
+    expect(readFileSync(join(folder, file), 'utf8')).toContain(SAMPLE_LEGAL_MARKER);
   });
 
   it.each(files)('%s carries no name, address, contact or programme of the source company', (file) => {
