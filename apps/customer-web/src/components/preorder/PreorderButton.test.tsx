@@ -316,7 +316,7 @@ describe('PreorderButton', () => {
 
     const preorder = await preorderButton();
     const info = infoButton();
-    const chat = screen.getByRole('button', { name: 'Chat with Gloviaa Mart' });
+    const chat = screen.getByRole('button', { name: 'Chat with World Mart' });
     const plate = preorder.parentElement as HTMLElement;
     // Both icons sit over Preorder's right end, inside the same wrapper, but
     // as siblings, never nested: a button inside a button is invalid.
@@ -332,9 +332,9 @@ describe('PreorderButton', () => {
     // Both icons are described by a tooltip as well as named.
     expect(info).toHaveAccessibleDescription('Preorder information');
     // One way into the chat from this row, and it is the icon: no visible
-    // "Chat with Gloviaa Mart" text button beside it any more.
+    // "Chat with World Mart" text button beside it any more.
     expect(screen.getAllByRole('button', { name: /chat with/i })).toHaveLength(1);
-    expect(screen.queryByText('Chat with Gloviaa Mart')).toBeNull();
+    expect(screen.queryByText('Chat with World Mart')).toBeNull();
     expect(info).toHaveAttribute('aria-haspopup', 'dialog');
     expect(info).toHaveAttribute('aria-expanded', 'false');
   });

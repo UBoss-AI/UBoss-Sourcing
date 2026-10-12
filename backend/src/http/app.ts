@@ -965,7 +965,7 @@ export async function buildApp() {
   await app.register(registerCommissionInvoiceAdminRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
-   * Where the Gloviaa Mart Tally Bridge talks to us.
+   * Where the World Mart Tally Bridge talks to us.
    *
    * Outside every session guard, alongside the carrier and ERP webhooks and
    * for the same reason: the caller is an agent on a seller's own machine with

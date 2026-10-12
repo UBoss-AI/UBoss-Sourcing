@@ -2591,10 +2591,10 @@ export function buildOpenApiDocument(routes: RouteRecord[]): Record<string, unkn
   return {
     openapi: '3.1.0',
     info: {
-      title: 'Gloviaa Mart API',
+      title: 'World Mart API',
       version: '1.0.0',
       description: [
-        'Backend for the Gloviaa Mart admin console, storefront, Seller Hub and logistics portal.',
+        'Backend for the World Mart admin console, storefront, Seller Hub and logistics portal.',
         '',
         '## Money',
         'Money is never a JSON number. Every amount is an object with `minor` -',

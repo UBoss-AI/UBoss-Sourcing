@@ -9777,7 +9777,7 @@ What a seller is being told about.
 | `FREIGHT_QUOTE_REQUESTED` | A buyer asked for a freight price on a load no carrier here can quote. News, and it is waiting for a person to answer. |
 | `FREIGHT_QUOTE_AVAILABLE` | Somebody answered a freight request. |
 | `PACKAGING_VALIDATION_FAILED` | A package the seller switched on is missing something a buyer would need. |
-| `ERP_BRIDGE_OFFLINE` | --- The seller's own accounting system ---------------------------------- The Gloviaa Mart Tally Bridge has stopped checking in. |
+| `ERP_BRIDGE_OFFLINE` | --- The seller's own accounting system ---------------------------------- The World Mart Tally Bridge has stopped checking in. |
 | `ERP_MAPPING_INCOMPLETE` | Something a sync needs has not been matched to Tally yet. |
 | `ERP_SYNC_RECOVERED` | The connection is working again after a failure. News, and worth saying: somebody who was told it broke is entitled to be told it is fixed. |
 | `ERP_INITIAL_SYNC_COMPLETE` | The one-off first run has finished. |
@@ -12663,7 +12663,7 @@ The offer of one consignment to one carrier, and what they said.
 | Value | Meaning |
 |---|---|
 | `BOOKING_REQUIRED` | The seller chose the carrier. Nothing has been booked with it yet. |
-| `BOOKED` | The seller booked it outside Gloviaa Mart and entered the carrier's own tracking number. Only this state lets a consignment be tracked. |
+| `BOOKED` | The seller booked it outside World Mart and entered the carrier's own tracking number. Only this state lets a consignment be tracked. |
 | `CANCELLED` | Given up before collection, with a reason. Kept, never deleted. |
 
 <a id="group-demo-catalogue"></a>
@@ -13387,7 +13387,7 @@ One seller's connection to their own accounting system.
 
 Table `seller_erp_bridge_devices`
 
-A machine running the Gloviaa Mart Tally Bridge.
+A machine running the World Mart Tally Bridge.
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
@@ -13765,7 +13765,7 @@ How this platform reaches the seller's Tally.
 
 | Value | Meaning |
 |---|---|
-| `BRIDGE` | Through the Gloviaa Mart Tally Bridge, outbound-only. The production answer, and the default. |
+| `BRIDGE` | Through the World Mart Tally Bridge, outbound-only. The production answer, and the default. |
 | `DIRECT_PRIVATE` | Straight to a host the operator has allowlisted, for a deployment that runs inside the same private network as the seller's Tally. Refused unless the operator has configured an allowlist, and refused for any address `assertSafeErpUrl` will not pass. |
 
 <a id="enum-sellererpconnectionstate"></a>
@@ -17016,7 +17016,7 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `STAFF_TERMS` | The operator's staff terms, accepted on the console's agreement screen. |
 | `AUDIT_CONSOLE_TERMS` | The Audit Console's terms, accepted on that console's agreement screen. |
 | `B2B_BUYER_TERMS` | The B2B Buyer Terms and Conditions, accepted on the storefront's agreement screen by a member acting for a buyer company. The row names the company. |
-| `B2B_BUYER_SERVICES_AGREEMENT` | The B2B Buyer Platform Services Agreement, accepted once for a company by a member with authority to bind it (owner or company admin). A record of one published version: not Gloviaa's signature and not the completed Schedules A-C, which are executed separately. |
+| `B2B_BUYER_SERVICES_AGREEMENT` | The B2B Buyer Platform Services Agreement, accepted once for a company by a member with authority to bind it (owner or company admin). A record of one published version: not World's signature and not the completed Schedules A-C, which are executed separately. |
 | `B2C_CONSUMER_TERMS` | The B2C Consumer Terms and Conditions, accepted on the storefront's screen by somebody shopping for themselves (scope CONSUMER). |
 | `B2C_PLATFORM_SERVICES_AGREEMENT` | The B2C Platform Services Agreement, accepted under its own box on the same consumer screen. Never the seller's or the B2B one. |
 
@@ -17290,7 +17290,7 @@ Who issues commission invoices, and how. One row.
 | `singleton` | String · VarChar(16) |  |  | "default" | Always "default". UNIQUE, so there is never a second row. |
 | `legalEntityCode` | String · VarChar(16) |  |  | "MAIN" | A short code for the legal entity. Part of every sequence key, so a different entity numbers from one again. |
 | `legalName` | String · VarChar(255) | yes |  |  |  |
-| `tradeName` | String · VarChar(255) | yes |  |  | The name it trades under, e.g. "Gloviaa Mart — Powered by UBOSS". |
+| `tradeName` | String · VarChar(255) | yes |  |  | The name it trades under, e.g. "World Mart — Powered by UBOSS". |
 | `addressLine1` | String · VarChar(255) | yes |  |  |  |
 | `addressLine2` | String · VarChar(255) | yes |  |  |  |
 | `city` | String · VarChar(120) | yes |  |  |  |
@@ -24541,7 +24541,7 @@ Commission reversed for a refund (Doc 08 s2: commission follows refunds proporti
 
 Table `certification_programmes`
 
-Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. World funds first.
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
@@ -24756,7 +24756,7 @@ Doc 08 s6: insurance verified per policy. Buying a limit never approves a catego
 
 Table `product_compliance_evidence`
 
-Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not World trading approval.
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|

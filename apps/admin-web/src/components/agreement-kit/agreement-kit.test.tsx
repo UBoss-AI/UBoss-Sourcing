@@ -57,9 +57,9 @@ function documentOf(id: string, kind: string, title: string, version = '2026-11-
   };
 }
 
-const TERMS = documentOf('01JTERMS000000000000000001', 'PLATFORM_TERMS', 'Gloviaa Terms of Use');
-const TERMS_V2 = documentOf('01JTERMS000000000000000002', 'PLATFORM_TERMS', 'Gloviaa Terms of Use, version 2', '2026-12-01');
-const PRIVACY = documentOf('01JPRIVACY0000000000000001', 'PRIVACY_POLICY', 'Gloviaa Privacy Policy');
+const TERMS = documentOf('01JTERMS000000000000000001', 'PLATFORM_TERMS', 'World Terms of Use');
+const TERMS_V2 = documentOf('01JTERMS000000000000000002', 'PLATFORM_TERMS', 'World Terms of Use, version 2', '2026-12-01');
+const PRIVACY = documentOf('01JPRIVACY0000000000000001', 'PRIVACY_POLICY', 'World Privacy Policy');
 
 function record(documentId: string, action: 'TERMS_ACCEPTED' | 'PRIVACY_NOTICE_ACKNOWLEDGED') {
   return { recordId: `r-${documentId}`, documentId, version: '2026-11-01', locale: 'en', action, recordedAt: '2026-11-02T10:00:00.000Z' };
@@ -178,17 +178,17 @@ describe('the agreement screen', () => {
     renderScreen({ client });
 
     await user.click(termsBox());
-    expect(dialog('Gloviaa Terms of Use')).toBeVisible();
+    expect(dialog('World Terms of Use')).toBeVisible();
     expect(termsBox()).not.toBeChecked();
-    await user.click(within(dialog('Gloviaa Terms of Use')).getByRole('button', { name: 'Cancel' }));
+    await user.click(within(dialog('World Terms of Use')).getByRole('button', { name: 'Cancel' }));
 
     await user.click(screen.getByRole('button', { name: 'Privacy Policy' }));
-    expect(dialog('Gloviaa Privacy Policy')).toBeVisible();
+    expect(dialog('World Privacy Policy')).toBeVisible();
     expect(privacyBox()).not.toBeChecked();
-    await user.click(within(dialog('Gloviaa Privacy Policy')).getByRole('button', { name: 'Cancel' }));
+    await user.click(within(dialog('World Privacy Policy')).getByRole('button', { name: 'Cancel' }));
 
     await user.click(screen.getByText(/I acknowledge that I have read the/));
-    expect(dialog('Gloviaa Privacy Policy')).toBeVisible();
+    expect(dialog('World Privacy Policy')).toBeVisible();
     expect(client.record).not.toHaveBeenCalled();
   });
 
@@ -198,12 +198,12 @@ describe('the agreement screen', () => {
 
     termsBox().focus();
     await user.keyboard('{Enter}');
-    expect(dialog('Gloviaa Terms of Use')).toBeVisible();
-    await user.click(within(dialog('Gloviaa Terms of Use')).getByRole('button', { name: 'Cancel' }));
+    expect(dialog('World Terms of Use')).toBeVisible();
+    await user.click(within(dialog('World Terms of Use')).getByRole('button', { name: 'Cancel' }));
 
     termsBox().focus();
     await user.keyboard(' ');
-    expect(dialog('Gloviaa Terms of Use')).toBeVisible();
+    expect(dialog('World Terms of Use')).toBeVisible();
     expect(termsBox()).not.toBeChecked();
   });
 
@@ -219,7 +219,7 @@ describe('the agreement screen', () => {
       restore();
     }
 
-    const box = dialog('Gloviaa Terms of Use');
+    const box = dialog('World Terms of Use');
     const agree = within(box).getByRole('button', { name: 'I agree' });
     const region = within(box).getByRole('region', { name: /Full text of/ });
     Object.defineProperty(region, 'clientHeight', { configurable: true, value: 200 });
@@ -247,7 +247,7 @@ describe('the agreement screen', () => {
     await user.click(termsBox());
     // jsdom lays nothing out: scrollHeight equals clientHeight, text that fits.
     await waitFor(() => {
-      expect(within(dialog('Gloviaa Terms of Use')).getByRole('button', { name: 'I agree' })).toBeEnabled();
+      expect(within(dialog('World Terms of Use')).getByRole('button', { name: 'I agree' })).toBeEnabled();
     });
   });
 
@@ -263,7 +263,7 @@ describe('the agreement screen', () => {
     const client = fakeClient();
     renderScreen({ client });
     await user.click(termsBox());
-    const box = dialog('Gloviaa Terms of Use');
+    const box = dialog('World Terms of Use');
     await waitFor(() => {
       expect(within(box).getByRole('button', { name: 'I agree' })).toBeEnabled();
     });
@@ -280,7 +280,7 @@ describe('the agreement screen', () => {
     const client = fakeClient();
     renderScreen({ client });
     await user.click(termsBox());
-    const agree = within(dialog('Gloviaa Terms of Use')).getByRole('button', { name: 'I agree' });
+    const agree = within(dialog('World Terms of Use')).getByRole('button', { name: 'I agree' });
     await waitFor(() => {
       expect(agree).toBeEnabled();
     });
@@ -304,7 +304,7 @@ describe('the agreement screen', () => {
     });
     renderScreen({ client });
     await user.click(privacyBox());
-    const box = dialog('Gloviaa Privacy Policy');
+    const box = dialog('World Privacy Policy');
     const acknowledge = within(box).getByRole('button', { name: 'I acknowledge' });
     await waitFor(() => {
       expect(acknowledge).toBeEnabled();
@@ -328,14 +328,14 @@ describe('the agreement screen', () => {
     const client = fakeClient({ record: vi.fn().mockRejectedValue(new ApiLikeError('TERMS_VERSION_OUTDATED')) });
     renderScreen({ client, refreshTo: statusOf({ termsDocument: TERMS_V2 }) });
     await user.click(termsBox());
-    const agree = within(dialog('Gloviaa Terms of Use')).getByRole('button', { name: 'I agree' });
+    const agree = within(dialog('World Terms of Use')).getByRole('button', { name: 'I agree' });
     await waitFor(() => {
       expect(agree).toBeEnabled();
     });
 
     await user.click(agree);
 
-    const updated = await screen.findByRole('dialog', { name: 'Gloviaa Terms of Use, version 2' });
+    const updated = await screen.findByRole('dialog', { name: 'World Terms of Use, version 2' });
     expect(within(updated).getByRole('alert')).toHaveTextContent(/new version was published/);
     expect(termsBox()).not.toBeChecked();
   });
@@ -373,7 +373,7 @@ describe('the agreement screen', () => {
 
     await user.click(screen.getByRole('button', { name: 'Terms & Conditions' }));
 
-    const box = dialog('Gloviaa Terms of Use');
+    const box = dialog('World Terms of Use');
     expect(within(box).queryByRole('button', { name: 'I agree' })).not.toBeInTheDocument();
     expect(within(box).getByRole('status')).toHaveTextContent(/Recorded on/);
     expect(client.clear).not.toHaveBeenCalled();
@@ -903,8 +903,8 @@ describe('the boxes on a sign-in form', () => {
       expect(termsBox()).toBeEnabled();
     });
     for (const [opener, name, button] of [
-      [termsBox, 'Gloviaa Terms of Use', 'I agree'],
-      [privacyBox, 'Gloviaa Privacy Policy', 'I acknowledge'],
+      [termsBox, 'World Terms of Use', 'I agree'],
+      [privacyBox, 'World Privacy Policy', 'I acknowledge'],
     ] as const) {
       await user.click(opener());
       const confirm = within(dialog(name)).getByRole('button', { name: button });
@@ -1001,7 +1001,7 @@ describe('the gate', () => {
     expect(screen.queryByText('The page that was asked for')).not.toBeInTheDocument();
 
     await user.click(privacyBox());
-    const acknowledge = within(dialog('Gloviaa Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
+    const acknowledge = within(dialog('World Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
     await waitFor(() => {
       expect(acknowledge).toBeEnabled();
     });
@@ -1021,7 +1021,7 @@ describe('the gate', () => {
 
     await screen.findByRole('heading', { name: 'Before you continue' });
     await user.click(privacyBox());
-    const acknowledge = within(dialog('Gloviaa Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
+    const acknowledge = within(dialog('World Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
     await waitFor(() => {
       expect(acknowledge).toBeEnabled();
     });
@@ -1041,7 +1041,7 @@ describe('the gate', () => {
 
     await screen.findByRole('heading', { name: 'Before you continue' });
     await user.click(privacyBox());
-    const acknowledge = within(dialog('Gloviaa Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
+    const acknowledge = within(dialog('World Privacy Policy')).getByRole('button', { name: 'I acknowledge' });
     await waitFor(() => {
       expect(acknowledge).toBeEnabled();
     });

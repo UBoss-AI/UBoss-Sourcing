@@ -101,7 +101,7 @@ Durations are estimates of the finished chapter, including presenter time.
 
 | Chapter | Learning objective | Role / route | Duration | Narration points |
 |---|---|---|---|---|
-| Intro (presenter) | What Gloviaa Mart is | — | 0:12 | Name, tagline, "Powered by UBOSS"; one line on who it is for |
+| Intro (presenter) | What World Mart is | — | 0:12 | Name, tagline, "Powered by UBOSS"; one line on who it is for |
 | Discover | Find products in your language and currency | Buyer, `/`, `/products` | 0:20 | Eight languages; prices in złoty |
 | Product and terms | Terms are clear before ordering | Buyer, `/product/:slug` | 0:18 | Variants, bulk savings, tax shown |
 | Preorder by container | Buy at production scale | Buyer, preorder dialog | 0:18 | Minimum quantity; 20-ft / 40-ft; "a request is not an order" |
@@ -122,7 +122,7 @@ Durations are estimates of the finished chapter, including presenter time.
 | B6 | Product page | Results | Open product → choose variant → see bulk savings | Price per variant, bulk tiers | Variant buttons, bulk savings | "Prices fall as quantity rises — set by the seller" | 0:35 | — | — | VERIFIED (variants) |
 | B7 | B2C limit (optional) | Individual account | Raise quantity above the B2C cap | Limit dialog | B2C limit dialog | Why limits exist; company accounts are exempt | 0:15 | — | — | Pending |
 | B8 | Preorder by container | Product with container data | Preorder → read rules → agree → order in **40-ft container** → date → review (do **not** send on the public take unless the demo environment is used) | Equivalent pieces shown | Order-in units, minimum, earliest date | "A request is not an order and charges nothing" | 0:40 | Delivery address fictional | — | Rules verified; container **blocked by data** |
-| B9 | Preorder chat | Product page | Chat with Gloviaa Mart → tap "How many pieces fit in a 40-ft container?" → "Connect with a human agent" | Automated answer; handover queued | Suggested questions, human button | "Automatic answers from the product's own data — not a person"; "a request for a person is queued" | 0:35 | No real names in chat | — | UI verified |
+| B9 | Preorder chat | Product page | Chat with World Mart → tap "How many pieces fit in a 40-ft container?" → "Connect with a human agent" | Automated answer; handover queued | Suggested questions, human button | "Automatic answers from the product's own data — not a person"; "a request for a person is queued" | 0:35 | No real names in chat | — | UI verified |
 | B10 | Cart and checkout | Product page | Add to cart → cart → Proceed to checkout → address, warehouse, payment choice | Checkout summary | Steps bar, order summary | One checkout, several sellers | 0:35 | Fictional address | — | VERIFIED to the pay button |
 | B11 | Payment (test) | Checkout | Place order and pay → Stripe test page → test card 4242… → return | Confirmation page | Stripe test badge | "This is test mode"; "the order is confirmed when the payment provider confirms it" | 0:30 | Test card only; nothing else typed on screen | Stripe test keys, webhook | **Blocked (B-05)** |
 | B12 | Orders and tracking | Confirmation | My orders → open order → delivery levels | L1–L4 levels | Order progress, delivery levels | Leg by leg from the factory to your door; no live GPS claimed | 0:35 | Fictional names | — | Orders verified; levels need data |

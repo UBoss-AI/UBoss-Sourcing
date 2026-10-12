@@ -1,4 +1,4 @@
-# The Gloviaa Mart API guide
+# The World Mart API guide
 
 Running ledger payouts first reconciles existing unresolved operations by their
 original reference and idempotency key. The response's `failed` list reports
@@ -18,7 +18,7 @@ and a version check inside the domain transaction rejects concurrent changes.
 Unchanged, stale, backward and invalid transitions cannot mark progress.
 Timeouts and provider errors retry through the queue without storing credentials.
 
-This guide explains how the Gloviaa Mart backend API works and how to use it. Gloviaa Mart
+This guide explains how the World Mart backend API works and how to use it. World Mart
 is the product name; the repository is called UBOSS Sourcing, and you will see
 both words in the code and in cookie names.
 
@@ -147,7 +147,7 @@ credential.
 | **Logistics** | `/api/v1/logistics/*` (sign-in under `/api/v1/logistics/auth/*`) | A person from a carrier company | Logistics session (cookies `uboss_logi_*`), plus a logistics permission, plus two-step sign-in for some roles |
 | **Driver** | `/api/v1/logistics/driver/*` | A carrier's driver, on a phone | A logistics session; the location pings carry a device token instead |
 | **Webhooks** | `/api/v1/payments/webhooks/:provider`, `/api/v1/integrations/erp/webhooks/:slug`, `/api/v1/erp-inbound/:slug`, `/api/v1/integrations/carriers/:pathToken/webhook` | Another company's server | A signature over the exact bytes of the body |
-| **Integrations** | `/api/v1/integrations/tally-bridge/*` | The Gloviaa Mart Tally Bridge agent on a seller's own computer | A Bearer token issued to that paired device |
+| **Integrations** | `/api/v1/integrations/tally-bridge/*` | The World Mart Tally Bridge agent on a seller's own computer | A Bearer token issued to that paired device |
 | **Token downloads** | `/api/v1/exports/download/:token`, `/api/v1/my-data/download/:token` | Whoever holds a link from an email | The unguessable, expiring token in the path |
 | **Health and metrics** | `/health/live`, `/health/ready`, `/metrics` | Load balancers, monitoring | Nothing. `/metrics` is closed to the internet by nginx |
 

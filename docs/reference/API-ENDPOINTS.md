@@ -204,7 +204,7 @@ Defined in `backend/src/http/routes/commercial-policy.ts`.
 | POST | `/api/v1/admin/commercial/commission-adjustments/:id/apply` | Staff | Admin(COMMISSION_CREDIT_NOTE_CREATE) | Apply a proposed reversal against an issued credit note. |
 | GET | `/api/v1/admin/commercial/certification-programmes` | Staff | Admin(FINANCE_POLICY_READ) | Certification-recovery programmes. |
 | GET | `/api/v1/admin/commercial/certification-programmes/:id` | Staff | Admin(FINANCE_POLICY_READ) | One programme's ledger: costs, allocations and the unrecovered balance. |
-| POST | `/api/v1/admin/commercial/certification-programmes` | Staff | Admin(FINANCE_POLICY_WRITE) | Create a programme (Gloviaa funds first). |
+| POST | `/api/v1/admin/commercial/certification-programmes` | Staff | Admin(FINANCE_POLICY_WRITE) | Create a programme (World funds first). |
 | POST | `/api/v1/admin/commercial/certification-programmes/:id/costs` | Staff | Admin(FINANCE_POLICY_WRITE) | Record a third-party cost, credit or seller deduction. |
 | POST | `/api/v1/admin/commercial/certification-costs/:id/verify` | Staff | Admin(FINANCE_TAX_VERIFY) | Verify a cost as eligible (not by its recorder). |
 | POST | `/api/v1/admin/commercial/certification-programmes/:id/status` | Staff | Admin(FINANCE_POLICY_WRITE) | Activate, pause or close a programme (activation needs the adopted schedule). |

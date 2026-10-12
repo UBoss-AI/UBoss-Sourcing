@@ -9,7 +9,7 @@ sites from `apps/customer-web/dist`, `apps/admin-web/dist` and
 After this one-time setup, **every push to `main` goes live by itself**:
 
 1. GitHub runs **CI** (the tests). If CI fails, nothing is deployed.
-2. When CI is green, **Deploy Gloviaa (Docker)** builds the three sites and the
+2. When CI is green, **Deploy World (Docker)** builds the three sites and the
    backend from that exact commit and sends them to the server.
 3. The server validates the checksum and archive paths, builds an API image
    tagged with that commit, takes an encrypted offsite backup, applies Prisma
@@ -133,12 +133,12 @@ setting it before the DNS name answers turns the deploy red.
 
 ## Step 4: Push
 
-Push to `main`. Watch **Actions**: **CI**, then **Deploy Gloviaa (Docker)**.
+Push to `main`. Watch **Actions**: **CI**, then **Deploy World (Docker)**.
 
 ✅ **Done when:** every step is green, including **Check the live sites serve
 this build**.
 
-To deploy without a new push: **Actions → Deploy Gloviaa (Docker) → Run
+To deploy without a new push: **Actions → Deploy World (Docker) → Run
 workflow**.
 
 ---

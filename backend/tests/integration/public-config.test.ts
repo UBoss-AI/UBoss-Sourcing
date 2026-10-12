@@ -282,14 +282,14 @@ describe('GET /api/v1/config', () => {
   /*
    * The brand, and the one thing about it that is not ours to decide.
    *
-   * The product is called Gloviaa Mart and the company behind it is UBOSS, and both
+   * The product is called World Mart and the company behind it is UBOSS, and both
    * of those are constants in the browser bundles — see
    * `apps/customer-web/src/lib/brand.ts`. What THIS endpoint publishes is
    * neither of them: it is the operator's own trading name, because every
    * buyer runs their own deployment and the header of their storefront is
    * their name. The rename must not have turned that into a constant, which
    * is exactly the mistake a global search and replace would have made, and
-   * exactly the mistake a test pinned to the string "Gloviaa Mart" would have
+   * exactly the mistake a test pinned to the string "World Mart" would have
    * blessed.
    */
   it('publishes the operator’s own trading name, not the product’s', async () => {
@@ -312,7 +312,7 @@ describe('GET /api/v1/config', () => {
 
     // Screens that say who manages a delivery level or who assigned a
     // consignment read this, so it must be the operator's own name.
-    expect(body.marketplace.displayName).toBe(profile?.displayName.trim() || 'Gloviaa Mart');
+    expect(body.marketplace.displayName).toBe(profile?.displayName.trim() || 'World Mart');
   });
 
   it('never carries the product’s former name', async () => {

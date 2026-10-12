@@ -1,6 +1,6 @@
-# Gloviaa Mart Admin Panel
+# World Mart Admin Panel
 
-React + TypeScript admin panel for the Gloviaa Mart backend.
+React + TypeScript admin panel for the World Mart backend.
 
 ## Running it
 

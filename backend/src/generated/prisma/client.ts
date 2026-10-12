@@ -2020,7 +2020,7 @@ export type LogisticsShipmentPackage = Prisma.LogisticsShipmentPackageModel
  * and DHL is not one - so a seller without credentials had no way to say who
  * was carrying their parcel at all.
  * 
- * WHAT THIS ROW NEVER CLAIMS. That Gloviaa Mart booked anything, that a label
+ * WHAT THIS ROW NEVER CLAIMS. That World Mart booked anything, that a label
  * exists, that a rate was quoted, or that DHL has accepted the parcel. It
  * records what the SELLER says they arranged, and it says so on every screen
  * that shows it. A tracking number appears only when a person typed one in.
@@ -2358,7 +2358,7 @@ export type SellerFreightQuoteRequest = Prisma.SellerFreightQuoteRequestModel
 export type SellerErpConnection = Prisma.SellerErpConnectionModel
 /**
  * Model SellerErpBridgeDevice
- * A machine running the Gloviaa Mart Tally Bridge.
+ * A machine running the World Mart Tally Bridge.
  * 
  * THE TOKEN IS NOT STORED. Only its SHA-256 and a short display prefix are,
  * exactly as `AuthToken` and the carrier webhook secrets already work here.
@@ -3802,7 +3802,7 @@ export type LossRecovery = Prisma.LossRecoveryModel
 export type CommissionAdjustment = Prisma.CommissionAdjustmentModel
 /**
  * Model CertificationProgramme
- * Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+ * Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. World funds first.
  */
 export type CertificationProgramme = Prisma.CertificationProgrammeModel
 /**
@@ -3832,7 +3832,7 @@ export type SecurityReview = Prisma.SecurityReviewModel
 export type InsurancePolicyRecord = Prisma.InsurancePolicyRecordModel
 /**
  * Model ProductComplianceEvidence
- * Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+ * Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not World trading approval.
  */
 export type ProductComplianceEvidence = Prisma.ProductComplianceEvidenceModel
 /**

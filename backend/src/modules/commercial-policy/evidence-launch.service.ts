@@ -4,7 +4,7 @@
  * payment plan (Doc 08 s5).
  *
  * Product evidence is the Audit Console's to verify: it is recorded per exact
- * SKU/version, site and country, and is kept apart from Gloviaa's own trading
+ * SKU/version, site and country, and is kept apart from World's own trading
  * approval. Required evidence that is withdrawn, suspended or past an expiry
  * the issuer set blocks purchase and dispatch at once - read live by the
  * purchase gate, never only by a job. No annual expiry is invented.

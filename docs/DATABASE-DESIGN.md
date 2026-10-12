@@ -1,11 +1,11 @@
-# Gloviaa Mart database design
+# World Mart database design
 
-This document explains **how the Gloviaa Mart database is designed and why**. It is
+This document explains **how the World Mart database is designed and why**. It is
 written for everyone: a new developer, a reviewer, an operator deciding whether
 to trust the system, and a business person who wants to know where a piece of
 information lives.
 
-Gloviaa Mart is the product name. Inside the code and the database the old name,
+World Mart is the product name. Inside the code and the database the old name,
 **UBOSS**, is still used on purpose: the databases are called `uboss` and
 `uboss_test`, and the four database accounts start with `uboss_`.
 
@@ -916,16 +916,18 @@ inserted with the same `familyId`, and the first is marked `revokedAt` with
 
 ### 5.2 Business configuration and media
 
-**Purpose.** The settings that make one installation one business. Gloviaa Mart is
+**Purpose.** The settings that make one installation one business. World Mart is
 sold to companies that run it themselves, so nothing about the business is
 hard-coded: it lives in these rows.
 
 `displayName` is also what switches the storefront's wordmark on: the script
 name and the tagline appear only while it equals the product name,
-"Gloviaa Mart", exactly. Migration
+"World Mart", exactly. Migration
 `20261007090000_rename_product_default_to_gloviaa_mart` is a data-only change
-for the rename: it sets `displayName` to "Gloviaa Mart" where it is exactly the
+for the rename: it sets `displayName` to "World Mart" where it is exactly the
 old seeded default "Glovia", and touches no other value.
+`20261115090000_rename_product_default_to_world_mart` does the same for the
+next rename: "Gloviaa Mart" becomes "World Mart".
 
 | Model | Table | One row means |
 |---|---|---|
@@ -4228,7 +4230,7 @@ both are copied to `order_items` and `order_item_packaging`.
 
 **Purpose.** A seller's own books. TallyPrime is a Windows desktop program
 whose integration port has **no authentication**, so no URL is ever safe to
-call. Instead the seller runs the **Gloviaa Mart Tally Bridge** beside Tally; it is
+call. Instead the seller runs the **World Mart Tally Bridge** beside Tally; it is
 paired with a one-time code and connects **out** to this API to claim work.
 This is the third ERP feature and shares no table with the other two.
 

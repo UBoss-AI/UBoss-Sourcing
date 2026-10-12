@@ -1,4 +1,4 @@
-# Put Gloviaa Mart on Your Hostinger VPS: A Step-by-Step Guide
+# Put World Mart on Your Hostinger VPS: A Step-by-Step Guide
 
 This guide is for someone doing this **for the first time**.
 Follow the parts in order. Do not skip ahead.
@@ -53,8 +53,8 @@ Tick each part as you finish it:
 | **SSH** | The way your computer connects to the server's terminal |
 | **root** | The server's main administrator account. It can do anything. |
 | **Command** | One line you paste into the terminal, followed by Enter |
-| **Domain** | Your website name, for example `gloviaamart.com` |
-| **Subdomain** | A name in front of the domain, for example `shop.gloviaamart.com` |
+| **Domain** | Your website name, for example `worldmart.com` |
+| **Subdomain** | A name in front of the domain, for example `shop.worldmart.com` |
 | **DNS** | The internet's address book. It turns a name into your server's IP address. |
 | **IP address** | Your server's number on the internet, for example `123.45.67.89` |
 | **Database** | Where all the orders, users and products are stored |
@@ -70,7 +70,7 @@ Tick each part as you finish it:
 Tick each one off:
 
 - [ ] The Hostinger VPS is bought (you have done this).
-- [ ] You know your domain name, for example `gloviaamart.com`, and can log in to the website where you bought it.
+- [ ] You know your domain name, for example `worldmart.com`, and can log in to the website where you bought it.
 - [ ] A free **Backblaze B2** account with two buckets, one for uploads and one for backups. Write down the bucket names, the **Endpoint**, the **keyID** and the **applicationKey**. (The section just below shows how.)
 - [ ] Email sending details (SMTP), your **live** Stripe key, a GitHub token, and a safe place for passwords. (The section after Backblaze shows how to get each one.)
 
@@ -87,7 +87,7 @@ Tick each one off:
 
 **2. Create the uploads bucket**
 1. In the left menu, click **Buckets**, then **Create a Bucket**.
-2. Name it something like `gloviaa-uploads-123`. The name must be unique worldwide, so add some numbers.
+2. Name it something like `world-uploads-123`. The name must be unique worldwide, so add some numbers.
 3. **Files in Bucket:** choose **Private**.
 4. **Default Encryption:** choose **Enable**.
 5. Click **Create a Bucket**.
@@ -95,7 +95,7 @@ Tick each one off:
 
 **3. Create the backups bucket**
 
-Do the same again, with a name like `gloviaa-backups-123`. Choose **Private** and **Encryption on** again.
+Do the same again, with a name like `world-backups-123`. Choose **Private** and **Encryption on** again.
 
 **4. Create a key the app can use**
 1. In the left menu, click **Application Keys**, then **Add a New Application Key**.
@@ -439,7 +439,7 @@ SECRETS_ENCRYPTION_KEY=<secret key 4>
 STORAGE_DRIVER=s3
 S3_ENDPOINT=https://s3.eu-central-003.backblazeb2.com
 S3_REGION=eu-central-003
-S3_BUCKET=gloviaa-uploads-123
+S3_BUCKET=world-uploads-123
 S3_ACCESS_KEY_ID=<Backblaze keyID>
 S3_SECRET_ACCESS_KEY=<Backblaze applicationKey>
 S3_FORCE_PATH_STYLE=true
@@ -487,7 +487,7 @@ Paste this. It shows the important lines, with the passwords hidden:
 grep -E '^(NODE_ENV|STORAGE_DRIVER|EMAIL_DRIVER|COOKIE_SECURE|REALTIME_BUS_DRIVER|S3_BUCKET)=' /srv/uboss/shared/.env | tail -6
 ```
 
-✅ **Done when:** it shows `production`, `s3`, `smtp`, `true`, `database` and `gloviaa-uploads-123`.
+✅ **Done when:** it shows `production`, `s3`, `smtp`, `true`, `database` and `world-uploads-123`.
 
 Now close Notepad **without saving**.
 
@@ -680,7 +680,7 @@ cp -r /srv/uboss/repo/deploy/nginx/snippets/* /etc/nginx/snippets/
 cp /srv/uboss/repo/deploy/nginx/uboss.conf /etc/nginx/sites-available/uboss.conf
 ```
 
-Replace the placeholder domain with yours. Type your real domain, for example `gloviaamart.com`:
+Replace the placeholder domain with yours. Type your real domain, for example `worldmart.com`:
 
 ```bash
 sed -i 's/example\.com/YOURDOMAIN.COM/g' /etc/nginx/sites-available/uboss.conf
@@ -832,7 +832,7 @@ Add these three lines at the bottom. Use your `CHANGE_ME_4` password, the backup
 ```
 UBOSS_BACKUP_DATABASE_URL=mysql://uboss_backup:CHANGE_ME_4@localhost:3306/uboss
 UBOSS_BACKUP_PASSPHRASE=YOUR_BACKUP_PASSWORD
-UBOSS_OFFSITE_REMOTE=b2:gloviaa-backups-123
+UBOSS_OFFSITE_REMOTE=b2:world-backups-123
 ```
 
 Save and close.

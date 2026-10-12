@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model ProductComplianceEvidence
- * Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not Gloviaa trading approval.
+ * Doc 08 s7-s9: evidence per exact SKU/version, site and country. External certification is not World trading approval.
  */
 export type ProductComplianceEvidenceModel = runtime.Types.Result.DefaultSelection<Prisma.$ProductComplianceEvidencePayload>
 

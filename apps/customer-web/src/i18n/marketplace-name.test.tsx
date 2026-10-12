@@ -75,10 +75,10 @@ describe('the marketplace name in the catalogue', () => {
   });
 
   it('is the product’s own name until the deployment’s arrives', () => {
-    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + Gloviaa Mart');
+    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + World Mart');
 
     setMarketplaceName('   ');
-    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + Gloviaa Mart');
+    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + World Mart');
   });
 
   it('fills a string reached through an error code', () => {
@@ -101,7 +101,7 @@ describe('the marketplace name in the catalogue', () => {
 
   it('redraws a screen already on the page when the name arrives', () => {
     render(<Label />);
-    expect(screen.getByText('Self + Gloviaa Mart')).toBeInTheDocument();
+    expect(screen.getByText('Self + World Mart')).toBeInTheDocument();
 
     act(() => {
       setMarketplaceName('Northwind Supply');

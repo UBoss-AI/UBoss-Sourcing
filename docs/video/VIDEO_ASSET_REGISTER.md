@@ -4,7 +4,7 @@
 > the repository does **not** mean it may be used commercially; every
 > "Permission" cell says what is actually known.
 
-Owner key: **Owner** = Gloviaa Mart / UBOSS business owner; **Dev** = developer;
+Owner key: **Owner** = World Mart / UBOSS business owner; **Dev** = developer;
 **Design** = designer; **Prod** = video producer.
 
 Quality key: **Good** = usable as-is; **Usable** = usable with work;
@@ -14,7 +14,7 @@ Quality key: **Good** = usable as-is; **Usable** = usable with work;
 
 | Asset ID | Asset | Required for | Available | File location | Quality | Permission status | Missing action | Owner | Intended scene |
 |---|---|---|---|---|---|---|---|---|---|
-| A-01 | Gloviaa Mart logo (vector master) | Both | **No** | — (the mark is drawn in code: globe + script wordmark, `apps/*/src/components/EarthMark.tsx`, `layout/BrandLockup.tsx`) | — | Own work once made | Design a vector lockup: globe mark + "Gloviaa Mart" in Dancing Script Bold | Design | Lockup, title cards |
+| A-01 | World Mart logo (vector master) | Both | **No** | — (the mark is drawn in code: globe + script wordmark, `apps/*/src/components/EarthMark.tsx`, `layout/BrandLockup.tsx`) | — | Own work once made | Design a vector lockup: globe mark + "World Mart" in Dancing Script Bold | Design | Lockup, title cards |
 | A-02 | Transparent logo (PNG/SVG) | Both | No | — | — | — | Export from A-01 | Design | Overlays |
 | A-03 | Logo for dark backgrounds | Both | No | Colour tokens exist: wordmark `#F8FAFF`, tagline `#C7D8F2`, blue glow | — | — | Export from A-01 | Design | About Us end card (navy) |
 | A-04 | Logo for light backgrounds | Both | No | Wordmark `#0F172A`, tagline `#334155` | — | — | Export from A-01 | Design | Demo title cards |
@@ -23,7 +23,7 @@ Quality key: **Good** = usable as-is; **Usable** = usable with work;
 | A-07 | Approved tagline treatment | Both | **No** — the app shows a different tagline | Approved words exist in `en.json` (`greeting.taglineSource`, `greeting.taglineDeliver`) | — | — | Typeset `Source with Intelligence \| Deliver with Confidence` | Design | Lockup, end cards |
 | A-08 | Brand colours | Both | Yes | `apps/*/src/index.css`, `tailwind.config.js` | Good | Own | — | — | Grading, graphics |
 | A-09 | Brand fonts | Both | Yes | Inter (Google Fonts, OFL); Dancing Script 700 (`@fontsource/dancing-script`, OFL-1.1) | Good | OFL — commercial use allowed | Install both on the edit machine | Prod | All type |
-| A-10 | Rotating Gloviaa globe | Both | Yes (in app) | `apps/customer-web/src/components/ui/3d-globe.tsx`; textures `src/assets/globe/earth-blue-marble*.jpg` | Good (render), Usable (as plate) | Textures are NASA Blue Marble — generally public domain; confirm | Screen-record a clean plate at 4K, or rebuild in a 3D tool | Prod | About Us opening and close |
+| A-10 | Rotating World globe | Both | Yes (in app) | `apps/customer-web/src/components/ui/3d-globe.tsx`; textures `src/assets/globe/earth-blue-marble*.jpg` | Good (render), Usable (as plate) | Textures are NASA Blue Marble — generally public domain; confirm | Screen-record a clean plate at 4K, or rebuild in a 3D tool | Prod | About Us opening and close |
 
 Brand colour reference: navy `#0C2350`, brand blue `#1D4ED8`, action orange
 `#EA580C`, teal `#0F766E`, ink `#0F172A`, surface `#FFFFFF`, sunken `#F5F9FE`,

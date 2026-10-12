@@ -12,7 +12,7 @@
  *
  * Clocks never reset silently: the decision clock starts when a named person
  * records WHY the evidence is sufficient, and that record is kept.
- * Gloviaa administers the platform case; it is not a tribunal deciding final
+ * World administers the platform case; it is not a tribunal deciding final
  * legal liability, and every view says so.
  */
 import { env } from '../../config/env.js';

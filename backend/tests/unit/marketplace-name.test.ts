@@ -47,9 +47,9 @@ describe('marketplace name', () => {
   });
 
   it('falls back to the product’s name, never the vendor’s, when there is none', () => {
-    expect(PRODUCT_NAME).toBe('Gloviaa Mart');
+    expect(PRODUCT_NAME).toBe('World Mart');
     for (const missing of [null, undefined, '', '   ']) {
-      expect(marketplaceNameFrom(missing)).toBe('Gloviaa Mart');
+      expect(marketplaceNameFrom(missing)).toBe('World Mart');
     }
   });
 
@@ -62,7 +62,7 @@ describe('marketplace name', () => {
     expect(await getMarketplaceName(client)).toBe('Northwind Supply');
 
     const empty = { businessProfile: { findFirst: () => Promise.resolve(null) } };
-    expect(await getMarketplaceName(empty)).toBe('Gloviaa Mart');
+    expect(await getMarketplaceName(empty)).toBe('World Mart');
   });
 });
 
@@ -83,7 +83,7 @@ describe('the name on the payment sheet', () => {
     );
 
     expect(String(payload.name)).not.toMatch(/UBOSS/i);
-    expect(payload.name).toBe('Gloviaa Mart');
+    expect(payload.name).toBe('World Mart');
   });
 });
 
@@ -93,7 +93,7 @@ describe('the logistics portal’s authenticator issuer', () => {
   });
 
   it('falls back to the product’s portal name, not the vendor’s', () => {
-    expect(mfaIssuerName(null)).toBe('Gloviaa Mart Logistics');
-    expect(mfaIssuerName('  ')).toBe('Gloviaa Mart Logistics');
+    expect(mfaIssuerName(null)).toBe('World Mart Logistics');
+    expect(mfaIssuerName('  ')).toBe('World Mart Logistics');
   });
 });

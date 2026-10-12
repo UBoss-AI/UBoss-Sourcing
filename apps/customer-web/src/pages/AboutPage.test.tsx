@@ -10,7 +10,7 @@
  *   - **It only describes what this deployment does.** A card whose feature is
  *     switched off is not shown, and the grid refills from what is on.
  *   - **It names the operator, not the vendor.** The product's own name and
- *     tagline on a fresh deployment; somebody else's name, and no Gloviaa
+ *     tagline on a fresh deployment; somebody else's name, and no World
  *     slogan, on theirs.
  *   - **It is the one About page, and it has no FAQ.** Those belong to Support.
  */
@@ -68,10 +68,10 @@ describe('the About page', () => {
     expect(headings[0]).toHaveAttribute('data-route-focus');
   });
 
-  it('spells the product Gloviaa Mart and carries the attribution', () => {
+  it('spells the product World Mart and carries the attribution', () => {
     renderAbout();
-    expect(PRODUCT_BRAND).toBe('Gloviaa Mart');
-    expect(screen.getByText('About Gloviaa Mart')).toBeInTheDocument();
+    expect(PRODUCT_BRAND).toBe('World Mart');
+    expect(screen.getByText('About World Mart')).toBeInTheDocument();
     expect(screen.getByText(PARENT_ATTRIBUTION)).toBeInTheDocument();
   });
 
@@ -289,7 +289,7 @@ describe('the one About page', () => {
       { config: ALL_ON },
     );
     const link = within(screen.getByRole('contentinfo')).getByRole('link', {
-      name: 'About Gloviaa Mart',
+      name: 'About World Mart',
     });
     expect(link).toHaveAttribute('href', '/about');
     fireEvent.click(link);
@@ -298,7 +298,7 @@ describe('the one About page', () => {
 
   it('is linked from the header', () => {
     renderWithProviders(<Header />, { config: ALL_ON });
-    expect(screen.getByRole('link', { name: 'About Gloviaa Mart' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'About World Mart' })).toHaveAttribute(
       'href',
       '/about',
     );

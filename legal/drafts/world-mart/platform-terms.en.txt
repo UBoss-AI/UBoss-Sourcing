@@ -1,21 +1,21 @@
 kind: PLATFORM_TERMS
 version: 1.0
 locale: en
-title: Gloviaa Mart Terms of Use
+title: World Mart Terms of Use
 ---
 Version 1.0 | Effective 12 October 2026
 
-These Terms of Use apply to everyone who visits or uses Gloviaa Mart, and to everyone who buys on it, whether for themselves or for a company. Part A applies to every user. Part B applies to buyers. Sellers, logistics partners, our own staff and Audit Console users agree to separate terms written for those roles; nothing in these Terms of Use makes a buyer take on a seller's obligations.
+These Terms of Use apply to everyone who visits or uses World Mart, and to everyone who buys on it, whether for themselves or for a company. Part A applies to every user. Part B applies to buyers. Sellers, logistics partners, our own staff and Audit Console users agree to separate terms written for those roles; nothing in these Terms of Use makes a buyer take on a seller's obligations.
 
 Please read these terms carefully. You will be asked to agree to them before you can use your account.
 
-## Part A - Common terms for everyone who uses Gloviaa Mart
+## Part A - Common terms for everyone who uses World Mart
 
 ## A1. About these terms
 
-These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("Gloviaa Mart", "Gloviaa", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace at www.gloviaamart.com.
+These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("World Mart", "World", "we", "us" or "our"). World Mart is the brand under which we run the marketplace at www.worldmart.com.
 
-"Platform" means the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
+"Platform" means the World Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
 
 "User" means anybody who visits or uses the Platform: a visitor, a buyer, a seller, a member of a logistics partner's staff, a member of our own staff, or an inspector or auditor invited to the Audit Console.
 
@@ -37,7 +37,7 @@ We may refuse or end access to the Platform if we learn that a user does not mee
 
 Some parts of the Platform need an account. When we ask for information to open or maintain an account, you agree to give information that is true, accurate, current and complete, and to keep it up to date.
 
-You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@gloviaamart.com, if you believe someone else has used your account.
+You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@worldmart.com, if you believe someone else has used your account.
 
 Where we offer or require two-step sign-in, you agree to set it up and keep it working. Some roles must use it.
 
@@ -51,16 +51,16 @@ Service messages (for example a payment receipt, a security alert or a change to
 
 ## A5. What the marketplace is, and what it is not
 
-The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
+The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. World Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
 
 For goods sold by other sellers:
 
 - The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order and is the seller of record.
-- The contract of sale is between the seller and the buyer. Gloviaa Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
-- Gloviaa Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. Gloviaa Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
+- The contract of sale is between the seller and the buyer. World Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
+- World Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. World Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
 - You should take reasonable care when you deal with other users. Use the Platform's own messages and payment flow; never pay outside it.
 
-Gloviaa Mart hosts content that users publish, such as product listings, photographs, reviews and messages. Gloviaa Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
+World Mart hosts content that users publish, such as product listings, photographs, reviews and messages. World Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
 
 ## A6. Acceptable use
 
@@ -108,7 +108,7 @@ You must not:
 - use any device, software or routine to interfere with the proper working of the Platform or any transaction on it;
 - forge headers or manipulate identifiers to disguise the origin of a message you send through the Platform.
 
-If you discover a security weakness in the Platform, please report it to security@gloviaamart.com.
+If you discover a security weakness in the Platform, please report it to security@worldmart.com.
 
 We may take any lawful action, including claiming damages, against a user who breaches this section.
 
@@ -128,11 +128,11 @@ The Platform, its software, design, text, graphics, logos and the compilation of
 
 You may view, download and print product information and your own records for your own business or personal use, provided you keep any proprietary notices, make no changes, and do not add representations or warranties about the content.
 
-The Gloviaa Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
+The World Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
 
 ## A10. Complaints about infringing or unlawful content
 
-We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@gloviaamart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
+We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@worldmart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
 
 ## A11. Other services and links
 
@@ -171,13 +171,13 @@ Nothing in these terms excludes or limits any guarantee, warranty or right that 
 
 To the extent the applicable law allows, we are not liable for any indirect, incidental, special or consequential loss, or for loss of profit, revenue, business, goodwill or data, arising out of or in connection with these terms or the Platform, even if we were told such loss was possible.
 
-If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to Gloviaa in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
+If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to World in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
 
 Nothing in these terms limits or excludes liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, for wilful misconduct, or for anything else that the applicable law does not allow to be limited or excluded.
 
 ## A16. Indemnity
 
-To the extent the applicable law allows, you will indemnify and hold harmless Gloviaa Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
+To the extent the applicable law allows, you will indemnify and hold harmless World Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
 
 ## A17. Changes to these terms
 
@@ -213,15 +213,15 @@ These terms are published in several languages. If the language versions differ,
 
 ## A21. Contact and complaints
 
-For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@gloviaamart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
+For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@worldmart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@worldmart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
 
-Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
+Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@worldmart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
 
 ## Part B - Terms for buyers
 
 ## B1. Who this part applies to
 
-This part applies when you browse, ask for quotes, order or pay on Gloviaa Mart as a buyer. You can buy as an individual, or for a company that has been registered on the Platform. You choose which one when you sign in, and you can switch from your account menu. Orders, prices, limits and records in one buyer context are kept apart from the other.
+This part applies when you browse, ask for quotes, order or pay on World Mart as a buyer. You can buy as an individual, or for a company that has been registered on the Platform. You choose which one when you sign in, and you can switch from your account menu. Orders, prices, limits and records in one buyer context are kept apart from the other.
 
 ## B2. Buying for a company
 
@@ -241,7 +241,7 @@ We, or a seller, may set purchasing limits - for example a maximum quantity an i
 
 ## B4. Product information and prices
 
-Product information is supplied by the seller of the product, except for goods Gloviaa Mart sells itself. Read the product page carefully, including the selling unit (for example a piece, a carton or a pallet), the pack size, safety information and any market restrictions.
+Product information is supplied by the seller of the product, except for goods World Mart sells itself. Read the product page carefully, including the selling unit (for example a piece, a carton or a pallet), the pack size, safety information and any market restrictions.
 
 Prices are shown in the currency of your market. Where a seller has not set a price in your currency, a converted price may be shown and is labelled as approximate; the price charged is the one shown at checkout. Quantity price bands and bulk offers apply only as described on the product page. Taxes, duties and delivery costs are shown at checkout where we can calculate them; where tax depends on the delivery address or on a validated tax number, the treatment is decided by that address or number and shown on the order.
 
@@ -259,7 +259,7 @@ Before payment you may be asked to agree to the version of these terms in force,
 
 Payments are taken by the payment provider named at checkout, on that provider's own secure page or sheet. Our payment providers are Stripe Payments Europe Ltd and Stripe, Inc. (for cards and international payments) and Razorpay Software Private Limited (for payments in India). Your card number and security code are entered on the provider's page, not on the Platform, and we never store them. Your bank may ask for extra authentication.
 
-For goods listed by marketplace sellers, the seller named on the product page is the seller of record. For goods that Gloviaa sells itself, Uboss AI Private Limited is the seller of record. For marketplace sales, Gloviaa acts as the marketplace operator and as payment facilitator: payments are collected through Stripe and Razorpay, and paid out to sellers through Stripe, including Stripe Connect.
+For goods listed by marketplace sellers, the seller named on the product page is the seller of record. For goods that World sells itself, Uboss AI Private Limited is the seller of record. For marketplace sales, World acts as the marketplace operator and as payment facilitator: payments are collected through Stripe and Razorpay, and paid out to sellers through Stripe, including Stripe Connect.
 
 Where the payment for goods sold by other sellers is collected by us or our payment provider, it is collected on the seller's behalf and released to the seller only on the conditions described to sellers, which include that the order has been delivered, that any required inspection has passed and that no claim or chargeback is open. This holding of funds is a service to buyers and sellers; it is not a bank account, a deposit or a financial service offered to you.
 
@@ -291,7 +291,7 @@ You may cancel an order you placed while the order allows it; the order page sho
 - consumers in the European Union have a 14-day right of withdrawal;
 - business buyers must report defects or shortages within 7 days of delivery; otherwise the terms of the order apply.
 
-Approved refunds are made within 14 days of approval. Requests about returns and cancellations can also be sent to returns@gloviaamart.com.
+Approved refunds are made within 14 days of approval. Requests about returns and cancellations can also be sent to returns@worldmart.com.
 
 If something is wrong with an order - it did not arrive, it arrived damaged, it is not what was described, or the quantity is wrong - you can raise a claim about the whole order or about one line from the order page. You choose the remedy you are asking for (a full refund, a partial refund or a replacement), describe the problem and add evidence. The seller is given time to answer. If you cannot agree, a member of our staff reviews the claim, the evidence and any inspection result, and records a decision with reasons. Where the claims process allows it, you may appeal a decision once within the appeal period shown.
 
@@ -329,4 +329,4 @@ You can close your account from your account settings. Before it is closed you a
 
 If you buy as a consumer, you have rights under the consumer law of the country where you live that a contract cannot take away. Nothing in these terms limits those rights.
 
-Individual consumers aged 18 or over may buy on the Platform. For goods sold by marketplace sellers, the seller named on the product page and in your order is the trader you contract with; for goods Gloviaa sells itself, the trader is Uboss AI Private Limited, whose details are set out in section A1. Consumers in India may return eligible products within 7 days of delivery and may approach the Consumer Commissions under the Consumer Protection Act, 2019. Consumers in the European Union have the right to withdraw from a distance contract within 14 days without giving any reason, as described in the Returns Policy.
+Individual consumers aged 18 or over may buy on the Platform. For goods sold by marketplace sellers, the seller named on the product page and in your order is the trader you contract with; for goods World sells itself, the trader is Uboss AI Private Limited, whose details are set out in section A1. Consumers in India may return eligible products within 7 days of delivery and may approach the Consumer Commissions under the Consumer Protection Act, 2019. Consumers in the European Union have the right to withdraw from a distance contract within 14 days without giving any reason, as described in the Returns Policy.

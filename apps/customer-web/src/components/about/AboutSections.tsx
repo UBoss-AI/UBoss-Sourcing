@@ -44,7 +44,7 @@ function storyKey(key: AboutStoryKey): `about.story.${AboutStoryKey}` {
  * The heading is the product's tagline where the storefront is the product's
  * own, set in the wordmark's face as it is under the name in the header. On a
  * deployment trading under another name it is an ordinary translated heading
- * instead: Gloviaa Mart's slogan over Northwind's shop would be the software
+ * instead: World Mart's slogan over Northwind's shop would be the software
  * putting its own brand on somebody else's business - the same rule the header
  * follows.
  */

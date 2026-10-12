@@ -14,11 +14,11 @@ if archive.exists() or checksum.exists():
 try:
     for kind in ('traversal', 'symlink', 'checksum'):
         with tarfile.open(archive, 'w:gz') as bundle:
-            member = tarfile.TarInfo('../gloviaa-deploy-gate-test')
+            member = tarfile.TarInfo('../world-deploy-gate-test')
             if kind == 'symlink':
                 member.name = 'apps/customer-web/dist/test-link'
                 member.type = tarfile.SYMTYPE
-                member.linkname = '/tmp/gloviaa-deploy-gate-test'
+                member.linkname = '/tmp/world-deploy-gate-test'
                 bundle.addfile(member)
             else:
                 member.size = 1

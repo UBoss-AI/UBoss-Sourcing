@@ -1,4 +1,4 @@
-# Gloviaa Mart — Product Requirements Document (PRD)
+# World Mart — Product Requirements Document (PRD)
 
 Ledger payouts now retain funds in transit when the provider outcome is unknown.
 Timeouts and server errors do not reverse or authorize a new send. Later runs
@@ -20,7 +20,7 @@ retry with queue backoff and remain visible as operational job evidence.
 Reads have a 30-second deadline. LIVE-017 still needs staging outage evidence.
 
 **A self-hosted B2B sourcing and ordering platform.**
-Product name: **Gloviaa Mart** · Tagline: *Source with Intelligence | Deliver with Confidence* · Made by **UBOSS** ("Powered by UBOSS").
+Product name: **World Mart** · Tagline: *Source with Intelligence | Deliver with Confidence* · Made by **UBOSS** ("Powered by UBOSS").
 Repository and internal name: **UBOSS / UBOSS Sourcing**.
 
 ---
@@ -58,12 +58,12 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.10 | 2026-10-02 | Admin governance (JOURNEY-060, 061, 062, 064, 065, 067, LIVE-011): the Command Center's risk and SLA groups, maker-checker for critical account actions (`critical_action_approval`), record history and staff messages, listing moderation flags, evidence requests, appeals and destination blocks (FR-SEL-007), label rules and rule history, the integration monitor and outage banners, content approval, preview, versions and conflict checks, and the exception queues with SLAs and owner roles (FR-SET-003, FR-SET-004, FR-SET-006 to FR-SET-009) |
 | 1.11 | 2026-10-04 | Staff terms at console sign-in: the new legal-document kind `STAFF_TERMS`, written by the operator; once published, the console's sign-in tick opens it in the read-to-the-end dialog, and with none published the plain tick stays (FR-IDN-005) |
 | 1.12 | 2026-10-08 | Seller turnover eligibility: the platform's own minimum-turnover rule for applying to sell (FR-SEL-022), BR-SEL-001, settings §10.13, error `SELLER_TURNOVER_NOT_ELIGIBLE`, the storefront **Seller eligibility** card and the console's **Annual turnover** card; open question Q16 on existing sellers |
-| 1.13 | 2026-10-08 | The agreement screen after sign-in (FR-IDN-022): every signed-in buyer, seller, carrier, member of staff and Audit Console user accepts the Terms for their kind of account and acknowledges the Privacy Policy - two separate records - before the application answers; re-acceptance only when a new version requires it; the sign-in ticks of FR-IDN-005 removed; new kind `AUDIT_CONSOLE_TERMS`; `requiresReacceptance` on legal documents; publishing refused while a `[[...]]` blank remains; flag `FEATURE_AGREEMENT_GATE`; error codes `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`. Gloviaa Mart policy drafts in `legal/drafts/` - drafts, not published, not legally approved |
+| 1.13 | 2026-10-08 | The agreement screen after sign-in (FR-IDN-022): every signed-in buyer, seller, carrier, member of staff and Audit Console user accepts the Terms for their kind of account and acknowledges the Privacy Policy - two separate records - before the application answers; re-acceptance only when a new version requires it; the sign-in ticks of FR-IDN-005 removed; new kind `AUDIT_CONSOLE_TERMS`; `requiresReacceptance` on legal documents; publishing refused while a `[[...]]` blank remains; flag `FEATURE_AGREEMENT_GATE`; error codes `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`. World Mart policy drafts in `legal/drafts/` - drafts, not published, not legally approved |
 | 1.15 | 2026-10-09 | The seller agreements (FR-IDN-023): the Seller Terms and Conditions replaced with the operator's supplied text, and the Seller Platform Services Agreement added as its own box on the Seller Hub's agreement screen and required to send an application. Both stay drafts until approved. |
 | 1.16 | 2026-10-09 | The company buyer's agreements (FR-IDN-024): a session acting for a buyer company answers to the `COMPANY_BUYER` screen - B2B Buyer Terms and Conditions (per member, for that company), Privacy Policy, and the B2B Buyer Platform Services Agreement accepted once per company by an owner or company admin (`COMPANY_SIGNATORY_REQUIRED` otherwise). Agreement boxes on every sign-in form (FR-IDN-025). Both B2B documents stay drafts until approved; accepting is not execution and approves nothing. |
 | 1.17 | 2026-10-09 | The consumer buyer's agreements (FR-IDN-026): somebody shopping for themselves answers to the `CONSUMER` screen - B2C Consumer Terms and Conditions, Privacy Policy, B2C Platform Services Agreement - once all three are in force, and the `BUYER` screen until then. Existing orders, returns and claims stay reachable before agreeing |
 | 1.14 | 2026-10-08 | Seller verification moves to the Audit Team (FR-SEL-004, FR-AUD-034): reviewing, asking for corrections, approving and rejecting seller applications, deciding their documents and turnover, and recording screenings are done in the Audit Console with the new `audit.seller.verify` key (audit `SUPERVISOR` and `COMPLIANCE_REVIEWER`). The Admin Panel reads verification - with who decided and the history - and keeps only suspend and lift-suspension; every other write answers `SELLER_VERIFICATION_AUDIT_ONLY`. Decisions are conditional on the version read; a reviewer connected to the seller is refused (`SELLER_VERIFICATION_NOT_INDEPENDENT`). New applications, resubmissions and uploads notify audit reviewers. Earlier admin decisions keep their attribution |
-| 1.18 | 2026-10-12 | Gloviaa Mart legal documents finalised (FR-IDN-018, FR-IDN-022, FR-IDN-023, FR-IDN-024, FR-IDN-026, FR-SET-020, FR-DCP-019): every file in `legal/drafts/gloviaa-mart/` is now version 1.0, effective 12 October 2026, with the draft notices, approval lines, `[[DECISION]]` markers and fill-in blanks removed and filled; open decisions settled with standard Indian defaults; company details (registered office, CIN, GSTIN, grievance officer, contacts) are sample values to replace before going live; not reviewed by counsel. New `b2c-platform-services-agreement.en.txt`. The development seed now publishes these documents instead of a "DEVELOPMENT PLACEHOLDER" for every kind. The master-data check no longer counts Terms with the sample CIN as published Terms, and flags every published document with the sample company details as demonstration data |
+| 1.18 | 2026-10-12 | World Mart legal documents finalised (FR-IDN-018, FR-IDN-022, FR-IDN-023, FR-IDN-024, FR-IDN-026, FR-SET-020, FR-DCP-019): every file in `legal/drafts/world-mart/` is now version 1.0, effective 12 October 2026, with the draft notices, approval lines, `[[DECISION]]` markers and fill-in blanks removed and filled; open decisions settled with standard Indian defaults; company details (registered office, CIN, GSTIN, grievance officer, contacts) are sample values to replace before going live; not reviewed by counsel. New `b2c-platform-services-agreement.en.txt`. The development seed now publishes these documents instead of a "DEVELOPMENT PLACEHOLDER" for every kind. The master-data check no longer counts Terms with the sample CIN as published Terms, and flags every published document with the sample company details as demonstration data |
 
 ### Keeping this document true
 
@@ -169,7 +169,7 @@ the status *Removed*.
 
 ## 1.1 The one-sentence version
 
-**Gloviaa Mart is an online shop for businesses buying from businesses — a company
+**World Mart is an online shop for businesses buying from businesses — a company
 sells to other companies, and this software runs everything from the product
 page to the invoice**: catalogue, stock, per-market prices, checkout, payment,
 fulfilment, returns, repeat orders, a marketplace for other sellers, a portal
@@ -214,7 +214,7 @@ This distinction runs through the whole product.
 
 | Who | What they are | Example |
 |---|---|---|
-| **The operator** | The company that **buys and installs** Gloviaa Mart and runs its own shop with it. Every business detail — name, address, markets, prices, tax, whether customers may sign up — is a **setting** the operator fills in. | "Northwind Industrial" installs Gloviaa Mart; its storefront says *Northwind Industrial* at the top and *Powered by UBOSS* in the footer. |
+| **The operator** | The company that **buys and installs** World Mart and runs its own shop with it. Every business detail — name, address, markets, prices, tax, whether customers may sign up — is a **setting** the operator fills in. | "Northwind Industrial" installs World Mart; its storefront says *Northwind Industrial* at the top and *Powered by UBOSS* in the footer. |
 | **UBOSS** | The company that **makes** the software. UBOSS is **not** assumed to be the operator. | — |
 | **Buyers (customers)** | Businesses that **order** from the operator's shop. | A hospital's purchasing officer. |
 | **Sellers** | Other businesses that **sell through** the operator's shop when the marketplace (Seller Hub) is in use. | A glove manufacturer listing its products. |
@@ -222,7 +222,7 @@ This distinction runs through the whole product.
 | **Carriers** | Delivery companies working in the logistics portal. | A regional haulier and its drivers. |
 
 **Nothing in the product may assume the author is the operator.** A fresh
-install shows "Gloviaa Mart" in its header only until the operator fills in a business
+install shows "World Mart" in its header only until the operator fills in a business
 profile, because naming the software is the only honest thing to show before
 then.
 
@@ -253,8 +253,8 @@ gloves run the same code. See Appendix A for where older text still says
 
 | Name | What it is | Translated? |
 |---|---|---|
-| **Gloviaa Mart** | The product. Where it is the brand, "Gloviaa" is set in its own script face (Dancing Script Bold) and "Mart" in Inter at 0.62em, light and shown lowercase as "mart", on the same baseline, like a parent brand naming a service. Plain text; it reads "Gloviaa Mart". A deployment with its own name is drawn in one face | Never |
-| **Gloviaa** | The one-word name. Used only where two words do not fit or do not belong: the label on the greeting page's globe, and the storefront header on a phone (under 640px). Never "Glovia", "Glovia Mart" or "Gloviaa Market" | Never |
+| **World Mart** | The product. Where it is the brand, "World" is set in its own script face (Dancing Script Bold) and "Mart" in Inter at 0.62em, light and shown lowercase as "mart", on the same baseline, like a parent brand naming a service. Plain text; it reads "World Mart". A deployment with its own name is drawn in one face | Never |
+| **World** | The one-word name. Used only where two words do not fit or do not belong: the label on the greeting page's globe, and the storefront header on a phone (under 640px). Never the old names "Gloviaa Mart" or "Glovia", and never "World Market" | Never |
 | **Source with Intelligence \| Deliver with Confidence** | The product's tagline (it replaced "The Way to the Global Sourcing"). Set in the same script face as the name (Dancing Script Bold), so the two look the same on every device. Shown in the storefront header (from 1024px), the home hero, the About page heading, the admin rail and the logistics portal | Never |
 | **Powered by UBOSS** | The attribution, as small print | Never |
 | The operator's business name | Whoever runs the deployment (Settings → Business profile) | It is a name, not a string |
@@ -709,7 +709,7 @@ member.
 | **Payment gateway** | Stripe or Razorpay, calling signed webhooks |
 | **Carrier feed** | A carrier's webhook or polled tracking (actor `CARRIER` in the shipment machine) |
 | **Buyer's ERP** | The buyer's own purchasing system, via inbound webhooks and polling |
-| **Gloviaa Mart Tally Bridge** | A small Windows program beside a seller's TallyPrime, connecting outward (not built in this repository) |
+| **World Mart Tally Bridge** | A small Windows program beside a seller's TallyPrime, connecting outward (not built in this repository) |
 
 ---
 
@@ -864,7 +864,7 @@ How each requirement is written:
   4. A reader gets the version in force in their own language when published, otherwise English, otherwise any language of that version - and is told which language it is. An older version in their language is never offered instead.
   5. The PDF is built from the stored text and is the same file every time for the same document.
   6. The console shows how many people accepted each version, never who.
-- **Rules.** The software never publishes legal wording on its own in a real deployment: the operator publishes its own. On development machines only, the seed publishes the Gloviaa Mart documents from `legal/drafts/gloviaa-mart/` (finalised text with sample company details) for each kind that has nothing published or only seed-published text; it never replaces an operator's own published text. Each version says whether earlier acceptances keep counting (`requiresReacceptance`, the **Ask everyone to accept this version again** option, on by default); existing accounts are asked again on the agreement screen (FR-IDN-022) only when it is on. A document that still contains a `[[...]]` blank cannot be published (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). Kinds include `AUDIT_CONSOLE_TERMS` (added 8 Oct 2026).
+- **Rules.** The software never publishes legal wording on its own in a real deployment: the operator publishes its own. On development machines only, the seed publishes the World Mart documents from `legal/drafts/world-mart/` (finalised text with sample company details) for each kind that has nothing published or only seed-published text; it never replaces an operator's own published text. Each version says whether earlier acceptances keep counting (`requiresReacceptance`, the **Ask everyone to accept this version again** option, on by default); existing accounts are asked again on the agreement screen (FR-IDN-022) only when it is on. A document that still contains a `[[...]]` blank cannot be published (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). Kinds include `AUDIT_CONSOLE_TERMS` (added 8 Oct 2026).
 - **Status.** Built. Permissions `legal_document.read`, `legal_document.write`, `legal_document.publish` (Business Owner by default).
 
 ### FR-IDN-022 — The agreement screen after sign-in
@@ -898,7 +898,7 @@ How each requirement is written:
   9. Every application API refuses with 403 `AGREEMENTS_REQUIRED` until both records exist, except sign-in and session routes, the agreement routes, the public documents, support, and privacy requests. Webhooks and background jobs are not affected.
   10. Existing accounts with no record see the screen on their next request. No acceptance is back-dated.
   11. A new version asks again only when it was published with **Ask everyone to accept this version again** on. A buyer who becomes a seller is asked for the Seller Terms and Conditions and the Seller Platform Services Agreement in the Seller Hub.
-  12. **FR-IDN-024 - Company buyer agreements (built).** The screen follows the session's confirmed company context, never the sign-in tab. The B2B Buyer Terms are accepted by each member for that company; the B2B Buyer Platform Services Agreement once per company by an `OWNER` or `COMPANY_ADMIN` and then counts for every member. A member without that authority sees "Authorised company representative required". Accepting is a record of one published version: not Gloviaa's signature, not completed Schedules A-C, not business approval, and no AutoPay mandate or marketing consent.
+  12. **FR-IDN-024 - Company buyer agreements (built).** The screen follows the session's confirmed company context, never the sign-in tab. The B2B Buyer Terms are accepted by each member for that company; the B2B Buyer Platform Services Agreement once per company by an `OWNER` or `COMPANY_ADMIN` and then counts for every member. A member without that authority sees "Authorised company representative required". Accepting is a record of one published version: not World's signature, not completed Schedules A-C, not business approval, and no AutoPay mandate or marketing consent.
   13. **FR-IDN-025 - Agreement boxes on sign-in (built).** Every sign-in form (storefront Individual and Company tabs, Seller Hub, admin console, carrier portal, Audit Console) shows its agreement boxes under the password, one line each. Each box opens its document in the read-to-the-end dialog; opening ticks nothing; **Sign in** stays disabled until every published document is ticked, and fails closed if the documents cannot be fetched. What was ticked is recorded by the first agreement request after sign-in, against the account (and company) the server resolves; the agreement screen after sign-in remains the server-enforced fallback.
   14. **FR-IDN-026 - Consumer buyer agreements (built; off until its documents are published).** Somebody shopping for themselves sees three boxes - B2C Consumer Terms & Conditions, Privacy Policy, B2C Platform Services Agreement - each opened in the read-to-the-end dialog and recorded on its own under scope `CONSUMER`. The screen is used only once all three kinds have a version in force (`individualAgreementScope`); with any missing, the individual is asked on the `BUYER` screen as before, so no sign-in can become impossible. Decided by the session, never the tab; a company session and the Seller Hub are unchanged. It applies prospectively: a Terms of Use acceptance is kept, never copied across. Orders, cancellation, tracking, order documents, returns, refunds and claims stay reachable before agreeing (`requireCustomerForRemedies`); shopping does not. The boxes consent to nothing else - no marketing, cookies, recurring order, AutoPay or paid service - and waive no consumer right. **Documents (12 Oct 2026):** all three exist as finalised text, version 1.0, effective 12 October 2026, with sample company details and no review by counsel - the B2C Consumer Terms (from `06_B2C_Consumer_Terms.docx`, now filled in and no longer word for word), the new `b2c-platform-services-agreement.en.txt` and the Privacy Policy. None is published in a real deployment until the operator publishes it; the development seed publishes all three, so the consumer screen is on there.
   12. A kind with nothing published is not asked for.
@@ -906,7 +906,7 @@ How each requirement is written:
 - **Rules.** The database is the source of truth. A record holds the person, the document id, version, language and SHA-256 copied from the stored document, the scope, the action (terms accepted or privacy notice acknowledged) and the server's time. No IP address or browser string. The Privacy Policy box is an acknowledgment, not a consent, and enables no optional processing.
 - **Flag.** `FEATURE_AGREEMENT_GATE` (default `true`; production refuses `false`).
 - **Errors.** `AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `TERMS_VERSION_OUTDATED`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` (publishing).
-- **Status.** Built (8 Oct 2026). **Documents (12 Oct 2026):** the Gloviaa Mart documents in `legal/drafts/gloviaa-mart/` are finalised text, version 1.0, effective 12 October 2026. The 45 open decisions were settled with standard Indian defaults at the owner's request, and the company details are sample values to replace before going live (both listed in the change table). They have not been reviewed by counsel. They are published only by the development seed; a real deployment publishes its own.
+- **Status.** Built (8 Oct 2026). **Documents (12 Oct 2026):** the World Mart documents in `legal/drafts/world-mart/` are finalised text, version 1.0, effective 12 October 2026. The 45 open decisions were settled with standard Indian defaults at the owner's request, and the company details are sample values to replace before going live (both listed in the change table). They have not been reviewed by counsel. They are published only by the development seed; a real deployment publishes its own.
 
 ### FR-IDN-023 — The seller agreements: Seller Terms and Conditions and Seller Platform Services Agreement
 
@@ -926,7 +926,7 @@ How each requirement is written:
 - **Rules.** The tick is a click-through record of one published version. It is not the operator's countersignature and does not agree the seller-specific schedules (A-F), which are negotiated and signed separately; the executed contract is recorded by the Audit Console's CONTRACT workpaper.
 - **Flag.** `FEATURE_AGREEMENT_GATE` (the submission check is off with it).
 - **Errors.** `SELLER_AGREEMENTS_REQUIRED`, `AGREEMENT_DOCUMENT_NOT_APPLICABLE`, `TERMS_VERSION_OUTDATED`, `LEGAL_DOCUMENT_HAS_PLACEHOLDERS` (publishing).
-- **Status.** Built (9 Oct 2026). **Documents (12 Oct 2026):** both texts were supplied by the operator as Word files and are stored as version 1.0 in `legal/drafts/gloviaa-mart/` (`seller-terms.en.txt`, `seller-services-agreement.en.txt`). On 12 October 2026 they were filled in: the approval notice is gone, the company, tax and notice details hold sample values to replace before going live, the arbitration seat is New Delhi, the seller's details and schedules point to the seller's verified account and the Seller Hub fee schedule, and signature blocks became an electronic-acceptance clause. So they keep their headings but are no longer word for word. Not reviewed by counsel. English only; no translation is approved.
+- **Status.** Built (9 Oct 2026). **Documents (12 Oct 2026):** both texts were supplied by the operator as Word files and are stored as version 1.0 in `legal/drafts/world-mart/` (`seller-terms.en.txt`, `seller-services-agreement.en.txt`). On 12 October 2026 they were filled in: the approval notice is gone, the company, tax and notice details hold sample values to replace before going live, the arbitration seat is New Delhi, the seller's details and schedules point to the seller's verified account and the Seller Hub fee schedule, and signature blocks became an electronic-acceptance clause. So they keep their headings but are no longer word for word. Not reviewed by counsel. English only; no translation is approved.
 
 ### FR-IDN-006 — Sessions, tokens and CSRF
 
@@ -2233,7 +2233,7 @@ No API shape, permission, schema or provider decision changes.
      `features.buyerCompanies` and `features.recurringOrders` are on; the card
      grid refills from the always-built capabilities.
   2. It names the operator through `{marketplace}`. The product's tagline is
-     the heading only when the storefront trades as Gloviaa Mart.
+     the heading only when the storefront trades as World Mart.
   3. It shows no figures (no customer counts, countries, delivery times or
      ratings), no video and no questions and answers — those are the Support
      page's (FR-SUP-002a).
@@ -3328,7 +3328,7 @@ and has no route that reads these conversations.
   now. The separate chat square that used to sit beside Preorder is gone; there
   is no visible "Chat with …" text button.
 - **Acceptance criteria.** Its accessible name is **Chat with {marketplace}**,
-  the operator's own trading name (**Chat with Gloviaa Mart** until one is set), and
+  the operator's own trading name (**Chat with World Mart** until one is set), and
   **Chat with {marketplace}. Unread replies: N** when replies are unread. The
   tooltip "Ask {marketplace} about this preorder" shows on hover and keyboard
   focus, is linked by `aria-describedby`, and Escape hides it; on touch a tap
@@ -4424,7 +4424,7 @@ and `commission-invoice-state.ts`; the service is
   with the grand total on a navy band, the amount in words and a collection
   box; a legal footer; page numbers ("1/2") and the number on every page. A
   draft is watermarked. The bytes are reproducible. The file is named
-  `Gloviaa-Mart-Commission-Invoice-<number with / as ->.pdf`.
+  `World-Mart-Commission-Invoice-<number with / as ->.pdf`.
 - **Status.** Built.
 
 ### FR-CINV-009 — Downloads and public verification
@@ -4840,7 +4840,7 @@ The marketplace's staff (`logistics.read`) see every document on a consignment o
 #### FR-ERP-TAL-001 — Pairing an outbound-only bridge
 
 - **Statement.** A seller at **Seller Hub → ERP integrations → TallyPrime**
-  follows a ten-step checklist: install the Gloviaa Mart Tally Bridge beside
+  follows a ten-step checklist: install the World Mart Tally Bridge beside
   TallyPrime; open the company; generate a pairing code; paste it; choose the
   company (only from those a test found); test; map ledgers, stock items,
   godowns, units, voucher types, tax accounts, cost centres (chosen from what a
@@ -5390,7 +5390,7 @@ at the sender's company, seller or carrier sees them.
   2. The picker is on every sign-in, activation and password screen and in the header.
   3. `npm run check:i18n` fails CI on a missing key, a dropped placeholder, an empty value, invalid JSON or a missing CLDR plural form.
   4. Non-English catalogues are machine-translated and **say so** under the picker until reviewed by a native speaker.
-  5. Brand strings (Gloviaa Mart, tagline, Powered by UBOSS) are never translated.
+  5. Brand strings (World Mart, tagline, Powered by UBOSS) are never translated.
 - **Rules.** Language is not currency; amounts are formatted with `Intl.NumberFormat` from the exact decimal string, never a JS number. Each new page ships translated into all eight in the same piece of work.
 - **Status.** Built.
 
@@ -6632,7 +6632,7 @@ availability is never cached by a proxy.
 |---|---|
 | NFR-UI-001 | Light and dark themes from design tokens, both contrast-audited. |
 | NFR-UI-002 | Responsive layouts at phone width; signed-out screens show the earth on wide windows and a drawn globe otherwise. |
-| NFR-UI-003 | The operator's name, never "Gloviaa Mart", heads a deployment that has a business profile. |
+| NFR-UI-003 | The operator's name, never "World Mart", heads a deployment that has a business profile. |
 | NFR-UI-004 | A moving background (WebGL "ghost fibers") behind every screen of all four apps, in both themes; the storefront hero keeps its black sky on the dark theme. 30 fps cap, paused when hidden, a still frame under reduced motion; in the light theme the shader holds a luminance floor so page titles and subtitles keep 4.5:1. Built. |
 | NFR-UI-004 | No third-party component source whose licence forbids redistribution is shipped (the product is redistributed to every operator). |
 | NFR-UI-005 | Full-page errors and the appearance control draw only from design tokens, so they follow the chosen theme; decorative motion stops under reduced motion; no picture on an error page is fetched from another site. |
@@ -6890,7 +6890,7 @@ string, `currency`, `currencyExponent`, `policyVersion`,
 | **Map tiles** (MapLibre sources, Google Maps) | Warehouse map basemap | Optional | `MAP_*` | Built |
 | **Operator's warehouse ERP** | Order push, stock check | Optional | Env vars or Settings → ERP (`FEATURE_ERP_INTEGRATION`) | Built |
 | **Buyers' ERPs** (SAP, monday.com, Odoo, custom REST/OData/GraphQL; 20 presets) | Purchase orders, shipments, receipts, invoices, payment refs | Optional | Each buyer (`FEATURE_CUSTOMER_ERP`) | Built |
-| **TallyPrime** via Gloviaa Mart Tally Bridge | Seller accounting vouchers | Optional | Each seller (`FEATURE_SELLER_ERP`) | Server built; **bridge program not in this repository**; never tested on a real Tally |
+| **TallyPrime** via World Mart Tally Bridge | Seller accounting vouchers | Optional | Each seller (`FEATURE_SELLER_ERP`) | Server built; **bridge program not in this repository**; never tested on a real Tally |
 | **DHL** | Rates, consignment, tracking, address check, collection | Optional, per seller | Seller Hub (encrypted per seller) | Built, unconfigured by design; sandbox only |
 | **FedEx** | Rates, consignment, cancel, tracking, address check | Optional, per seller | Seller Hub | Built, unconfigured by design; never called |
 | **India Post** | Manual article-number tracking | Optional | Seller Hub | Manual by design (no official API) |
@@ -6941,7 +6941,7 @@ string, `currency`, `currencyExponent`, `policyVersion`,
 | G2 | Bulk packaging on a recurring schedule | Standing pallet orders | §2.7a |
 | G3 | Admin screen for a bulk line (data exists) | Staff reading pallet breakdowns | §2.7a |
 | G4 | Tally receipts, credit notes, master upserts not enqueued; scheduled inventory pull not scheduled; admin view of seller Tally | Full seller accounting sync | §2.9a |
-| G5 | Gloviaa Mart Tally Bridge program | Any real Tally connection | §2.9a |
+| G5 | World Mart Tally Bridge program | Any real Tally connection | §2.9a |
 | G6 | E-invoicing transport, OSS/Intrastat, distance-selling threshold, proof-of-export | EU mandates | EU-VAT.md §7 |
 | G7 | GST IRP/IRN registration | Sellers above the e-invoicing threshold | README |
 | G8 | Server rendering / prerender for link previews | Rich previews in chat apps | README |
@@ -7023,7 +7023,7 @@ string, `currency`, `currencyExponent`, `policyVersion`,
 | **B2C Maximum Order Quantity** | The most units of one seller's product an Individual buyer (or anybody buying for a company that is not approved) may buy in one order. A ceiling, not a minimum, so never called "MOQ"; a purchasing limit, never stock (FR-PRC-011). |
 | **Base units** | The piece count of a line; 2 pallets of 1,200 is 2,400 base units. |
 | **BigInt minor units** | Money stored as whole numbers of the smallest coin (paise, cents), never decimals. |
-| **Bridge (Gloviaa Mart Tally Bridge)** | A small program beside a seller's TallyPrime that connects outward to this system. |
+| **Bridge (World Mart Tally Bridge)** | A small program beside a seller's TallyPrime that connects outward to this system. |
 | **Business account** | An active customer account with a company name on its profile. |
 | **Buyer company** | A registered business a buyer buys for, applied for and approved by staff (§5.1a). Not the same as a buyer organisation. |
 | **Buyer context** | Whether a session is buying as the person (Individual) or for one of their companies (Company). Held on the server session. |

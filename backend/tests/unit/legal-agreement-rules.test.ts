@@ -111,8 +111,8 @@ describe('parseDraftFile', () => {
   });
 });
 
-describe('the Gloviaa Mart policy drafts', () => {
-  const folder = fileURLToPath(new URL('../../../legal/drafts/gloviaa-mart/', import.meta.url));
+describe('the World Mart policy drafts', () => {
+  const folder = fileURLToPath(new URL('../../../legal/drafts/world-mart/', import.meta.url));
   const files = readdirSync(folder).filter((file) => file.endsWith('.txt'));
   const drafts = files.map((file) => ({ file, draft: parseDraftFile(file, readFileSync(join(folder, file), 'utf8')) }));
 

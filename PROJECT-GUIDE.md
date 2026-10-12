@@ -1,4 +1,4 @@
-# Gloviaa Mart — The Complete Guide
+# World Mart — The Complete Guide
 
 **Read this first.** It explains what this project is, what every piece does,
 and how a real request travels from a customer's click to a row in the
@@ -58,7 +58,7 @@ have to read separately — this *is* the explanation.
 
 ## What the product is called
 
-The product is **Gloviaa Mart**, and its tagline is **Source with Intelligence | Deliver with Confidence**. The
+The product is **World Mart**, and its tagline is **Source with Intelligence | Deliver with Confidence**. The
 company behind it is **UBOSS**, and that is said as small print:
 **Powered by UBOSS**.
 
@@ -66,52 +66,54 @@ Where each one appears:
 
 | Surface | Top-left brand block | `Powered by UBOSS` |
 |---|---|---|
-| Storefront and Seller Hub | Earth mark, **Gloviaa Mart** over **Source with Intelligence \| Deliver with Confidence** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
-| Admin console | The rail: earth mark, **Gloviaa Mart** over **Source with Intelligence \| Deliver with Confidence** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
+| Storefront and Seller Hub | Earth mark, **World Mart** over **Source with Intelligence \| Deliver with Confidence** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
+| Admin console | The rail: earth mark, **World Mart** over **Source with Intelligence \| Deliver with Confidence** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
 | Logistics portal | The rail and the sign-in header: the same lockup | Small print at the foot of the sign-in column |
-| Greeting page hero | **Gloviaa Mart** in the script face, then **Source with Intelligence \| Deliver with Confidence**, then a still, translated line: "Your Integrated B2B B2C Platform" (`greeting.platformLine`) | — |
+| Greeting page hero | **World Mart** in the script face, then **Source with Intelligence \| Deliver with Confidence**, then a still, translated line: "Your Integrated B2B B2C Platform" (`greeting.platformLine`) | — |
 
-**"Mart" is set in a second face.** Wherever the wordmark "Gloviaa Mart" is
+**"Mart" is set in a second face.** Wherever the wordmark "World Mart" is
 drawn — the storefront header (from 640px), the greeting headline, the
-storefront footer heading, and the admin and logistics lockups — "Gloviaa"
+storefront footer heading, and the admin and logistics lockups — "World"
 stays in the script face and only "Mart" is set in Inter (already loaded; the
 light 300 weight is added to its request), at 0.62em, light and shown
 lowercase as "mart", on the same baseline. It reads like a parent
 brand naming one of its services. It is plain text, so a screen reader and a
-copy-paste still get "Gloviaa Mart". The storefront draws it with
+copy-paste still get "World Mart". The storefront draws it with
 `components/BrandName.tsx`; the admin console and the logistics portal each
 have a small `BrandName` inside `layout/BrandLockup.tsx`. A deployment with its
 own name is not touched: its name is drawn in one face, as before. On a phone
-the storefront header still shows only "Gloviaa".
+the storefront header still shows only "World".
 
-**The name has a one-word form, Gloviaa.** `PRODUCT_SHORT_NAME` in each
+**The name has a one-word form, World.** `PRODUCT_SHORT_NAME` in each
 app's `lib/brand.ts`, used where two words do not fit or do not belong: the
-label on the hub's globe on the greeting page (always `Gloviaa`, never with
+label on the hub's globe on the greeting page (always `World`, never with
 "Mart", the endorsement or the tagline), and the storefront header under 640px,
 where the row beside the controls has room for one word. Everywhere else the
-full name, `PRODUCT_BRAND` = **Gloviaa Mart**. Never "Glovia", "Glovia Mart"
-or "Gloviaa Market".
+full name, `PRODUCT_BRAND` = **World Mart**. Never the old names "Gloviaa Mart", "Glovia"
+or "World Market".
 
 **The wordmark and the tagline appear only while the business display name
 equals `PRODUCT_BRAND` exactly.** A deployment seeded before the rename still
 had "Glovia" stored, which would have shown in plain lettering with no tagline.
 Migration `20261007090000_rename_product_default_to_gloviaa_mart` changes that
-one exact old default to "Gloviaa Mart"; a name the operator typed is never
+one exact old default to what was then the product name, and migration
+`20261115090000_rename_product_default_to_world_mart` changes the next old
+default, "Gloviaa Mart", to "World Mart". A name the operator typed is never
 touched.
 
 **The wordmark has its own face: Dancing Script Bold (700), a connected
-script.** It is used for the word "Gloviaa Mart" wherever it is the brand — the
+script.** It is used for the word "World Mart" wherever it is the brand — the
 storefront header and footer, the greeting headline, the label on the hub's
 globe, the admin and logistics rails and the logistics sign-in — and for the
 tagline under it, and nothing else. Body text, headings, and prose that merely contains
-the word ("Sell on Gloviaa Mart", "Gloviaa Mart AI Insights") stay in Inter. It is set a
+the word ("Sell on World Mart", "World Mart AI Insights") stay in Inter. It is set a
 step larger than the Inter it replaced, because a script's short x-height reads
 a size smaller at the same number. It is bundled from the
 `@fontsource/dancing-script` package (Latin subset only, SIL Open Font
 License) rather than fetched from Google Fonts, because the production CSP is
 `font-src 'self' data:`. The Tailwind utility is `font-brand`. While it
 loads, the fallback face `Dancing Script Fallback` — Arial Bold resized to
-Dancing Script's metrics, declared in each app's `index.css` — sets "Gloviaa Mart"
+Dancing Script's metrics, declared in each app's `index.css` — sets "World Mart"
 at the same width and height, so nothing moves when the script arrives.
 
 **The tagline is in the same script as the name.** "Source with Intelligence | Deliver with Confidence" is
@@ -128,8 +130,8 @@ face.
 
 **On a deployment with its own name, neither the face nor the tagline
 applies.** The storefront header and footer only use `font-brand` and the
-tagline when the business display name *is* "Gloviaa Mart". Northwind Industrial's
-header says Northwind Industrial in the ordinary heading face, alone: Gloviaa Mart's
+tagline when the business display name *is* "World Mart". Northwind Industrial's
+header says Northwind Industrial in the ordinary heading face, alone: World Mart's
 slogan under another company's name would be the software claiming their shop.
 
 **How visible it is.** The wordmark and tagline have their own colour tokens,
@@ -144,7 +146,7 @@ from `sm` up and 17px on a phone, the tagline 15px from `lg` up; the admin
 and logistics wordmarks 20px over a 15px tagline. The storefront's header is
 the same height it was - the wordmark's line box grew by 2px and the tagline's
 shrank by 2px. On a phone the market and account buttons drop their chevrons
-so "Gloviaa Mart" fits beside the globe at 375px; at 320px there is room for the
+so "World Mart" fits beside the globe at 375px; at 320px there is room for the
 globe alone. Every pair is in each app's `audit:contrast`.
 
 It used to be called *UBOSS Sourcing*. That name is gone from every screen a
@@ -154,7 +156,7 @@ Three names are involved and they are not interchangeable:
 
 | Name | What it is | Where it comes from |
 |---|---|---|
-| **Gloviaa Mart** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
+| **World Mart** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
 | **Source with Intelligence \| Deliver with Confidence** | The product's tagline — under the wordmark. A constant, never translated. It replaced "The Way to the Global Sourcing" | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
 | **Powered by UBOSS** | The attribution — who makes it | `lib/brand.ts`, the same constant module |
 | The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` — and `marketplace.displayName`, the same name, which a seller's shop front never replaces |
@@ -164,7 +166,7 @@ deployment, so the storefront header, the footer, the e-mails, the invoices and
 the browser tab name *their* business, not ours. A storefront belonging to
 Northwind Industrial says Northwind Industrial at the top of it, and its footer
 says the software is powered by UBOSS. The seed and
-the fallback name a shop "Gloviaa Mart" only because a fresh install has no business
+the fallback name a shop "World Mart" only because a fresh install has no business
 profile to read a name from, and naming the software is the one honest thing to
 put there until somebody fills that in.
 
@@ -173,7 +175,7 @@ a string to translate; the tagline is a brand asset rather than a sentence; and
 `Powered by UBOSS` is a fixed attribution lockup — so all three read
 identically in all eight languages, and the auto-translator never sees them. `scripts/check-i18n.mjs`
 carries the same reasoning for the handful of catalogue entries that name the
-product, such as `aiInsights.title` ("Gloviaa Mart AI Insights").
+product, such as `aiInsights.title` ("World Mart AI Insights").
 
 **UBOSS is still everywhere inside, on purpose.** Package names, the database,
 Prisma models, migrations, API routes, cookie names, session audiences,
@@ -198,7 +200,7 @@ applications, filled with the operator's name:
   each call site, because many of these strings are reached by a key built at
   run time — an error code, a mode, a pricing state. The event it fires is
   bound through `react.bindI18n`, so a screen drawn before the name arrived is
-  redrawn with it. Until then the product's name, "Gloviaa Mart", stands in.
+  redrawn with it. Until then the product's name, "World Mart", stands in.
 - **`marketplace`, not `business`**: on a seller's shop front `business` is the
   seller, and "Northwind manages L2" said to Northwind about its own delivery
   would be wrong.
@@ -209,12 +211,12 @@ applications, filled with the operator's name:
   notification rows, error messages — says "the marketplace" or "Marketplace
   operations" instead, so it stays true after a rename.
 
-"Sell on Gloviaa Mart", "Gloviaa Mart Marketplace" and "Disagrees with Gloviaa Mart" name the
-*product*, and those changed to Gloviaa Mart.
+"Sell on World Mart", "World Mart Marketplace" and "Disagrees with World Mart" name the
+*product*, and those changed to World Mart.
 
 ## The one-sentence version
 
-Gloviaa Mart is **a shop on the internet for businesses** — a company sells
+World Mart is **a shop on the internet for businesses** — a company sells
 supplies to other companies, and other businesses can sell through it too, and
 this software runs everything from the product page to the invoice. It sells
 anything a business buys: fasteners, cables, packaging, tools, electronics,
@@ -1256,7 +1258,7 @@ What is left is deliberately not padded out to fill the space they left. The
 brand shrinks and the controls do not, so the gap between them is whatever is
 over. **Below 360px the row tightens so the name still reads**: the earth mark
 drops from 40px to 32px, the account and cart controls lose some padding, and
-the gaps between controls halve. Without that, "Gloviaa" was cut to "G." at
+the gaps between controls halve. Without that, "World" was cut to "G." at
 320px; with it the whole word shows at every width from 320px up. A `flex-1` element in the middle would be a named, measurable hole where
 a control used to be.
 
@@ -2035,11 +2037,11 @@ The greeting opens on four lines, and none of them moves:
 | Line | What it is |
 |---|---|
 | The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
-| The headline | The shop's configured name. Fixed. Nothing cycles after it. When the name is "Gloviaa Mart", "Gloviaa" is in the script wordmark face and "Mart" in light Inter at 0.62em, shown lowercase as "mart" (see *What the product is called*) |
-| The tagline | **Source with Intelligence \| Deliver with Confidence** — `PRODUCT_TAGLINE` from `lib/brand.ts`, in the script face. Fixed, not translated. Only when the name is "Gloviaa Mart" |
+| The headline | The shop's configured name. Fixed. Nothing cycles after it. When the name is "World Mart", "World" is in the script wordmark face and "Mart" in light Inter at 0.62em, shown lowercase as "mart" (see *What the product is called*) |
+| The tagline | **Source with Intelligence \| Deliver with Confidence** — `PRODUCT_TAGLINE` from `lib/brand.ts`, in the script face. Fixed, not translated. Only when the name is "World Mart" |
 | The platform line | `greeting.platformLine` — "Your Integrated B2B B2C Platform". Fixed, translated into all eight languages |
 
-**The headline is the name, still.** It reads "Gloviaa Mart" on a deployment that has
+**The headline is the name, still.** It reads "World Mart" on a deployment that has
 not set a business name of its own, and "Northwind Industrial" on one that has.
 It replaced two paragraphs of prose: a customer's "your catalogue, your standing
 arrangements and your payment authority", and a guest's sentence explaining what
@@ -2047,8 +2049,8 @@ a catalogue is to somebody already looking at one. The search module directly
 below asks that question in one control.
 
 **It used to move.** One word cycled after the name — sourcing, intelligence,
-optimism, innovation — which made the name part of a rotation: "Gloviaa Mart
-Sourcing", then "Gloviaa Mart Intelligence". A brand that rewrites itself every
+optimism, innovation — which made the name part of a rotation: "World Mart
+Sourcing", then "World Mart Intelligence". A brand that rewrites itself every
 three seconds is not a brand, and a reader arriving mid-cycle saw a product the
 deployment does not sell. `lib/greeting-headline.ts` went with it: the whole
 module existed to stop a name ending in a cycling word saying that word twice —
@@ -2068,7 +2070,7 @@ rotation: the line is ordinary text, read once.
 ## The sourcing hub
 
 Beside the search module, `/` carries one large animated graphic: a central
-glass orb labelled **Gloviaa Mart**, in the script wordmark face — the product, at the centre of the four
+glass orb labelled **World Mart**, in the script wordmark face — the product, at the centre of the four
 capabilities that orbit it, from `lib/brand.ts` rather than the phrase book —
 two orbital rings turning in opposite
 directions, and **four** capabilities riding those rings around it.
@@ -10598,7 +10600,7 @@ storefront's profile page, the carrier portal's and the Audit Console's profile
 pages, and the admin console's user menu (**Terms and privacy**, `/my-agreements`)
 show every record with a link to the exact version.
 
-**Policy documents.** The Gloviaa Mart documents are in `legal/drafts/gloviaa-mart/`
+**Policy documents.** The World Mart documents are in `legal/drafts/world-mart/`
 (see `legal/README.md`). Since 12 October 2026 they are **finalised text,
 version 1.0, effective 12 October 2026, with sample company details**: every
 draft notice, approval line, `[[DECISION]]` marker and `______` blank was
@@ -10606,7 +10608,7 @@ filled at the owner's request, open decisions were settled with standard Indian
 defaults, and the registered office, CIN, GSTIN, grievance officer and contact
 addresses are **samples** to replace before going live (listed in
 `CHANGE-TABLE.md`). They have not been reviewed by counsel.
-`cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart`
+`cd backend; npm run legal:import-drafts -- ../legal/drafts/world-mart`
 still loads them as DRAFTS only. Publishing still refuses a document that holds
 a `[[...]]` blank (`LEGAL_DOCUMENT_HAS_PLACEHOLDERS`); these files hold none.
 
@@ -10668,7 +10670,7 @@ company screen never stands in front of the Seller Hub.
   read the agreement.
 - Accepting changes nothing about the company's verification: purchasing still
   waits for `APPROVED`. It is also **not execution**. It records the buyer's
-  acceptance of the published text only - not Gloviaa's signature, and not
+  acceptance of the published text only - not World's signature, and not
   Schedules A-C, which are completed and signed separately before trading on
   negotiated terms. It creates no AutoPay mandate, marketing consent or service
   purchase.
@@ -10681,7 +10683,7 @@ distinct.
 
 **The words.** `03_B2B_Buyer_Terms_and_Conditions.docx` and
 `05_B2B_Buyer_Platform_Services_Agreement.docx` are stored in
-`legal/drafts/gloviaa-mart/b2b-buyer-terms.en.txt` (14 sections) and
+`legal/drafts/world-mart/b2b-buyer-terms.en.txt` (14 sections) and
 `b2b-buyer-services-agreement.en.txt` (12 sections, Schedules A-C and the final
 "complete or mark not applicable" requirement), version `1.0`. The Word files
 are kept unchanged in `legal/source/` (gitignored). On 12 October 2026 both
@@ -10733,7 +10735,7 @@ themselves answers to the consumer screen - three boxes, in this order:
   the database's time (migration `20261113100000_b2c_consumer_agreements`).
 
 **The words.** `06_B2C_Consumer_Terms.docx` is stored in
-`legal/drafts/gloviaa-mart/b2c-consumer-terms.en.txt`, version `1.0`: the
+`legal/drafts/world-mart/b2c-consumer-terms.en.txt`, version `1.0`: the
 introduction, all 11 sections and the whole section 11 model withdrawal notice,
 each line its own paragraph. The Word file is kept unchanged in
 `legal/source/`. On 12 October 2026 it was filled in: the approval notice is
@@ -10766,7 +10768,7 @@ another, and clearing one box clears only that box.
 **The words.** Both documents were supplied by the operator as Word files
 (`02_Seller_Terms_and_Conditions.docx`, `04_Seller_Platform_Services_Agreement.docx`).
 They are stored in
-`legal/drafts/gloviaa-mart/seller-terms.en.txt` (15 numbered sections) and
+`legal/drafts/world-mart/seller-terms.en.txt` (15 numbered sections) and
 `seller-services-agreement.en.txt` (12 sections and Schedules A-F), version
 `1.0`. The original Word files are kept unchanged in `legal/source/`
 (gitignored). On 12 October 2026 both were filled in like the other documents
@@ -10778,7 +10780,7 @@ word-for-word copies.
 **Unfinished text cannot be published by accident.** Publishing refuses a
 document with a `[[...]]` decision, a fill-in blank (`______`), or the words
 "For approval before implementation or signature" (`findLegalPlaceholders`,
-error `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). The Gloviaa Mart files no longer
+error `LEGAL_DOCUMENT_HAS_PLACEHOLDERS`). The World Mart files no longer
 contain any of these. Importing them (`npm run legal:import-drafts`) only ever
 creates DRAFT rows and never touches a published version. Until a version is published, the services
 box shows "Not published yet" and does not lock anybody out of the Hub.
@@ -10880,7 +10882,7 @@ download a PDF built on the server from the stored text.
 **Until something is published, nobody can sign up.** That is deliberate and a
 going-live step (README, step 19). On development machines only, the seed
 (`seedDevelopmentTerms` in `modules/legal/development-terms.ts`) publishes the
-Gloviaa Mart documents from `legal/drafts/gloviaa-mart/` - with their sample
+World Mart documents from `legal/drafts/world-mart/` - with their sample
 company details - for each kind that has nothing published or only
 seed-published text. It supersedes the old "DEVELOPMENT PLACEHOLDER - NOT A
 LEGAL AGREEMENT" rows, and never an operator's own published text. The test
@@ -14146,7 +14148,7 @@ beside Preorder is gone. There is no visible "Chat with …" text button; this
 icon is the only chat entry on the product page's purchase row.
 
 - **Its name.** Screen readers hear *Chat with {marketplace}* - the operator's
-  trading name (`{{marketplace}}` in the translations; *Chat with Gloviaa Mart* until
+  trading name (`{{marketplace}}` in the translations; *Chat with World Mart* until
   a name is set). With unread replies it is *Chat with {marketplace}. Unread
   replies: N*.
 - **Its tooltip.** *"Ask {marketplace} about this preorder"* shows on hover and
@@ -15614,7 +15616,7 @@ PDFKit with embedded DejaVu Sans, so every script prints and the text can be
 selected.
 
 - A strong outer border on every page, and rules between sections.
-- A header with a vector globe mark, "Gloviaa Mart / Powered by UBOSS", and the
+- A header with a vector globe mark, "World Mart / Powered by UBOSS", and the
   title.
 - "From — Supplier" and "Bill To — Seller" side by side.
 - A grid: invoice number, date and time, financial year, due date, currency,
@@ -15632,7 +15634,7 @@ selected.
 The bytes are deterministic: the dates in the file are the issue time. The
 smallest font is 6 pt. PDF metadata: Title "Commission invoice *number*",
 Subject "*TITLE* - Platform Commission", and Keywords. The file is named
-`Gloviaa-Mart-Commission-Invoice-<number, with / as ->.pdf`.
+`World-Mart-Commission-Invoice-<number, with / as ->.pdf`.
 
 ### Downloads and the public check
 
@@ -15813,8 +15815,8 @@ through ToUnicode and reads the MediaBox. No external tool is needed.
 - It never makes a credit note by itself. The hint is advice.
 - It does not register invoices with the IRP (no IRN) and prints no GST
   e-invoice QR.
-- The header mark ("Gloviaa Mart / Powered by UBOSS") and the file name's
-  `Gloviaa-Mart-` start are fixed text in the PDF template, not settings.
+- The header mark ("World Mart / Powered by UBOSS") and the file name's
+  `World-Mart-` start are fixed text in the PDF template, not settings.
 
 ### For a CA or tax professional
 
@@ -18504,7 +18506,7 @@ What is on it, top to bottom:
 1. **About {marketplace}** and the heading. On the product's own storefront
    the heading is the tagline (`PRODUCT_TAGLINE` in `lib/brand.ts`) in the
    wordmark's script. On a storefront trading under another name it is a
-   translated heading, so Gloviaa Mart's slogan never sits over somebody
+   translated heading, so World Mart's slogan never sits over somebody
    else's shop. **Powered by UBOSS** is printed under the introduction.
 2. **What we do.** A navy panel with the earth turning and the groups who take
    part around it, beside short paragraphs on buying, bulk orders and
@@ -20026,7 +20028,7 @@ So the architecture is outbound-only:
 
 1. The seller, already authenticated in the Seller Hub, generates a short-lived
    single-use **pairing code**.
-2. They run the **Gloviaa Mart Tally Bridge** on the machine beside TallyPrime.
+2. They run the **World Mart Tally Bridge** on the machine beside TallyPrime.
 3. The bridge talks to Tally over the **local** network — their business,
    configured on their side.
 4. The bridge opens an authenticated **HTTPS connection out** to this API and
@@ -21161,7 +21163,7 @@ UBoss-Software/
 │   │   ├── sidebar.tsx          The rail that widens — the same file in all three apps
 │   │   └── sidebar-context.ts   What it knows about itself, and its row type
 │   ├── lib/brand.ts             The product's name, tagline and attribution
-│   ├── components/BrandName.tsx "Gloviaa" in script, "Mart" in Inter
+│   ├── components/BrandName.tsx "World" in script, "Mart" in Inter
 │   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
 │   ├── lib/camera.ts               The device camera, as one still photograph
 │   ├── components/ProductRow.tsx   A product as a listing row, with its specs
@@ -21210,7 +21212,7 @@ UBoss-Software/
 | Change a page's look | `apps/*/src/pages/` |
 | Change the product's name or its attribution | `lib/brand.ts` — one copy in each of the three apps, and all three change together |
 | Change the line under the greeting's tagline | `greeting.platformLine` in the eight `i18n/locales/*.json` files; `pages/HomePage.tsx` for where it sits |
-| Change how "Mart" is set beside "Gloviaa" | `components/BrandName.tsx` in the storefront, the `BrandName` in `layout/BrandLockup.tsx` in the admin console and the logistics portal |
+| Change how "Mart" is set beside "World" | `components/BrandName.tsx` in the storefront, the `BrandName` in `layout/BrandLockup.tsx` in the admin console and the logistics portal |
 | Change how a sent question leaves the AI composer | `components/ui/vanish.ts` for the particles, `pages/ai/AiComposer.tsx` for where the canvas sits |
 | Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the lean and the specular, `.glare*` there and `components/ui/background-gradient.tsx` for the glow around it |
 | Change what a product ROW does on hover | the same files, but a row uses `.sheen` rather than `.tilt` — the highlight without the lean, because the listing is one sheet and a leaning row lifts off the divider above it |
@@ -22014,7 +22016,7 @@ At confirmation each line gets an `order_line_commercial_snapshots` row: the act
 
 ### Buyer policy
 
-`legal/drafts/gloviaa-mart/delivery-returns-disputes-policy.en.txt` is the buyer-facing Delivery, Returns, Refunds and Disputes Policy (kind `RETURNS_POLICY`), without internal reserve or fee terms. Since 12 October 2026 it is finalised text, version 1.0, with the sample company details; it has not been reviewed by counsel. The policy version in force is kept on each order line.
+`legal/drafts/world-mart/delivery-returns-disputes-policy.en.txt` is the buyer-facing Delivery, Returns, Refunds and Disputes Policy (kind `RETURNS_POLICY`), without internal reserve or fee terms. Since 12 October 2026 it is finalised text, version 1.0, with the sample company details; it has not been reviewed by counsel. The policy version in force is kept on each order line.
 
 ### Still open (not software)
 

@@ -74,7 +74,7 @@ export async function releaseGaps(client: Client, id: string, scopeItemIds: read
   if (scope.length === 0) gaps.push('SCOPE_EMPTY');
   const certFacts = cert === null ? null : {
     status: cert.status as 'AUTHENTICATED',
-    appointedByGloviaa: true,
+    appointedByWorld: true,
     accreditationVerified: cert.accreditationVerified,
     independenceVerified: cert.independenceVerified,
     authenticityVerified: cert.authenticatedAt !== null,

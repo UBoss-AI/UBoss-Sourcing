@@ -1,5 +1,5 @@
 /**
- * Gloviaa Mart commercial, delivery and dispute policy - the pure rules.
+ * World Mart commercial, delivery and dispute policy - the pure rules.
  *
  * Sources, kept verbatim where they are tables:
  *   - 07 Delivery, Returns, Refunds and Dispute Administration Policy, v1.0,
@@ -485,7 +485,7 @@ export const DOC08_INSURANCE_RISK_GROUPS: readonly InsuranceRiskGroup[] = Object
 export const INSURANCE_COVER_TYPES = ['PRODUCT_LIABILITY', 'PRODUCT_RECALL', 'CARGO', 'PROFESSIONAL_INDEMNITY', 'CYBER', 'CRIME', 'WAREHOUSE_LIABILITY', 'PACKAGING_LIABILITY', 'INSTALLATION_LIABILITY', 'OTHER'] as const;
 export type InsuranceCoverType = (typeof INSURANCE_COVER_TYPES)[number];
 
-/** Doc 08 s6: Gloviaa buys these for itself; seller insurance does not cover Gloviaa's own service failures. */
+/** Doc 08 s6: World buys these for itself; seller insurance does not cover World's own service failures. */
 export const PLATFORM_OWN_COVER_TYPES: readonly InsuranceCoverType[] = ['PROFESSIONAL_INDEMNITY', 'CYBER', 'CRIME', 'WAREHOUSE_LIABILITY', 'CARGO', 'PACKAGING_LIABILITY', 'INSTALLATION_LIABILITY'];
 
 export interface InsurancePolicyFacts {
@@ -997,7 +997,7 @@ export const DOC08_LAUNCH_DECISIONS: readonly LaunchDecisionDef[] = Object.freez
   { key: 'US_MARKETPLACE_TAX_AND_CUSTOMS', title: 'US: state marketplace-facilitator sales tax, CBP entry route and de minimis status at shipment (no automatic USD 800 assumption)', source: 'Doc 08 s10', owner: 'Tax', expires: true, citedSources: ['https://www.help.cbp.gov/s/article/Article-1919?language=en_US'] },
   { key: 'INDIA_TAX_EXPORT_RECONCILIATION', title: 'India: GST withholding, collection, invoicing and export-proceeds reconciliation with the authorised-dealer bank', source: 'Doc 08 s10', owner: 'Tax', expires: true, citedSources: ['https://consumeraffairs.gov.in/public/upload/files/E%20commerce%20rules_1732703966.pdf'] },
   { key: 'PRODUCT_OBLIGATIONS', title: 'Relevant product obligations reviewed per SKU and country (e.g. GPSR economic operator, DSA traceability, INFORM, CPSC, FDA, MoCRA, TSCA, FCC)', source: 'Doc 08 s9-10, s13', owner: 'Regulatory', expires: true, citedSources: ['https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX%3A32023R0988', 'https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1681822313059&uri=CELEX%3A32022R2065', 'https://www.ftc.gov/legal-library/browse/statutes/inform-consumers-act'] },
-  { key: 'EU_FULFILMENT_ROLE', title: 'EU: whether warehousing, packaging, addressing or dispatch makes Gloviaa a fulfilment service provider or responsible economic operator', source: 'Doc 07 s4', owner: 'Regulatory', expires: true, citedSources: ['https://eur-lex.europa.eu/legal-content/EN-SL/TXT/?from=EN&uri=CELEX%3A32019R1020'] },
+  { key: 'EU_FULFILMENT_ROLE', title: 'EU: whether warehousing, packaging, addressing or dispatch makes World a fulfilment service provider or responsible economic operator', source: 'Doc 07 s4', owner: 'Regulatory', expires: true, citedSources: ['https://eur-lex.europa.eu/legal-content/EN-SL/TXT/?from=EN&uri=CELEX%3A32019R1020'] },
 ]);
 
 /** EU decisions apply only to EU destinations; the US and India decisions only to theirs. */

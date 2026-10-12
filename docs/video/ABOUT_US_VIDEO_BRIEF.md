@@ -7,7 +7,7 @@
 ## 1. Objective
 
 **Primary:** make a European company buyer — a procurement manager in Poland is
-the reference viewer — believe that Gloviaa Mart is a careful, transparent and
+the reference viewer — believe that World Mart is a careful, transparent and
 capable way to source from Indian sellers.
 
 **Secondary:**
@@ -88,7 +88,7 @@ partner confirmation.*
   appears, but as proof rather than a tour.
 - **Human first.** People making, checking, packing and receiving goods. Hands,
   faces in soft focus, real-feeling work — never stock-photo smiles to camera.
-- **One visual thread:** the rotating Gloviaa globe. It opens the film, lights
+- **One visual thread:** the rotating World globe. It opens the film, lights
   up the route from India to Poland, and resolves into the logo lockup.
 - **Honest and calm.** No countdowns, no "revolutionary", no fireworks.
 - **No identifiable brands, logos, people or places** in generated scenes.
@@ -101,7 +101,7 @@ partner confirmation.*
 | Palette | Navy `#0C2350` and brand blue `#1D4ED8` as the base; warm action orange `#EA580C` used sparingly for moments of human warmth; teal `#0F766E` for logistics accents |
 | Light | Early-morning and golden-hour light; soft, natural |
 | Camera | Slow push-ins, gentle parallax, one or two smooth aerial moves; no shaky handheld |
-| Type | Inter for on-screen text; the "Gloviaa Mart" wordmark in its script face (Dancing Script Bold) only in the logo lockup |
+| Type | Inter for on-screen text; the "World Mart" wordmark in its script face (Dancing Script Bold) only in the logo lockup |
 | Motion graphics | Thin glowing route lines on the globe; L1–L4 shown as four segments of one line |
 | App inserts | Two or three, 2–3 s each, framed in a clean device or floating window — only after B-01/B-02 |
 | Texture | Clean, premium, slightly cool; no grain or film burn |
@@ -116,11 +116,11 @@ not a final script.
 | 1 | 0:00–0:06 | Night-to-dawn over the rotating globe; India catches the first light | *(music only)* |
 | 2 | 0:06–0:16 | An Indian workshop at dawn: hands finishing a product, a quality check, cartons sealed | "Behind every product is someone who made it with care." |
 | 3 | 0:16–0:26 | A procurement manager in a European office reviewing options on a laptop; prices in złoty | "And someone, far away, who needs to know they can rely on it." |
-| 4 | 0:26–0:38 | The globe: a route lights up from India to Poland; four segments appear (factory, sea, inland, door). Brief app insert: product page with clear terms | "Gloviaa Mart brings them together. Sellers are reviewed before they can sell. Terms are clear before you order." |
+| 4 | 0:26–0:38 | The globe: a route lights up from India to Poland; four segments appear (factory, sea, inland, door). Brief app insert: product page with clear terms | "World Mart brings them together. Sellers are reviewed before they can sell. Terms are clear before you order." |
 | 5 | 0:38–0:50 | Container loading at a port; a truck on a European road; a delivery received | "Every delivery is planned leg by leg, from the factory to your door." |
 | 6 | 0:50–0:60 | Faces and hands across the chain: seller, logistics partner, inspector, buyer — soft focus, human | "Built in India. Designed for buyers in Europe, beginning with Poland." |
 | 7 | 0:60–0:70 | The globe settles; the route glows | Spoken: "Source with Intelligence. Deliver with Confidence." On screen and in captions, exactly: `Source with Intelligence \| Deliver with Confidence` |
-| 8 | 0:70–0:75 | Logo lockup on navy | **Gloviaa Mart** / *Source with Intelligence \| Deliver with Confidence* / Powered by UBOSS / CTA |
+| 8 | 0:70–0:75 | Logo lockup on navy | **World Mart** / *Source with Intelligence \| Deliver with Confidence* / Powered by UBOSS / CTA |
 
 Cut-downs: the **30-second** version keeps beats 1, 4, 5, 7, 8. The
 **15-second** 9:16 version keeps 4 (globe route), 7 and 8.
@@ -140,7 +140,7 @@ Cut-downs: the **30-second** version keeps beats 1, 4, 5, 7, 8. The
   [VIDEO_REQUIREMENTS.md](VIDEO_REQUIREMENTS.md) §10).
 - 120–135 words per minute, with space. About 110–130 words in the master.
 - Warm, calm, sure. Sentences of 6–14 words.
-- Say "Gloviaa" as **glow-VEE-ah** (pending D-13).
+- Say "World" as **glow-VEE-ah** (pending D-13).
 - The tagline is spoken once, slowly, near the end; on screen it is written
   exactly as `Source with Intelligence | Deliver with Confidence`.
 
@@ -163,8 +163,8 @@ voice (V-01), licensed music (M-01), captions (X-01).
 
 ## 13. Call to action (PROVISIONAL — D-12)
 
-**"Explore Gloviaa Mart"**, with the public web address once one exists.
-The seller cut uses **"Apply to sell on Gloviaa Mart"**.
+**"Explore World Mart"**, with the public web address once one exists.
+The seller cut uses **"Apply to sell on World Mart"**.
 
 ## 14. Deliverables
 

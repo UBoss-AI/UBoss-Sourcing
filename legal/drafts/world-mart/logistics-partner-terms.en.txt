@@ -1,19 +1,19 @@
-kind: AUDIT_CONSOLE_TERMS
+kind: LOGISTICS_PARTNER_TERMS
 version: 1.0
 locale: en
-title: Gloviaa Mart Audit Console Terms
+title: World Mart Logistics Partner Terms
 ---
 Version 1.0 | Effective 12 October 2026
 
-These terms apply to everyone invited to the Gloviaa Mart Audit Console: inspectors, coordinators, quality reviewers and administrators of inspection agencies, and the marketplace's own compliance reviewers and supervisors. Part A applies to every user of Gloviaa Mart. Part C applies to Audit Console users. An inspection agency's commercial relationship with Gloviaa Mart - fees, liability, insurance and accreditation - is governed by the written engagement agreement between them. An agency and its inspectors must have no financial or family interest in a seller they audit, must declare any conflict of interest before accepting an assignment, and must not audit a seller they advised in the previous 12 months.
+These terms apply to every member of a logistics partner's staff - owners, administrators, dispatchers, operations agents, drivers and viewers - who uses the World Mart logistics partner portal. Part A applies to every user of World Mart. Part L applies to logistics partner staff. These terms govern your use of the portal; the commercial relationship between your company and World Mart (rates, service levels, liability and insurance) is governed by the carrier agreement between them. Under that agreement, your company is liable for loss of or damage to goods from collection until proof of delivery, up to the declared value and capped at INR 50,000 per shipment unless a higher value has been declared and insured. Your company must hold goods-in-transit insurance. Claims for damage must be made within 7 days of delivery, and claims for loss within 30 days of the expected delivery date.
 
-## Part A - Common terms for everyone who uses Gloviaa Mart
+## Part A - Common terms for everyone who uses World Mart
 
 ## A1. About these terms
 
-These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("Gloviaa Mart", "Gloviaa", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace at www.gloviaamart.com.
+These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("World Mart", "World", "we", "us" or "our"). World Mart is the brand under which we run the marketplace at www.worldmart.com.
 
-"Platform" means the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
+"Platform" means the World Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
 
 "User" means anybody who visits or uses the Platform: a visitor, a buyer, a seller, a member of a logistics partner's staff, a member of our own staff, or an inspector or auditor invited to the Audit Console.
 
@@ -35,7 +35,7 @@ We may refuse or end access to the Platform if we learn that a user does not mee
 
 Some parts of the Platform need an account. When we ask for information to open or maintain an account, you agree to give information that is true, accurate, current and complete, and to keep it up to date.
 
-You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@gloviaamart.com, if you believe someone else has used your account.
+You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@worldmart.com, if you believe someone else has used your account.
 
 Where we offer or require two-step sign-in, you agree to set it up and keep it working. Some roles must use it.
 
@@ -49,16 +49,16 @@ Service messages (for example a payment receipt, a security alert or a change to
 
 ## A5. What the marketplace is, and what it is not
 
-The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
+The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. World Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
 
 For goods sold by other sellers:
 
 - The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order and is the seller of record.
-- The contract of sale is between the seller and the buyer. Gloviaa Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
-- Gloviaa Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. Gloviaa Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
+- The contract of sale is between the seller and the buyer. World Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
+- World Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. World Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
 - You should take reasonable care when you deal with other users. Use the Platform's own messages and payment flow; never pay outside it.
 
-Gloviaa Mart hosts content that users publish, such as product listings, photographs, reviews and messages. Gloviaa Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
+World Mart hosts content that users publish, such as product listings, photographs, reviews and messages. World Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
 
 ## A6. Acceptable use
 
@@ -106,7 +106,7 @@ You must not:
 - use any device, software or routine to interfere with the proper working of the Platform or any transaction on it;
 - forge headers or manipulate identifiers to disguise the origin of a message you send through the Platform.
 
-If you discover a security weakness in the Platform, please report it to security@gloviaamart.com.
+If you discover a security weakness in the Platform, please report it to security@worldmart.com.
 
 We may take any lawful action, including claiming damages, against a user who breaches this section.
 
@@ -126,11 +126,11 @@ The Platform, its software, design, text, graphics, logos and the compilation of
 
 You may view, download and print product information and your own records for your own business or personal use, provided you keep any proprietary notices, make no changes, and do not add representations or warranties about the content.
 
-The Gloviaa Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
+The World Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
 
 ## A10. Complaints about infringing or unlawful content
 
-We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@gloviaamart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
+We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@worldmart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
 
 ## A11. Other services and links
 
@@ -169,13 +169,13 @@ Nothing in these terms excludes or limits any guarantee, warranty or right that 
 
 To the extent the applicable law allows, we are not liable for any indirect, incidental, special or consequential loss, or for loss of profit, revenue, business, goodwill or data, arising out of or in connection with these terms or the Platform, even if we were told such loss was possible.
 
-If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to Gloviaa in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
+If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to World in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
 
 Nothing in these terms limits or excludes liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, for wilful misconduct, or for anything else that the applicable law does not allow to be limited or excluded.
 
 ## A16. Indemnity
 
-To the extent the applicable law allows, you will indemnify and hold harmless Gloviaa Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
+To the extent the applicable law allows, you will indemnify and hold harmless World Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
 
 ## A17. Changes to these terms
 
@@ -211,38 +211,46 @@ These terms are published in several languages. If the language versions differ,
 
 ## A21. Contact and complaints
 
-For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@gloviaamart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
+For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@worldmart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@worldmart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
 
-Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
+Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@worldmart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
 
-## Part C - Terms for Audit Console users
+## Part L - Terms for logistics partner staff
 
-## C1. Your access
+## L1. Your access
 
-Access to the Audit Console is by invitation only. Your role decides what you can see and do: an inspector sees only the jobs assigned to them, and an agency's roster and invoices are shown only to the roles that need them. You must use the console only for the inspections, reviews and compliance work assigned to you or your agency, and only within your role. You must set up and use two-step sign-in, and you must not share your account. Questions about the Audit Console can be sent to audit@gloviaamart.com.
+Your company's account on the portal is created by World Mart; there is no public registration. You receive access by invitation from your company or from us, and your role in your company decides what you can see and do. You may use the portal only for your company's work on shipments offered or assigned to it through World Mart, and only within your role. Questions about the portal can be sent to logistics@worldmart.com.
 
-## C2. Independence and conflicts of interest
+You must set up and use two-step sign-in where your role requires it. You must not share your account, and you must sign out of shared devices.
 
-You must carry out inspections and reviews independently and impartially. You must not accept a job, or must withdraw from it, if you or your agency have an interest in the seller, the buyer or the goods, or any other relationship that could affect, or appear to affect, your judgement, and you must tell the marketplace about it before accepting the job. You must not audit a seller that you or your agency advised in the previous 12 months. You must not accept any gift, payment or favour from a buyer or a seller.
+## L2. Your company's information only
 
-## C3. No contact outside the console
+The portal shows you your own company's shipments, collections, drivers, vehicles and profile, and nothing belonging to another carrier. You must not try to reach information about another company, another driver's round, or any shipment not offered or assigned to your company. A driver may open only the stops assigned to them.
 
-You must communicate with buyers and sellers about a job only through the means the console and the inspection process provide. You must not use contact details you see to approach a buyer or a seller for any other purpose, including to offer your own services.
+## L3. Accepting and handling shipments
 
-## C4. Evidence and reports
+When your company accepts a shipment, you must handle it with care, keep it secure, and move it only through the steps the portal provides. Each status update you record - collected, in transit, out for delivery, delivered, an exception and its reason - is recorded with your name and the time, and is shown to the buyer, the seller and World Mart. Every update must be true and made at the time the event happened. A correction to a recorded status is made by an authorised person through the portal, never by recording a false event.
 
-Evidence you upload - photographs, measurements, documents - must be genuine, unaltered, captured at the inspection it belongs to, and recorded with its true capture time. The same file must not be used for more than one inspection unless it truly belongs to each. Reports must state what you actually found and checked, including any limitation of the inspection, and must not state that a document is authentic unless you verified it by a method the process allows; record the method you used. A submitted report is kept as a revision; corrections are made as a new revision, never by changing the record of what was submitted.
+## L4. Proof of delivery and delivery codes
 
-When you review compliance documents or rules, record your decision and reasons truthfully, and follow the process - including the requirement that a rule be approved by a second person.
+You may mark a shipment delivered only when it has actually been handed over, and only with the proof of delivery the shipment's policy requires - for example the recipient's name and role, a signature, a photograph or a company stamp. Where a delivery code is required, ask the recipient for the code they received and enter it; never ask for the code before the goods are handed over, and never record it anywhere else. Photographs must show the delivery, not people's faces or anything else that is not needed.
 
-## C5. Confidentiality and personal data
+## L5. Personal data of buyers and recipients
 
-Everything you see in the Audit Console - orders, products, sellers' documents, buyers' details, evidence and other agencies' work - is confidential and may be used only for the assigned work. You must handle personal data in line with the Privacy Policy and the data-protection law that applies; avoid capturing people's faces or other personal data in photographs unless the inspection requires it; not copy evidence or documents out of the console except as the work requires; and report any loss or misuse of data to Gloviaa Mart, at security@gloviaamart.com, without delay. These duties continue after your access ends.
+To deliver a shipment you see names, addresses and telephone numbers of recipients, shown only as far as your role needs. You must use this data only to collect and deliver the shipment and to deal with exceptions about it; keep it confidential; not copy it out of the portal except as the delivery requires; not use it to contact anyone for any other purpose; and not keep it after the delivery is complete, except in records the law requires your company to keep. You must report any loss or misuse of this data to your company and to World Mart, at security@worldmart.com, without delay.
 
-## C6. Invoices
+## L6. Driver location
 
-Invoices your agency submits through the console must be accurate and relate only to work actually done. Payment of an agency's invoice is made outside the Platform under the agency's agreement.
+Driver location tracking is switched off, and the portal does not record your location. The Platform is able to record a driver's position while the driver is on duty, but World Mart will not switch this feature on without first giving at least 30 days' written notice and a separate notice to drivers. If it is ever switched on, it records your position only while you are on duty.
 
-## C7. Ending access
+## L7. Documents and company profile
 
-Your agency, or Gloviaa Mart, may remove your access at any time. Your obligations under sections C2 to C5 continue after your access ends.
+Documents and profile details you upload - licences, insurance certificates, vehicle and driver documents - must be genuine, current and accurate. Changes to legal and licence details are reviewed by World Mart before they take effect.
+
+## L8. Integrations
+
+If your company connects its own systems to the portal, the credentials must be kept secret and used only for that integration, and the information the integration sends must be as accurate as an update made by hand.
+
+## L9. Ending access
+
+Your access ends when your company removes you or its account is closed, or when World Mart suspends or closes it under section A13. Your obligations under section L5 continue after your access ends.

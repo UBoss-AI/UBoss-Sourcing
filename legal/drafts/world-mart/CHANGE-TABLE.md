@@ -1,9 +1,9 @@
-# Source-to-adapted change table — Gloviaa Mart policy documents
+# Source-to-adapted change table — World Mart policy documents
 
 **Status: finalised text, version 1.0, effective 12 October 2026, with sample
 company details. Not reviewed by counsel.** These documents were adapted by an
 AI assistant from two third-party source files and the operator's own Word
-files, against what the Gloviaa Mart software is documented to do
+files, against what the World Mart software is documented to do
 (`docs/PRD.md`). On 12 October 2026, at the owner's request, every
 `[[DECISION: ...]]` was settled (see "Decisions taken" below), every `______`
 blank was filled, and every "DRAFT - not legal advice..." notice and "For
@@ -268,18 +268,18 @@ real details before going live. Search the files for each value below.
 | `U62099HR2024PTC118452` (Registrar of Companies, NCT of Delhi and Haryana) | The Corporate Identity Number (CIN) and its register. This is also `SAMPLE_LEGAL_MARKER`: the software flags any published document containing it |
 | `06AADCU4821K1Z3` | The GSTIN |
 | `AADCU4821K` | The PAN |
-| www.gloviaamart.com | The website address |
-| support@gloviaamart.com, +91 124 456 7800, Monday to Saturday 9:30 to 18:30 IST | Customer support contact and hours |
-| legal@gloviaamart.com | Address for legal notices |
-| Mr Arjun Mehta, grievance@gloviaamart.com, +91 124 456 7801 | The Grievance Officer |
-| Ms Priya Nair, privacy@gloviaamart.com | The privacy contact / Data Protection Officer |
-| EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, eu-representative@gloviaamart.com | The EU representative under GDPR Art. 27 |
-| ip@gloviaamart.com ("Legal - Content Complaints" by post) | Intellectual-property and illegal-content complaints |
-| returns@gloviaamart.com | Returns and cancellations |
-| sellers@gloviaamart.com | Seller support |
-| logistics@gloviaamart.com | Logistics partner contact |
-| audit@gloviaamart.com | Audit Console contact |
-| security@gloviaamart.com | Security incident reports |
+| www.worldmart.com | The website address |
+| support@worldmart.com, +91 124 456 7800, Monday to Saturday 9:30 to 18:30 IST | Customer support contact and hours |
+| legal@worldmart.com | Address for legal notices |
+| Mr Arjun Mehta, grievance@worldmart.com, +91 124 456 7801 | The Grievance Officer |
+| Ms Priya Nair, privacy@worldmart.com | The privacy contact / Data Protection Officer |
+| EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, eu-representative@worldmart.com | The EU representative under GDPR Art. 27 |
+| ip@worldmart.com ("Legal - Content Complaints" by post) | Intellectual-property and illegal-content complaints |
+| returns@worldmart.com | Returns and cancellations |
+| sellers@worldmart.com | Seller support |
+| logistics@worldmart.com | Logistics partner contact |
+| audit@worldmart.com | Audit Console contact |
+| security@worldmart.com | Security incident reports |
 | DPIA-2026-03 | The reference of the staff sign-in location impact assessment |
 | 12 October 2026, version 1.0 | Effective date and version. Set the real date when the operator publishes |
 
@@ -298,9 +298,9 @@ Counsel should confirm them.
 | Markets | India and the member states of the European Union. Where a product can be delivered is shown on the product page and at checkout |
 | Changes to terms | At least 30 days' notice by email and on the Platform for material changes. Changes required by law or for security may apply sooner. Re-acceptance, where needed, is asked at the next sign-in |
 | Language | The English version prevails, unless mandatory law lets a consumer rely on their own language |
-| Liability cap | Business users only: the fees the user paid Gloviaa in the 12 months before the event. No cap for fraud, wilful misconduct, death or personal injury caused by negligence, or anything the law does not allow to be limited. Consumers' statutory rights are never limited |
+| Liability cap | Business users only: the fees the user paid World in the 12 months before the event. No cap for fraud, wilful misconduct, death or personal injury caused by negligence, or anything the law does not allow to be limited. Consumers' statutory rights are never limited |
 | Licence over uploaded content | Non-exclusive, worldwide, royalty-free, while the content is on the Platform plus a reasonable period for backups and legal records. Only to run and promote the marketplace. No training of general-purpose AI models and no third-party advertising without separate consent. The user keeps ownership |
-| Seller of record | The seller named on the product page for marketplace listings; Uboss AI Private Limited for goods Gloviaa sells itself. Gloviaa acts as marketplace and payment facilitator |
+| Seller of record | The seller named on the product page for marketplace listings; Uboss AI Private Limited for goods World sells itself. World acts as marketplace and payment facilitator |
 | Payment providers | Stripe (Stripe Payments Europe Ltd / Stripe, Inc.) for cards, international payments and Stripe Connect seller payouts; Razorpay Software Private Limited in India |
 | Returns and refunds | Consumers in India: 7 days from delivery for eligible products. Consumers in the EU: 14-day right of withdrawal. Business buyers: defects or shortages reported within 7 days of delivery, otherwise the order terms. Refunds within 14 days of approval, to the original payment method |
 | AI provider | Google Gemini, on paid API terms under which Google does not train on the prompts. No special-category data is sent |
@@ -309,13 +309,13 @@ Counsel should confirm them.
 | International transfers | EU adequacy decisions where they exist, otherwise the Standard Contractual Clauses (Decision 2021/914) with supplementary measures. Recipients: Stripe (Ireland/USA), Razorpay (India), Google (USA), Cloudflare (USA), the email delivery provider |
 | Supervisory authority | The Data Protection Board of India; people in the EU may also complain to their own country's authority |
 | Retention | Orders, invoices and tax records 8 years; KYC/KYB documents 5 years after the relationship ends; closed accounts' profile data deleted or anonymised within 90 days except what law requires; security logs 180 days |
-| Controller roles | Gloviaa is an independent controller for platform data; each seller is an independent controller for the buyer data it receives, and uses it only for that order |
+| Controller roles | World is an independent controller for platform data; each seller is an independent controller for the buyer data it receives, and uses it only for that order |
 | Staff | The staff terms supplement the employment or engagement contract and the IT Acceptable Use Policy; on employment matters the contract prevails |
 | Staff sign-in location | Recorded at city level from the IP address, for security only |
 | Driver location tracking | Switched off. At least 30 days' written notice and a separate driver notice before it is ever switched on |
 | Audit agencies | Work under a written engagement agreement; no financial or family interest in an audited seller; declare any conflict first; must not audit a seller they advised in the previous 12 months |
 | Carriers | Liable from collection to proof of delivery, up to the declared value, capped at INR 50,000 per shipment unless a higher value is declared and insured; must hold goods-in-transit insurance; damage claims within 7 days of delivery, loss claims within 30 days of the expected delivery date |
-| Per-customer fields in the services agreements | Read "as recorded in the Buyer's verified account", "as shown in the order confirmation" or "as set out in the Seller Hub fee schedule". Signature blocks became an electronic-acceptance clause: accepting on the Platform is a signature, and Gloviaa stores the name, role, date, time and IP address of the acceptance |
+| Per-customer fields in the services agreements | Read "as recorded in the Buyer's verified account", "as shown in the order confirmation" or "as set out in the Seller Hub fee schedule". Signature blocks became an electronic-acceptance clause: accepting on the Platform is a signature, and World stores the name, role, date, time and IP address of the acceptance |
 | Model withdrawal form | Keeps its lines; each blank reads "(insert ...)" |
 
 Still needed, outside the text: translations into the other seven interface
@@ -373,7 +373,7 @@ registered address and CIN, support, complaints, grievance officer and privacy
 contacts, and market disclosures for India and the EU. The model withdrawal
 notice keeps its lines; each consumer fill-in line now reads "(insert ...)",
 and it is addressed to the seller named in the order confirmation or to
-returns@gloviaamart.com. Sections and headings are unchanged.
+returns@worldmart.com. Sections and headings are unchanged.
 
 **The B2C Platform Services Agreement (12 October 2026).** No operator text
 had been supplied, so `b2c-platform-services-agreement.en.txt` was written to

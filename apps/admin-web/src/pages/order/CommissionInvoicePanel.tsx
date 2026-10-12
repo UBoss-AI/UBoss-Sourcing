@@ -94,7 +94,7 @@ export function CommissionInvoicePanel({ orderId }: { orderId: string }): React.
                         isLoading={download.isPending}
                         onClick={() => {
                           if (row.active?.documentId != null) {
-                            download.mutate({ documentId: row.active.documentId, name: `Gloviaa-Mart-Commission-Invoice-${row.active.number ?? row.active.id}.pdf` });
+                            download.mutate({ documentId: row.active.documentId, name: `World-Mart-Commission-Invoice-${row.active.number ?? row.active.id}.pdf` });
                           }
                         }}
                       >

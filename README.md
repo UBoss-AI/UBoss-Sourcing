@@ -1,6 +1,6 @@
 <div align="center">
 
-# Gloviaa Mart
+# World Mart
 
 **A self-hosted B2B sourcing and ordering platform.**
 
@@ -63,7 +63,7 @@ A company sells to other companies, and this software runs everything from the
 product page to the invoice: catalogue, stock, pricing per market, checkout,
 payment, fulfilment, returns and the audit trail behind all of it.
 
-**The product is called Gloviaa Mart. UBOSS is the company behind it**, and every
+**The product is called World Mart. UBOSS is the company behind it**, and every
 surface that carries the brand carries the attribution under it: **Powered by
 UBOSS**. It was called *UBOSS Sourcing* until the rename, and that name is gone
 from every screen a customer, a member of staff or a carrier reads.
@@ -78,8 +78,8 @@ part of the branding worth being precise about:
 
 | Name | What it is | Where it comes from |
 |---|---|---|
-| **Gloviaa Mart** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
-| **Gloviaa** | The one-word name — the label on the greeting page's globe, and the storefront header on a phone | the same module (`PRODUCT_SHORT_NAME`) |
+| **World Mart** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
+| **World** | The one-word name — the label on the greeting page's globe, and the storefront header on a phone | the same module (`PRODUCT_SHORT_NAME`) |
 | **Source with Intelligence \| Deliver with Confidence** | The product's tagline, under the wordmark (it replaced "The Way to the Global Sourcing") | the same module (`PRODUCT_TAGLINE`) |
 | **Powered by UBOSS** | The attribution — who makes it; small print in the storefront footer and on the console and portal sign-in screens | the same module |
 | Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` as `business.displayName` and as `marketplace.displayName` (the second is never replaced by a seller's name on a seller's shop front) |
@@ -87,22 +87,22 @@ part of the branding worth being precise about:
 Your customers read **your** name in the header, the footer, the browser tab,
 your e-mails, your invoices and the payment sheet they pay through; your staff
 and your carriers read it in their authenticator apps and on every screen that
-says who runs the marketplace. Gloviaa Mart is the name of the software you are
+says who runs the marketplace. World Mart is the name of the software you are
 running; it never stands in for the name of the business running it. A fresh
-install shows "Gloviaa Mart" there only until you fill in a business profile, because
+install shows "World Mart" there only until you fill in a business profile, because
 there is no other honest thing to put in a header before you have.
 
 None of the brand strings is translated. A name is a fact rather than a string,
 the tagline is a brand asset, and `Powered by UBOSS` is a fixed attribution
-lockup, so all three read identically in all eight languages. The word "Gloviaa Mart"
+lockup, so all three read identically in all eight languages. The word "World Mart"
 wherever it is the brand is set in its own bundled script face, Dancing
 Script Bold, and so is the tagline under it, so both look the same on every
-device and in all three applications. In the wordmark only "Gloviaa" is in
+device and in all three applications. In the wordmark only "World" is in
 the script; "Mart" is set beside it in Inter, smaller, light and lowercase ("mart"), on the same
 baseline, like a parent brand naming a service — it is still plain text and
-reads "Gloviaa Mart". On a
+reads "World Mart". On a
 deployment with its own business name, that name is set in the ordinary face
-and carries no Gloviaa Mart tagline.
+and carries no World Mart tagline.
 
 The greeting page shows the name, the tagline, and under them a still,
 translated line, "Your Integrated B2B B2C Platform". Nothing in the hero
@@ -2164,7 +2164,7 @@ a human correction is permanent. Three things it handles that a naive
 `translate(json)` would get wrong:
 
 - **Placeholders.** `{{email}}` is a token, not a word. Each is wrapped in a tag
-  DeepL is told to ignore, along with `Gloviaa Mart`, `UBOSS`, `Business Owner` and
+  DeepL is told to ignore, along with `World Mart`, `UBOSS`, `Business Owner` and
   the other terms in `KEEP`, so they come back verbatim. Both brand names are
   proper nouns: a brand translated into Greek is not a brand.
 - **Register.** `formality: prefer_more` pins the Sie/usted/vous form a supplier
@@ -3222,7 +3222,7 @@ not in the conversation and never sees it.
 - **The buyer:** a chat icon (speech bubbles) inside the Preorder button,
   after its (i), on every product page. Pressing it opens the chat, never the
   preorder. Its accessible name and tooltip use your trading
-  name (*Chat with Gloviaa Mart* until you set one), and a red badge counts your
+  name (*Chat with World Mart* until you set one), and a red badge counts your
   team's replies they have not read about that product. It opens a drawer (full screen on a phone) with the product card - picture, name,
   seller, SKU, option, minimum, and the unit (pieces, 20-ft or 40-ft container),
   quantity, equivalent pieces and date they are asking about - your team's
@@ -3957,8 +3957,8 @@ a Code 128 barcode of the number and a verification QR, the service table, the
 grand total, the amount in words and a legal footer, with page numbers on every
 page. The title is *TAX INVOICE* when tax is charged, otherwise *INVOICE* or
 *BILL OF SUPPLY* as set. Rendered with DejaVu Sans, so text is selectable in
-any script, and byte-for-byte reproducible. The header mark ("Gloviaa Mart /
-Powered by UBOSS") and the start of the file name (`Gloviaa-Mart-`) are fixed
+any script, and byte-for-byte reproducible. The header mark ("World Mart /
+Powered by UBOSS") and the start of the file name (`World-Mart-`) are fixed
 text in the template, not settings.
 
 A download is a **five-minute, single-use link** for the member of staff who
@@ -4158,7 +4158,7 @@ The architecture is therefore **outbound-only**:
 
 1. The seller generates a short-lived, single-use **pairing code** in the Seller
    Hub.
-2. They run the **Gloviaa Mart Tally Bridge** on the machine beside TallyPrime.
+2. They run the **World Mart Tally Bridge** on the machine beside TallyPrime.
 3. The bridge talks to Tally over the **local** network — their business, not
    ours, configured on their side.
 4. The bridge opens an authenticated **HTTPS connection out** to this API and
@@ -4309,7 +4309,7 @@ idempotent-and-allowed.
 
 *Seller Hub → ERP integrations → TallyPrime*, then, in order:
 
-1. Install the Gloviaa Mart Tally Bridge on the machine that runs TallyPrime.
+1. Install the World Mart Tally Bridge on the machine that runs TallyPrime.
 2. Make sure TallyPrime is running with the company open.
 3. Generate a pairing code.
 4. Paste it into the bridge.
@@ -4638,20 +4638,20 @@ seam that would have to change.
     - A document that still contains a `[[...]]` blank, a `____` fill-in line
       or the words "For approval before implementation or signature" cannot be
       published.
-    - Ready-written Gloviaa Mart documents are in `legal/drafts/gloviaa-mart/`:
+    - Ready-written World Mart documents are in `legal/drafts/world-mart/`:
       finalised text, version 1.0, effective 12 October 2026, for every kind
       above including the B2C platform services agreement. **Their company
       details are samples** (registered office, CIN, GSTIN, grievance officer,
       contact addresses). Load them as drafts with:
 
       ```powershell
-      cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart
+      cd backend; npm run legal:import-drafts -- ../legal/drafts/world-mart
       ```
 
       This never publishes. They are not legal advice and have not been
       reviewed by a lawyer: replace every sample value with your own details
       and have your own counsel review them first. See `legal/README.md` and
-      `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`, which lists each sample
+      `legal/drafts/world-mart/CHANGE-TABLE.md`, which lists each sample
       value to replace.
 20. **Run the go-live check of your reference data.** Open **Settings → Master
     data** in the admin console. The **Ready to go live?** card lists every
@@ -4878,7 +4878,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   The dangerous outcome is not the API refusing — it is the API *answering*,
   with a price for something nobody will ever collect.
 - **A seller's TallyPrime is never dialled from this server.** Its HTTP listener
-  has no authentication, and `localhost:9000` from here is *here*. The Gloviaa Mart
+  has no authentication, and `localhost:9000` from here is *here*. The World Mart
   Tally Bridge runs beside Tally, connects outward and claims work; nothing
   connects in.
 - **"Connected" is a conclusion, never a stored flag.** It requires a live
@@ -5174,7 +5174,7 @@ Between L1 (plant to port of loading) and L2 (port of loading to destination por
 | **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
 | **[`docs/SELLER-ASSESSMENT-MATRIX.md`](docs/SELLER-ASSESSMENT-MATRIX.md)** | Seller Assessment and Onboarding v1.0: each requirement, what was built, the test evidence and what still needs people |
 | **[`docs/DELIVERY-COMMERCIAL-MATRIX.md`](docs/DELIVERY-COMMERCIAL-MATRIX.md)** | Doc 07 and Doc 08: every delivery, case, refund, commercial, certification, insurance and launch requirement, what was built, the evidence and what still needs people |
-| [`legal/README.md`](legal/README.md) | The Gloviaa Mart policy documents (Terms, Seller, B2B buyer and B2C consumer terms and services agreements, Privacy Policy, returns policy, carrier, staff and Audit Console terms) - finalised text with sample company details, not reviewed by counsel - how they were adapted or supplied, the decisions taken, the sample values to replace, and how to load them as drafts |
+| [`legal/README.md`](legal/README.md) | The World Mart policy documents (Terms, Seller, B2B buyer and B2C consumer terms and services agreements, Privacy Policy, returns policy, carrier, staff and Audit Console terms) - finalised text with sample company details, not reviewed by counsel - how they were adapted or supplied, the decisions taken, the sample values to replace, and how to load them as drafts |
 | [`docs/compliance/REGULATORY-SOURCES.md`](docs/compliance/REGULATORY-SOURCES.md) | The official source behind each draft compliance rule the Audit Console ships with |
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |
@@ -5194,7 +5194,7 @@ Between L1 (plant to port of loading) and L2 (port of loading to destination por
 | `backend/docs/FRONTEND-INTEGRATION.md` | Contract notes for a client talking to this API |
 | **[`SECURITY.md`](SECURITY.md)** | How to report a vulnerability, what happens next, how quickly it is fixed, and what is in and out of scope. Publish a filled-in copy before going live |
 | **[`SECURITY-AUDIT-REPORT.md`](SECURITY-AUDIT-REPORT.md)** | The last security audit: every control, its status, the evidence behind it, what was fixed, and what still needs a live system or an independent tester to prove |
-| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. The document inside is titled *Gloviaa Mart*; the file name is unchanged because `CLAUDE.md` and the build script both name it. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
+| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. The document inside is titled *World Mart*; the file name is unchanged because `CLAUDE.md` and the build script both name it. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
 | `CLAUDE.md` | The rules for working in this repository |
 
 ### Keeping the docs true

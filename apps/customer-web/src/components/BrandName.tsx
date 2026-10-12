@@ -1,11 +1,11 @@
 /**
- * "Gloviaa Mart", set the way the product names itself everywhere it appears
- * as a wordmark: "Gloviaa" in the surrounding script face, "Mart" in Inter light and lowercase ("mart"),
+ * "World Mart", set the way the product names itself everywhere it appears
+ * as a wordmark: "World" in the surrounding script face, "Mart" in Inter light and lowercase ("mart"),
  * the interface face, a step smaller and on the same baseline — the way a
  * parent brand names one of its services.
  *
  * Plain text in two spans, so it reads, copies and is announced as
- * "Gloviaa Mart". Inter is already loaded for the whole interface, so the
+ * "World Mart". Inter is already loaded for the whole interface, so the
  * second face costs no request and cannot arrive late and move the word.
  *
  * The parent word takes its face from whatever it sits in (`font-brand` on

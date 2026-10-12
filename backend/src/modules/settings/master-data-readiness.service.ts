@@ -131,7 +131,7 @@ export async function masterDataReadiness(now: Date = new Date()): Promise<Maste
 
   const [demoProducts, developmentTerms, seedCarrier, localAccounts] = await Promise.all([
     prisma.demoCatalogEntry.count(),
-    // The old generic sample, or the Gloviaa texts the seed publishes with sample company details.
+    // The old generic sample, or the World texts the seed publishes with sample company details.
     prisma.legalDocument.count({
       where: {
         status: 'PUBLISHED',

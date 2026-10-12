@@ -140,8 +140,8 @@ describe('documents', () => {
     expect(certificateValidUntil(issued, 12, [new Date('2026-06-30T00:00:00Z')]).toISOString().slice(0, 10)).toBe('2026-06-30');
   });
   it('the waiver says no physical assessment is attested', () => {
-    expect(waiverStatement('Gloviaa Mart')).toBe(
-      'This shipment assessment was waived under the applicable Gloviaa Mart seller-badge policy. No physical shipment assessment is attested by this waiver.',
+    expect(waiverStatement('World Mart')).toBe(
+      'This shipment assessment was waived under the applicable World Mart seller-badge policy. No physical shipment assessment is attested by this waiver.',
     );
   });
 });

@@ -290,7 +290,7 @@ function Greeting(): React.JSX.Element {
               {/*
                * The tagline, still. It is the product's slogan rather
                * than a sentence, so it is a constant and reads the same in every
-               * language — see `lib/brand.ts` — and it belongs to Gloviaa Mart, so a
+               * language — see `lib/brand.ts` — and it belongs to World Mart, so a
                * deployment greeting its customers under its own name does not
                * carry it. Set in the wordmark's script, like the name above it.
                *

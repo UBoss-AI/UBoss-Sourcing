@@ -1,21 +1,21 @@
 kind: PRIVACY_POLICY
 version: 1.0
 locale: en
-title: Gloviaa Mart Privacy Policy
+title: World Mart Privacy Policy
 ---
 Version 1.0 | Effective 12 October 2026
 
-We value the trust you place in us and take the security of transactions and the privacy of personal data seriously. This Privacy Policy explains how Gloviaa Mart collects, uses, shares and otherwise processes personal data when you visit or use the Gloviaa Mart storefront at www.gloviaamart.com, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page and interface (together, the "Platform").
+We value the trust you place in us and take the security of transactions and the privacy of personal data seriously. This Privacy Policy explains how World Mart collects, uses, shares and otherwise processes personal data when you visit or use the World Mart storefront at www.worldmart.com, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page and interface (together, the "Platform").
 
 This is a notice, not a request for consent. You will be asked to confirm that you have read it; that confirmation is an acknowledgment that you have been informed. It is not your consent to any processing. Where we rely on your consent for a particular purpose, we ask for it separately, at the moment it matters, and you can withdraw it at any time.
 
 ## 1. Who is responsible for your data
 
-The controller of your personal data is Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number (CIN) U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India ("Gloviaa Mart", "Gloviaa", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace.
+The controller of your personal data is Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number (CIN) U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India ("World Mart", "World", "we", "us" or "our"). World Mart is the brand under which we run the marketplace.
 
-You can contact our Data Protection Officer, Ms Priya Nair, about privacy at privacy@gloviaamart.com, or by post to our registered office. Our representative in the European Union under Article 27 of the General Data Protection Regulation is EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, the Netherlands, who can be contacted at eu-representative@gloviaamart.com.
+You can contact our Data Protection Officer, Ms Priya Nair, about privacy at privacy@worldmart.com, or by post to our registered office. Our representative in the European Union under Article 27 of the General Data Protection Regulation is EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, the Netherlands, who can be contacted at eu-representative@worldmart.com.
 
-Sellers on the Platform are separate businesses. Gloviaa Mart is an independent controller of the personal data processed to run the Platform. When a seller receives your data to fulfil an order, the seller is an independent controller of that data, is responsible for its own use of it, and must use it only for that order, as explained in section 7.
+Sellers on the Platform are separate businesses. World Mart is an independent controller of the personal data processed to run the Platform. When a seller receives your data to fulfil an order, the seller is an independent controller of that data, is responsible for its own use of it, and must use it only for that order, as explained in section 7.
 
 ## 2. Who this policy is about
 
@@ -200,7 +200,7 @@ We may keep data longer where it is needed to prevent fraud or repeated abuse, t
 
 We use physical, technical and organisational safeguards to protect personal data, including encrypted connections, encryption of stored credentials, access limited by role, two-step sign-in, malware scanning of uploaded files, short-lived single-use links for private documents, and an audit trail of access to sensitive records. No system connected to the internet can be guaranteed to be completely secure, so some risk always remains. You are responsible for keeping your own sign-in details safe.
 
-If you receive an email, a call or a message from someone claiming to be from Gloviaa Mart and asking for your password, card details or other sensitive information, do not give it. We will never ask for your password. Report it to us at security@gloviaamart.com, and if you have already given the information, to the police.
+If you receive an email, a call or a message from someone claiming to be from World Mart and asking for your password, card details or other sensitive information, do not give it. We will never ask for your password. Report it to us at security@worldmart.com, and if you have already given the information, to the police.
 
 ## 12. Your rights
 
@@ -227,7 +227,7 @@ If you give us personal data about someone else - for example a delivery contact
 
 ## 14. Children
 
-The Platform is for adults and businesses. You must be at least 18 years old to create an account or buy on the Platform. Both individual consumers and verified business buyers may buy. The Platform is not directed at children and we do not knowingly collect data about anyone under 18. If you believe a child has given us personal data, contact us at privacy@gloviaamart.com and we will delete it.
+The Platform is for adults and businesses. You must be at least 18 years old to create an account or buy on the Platform. Both individual consumers and verified business buyers may buy. The Platform is not directed at children and we do not knowingly collect data about anyone under 18. If you believe a child has given us personal data, contact us at privacy@worldmart.com and we will delete it.
 
 ## 15. Links to other websites
 
@@ -239,6 +239,6 @@ We may update this policy to reflect changes in our practices or in the law. Eac
 
 ## 17. Complaints and questions
 
-If you have a question, concern or complaint about how we handle personal data, contact our Data Protection Officer, Ms Priya Nair, at privacy@gloviaamart.com or by post to Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India. If you are in the European Union, you may also contact our EU representative, EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, the Netherlands, at eu-representative@gloviaamart.com.
+If you have a question, concern or complaint about how we handle personal data, contact our Data Protection Officer, Ms Priya Nair, at privacy@worldmart.com or by post to Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India. If you are in the European Union, you may also contact our EU representative, EuroRep Data Services B.V., Herengracht 420, 1017 BZ Amsterdam, the Netherlands, at eu-representative@worldmart.com.
 
-Our Grievance Officer under Indian law is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801.
+Our Grievance Officer under Indian law is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@worldmart.com; telephone +91 124 456 7801.

@@ -46,7 +46,7 @@ from pathlib import Path
 import re, sys
 path = Path(sys.argv[1])
 text, count = re.subn(r'image: gloviaa-api:[a-zA-Z0-9_.-]+', 'image: ' + sys.argv[2], path.read_text())
-if count != 3: raise SystemExit('Expected exactly three Gloviaa application images')
+if count != 3: raise SystemExit('Expected exactly three World application images')
 path.write_text(text)
 PY
 swapped=1

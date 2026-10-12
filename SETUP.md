@@ -1,4 +1,4 @@
-# Gloviaa Mart — Local Setup
+# World Mart — Local Setup
 
 This guide gets the whole project running on this Windows computer: the
 database, the API, the background worker, the Admin Panel and the Customer
@@ -126,7 +126,7 @@ database too.
 | The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed`. For a full catalogue to browse, also `npm run seed:demo-catalog` |
 | The storefront has products but they are all medical consumables | The demonstration catalogue has not been planted, or is switched off | `cd backend`, then `npm run seed:demo-catalog`. If it was already planted, check `ENABLE_DEMO_CATALOG` in `backend\.env` |
 | No emails appear anywhere | The worker is not running | `.\scripts\dev-stack.ps1 -Restart` |
-| Every page after sign-in shows **Before you continue** | The agreement screen: the Terms for this kind of account and the Privacy Policy are published (`npm run db:seed` publishes the Gloviaa Mart documents from `legal/drafts/gloviaa-mart/`, with sample company details, for every kind) and this account has not accepted them yet | Open each document, read to the end, choose **I agree** and **I acknowledge**, then **Continue**. Accepted once, not on every sign-in |
+| Every page after sign-in shows **Before you continue** | The agreement screen: the Terms for this kind of account and the Privacy Policy are published (`npm run db:seed` publishes the World Mart documents from `legal/drafts/world-mart/`, with sample company details, for every kind) and this account has not accepted them yet | Open each document, read to the end, choose **I agree** and **I acknowledge**, then **Continue**. Accepted once, not on every sign-in |
 | The API stops at start-up with `An Application Control policy has blocked this file` and `argon2.glibc.node` | Windows Smart App Control is blocking the native file of the password-hashing module. Seen on one development machine on 8 Oct 2026; nothing in the code caused it | No fix is chosen yet. Sign-in cannot work until the API starts. Do not switch Smart App Control off without the machine owner's decision |
 | The site is reaching a public ngrok address | The project is in tunnel mode | `.\scripts\dev-stack.ps1 -Restart -Local` |
 

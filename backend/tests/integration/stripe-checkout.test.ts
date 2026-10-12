@@ -515,8 +515,8 @@ beforeEach(async () => {
   await prisma.businessProfile.create({
     data: {
       id: newId(),
-      legalName: 'Gloviaa Mart Test',
-      displayName: 'Gloviaa Mart',
+      legalName: 'World Mart Test',
+      displayName: 'World Mart',
       supportEmail: 'support@test.local',
       currency: 'INR',
       timezone: 'Asia/Kolkata',
@@ -921,7 +921,7 @@ describe('over HTTP', () => {
         cookie: buyer.cookies,
         'x-csrf-token': buyer.csrfToken,
         'idempotency-key': newId(),
-        origin: 'https://gloviaa-mart.example.evil',
+        origin: 'https://world-mart.example.evil',
       },
     });
 

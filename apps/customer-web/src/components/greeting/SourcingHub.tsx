@@ -325,7 +325,7 @@ function HubCore({ label }: { label: string }): React.JSX.Element {
       <div className="orch-hub-label">
         <BoxIcon className="h-4 w-4 text-sky-100 lg:h-6 lg:w-6" />
         {/* The wordmark face: this label is always the product's one-word name,
-            `Gloviaa` and never `Gloviaa Mart` - the globe it sits on is the rest. */}
+            `World` and never `World Mart` - the globe it sits on is the rest. */}
         <span className="font-brand text-lg font-bold text-white lg:text-4xl">{label}</span>
       </div>
     </div>

@@ -346,7 +346,7 @@ export function registerAdminCommercialPolicyRoutes(app: FastifyInstance): Promi
   // One programme's ledger: costs, allocations and the unrecovered balance.
   app.get('/commercial/certification-programmes/:id', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => noStore(reply).send(await finance.readProgramme(id26.parse(request.params).id)));
 
-  // Create a programme (Gloviaa funds first).
+  // Create a programme (World funds first).
   app.post('/commercial/certification-programmes', { preHandler: requireAdmin(Permission.FINANCE_POLICY_WRITE) }, async (request, reply) => {
     const body = z.object({ sellerAccountId: z.string().length(26), title: z.string().min(3).max(200), currency: z.string().length(3), capBps: z.number().int().min(0).max(100).optional(), periodStart: isoDate, periodEnd: isoDate, fxPolicy: z.string().max(400).nullable().optional() }).parse(request.body);
     return reply.status(201).send(await finance.createProgramme(body, adminActor(request)));

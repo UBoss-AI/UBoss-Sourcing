@@ -39,7 +39,7 @@ let counter = 0;
 const SETTINGS = {
   legalEntityCode: ENTITY,
   legalName: 'Example Marketplace Operations Private Limited (TEST)',
-  tradeName: 'Gloviaa Mart — Powered by UBOSS',
+  tradeName: 'World Mart — Powered by UBOSS',
   addressLine1: '4th Floor, Test Tower',
   addressLine2: 'Sample Road',
   city: 'Pune',
@@ -253,11 +253,11 @@ beforeAll(async () => {
   const profile = await prisma.businessProfile.findFirst({ select: { id: true, displayName: true } });
   if (profile !== null) {
     savedDisplayName = { id: profile.id, displayName: profile.displayName };
-    await prisma.businessProfile.update({ where: { id: profile.id }, data: { displayName: 'Gloviaa Mart' } });
+    await prisma.businessProfile.update({ where: { id: profile.id }, data: { displayName: 'World Mart' } });
   }
   if ((await prisma.businessProfile.findFirst({ select: { id: true } })) === null) {
     await prisma.businessProfile.create({
-      data: { id: newId(), legalName: 'Test Operator', displayName: 'Gloviaa Mart', supportEmail: 'support@test.local', currency: 'INR', timezone: 'Asia/Kolkata' },
+      data: { id: newId(), legalName: 'Test Operator', displayName: 'World Mart', supportEmail: 'support@test.local', currency: 'INR', timezone: 'Asia/Kolkata' },
     });
   }
   await prisma.commissionInvoiceSettings.deleteMany({});
@@ -410,7 +410,7 @@ describe('issuing', () => {
 
     const file = await download(invoice.document?.id ?? '');
     expect(createHash('sha256').update(file.bytes).digest('hex')).toBe(invoice.document?.contentHash);
-    expect(file.fileName).toBe(`Gloviaa-Mart-Commission-Invoice-${(invoice.number ?? '').replace(/\//g, '-')}.pdf`);
+    expect(file.fileName).toBe(`World-Mart-Commission-Invoice-${(invoice.number ?? '').replace(/\//g, '-')}.pdf`);
 
     const pdf = inspectPdf(file.bytes);
     for (const page of pdf.pages) {

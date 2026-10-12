@@ -1,4 +1,4 @@
-# Gloviaa Mart — Video Requirements
+# World Mart — Video Requirements
 
 > **Status: DRAFT FOR APPROVAL.** Discovery and rehearsal were done on 2026-10-01
 > against the local development environment. Every decision marked
@@ -24,7 +24,7 @@ Evidence screenshots (1920×1080, taken 2026-10-01) are in
 
 ## 1. Project summary
 
-Gloviaa Mart is a sourcing marketplace for business and individual buyers. It
+World Mart is a sourcing marketplace for business and individual buyers. It
 connects buyers with sellers and manufacturers, starting from India, and
 coordinates what happens after the order: documents, inspection, and delivery
 planned leg by leg.
@@ -42,7 +42,7 @@ planned leg by leg.
 - **Logistics partners** work in their own portal. **Inspection agencies** can
   be required to pass goods before dispatch.
 
-The software is a product other companies buy and run themselves. Gloviaa Mart
+The software is a product other companies buy and run themselves. World Mart
 is the brand of this deployment.
 
 **Readiness.** The platform is not live. `SECURITY-AUDIT-REPORT.md` (21 Sep 2026)
@@ -55,14 +55,14 @@ serving customers today.**
 The brand hierarchy, exactly as written (spelling, capitals, vertical bar):
 
 ```
-Gloviaa Mart
+World Mart
 Source with Intelligence | Deliver with Confidence
 Powered by UBOSS
 ```
 
 | Element | Rule |
 |---|---|
-| Product name | **Gloviaa Mart** — double "a". Never "Glovia", "Glovia Mart", "Gloviaa Market". |
+| Product name | **World Mart** — two words. Never the old names "Gloviaa Mart" or "Glovia", never "World Market". |
 | Tagline | **Source with Intelligence \| Deliver with Confidence** |
 | Parent attribution | **Powered by UBOSS** — UBOSS in capitals. |
 | Origin | India |
@@ -332,11 +332,11 @@ PROVISIONAL):
 | Balance | Cinematic 70 / corporate 30 |
 | Footage | Generated generic scenes plus real app screens; real footage only with rights |
 | App screens | Two or three short inserts, only after B-01 and B-02 are fixed |
-| Globe | Yes — the rotating Gloviaa globe as the recurring motif |
+| Globe | Yes — the rotating World globe as the recurring motif |
 | Narration | Same original synthetic voice as the demo presenter |
 | Captions | English and Polish |
 | Autoplay | Homepage: muted, captions burned in, loops cleanly |
-| CTA | "Explore Gloviaa Mart" (D-12) |
+| CTA | "Explore World Mart" (D-12) |
 
 ## 8. Product-demo requirements
 
@@ -379,7 +379,7 @@ See [PRODUCT_DEMO_VIDEO_BRIEF.md](PRODUCT_DEMO_VIDEO_BRIEF.md). Summary
 | Speed | 140–150 words per minute in the demo; 120–135 in the About Us film |
 | Formality | Professional, plain words, no slang |
 | Tone | Warm and confident; never hype |
-| Pronunciation | "Gloviaa" = **glow-VEE-ah**; "UBOSS" = **YOO-boss** (D-13: owner to confirm both) |
+| Pronunciation | "World" = **glow-VEE-ah**; "UBOSS" = **YOO-boss** (D-13: owner to confirm both) |
 | Same voice | One voice for the About Us narration and the demo presenter |
 
 ## 11. Screen-recording requirements
@@ -468,9 +468,9 @@ Every decision below is **PROVISIONAL** until the owner approves it.
 | D-08b | Driving performance | None; Runway generates the performance | Owner supplies a consented recording |
 | D-09 | About Us length and formats | 75-second master + 30 s + 15 s 9:16 + 1:1; EN + PL captions; muted homepage loop | 2–3 minute film; 30 s only |
 | D-10 | Footage | Generated generic scenes with no identifiable brands, people or logos; app recordings; real footage only with rights; new vector logo lockup | All generated; real shoot |
-| D-11 | Tagline in other languages and the chat team name | Tagline is never translated; chat team name set to "Gloviaa Mart team" or "UBOSS team" | Translate the tagline per language |
-| D-12 | Closing CTA | "Explore Gloviaa Mart" with the site address once a public address exists | "Start sourcing"; "Apply to sell" (seller cut) |
-| D-13 | Pronunciation | Gloviaa = glow-VEE-ah; UBOSS = YOO-boss | Owner's pronunciation |
+| D-11 | Tagline in other languages and the chat team name | Tagline is never translated; chat team name set to "World Mart team" or "UBOSS team" | Translate the tagline per language |
+| D-12 | Closing CTA | "Explore World Mart" with the site address once a public address exists | "Start sourcing"; "Apply to sell" (seller cut) |
+| D-13 | Pronunciation | World = glow-VEE-ah; UBOSS = YOO-boss | Owner's pronunciation |
 | D-14 | Tax label for European markets | Resolve before any Poland-context recording (B-06) | Record India context only |
 
 ## 16. Open questions

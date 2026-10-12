@@ -80,9 +80,9 @@ async function seedBusinessConfiguration(): Promise<void> {
         // Limited. It is what appears on an invoice and in a contract, and a
         // product being renamed does not rename a company — that is an owner's
         // decision, made at a registrar, not a string edited here. The display
-        // name beside it IS the brand a customer reads, and that is Gloviaa Mart.
+        // name beside it IS the brand a customer reads, and that is World Mart.
         legalName: 'UBOSS Sourcing Private Limited',
-        displayName: 'Gloviaa Mart',
+        displayName: 'World Mart',
         supportEmail: 'support@uboss.local',
         supportPhone: '+91 80 4000 0000',
         gstin: '29AAAAA0000A1Z5',
@@ -1153,7 +1153,7 @@ async function main(): Promise<void> {
   await seedStaff();
   await seedCustomers();
 
-  // The Gloviaa Mart legal documents, with sample company details, so every
+  // The World Mart legal documents, with sample company details, so every
   // agreement screen works on a development machine. Never over an operator's own.
   const terms = await seedDevelopmentTerms();
   if (terms > 0) console.log(`  legal documents published: ${String(terms)} (sample company details - replace before going live)`);

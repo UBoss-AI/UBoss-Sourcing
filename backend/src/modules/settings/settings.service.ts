@@ -857,7 +857,7 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       // `GET /api/v1/config` before anybody has been near Settings. The
       // storefront's own fallback is the same string, for the same reason;
       // see `apps/customer-web/src/lib/brand.ts`.
-      displayName: profile?.displayName ?? 'Gloviaa Mart',
+      displayName: profile?.displayName ?? 'World Mart',
       supportEmail: profile?.supportEmail ?? null,
       supportPhone: profile?.supportPhone ?? null,
       logo: profile?.logoMedia ?? null,

@@ -3,12 +3,12 @@
  * screen shows a complete, real-reading text from the first sign-up.
  *
  * Called by the development seed only, which refuses to run in production.
- * It publishes the Gloviaa Mart texts in `legal/drafts/gloviaa-mart/`. Those
+ * It publishes the World Mart texts in `legal/drafts/world-mart/`. Those
  * carry SAMPLE company details (registered office, CIN, GSTIN, grievance
  * officer and contacts) that were made up to stand in for the real ones, so a
  * deployment must never go live with them: Settings → Master data lists every
  * published document that still contains them (`SAMPLE_LEGAL_MARKER`), and
- * `legal/drafts/gloviaa-mart/CHANGE-TABLE.md` lists each value to replace.
+ * `legal/drafts/world-mart/CHANGE-TABLE.md` lists each value to replace.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -23,10 +23,10 @@ export const DEVELOPMENT_TERMS_VERSION = 'dev-placeholder';
 /** The sample CIN in every seeded document: a published body containing it has not been made real. */
 export const SAMPLE_LEGAL_MARKER = 'U62099HR2024PTC118452';
 
-const DRAFTS = fileURLToPath(new URL('../../../../legal/drafts/gloviaa-mart/', import.meta.url));
+const DRAFTS = fileURLToPath(new URL('../../../../legal/drafts/world-mart/', import.meta.url));
 
 /**
- * Publish each document in `legal/drafts/gloviaa-mart/` whose kind has nothing
+ * Publish each document in `legal/drafts/world-mart/` whose kind has nothing
  * published, or only what a seed published. An operator's own published text
  * is never superseded. Idempotent.
  */

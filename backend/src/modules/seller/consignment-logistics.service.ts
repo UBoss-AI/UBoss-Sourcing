@@ -1867,7 +1867,7 @@ export const SELLER_DOCUMENT_KINDS: readonly LogisticsDocumentKind[] = Object.fr
  * Attach a photograph or a screenshot to a hand-booked consignment: the
  * carrier's own label, a customs form, a proof of delivery.
  *
- * A SHIPPING_LABEL here is the label the CARRIER issued the seller - Gloviaa Mart
+ * A SHIPPING_LABEL here is the label the CARRIER issued the seller - World Mart
  * still produces none. Only on a consignment with a live hand-made booking:
  * a delivery company on this platform attaches its own evidence.
  */

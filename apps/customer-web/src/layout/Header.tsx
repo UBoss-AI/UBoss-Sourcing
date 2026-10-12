@@ -83,11 +83,11 @@ import { cx } from '@/lib/cx';
  *
  * When that name IS the product's — the marketplace itself, and every fresh
  * deployment until its business profile is filled in — the first line is the
- * Gloviaa Mart wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
+ * World Mart wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
  * own face), and the second is the tagline, `Source with Intelligence | Deliver with Confidence`. Both come from
  * `lib/brand.ts` and read the same in every language.
  *
- * When it is somebody else's name, neither applies. Gloviaa Mart's face and its
+ * When it is somebody else's name, neither applies. World Mart's face and its
  * slogan under Northwind's name would be the software putting its own brand
  * over another company's shop, so Northwind's name is set like any other
  * heading and stands alone. `Powered by UBOSS` used to be the second line;
@@ -161,7 +161,7 @@ function BrandMark(): React.JSX.Element {
         >
           {isProductBrand ? (
             // Two words from `sm`, one on a phone: the 375px row has room for
-            // "Gloviaa" at 17px beside five controls and not for "Gloviaa Mart",
+            // "World" at 17px beside five controls and not for "World Mart",
             // and a truncated wordmark is worse than the short one. The link's
             // accessible name follows whichever is displayed.
             <>
@@ -182,7 +182,7 @@ function BrandMark(): React.JSX.Element {
             // is not enough for the whole tagline, and half a slogan is worse
             // than none. `truncate` stays as the net for a long locale.
             // The tagline is in the wordmark's own script, the same face as
-            // "Gloviaa Mart" above it. The seller line in its place stays in the
+            // "World Mart" above it. The seller line in its place stays in the
             // ordinary face: it is translated, Greek included, and the script
             // is bundled as Latin only.
             className={cx(

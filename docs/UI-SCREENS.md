@@ -1,4 +1,4 @@
-# Gloviaa Mart — Every Screen
+# World Mart — Every Screen
 
 Finance's existing payout action now reconciles unresolved ledger payouts
 before sending new funds. An unknown attempt remains Pending with money shown
@@ -8,9 +8,9 @@ proof blocks a fresh send.
 The existing Failed label is used only after definitive rejection in the new
 flow. No new page, control or response field is introduced.
 
-What each screen in the three Gloviaa Mart apps shows, who can open it, what
+What each screen in the three World Mart apps shows, who can open it, what
 people can do on it, and which server calls it makes. The repository is
-called UBOSS Sourcing; the product is Gloviaa Mart.
+called UBOSS Sourcing; the product is World Mart.
 
 This document is for everyone: people who test the product, people who
 support its users, people who sell or run it, and people who change its code.
@@ -105,7 +105,7 @@ Each screen has the same shape:
 
 ### 2.1 The three apps
 
-Gloviaa Mart is a business-to-business sourcing marketplace. Companies buy it and
+World Mart is a business-to-business sourcing marketplace. Companies buy it and
 **run it themselves**, so nothing on any screen assumes who the operator is:
 the store's name, logo, currencies, policies and switches all come from its
 own settings.
@@ -318,7 +318,7 @@ flowchart TD
   Home["/ Home"]
   Home --> Products["/products Catalogue"]
   Home --> AI["/ai AI Mode"]
-  Home --> Sell["/sell Sell on Gloviaa Mart"]
+  Home --> Sell["/sell Sell on World Mart"]
   Home --> Support["/support Support (header, menu, footer)"]
   Products --> Category["/category/:slug"]
   Products --> Search["/search (old links)"]
@@ -566,7 +566,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
 
    | Item | What it is | What it does |
    |---|---|---|
-   | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **Source with Intelligence \| Deliver with Confidence** (15px, from 1024px), in their own bright colour tokens. From 640px up, "Gloviaa" is in the script face and "Mart" in Inter, smaller (0.62em), light and shown lowercase as "mart", on the same baseline; it still reads "Gloviaa Mart". The footer heading draws the name the same way. A store with its own name is drawn in one face | Goes to `/` |
+   | Brand | The store's logo (or the earth mark) and name. For World Mart: the wordmark (23px, 17px on a phone, where it reads just **World** and the guest Sign in button shows only its icon) over **Source with Intelligence \| Deliver with Confidence** (15px, from 1024px), in their own bright colour tokens. From 640px up, "World" is in the script face and "Mart" in Inter, smaller (0.62em), light and shown lowercase as "mart", on the same baseline; it still reads "World Mart". The footer heading draws the name the same way. A store with its own name is drawn in one face | Goes to `/` |
    | Search everything | A magnifier icon, no words. Its accessible name is "Search everything". Every width, guest or signed in | Opens `/find` |
    | Appearance | Match my device, Light, Dark. One cycling button on phones; not shown below 400px, where the default (dark) or the last choice applies | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
@@ -690,7 +690,7 @@ call fails, everything below counts as off.
 | `/confirm-contact` | Confirm a new email or phone | Open to all; asks you to sign in before it acts |
 | `/verify-document` | Check a document | Anybody (the QR code on a seller's invoice) |
 | `/ai` | AI Mode | Anybody can open it; whether it answers a guest is a setting |
-| `/sell` | Sell on Gloviaa Mart | Anybody |
+| `/sell` | Sell on World Mart | Anybody |
 | `/support` | Support | Anybody can open it; raising a ticket needs a signed-in customer |
 | `/about` | About {marketplace} | Anybody |
 | any other address | This page has gone missing (404) | Anybody |
@@ -713,9 +713,9 @@ browse.
    header, runs to both edges of the window and carries on behind every
    section of the page. The turning earth stays in the greeting only.
    - "One connected flow" (guest) or "Welcome back, …" (customer), then the
-     store's name (for Gloviaa Mart, "Gloviaa" in script and "Mart" in Inter),
+     store's name (for World Mart, "World" in script and "Mart" in Inter),
      then the tagline **Source with Intelligence | Deliver with Confidence** in
-     the script face (Gloviaa Mart only, not translated), then a still,
+     the script face (World Mart only, not translated), then a still,
      translated line: "Your Integrated B2B B2C Platform". Nothing in the
      greeting alternates.
    - **The search module**: tabs **Home**, **AI Assistant** (when switched on)
@@ -731,7 +731,7 @@ browse.
      (switched off, or sign in first). A switched-off feature shows the same
      note to guests and customers; Autopay and ERP are off by default, so
      their cards usually explain rather than link. The turning globe they surround is
-     labelled **Gloviaa** alone — never "Gloviaa Mart", the tagline or
+     labelled **World** alone — never "World Mart", the tagline or
      "Powered by UBOSS".
    - **The ground**: on the dark theme the greeting is black with a field of
      slowly drifting stars that move away from the pointer (still under
@@ -1344,7 +1344,7 @@ not sent to the API.
     never starts a preorder. The separate chat square beside Preorder is gone;
     there is no visible "Chat with …" text button.
     Its accessible name is *Chat with {marketplace}* (the operator's own name;
-    *Chat with Gloviaa Mart* until one is set), or *Chat with {marketplace}. Unread
+    *Chat with World Mart* until one is set), or *Chat with {marketplace}. Unread
     replies: N*. The tooltip *"Ask {marketplace} about this preorder"* shows on
     hover and keyboard focus, is linked by `aria-describedby`, and Escape hides
     it; on touch a tap opens the chat directly. Visible focus ring, a soft
@@ -1948,7 +1948,7 @@ is no video and no play button, and nothing on the page is a number.
 **API calls.** None of its own. It reads the public configuration the app
 has already loaded.
 
-#### `/sell` — Sell on Gloviaa Mart
+#### `/sell` — Sell on World Mart
 
 | | |
 |---|---|
@@ -3166,7 +3166,7 @@ on me, and where have my other orders got to?"
   Draft orders are not counted. Pressing a slice filters to that group
   ("Showing … only", "Clear filter"). **View as a table** shows the same
   numbers as rows.
-- **Gloviaa Mart AI Insights** card: **Explain this chart**, or type a question and
+- **World Mart AI Insights** card: **Explain this chart**, or type a question and
   press **Ask**. The answer is written word by word as it arrives. A line under
   it says the figures come from your own data, never from the model. Nothing is
   sent until you press a button.
@@ -4925,7 +4925,7 @@ Marketplace staff appear under their role, not their name.
 | **Who** | Approved sellers. When the marketplace has not switched accounting integrations on: "This marketplace has not switched on accounting integrations." |
 | **File** | `pages/seller/SellerErpPage.tsx`, `SellerErpMappingPanel.tsx` |
 
-**Purpose.** Post your sales into your own TallyPrime, through the Gloviaa Mart Tally
+**Purpose.** Post your sales into your own TallyPrime, through the World Mart Tally
 Bridge running on your own machine. "Nothing here ever connects to it" — the
 bridge connects out.
 
@@ -5113,7 +5113,7 @@ Files: `src/pages/LoginPage.tsx`, `src/pages/ChangePasswordPage.tsx`,
 
 Local screenshot of the sign-in page: `12-admin-login.png`.
 
-#### `/login` — Sign in to Gloviaa Mart Admin
+#### `/login` — Sign in to World Mart Admin
 
 | | |
 |---|---|
@@ -5293,7 +5293,7 @@ can act on.
   The last two have their own screens, `/operations/dead-jobs` and
   `/operations/failed-notifications` (below).
   Pressing a slice focuses the AI question on it; it does not open the queue.
-- **Gloviaa Mart AI Insights**: **Explain this chart** and **Ask**. If the AI
+- **World Mart AI Insights**: **Explain this chart** and **Ask**. If the AI
   provider cannot be reached, the answer says it was built straight from the
   figures.
 
@@ -7521,7 +7521,7 @@ Sign in to continue." and moves to `/login` after a moment.
   Accepted, Collected, In transit, Out for delivery, Delivered, Exception,
   Returning or cancelled. Press a slice to focus on it. **View as a table**
   shows the numbers as rows.
-- **Gloviaa Mart AI Insights**: **Explain this chart**, a question box, and
+- **World Mart AI Insights**: **Explain this chart**, a question box, and
   suggested questions ("Which shipments do not have drivers?", "Which
   deliveries are at risk today?" …). Nothing is sent until a button is
   pressed.
@@ -8431,7 +8431,7 @@ these. Paths are relative to each app's `src` folder.
 | **Mandate** | A customer's standing permission to charge a card later |
 | **Market** | The country a buyer orders from. It decides the price list and the tax |
 | **Minor units** | The smallest unit of a currency (cents, paise). All money is kept in these |
-| **Operator** | The company that runs a Gloviaa Mart installation and its staff |
+| **Operator** | The company that runs a World Mart installation and its staff |
 | **Payment link** | A secure link emailed so somebody else (often a finance team) can pay an order |
 | **Permission** | One thing a role may do, such as `order.approve` |
 | **Preorder** | A buyer's request to a seller for a large quantity by a date. It becomes an order only once the buyer confirms and pays |

@@ -77,7 +77,7 @@ export const B2B_BUYER_TERMS_KIND = 'B2B_BUYER_TERMS' as const;
  * once for the company by a member with authority to bind it
  * (`canBindCompany`), and then it counts for every member - nobody else is
  * asked to countersign. Accepting the published text records the buyer's
- * side only. It is not Gloviaa's signature and does not complete Schedules
+ * side only. It is not World's signature and does not complete Schedules
  * A-C, which are executed separately before trading on negotiated terms.
  */
 export const B2B_BUYER_SERVICES_AGREEMENT_KIND = 'B2B_BUYER_SERVICES_AGREEMENT' as const;

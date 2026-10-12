@@ -4,7 +4,7 @@
  * and Conditions, the B2B Buyer Platform Services Agreement and the B2C
  * Consumer Terms and Conditions. They were taken from Word word for word, then
  * finalised on 12 October 2026: every blank filled, the approval notice
- * removed (see `legal/drafts/gloviaa-mart/CHANGE-TABLE.md`).
+ * removed (see `legal/drafts/world-mart/CHANGE-TABLE.md`).
  *
  * Pinned here:
  *
@@ -21,7 +21,7 @@ import { findLegalPlaceholders, parseLegalBody } from '../../src/domain/legal-do
 import { parseDraftFile } from '../../src/modules/legal/draft-file.js';
 import { normaliseWords } from '../support/docx-text.js';
 
-const drafts = fileURLToPath(new URL('../../../legal/drafts/gloviaa-mart/', import.meta.url));
+const drafts = fileURLToPath(new URL('../../../legal/drafts/world-mart/', import.meta.url));
 
 interface Supplied {
   file: string;
@@ -54,7 +54,7 @@ const SUPPLIED: Supplied[] = [
       '14 Governing law and disputes',
       '15 Acceptance and precedence',
     ],
-    wordsSha256: '0a539f994e2ac0bd45f71c31dca4f685fcbfe6e9652d1feb1a555f44c776e3e3',
+    wordsSha256: 'c0ee1c4e93930b3d53eddce66230d91dffa27613841bacc2b6d75ef04ff9b921',
   },
   {
     file: 'seller-services-agreement.en.txt',
@@ -80,7 +80,7 @@ const SUPPLIED: Supplied[] = [
       'Schedule E OEM and technical acceptance',
       'Schedule F Insurance and execution',
     ],
-    wordsSha256: 'e60d9e01f4bd6044ddd9355a35fb8a3e9d9c8722da67f077e91644f33b091b61',
+    wordsSha256: '613202c98b9c7fbdd5880eb7051bcd605664ddad957c91b7e714c0874af04376',
   },
   // The company buyer's two agreements, on the storefront's company screen.
   {
@@ -103,7 +103,7 @@ const SUPPLIED: Supplied[] = [
       '13 Suspension termination and general provisions',
       '14 Commercial dispute framework and acceptance',
     ],
-    wordsSha256: '5c6e26eb8acae76ea658680f10e37b9058bf5bdd66fcea67ce69a2cba6a43f42',
+    wordsSha256: '420437a998c26dd2a17c15f81609fba36346a7b7bd70244c6b1bc387387c947a',
   },
   {
     file: 'b2b-buyer-services-agreement.en.txt',
@@ -126,7 +126,7 @@ const SUPPLIED: Supplied[] = [
       'Schedule B Commercial and order controls',
       'Schedule C Signatures',
     ],
-    wordsSha256: 'ddc183d086b9bb78565f3d116bfa5722192925d43b101c6e7bda8b1515b7b443',
+    wordsSha256: '2af90d07dc087bdaedf1e756bc02ad1587f49832c4a3864695bf44e106f1e558',
   },
   // The individual buyer's Terms, on the storefront's consumer screen.
   {
@@ -146,7 +146,7 @@ const SUPPLIED: Supplied[] = [
       '10 Applicable law and dispute routes',
       '11 Model withdrawal notice',
     ],
-    wordsSha256: 'a374fc18182fcc62412315da635c7944861e478372146bc0fe863d2323bfed88',
+    wordsSha256: 'c66567df37bc08e69fc67aa1cb6cc763ccbc64579d988c9ca08941e807871525',
   },
 ];
 
@@ -173,7 +173,7 @@ describe('B2C Consumer Terms and Conditions', () => {
       .filter((block) => block.type === 'paragraph')
       .map((block) => (block.type === 'paragraph' ? block.text : ''));
     expect(lines).toEqual([
-      'To: the seller named in your order confirmation, or Gloviaa Mart, returns@gloviaamart.com, at our registered office.',
+      'To: the seller named in your order confirmation, or World Mart, returns@worldmart.com, at our registered office.',
       'I hereby give notice that I withdraw from my contract for the following goods or services: (insert the goods or services).',
       'Order number: (insert order number).',
       'Ordered on: (insert date ordered).',
@@ -203,7 +203,7 @@ describe('B2C Consumer Terms and Conditions', () => {
 
   it('names its support, complaints, grievance, privacy and cancellation contacts', () => {
     const text = body();
-    for (const contact of ['support@gloviaamart.com', 'grievance@gloviaamart.com', 'privacy@gloviaamart.com', 'returns@gloviaamart.com', 'Effective 12 October 2026']) {
+    for (const contact of ['support@worldmart.com', 'grievance@worldmart.com', 'privacy@worldmart.com', 'returns@worldmart.com', 'Effective 12 October 2026']) {
       expect(text, contact).toContain(contact);
     }
   });
@@ -227,7 +227,7 @@ describe.each(SUPPLIED)('$file', (supplied) => {
     expect(draft.kind).toBe(supplied.kind);
     expect(draft.title).toBe(supplied.title);
     expect(draft.version).toBe('1.0');
-    expect(draft.body).toContain('Gloviaa Mart | Uboss AI Private Limited');
+    expect(draft.body).toContain('World Mart | Uboss AI Private Limited');
     expect(draft.body).toContain('Version 1.0 | Effective 12 October 2026');
   });
 

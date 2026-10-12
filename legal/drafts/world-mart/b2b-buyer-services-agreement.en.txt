@@ -1,0 +1,128 @@
+kind: B2B_BUYER_SERVICES_AGREEMENT
+version: 1.0
+locale: en
+title: B2B Buyer Platform Services Agreement
+---
+World Mart | Uboss AI Private Limited
+
+Version 1.0 | Effective 12 October 2026
+
+Mandatory law and the rules of the applicable payment providers prevail over anything in this Agreement that conflicts with them.
+
+This Agreement is made on the date on which the Buyer accepts it on the Platform. The parties are Uboss AI Private Limited, a company incorporated in India, operating the marketplace World Mart, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, Corporate Identity Number U62099HR2024PTC118452, GSTIN 06AADCU4821K1Z3 and PAN AADCU4821K ("World", "we", "us"); and the business named as the buyer in the verified account through which this Agreement is accepted, with the country, registered address, business registration, tax and importer numbers recorded in that verified account ("Buyer"). The person who accepts this Agreement on the Buyer's behalf warrants that they are authorised to bind the Buyer.
+
+## 1 Purpose and transaction structure
+
+World provides a managed purchasing interface and the services described in this Agreement. The Buyer may purchase approved goods through a single checkout, but each confirmed order line identifies the actual Indian seller of those goods. Unless a separately signed contract provides otherwise, goods are sold by the seller to the Buyer, and World supplies platform and managed services. For marketplace listings the seller named on the product page is the seller of record; for goods that World sells itself, Uboss AI Private Limited is the seller of record. The Buyer appoints World as its disclosed and limited agent for order coordination and for arranging customs brokerage or logistics within the scope of this Agreement. This appointment does not authorise World to make unlimited commitments, or to make regulatory declarations, in the Buyer's name.
+
+The contract for the goods sets out the product requirements, the seller, the price, delivery, title, warranty and remedies. This Agreement governs World's own services and fees. No description or label removes duties that arise from what World actually does or from applicable law.
+
+## 2 Verification and purchasing authority
+
+The Buyer must provide its registration details, beneficial ownership information where required, evidence of signatory authority, tax numbers, import licences, the intended end use, and accurate billing and consignee details. World and its payment providers may carry out lawful checks and may ask for updated evidence at any time. The Buyer must keep the list of its authorised staff and their spending limits up to date and must protect its account credentials. A business that has not been verified cannot use the restricted business purchasing functions. The Buyer confirms that products bought under this Agreement are bought for business purposes; any transaction that legally qualifies as a consumer purchase is governed by the B2C Consumer Terms and Conditions instead.
+
+## 3 Services mandate and acceptance
+
+The services available to the Buyer may include sourcing, supplier selection, quote comparison, inspection, order administration, warehouse and packaging coordination, transport, customs support, installation, commissioning and after-sales administration. Schedule A records which of these services the Buyer has actually ordered. For each service, the order confirmation states whether World performs it itself or appoints a named competent provider, together with the measurable outputs, milestones, charges and dependencies. World performs the services it undertakes with reasonable skill and care. Appointing a subcontractor does not relieve World of its own agreed duties.
+
+The Buyer must give accurate information about the intended use, specifications, quantities, drawings, compatibility requirements, installation conditions and compliance constraints. Each sample inspection states what it covers and its limitations. A sample that passes inspection is not an assurance about every unit in the order. Suggestions made by the AI shopping assistant must be checked by a person; they do not bind any seller, change any price or establish that a product complies with the law.
+
+## 4 Orders RFQs and repeat purchasing
+
+A request for quotation or an estimate becomes binding only when it is expressly accepted within the period for which the quote is valid. Uploading a Buyer purchase order does not vary the platform terms or the terms of this Agreement. A confirmed order records the actual seller, the approved SKU, the country, the Incoterm and named place, the price and charges, any acceptance tests, the lead time, the payment terms and the remedies for the goods. A payment authorisation or an automated receipt does not, on its own, confirm a sale.
+
+Standing purchases and autopay require a separate consent that records the spending limits, the frequency, how price changes are handled, how the Buyer is notified and how the arrangement is cancelled. Before each scheduled purchase is placed, the Platform checks again the seller's approved scope, stock, current compliance and the availability of funds. The Buyer may revoke any future mandate at any time; orders already accepted remain subject to the agreed cancellation terms. Importing orders from the Buyer's own purchasing or ERP system does not give any employee authority beyond the role approved for them on the Platform.
+
+## 5 Fees and buyer-funded certification
+
+The service fees and any buyer-specific charges are those recorded in Schedule B and shown to the Buyer before it confirms an order. World does not charge the Buyer a separate routine transaction commission. A clearly disclosed certification-recovery allocation may be included to fund independent assurance of sellers. The Buyer is bound only by the amount, or the capped formula, displayed before it places its order. World will not charge historical onboarding costs after an order has been accepted. A bespoke inspection or certification is scoped and priced separately, and paying for it does not guarantee a favourable result.
+
+World issues separate invoices for goods and for its own services, showing the applicable taxes, the currency, the method used for any currency conversion and any third-party costs. An advance paid for services is not earned automatically; fees are earned only when the agreed deliverable has been performed. Payments for services not performed and for cancelled goods are refunded in accordance with the law, the payment provider's rules and the accepted order terms. Refunds are made within 14 days of approval, to the original payment method. Where consumer protection rules apply to a transaction despite the account type, those rules prevail.
+
+## 6 Payment and escrow administration
+
+Payments are collected and paid out through Stripe Payments Europe Ltd and Stripe, Inc. (for cards and international payments, and through Stripe Connect for seller payouts) and Razorpay Software Private Limited (for payments in India), each operating under its own agreement and account structure. The Buyer pays only through the payment routes offered on the Platform and receives an itemised confirmation of each payment. The payment provider's rules govern the lawful operation of any escrow or collection account, refunds, settlement and chargebacks. World transmits authorised payment instructions and acts as marketplace and payment facilitator; it does not hold protected funds in unrestricted custody. Milestone payments, currencies, countries, holding periods and reserves are available only where the relevant payment provider supports them, as shown at checkout.
+
+For larger bespoke business orders, an approved milestone plan or a documentary credit may be used in place of card settlement. No credit, interest or guarantee is implied. If an order is defaulted on or fails, the funds are refunded or released in accordance with the law. A charge is non-refundable only where it relates to a service that was actually and separately performed and that the Buyer agreed to in advance.
+
+## 7 Export import transport and ownership
+
+For international business orders the seller is the exporter of record and the Buyer is the importer of record. The Buyer maintains the necessary customs and product licences and appoints a lawful customs broker; World coordinates documents and partners under the limited written authority given in this Agreement. Obligations that the law places on a product's responsible person or importer cannot be transferred to a purchaser who is unable to meet them. Goods are not dispatched until a compliant route has been confirmed.
+
+Unless the order confirmation states otherwise, goods are delivered DAP (Delivered at Place) at the named destination under Incoterms 2020. The seller bears the risk in transit until the goods arrive at the agreed place, ready for unloading. The Buyer bears import clearance, duties, taxes and unloading. An order may use FCA, with the Buyer bearing the risk of the main carriage, only where this is expressly agreed. DDP is not available unless a lawful importer and tax arrangement has been reviewed and approved. Title passes at the point stated in the contract for the goods, which is separate from the passing of transit risk. Invoices and customs descriptions must match the true transaction.
+
+## 8 Receipt inspection installation and claims
+
+The Buyer provides access for receiving the goods and must report visible transit damage promptly. Defects or shortages must be reported within 7 days of delivery; after that, claims are handled under the terms of the order. These time limits do not prevent claims for latent defects, under warranty, for fraud, for safety issues, under statute, or under any longer acceptance period expressly agreed.
+
+The Buyer must keep the affected goods, packaging, lot numbers and test evidence, and must quarantine any goods suspected of being unsafe. Installation and commissioning are subject to separate written tests and sign-off. The seller or service provider supplies the agreed repair, replacement, refund and support. World coordinates each case under its published policies; a decision made on the Platform does not extinguish any legal remedy.
+
+## 9 Buyer duties and indemnity
+
+The Buyer warrants that its identity and declarations are true, that its end use is lawful, that it is able to import the goods properly, that it has the rights to any designs it supplies, and that it will not divert the goods for any prohibited purpose. The Buyer follows the approved conditions for safe use, maintenance, storage and receipt. The Buyer pays the reasonable costs that are attributable to its documented breach, incorrect specifications, failure to import, or unjustified refusal of goods, subject to lawful mitigation and without any automatic penalty.
+
+The Buyer indemnifies World against third-party claims, and against reasonable documented losses, caused by the Buyer's infringement, unlawful import, false information, misuse or breach, except to the extent caused by World's breach, negligence, fraud or wilful misconduct. World must give prompt notice of any such claim. The Buyer must conduct a competent defence and cooperate, and must obtain World's consent before making any admission, or accepting any non-monetary obligation or unreleased liability, on World's behalf.
+
+## 10 Confidentiality privacy and liability
+
+Each party keeps prices, drawings, supplier information and personal data confidential and secure, and shares them only as needed for an authorised transaction, for lawful checks and for required reporting. These confidentiality obligations last for five years after this Agreement ends, and for trade secrets for as long as they remain secret. Personal data is handled under the World Privacy Policy, with controls on international transfers and retention limited to the purpose. World is an independent controller for platform data. The Buyer may not extract seller or customer data for any unrelated solicitation.
+
+World's total liability to the Buyer under or in connection with this Agreement is limited to the total fees paid by the Buyer to World in the 12 months before the event giving rise to the claim. This limit excludes the price of goods, taxes and pass-through costs. Neither party is liable for indirect or consequential loss, where the law allows this exclusion, except under the indemnity in section 9. No limit or exclusion applies to liability for fraud, wilful misconduct, gross negligence, death or personal injury caused by negligence, the safeguarding or return of funds, breaches of confidentiality, data protection or intellectual property, or any liability that cannot be limited by law. These limits do not cap the seller's obligations in respect of the goods.
+
+## 11 Term suspension and termination
+
+This Agreement starts on the date the Buyer accepts it on the Platform and continues for an initial term of one year, after which it may be renewed by agreement. Either party may terminate it on thirty days' written notice. A material breach that can be remedied must be remedied within fifteen days of notice. World may immediately suspend the affected services where there is a safety risk, illegality, fraud, non-payment or a security risk, and will give reasons and a way to correct the problem where the law permits. Termination does not affect confirmed orders, refunds, warranties, recalls, amounts already due or records that must be kept. Undisputed balances that are unrelated to the reason for termination are released under the payment provider's rules.
+
+## 12 Disputes and general terms
+
+This Agreement is governed by the laws of India, without affecting any mandatory rules of the destination country. Any dispute is first escalated in good faith between the parties for fifteen days. If it is not resolved, it is referred to arbitration under the Arbitration and Conciliation Act, 1996, before a sole arbitrator appointed by agreement of the parties or, failing agreement, under that Act. The seat and venue of the arbitration is New Delhi, India, and the language of the proceedings is English. Subject to the arbitration clause, the courts at New Delhi, India have exclusive jurisdiction, and those courts may grant interim relief at any time. This clause does not apply to consumer purchases.
+
+Notices to the Buyer are sent to the email address and registered address recorded in the Buyer's verified account. Notices to World are sent to legal@worldmart.com and by post to the registered office. World may change this Agreement by giving at least 30 days' notice by email and on the Platform for material changes; changes required by law or for security may take effect sooner. Where a change needs re-acceptance, the Platform asks for it at the next sign-in, and any amendment takes effect only as a versioned document signed or expressly accepted on the Platform. A party affected by force majeure must give prompt notice, mitigate its effects and handle any delay or cancellation lawfully; force majeure does not remove any refund that is due. Nothing in this Agreement creates an unrestricted agency, a partnership or a joint venture. Mandatory law prevails. The accepted order confirmation governs the services and the confirmed goods order governs goods-specific matters, and the World business terms and policies supplement these processes. The English version of this Agreement prevails over any translation.
+
+## Schedule A Service and authority record
+
+The Buyer's account and the authority of its signatories are as recorded in the Buyer's verified account.
+
+The approved countries and product classes are as recorded in the Buyer's verified account and as shown on the product page and at checkout.
+
+The service provider, deliverable, acceptance test, milestone and dependencies for each selected service are as shown in the order confirmation.
+
+Budgets, spending limits and authority to accept orders are as recorded in the Buyer's verified account for each authorised user.
+
+Mandates for customs brokers, importers and local representatives are as recorded in the Buyer's verified account or as shown in the order confirmation.
+
+Installation site requirements are as shown in the order confirmation.
+
+The reference for any repeat-order or autopay mandate is as recorded in the Buyer's verified account under its scheduled orders.
+
+## Schedule B Commercial and order controls
+
+The Buyer service fee is as shown in the order confirmation before the Buyer accepts the order.
+
+Any certification allocation, with its disclosed formula, cap and programme reference, is as shown in the order confirmation before the Buyer accepts the order.
+
+Any buyer-specific test or inspection charge is as shown in the order confirmation.
+
+The currency, the method of currency conversion, taxes and payment charges are as shown at checkout and in the order confirmation.
+
+Cancellation charges and the calculation of services earned are as shown in the order confirmation.
+
+The goods seller, order and specification references are as shown in the order confirmation.
+
+The DAP named place, or any approved alternative Incoterm, is as shown in the order confirmation.
+
+The point at which title passes is as shown in the order confirmation.
+
+Payment milestones and the payment provider used are as shown in the order confirmation.
+
+Warranty, acceptance and after-sales conditions are as shown in the order confirmation.
+
+## Schedule C Signatures
+
+This Agreement is accepted electronically. When an authorised user accepts it on the Platform on the Buyer's behalf, that acceptance is the Buyer's signature and binds the Buyer.
+
+World accepts this Agreement by making it available on the Platform and confirming the Buyer's acceptance. Uboss AI Private Limited is bound by that confirmation in the same way as by a signature.
+
+For each acceptance, World stores the name and role of the person who accepted, the date and time of acceptance, the IP address used and the version of this Agreement accepted. No witness is required.
+
+The Buyer's legal particulars, authorised users and spending limits are taken from the Buyer's verified account at the time of acceptance, and the Buyer must keep them accurate and up to date on the Platform.

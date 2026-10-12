@@ -1245,7 +1245,7 @@ export type $CommissionInvoiceSettingsPayload<ExtArgs extends runtime.Types.Exte
     legalEntityCode: string
     legalName: string | null
     /**
-     * The name it trades under, e.g. "Gloviaa Mart — Powered by UBOSS".
+     * The name it trades under, e.g. "World Mart — Powered by UBOSS".
      */
     tradeName: string | null
     addressLine1: string | null

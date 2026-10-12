@@ -2,7 +2,7 @@
  * What the console calls itself.
  *
  * The product used to be UBOSS Sourcing and the rail used to say "UBOSS" over
- * "Admin console". It is Gloviaa Mart now, over `Source with Intelligence | Deliver with Confidence` — the
+ * "Admin console". It is World Mart now, over `Source with Intelligence | Deliver with Confidence` — the
  * product, and its tagline. Both strings live in `lib/brand.ts` and nowhere else, so
  * what these hold down is not the spelling of a constant but the shape of the
  * lockup: two lines, in that order, with the retired wording gone and a link
@@ -24,7 +24,7 @@ import { BrandLockup } from './BrandLockup';
 
 /**
  * The innermost element whose whole text is `text`. The wordmark is two spans
- * now — "Gloviaa" and "Mart" in different faces — so the name is no longer
+ * now — "World" and "Mart" in different faces — so the name is no longer
  * one text node that `getByText` can match on its own.
  */
 function whole(text: string): (content: string, element: Element | null) => boolean {
@@ -73,7 +73,7 @@ describe('the console’s brand lockup', () => {
 
     // Written as a sentence, not in capitals:
     // the markup says the approved line exactly, capitals and bar included.
-    expect(screen.getByText(whole('Gloviaa Mart')).textContent).toBe('Gloviaa Mart');
+    expect(screen.getByText(whole('World Mart')).textContent).toBe('World Mart');
     expect(screen.getByText('Source with Intelligence | Deliver with Confidence').textContent).toBe('Source with Intelligence | Deliver with Confidence');
   });
 
@@ -106,6 +106,6 @@ describe('the console’s brand lockup', () => {
 describe('the tab', () => {
   it('is what says which of the two consoles this is', () => {
     // The rail gave that job up when the attribution took its second line.
-    expect(PORTAL_TITLE).toBe('Gloviaa Mart Admin');
+    expect(PORTAL_TITLE).toBe('World Mart Admin');
   });
 });

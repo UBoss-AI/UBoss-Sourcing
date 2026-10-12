@@ -3,19 +3,19 @@ version: 1.0
 locale: en
 title: B2C Platform Services Agreement
 ---
-Gloviaa Mart | Uboss AI Private Limited
+World Mart | Uboss AI Private Limited
 
 Version 1.0 | Effective 12 October 2026
 
-This agreement covers your use of the Gloviaa Mart platform at www.gloviaamart.com, which is operated by Uboss AI Private Limited, a company incorporated in India with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, Corporate Identity Number U62099HR2024PTC118452, GSTIN 06AADCU4821K1Z3 ("Gloviaa", "we", "us"). It applies to you as a consumer, meaning a person using the Platform for purposes that applicable law protects as consumer use. Mandatory consumer rights apply regardless of the account label or a term in this agreement.
+This agreement covers your use of the World Mart platform at www.worldmart.com, which is operated by Uboss AI Private Limited, a company incorporated in India with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India, Corporate Identity Number U62099HR2024PTC118452, GSTIN 06AADCU4821K1Z3 ("World", "we", "us"). It applies to you as a consumer, meaning a person using the Platform for purposes that applicable law protects as consumer use. Mandatory consumer rights apply regardless of the account label or a term in this agreement.
 
 ## 1 What this agreement covers
 
-This agreement governs the platform services we provide to you: your account, search, the AI shopping assistant, the cart and checkout, payment facilitation, order tracking, scheduled and repeat orders, support and dispute handling, and notifications. It does not govern the sale of goods. When you buy a product, the B2C Consumer Terms and Conditions govern that purchase, including delivery, cancellation, returns, refunds and remedies for defective goods. For marketplace listings the seller named on the product page is the seller of record; for goods we sell ourselves, Uboss AI Private Limited is the seller of record. How we handle your personal data is explained in the Gloviaa Privacy Policy. If this agreement and the B2C Consumer Terms and Conditions conflict on a matter about a purchase, the B2C Consumer Terms and Conditions prevail.
+This agreement governs the platform services we provide to you: your account, search, the AI shopping assistant, the cart and checkout, payment facilitation, order tracking, scheduled and repeat orders, support and dispute handling, and notifications. It does not govern the sale of goods. When you buy a product, the B2C Consumer Terms and Conditions govern that purchase, including delivery, cancellation, returns, refunds and remedies for defective goods. For marketplace listings the seller named on the product page is the seller of record; for goods we sell ourselves, Uboss AI Private Limited is the seller of record. How we handle your personal data is explained in the World Privacy Policy. If this agreement and the B2C Consumer Terms and Conditions conflict on a matter about a purchase, the B2C Consumer Terms and Conditions prevail.
 
 ## 2 Your account
 
-You must be at least 18 years old to open an account. You must give accurate and complete information and keep it up to date. Keep your password and sign-in details secure and do not share your account. Tell us promptly at support@gloviaamart.com if you think someone else has used your account. You are responsible for activity on your account unless it results from our failure or from a security incident that you did not cause. We use bot protection provided by Cloudflare Turnstile to help keep accounts safe; it sets no advertising cookies. You may close your account at any time from your account settings or by contacting support.
+You must be at least 18 years old to open an account. You must give accurate and complete information and keep it up to date. Keep your password and sign-in details secure and do not share your account. Tell us promptly at support@worldmart.com if you think someone else has used your account. You are responsible for activity on your account unless it results from our failure or from a security incident that you did not cause. We use bot protection provided by Cloudflare Turnstile to help keep accounts safe; it sets no advertising cookies. You may close your account at any time from your account settings or by contacting support.
 
 ## 3 Search and the AI shopping assistant
 
@@ -29,7 +29,7 @@ You can add products from one or more sellers to your cart and pay for them in a
 
 ## 5 Payment facilitation
 
-Gloviaa acts as the marketplace and payment facilitator. Payments are processed by Stripe Payments Europe Ltd and Stripe, Inc. (cards and international payments) and by Razorpay Software Private Limited (payments in India), each under its own terms. Payments to sellers are made through Stripe Connect. We do not store your full card details; they are held only by the payment provider. Refunds that are approved are paid within 14 days of approval to your original payment method. You retain applicable payment dispute and chargeback rights.
+World acts as the marketplace and payment facilitator. Payments are processed by Stripe Payments Europe Ltd and Stripe, Inc. (cards and international payments) and by Razorpay Software Private Limited (payments in India), each under its own terms. Payments to sellers are made through Stripe Connect. We do not store your full card details; they are held only by the payment provider. Refunds that are approved are paid within 14 days of approval to your original payment method. You retain applicable payment dispute and chargeback rights.
 
 ## 6 Order tracking and notifications
 
@@ -41,9 +41,9 @@ You can set up scheduled or repeat orders that are placed automatically at a fre
 
 ## 8 Support and disputes
 
-You can contact customer support at support@gloviaamart.com or +91 124 456 7800, Monday to Saturday, 9:30 to 18:30 IST. If you have a problem with an order, you can open a case in your account. We contact the seller, collect proportionate evidence and explain our decision. You can appeal a decision made on the Platform within seven days, but this is not a deadline for bringing a legal claim.
+You can contact customer support at support@worldmart.com or +91 124 456 7800, Monday to Saturday, 9:30 to 18:30 IST. If you have a problem with an order, you can open a case in your account. We contact the seller, collect proportionate evidence and explain our decision. You can appeal a decision made on the Platform within seven days, but this is not a deadline for bringing a legal claim.
 
-Our Grievance Officer is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, at our registered office; email grievance@gloviaamart.com; telephone +91 124 456 7801. The Grievance Officer acknowledges your complaint within forty-eight hours and resolves it within one month of receiving it. Using our support and dispute process never prevents you from going to a regulator, a consumer court or Consumer Commission, an eligible alternative dispute resolution body or your payment provider.
+Our Grievance Officer is Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, at our registered office; email grievance@worldmart.com; telephone +91 124 456 7801. The Grievance Officer acknowledges your complaint within forty-eight hours and resolves it within one month of receiving it. Using our support and dispute process never prevents you from going to a regulator, a consumer court or Consumer Commission, an eligible alternative dispute resolution body or your payment provider.
 
 ## 9 Fees for the platform services
 
@@ -55,7 +55,7 @@ You must use the Platform lawfully and must not misuse it. In particular, you mu
 
 ## 11 Your content
 
-If you post reviews, questions or images, you keep ownership of them. You give us a non-exclusive, worldwide, royalty-free licence to host, store, reproduce, display, resize, translate and format that content to operate and promote the marketplace, for as long as it is on the Platform and for a reasonable period afterwards for backups and legal records. We do not use your content to train general-purpose AI models, or in third-party advertising, without your separate consent. Your content must be honest and lawful. You can report illegal content or an intellectual property infringement to ip@gloviaamart.com.
+If you post reviews, questions or images, you keep ownership of them. You give us a non-exclusive, worldwide, royalty-free licence to host, store, reproduce, display, resize, translate and format that content to operate and promote the marketplace, for as long as it is on the Platform and for a reasonable period afterwards for backups and legal records. We do not use your content to train general-purpose AI models, or in third-party advertising, without your separate consent. Your content must be honest and lawful. You can report illegal content or an intellectual property infringement to ip@worldmart.com.
 
 ## 12 Availability and our responsibility
 
@@ -63,7 +63,7 @@ We aim to keep the Platform available and secure, but it may sometimes be unavai
 
 ## 13 Privacy
 
-We process your personal data as described in the Gloviaa Privacy Policy. Providers that are essential to the platform services, such as our payment providers, our AI provider and our hosting provider with servers in India and the European Union, receive only the information they need. You can contact our Data Protection Officer, Ms Priya Nair, at privacy@gloviaamart.com or at our registered office.
+We process your personal data as described in the World Privacy Policy. Providers that are essential to the platform services, such as our payment providers, our AI provider and our hosting provider with servers in India and the European Union, receive only the information they need. You can contact our Data Protection Officer, Ms Priya Nair, at privacy@worldmart.com or at our registered office.
 
 ## 14 Changes and ending this agreement
 

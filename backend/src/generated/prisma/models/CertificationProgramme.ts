@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model CertificationProgramme
- * Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. Gloviaa funds first.
+ * Doc 08 s4: a seller- or programme-specific recoverable certification cost ledger. World funds first.
  */
 export type CertificationProgrammeModel = runtime.Types.Result.DefaultSelection<Prisma.$CertificationProgrammePayload>
 

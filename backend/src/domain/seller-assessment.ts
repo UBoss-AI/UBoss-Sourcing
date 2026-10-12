@@ -543,7 +543,7 @@ export type ExternalCertStatus = 'APPOINTED' | 'IN_PROGRESS' | 'ISSUED_UNVERIFIE
 
 export interface ExternalCertFacts {
   status: ExternalCertStatus;
-  appointedByGloviaa: boolean;
+  appointedByWorld: boolean;
   accreditationVerified: boolean;
   independenceVerified: boolean;
   authenticityVerified: boolean;
@@ -558,7 +558,7 @@ export type CertProblem = 'CERT_MISSING' | 'CERT_NOT_APPOINTED_BY_MARKETPLACE' |
 export function certProblems(cert: ExternalCertFacts | null, need: { facilityId: string; productKey: string } | null, now: Date): CertProblem[] {
   if (cert === null) return ['CERT_MISSING'];
   const out: CertProblem[] = [];
-  if (!cert.appointedByGloviaa) out.push('CERT_NOT_APPOINTED_BY_MARKETPLACE');
+  if (!cert.appointedByWorld) out.push('CERT_NOT_APPOINTED_BY_MARKETPLACE');
   if (cert.status === 'WITHDRAWN' || cert.status === 'SUSPENDED' || cert.status === 'REFUSED') out.push('CERT_WITHDRAWN');
   else if (cert.status === 'EXPIRED' || cert.expiresOn === null || cert.expiresOn.getTime() <= now.getTime()) out.push('CERT_EXPIRED');
   else if (cert.status !== 'AUTHENTICATED' || !cert.authenticityVerified) out.push('CERT_NOT_AUTHENTICATED');

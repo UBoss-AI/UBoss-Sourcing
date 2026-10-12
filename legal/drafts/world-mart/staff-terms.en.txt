@@ -1,19 +1,19 @@
 kind: STAFF_TERMS
 version: 1.0
 locale: en
-title: Gloviaa Mart Staff Console Terms
+title: World Mart Staff Console Terms
 ---
 Version 1.0 | Effective 12 October 2026
 
-These terms apply to every member of Gloviaa Mart's own staff, and to contractors working for Gloviaa Mart, who use the administration console. They are an acceptable-use addendum. They supplement your employment or engagement contract and the Gloviaa IT Acceptable Use Policy, which continue to govern your work. On any employment matter, your employment or engagement contract prevails over these terms. Part A applies to every user of Gloviaa Mart; references in Part A to suspending an account and to "your content" apply to your console account and to what you enter in the console. Part S applies to staff.
+These terms apply to every member of World Mart's own staff, and to contractors working for World Mart, who use the administration console. They are an acceptable-use addendum. They supplement your employment or engagement contract and the World IT Acceptable Use Policy, which continue to govern your work. On any employment matter, your employment or engagement contract prevails over these terms. Part A applies to every user of World Mart; references in Part A to suspending an account and to "your content" apply to your console account and to what you enter in the console. Part S applies to staff.
 
-## Part A - Common terms for everyone who uses Gloviaa Mart
+## Part A - Common terms for everyone who uses World Mart
 
 ## A1. About these terms
 
-These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("Gloviaa Mart", "Gloviaa", "we", "us" or "our"). Gloviaa Mart is the brand under which we run the marketplace at www.gloviaamart.com.
+These terms are an agreement between you and Uboss AI Private Limited, a company incorporated in India with Corporate Identity Number U62099HR2024PTC118452, registered with the Registrar of Companies, NCT of Delhi and Haryana, with its registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India (GSTIN 06AADCU4821K1Z3; PAN AADCU4821K) ("World Mart", "World", "we", "us" or "our"). World Mart is the brand under which we run the marketplace at www.worldmart.com.
 
-"Platform" means the Gloviaa Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
+"Platform" means the World Mart storefront, the Seller Hub, the logistics partner portal, the administration console, the Audit Console and every related website, page, application and programming interface we make available. Not every part of the Platform is open to every user: which parts you may use depends on your role.
 
 "User" means anybody who visits or uses the Platform: a visitor, a buyer, a seller, a member of a logistics partner's staff, a member of our own staff, or an inspector or auditor invited to the Audit Console.
 
@@ -35,7 +35,7 @@ We may refuse or end access to the Platform if we learn that a user does not mee
 
 Some parts of the Platform need an account. When we ask for information to open or maintain an account, you agree to give information that is true, accurate, current and complete, and to keep it up to date.
 
-You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@gloviaamart.com, if you believe someone else has used your account.
+You are responsible for keeping your password, your two-step sign-in device and recovery codes, and any other sign-in details confidential, and for everything done through your account. Tell us at once through the Platform's support channel, or at support@worldmart.com, if you believe someone else has used your account.
 
 Where we offer or require two-step sign-in, you agree to set it up and keep it working. Some roles must use it.
 
@@ -49,16 +49,16 @@ Service messages (for example a payment receipt, a security alert or a change to
 
 ## A5. What the marketplace is, and what it is not
 
-The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. Gloviaa Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
+The Platform is a marketplace. Buyers and sellers use it to find each other and to conclude their own transactions. World Mart may also sell its own goods on the Platform; when it does, the order says so and Uboss AI Private Limited is the seller of record of those goods.
 
 For goods sold by other sellers:
 
 - The commercial terms of a sale - including price, delivery costs, payment terms, delivery dates and method, warranties and after-sales service - are offered by the seller and agreed between the seller and the buyer. The seller is named on every product page and order and is the seller of record.
-- The contract of sale is between the seller and the buyer. Gloviaa Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
-- Gloviaa Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. Gloviaa Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
+- The contract of sale is between the seller and the buyer. World Mart is not a party to it, does not take title to the goods and does not hold the goods, except where it provides a separately described service (for example warehousing or a delivery leg it operates).
+- World Mart does not guarantee the quality, safety, legality or value of goods listed by sellers, or that a buyer or a seller will complete a transaction. World Mart does check sellers and their documents as described on the Platform, and runs the claims, buyer-protection and inspection processes described in the buyer part of these terms and in the related policies. Nothing in this section limits those processes or any right the law gives you.
 - You should take reasonable care when you deal with other users. Use the Platform's own messages and payment flow; never pay outside it.
 
-Gloviaa Mart hosts content that users publish, such as product listings, photographs, reviews and messages. Gloviaa Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
+World Mart hosts content that users publish, such as product listings, photographs, reviews and messages. World Mart does not originate that content and does not choose who receives it, but may review, refuse or remove it as these terms allow.
 
 ## A6. Acceptable use
 
@@ -106,7 +106,7 @@ You must not:
 - use any device, software or routine to interfere with the proper working of the Platform or any transaction on it;
 - forge headers or manipulate identifiers to disguise the origin of a message you send through the Platform.
 
-If you discover a security weakness in the Platform, please report it to security@gloviaamart.com.
+If you discover a security weakness in the Platform, please report it to security@worldmart.com.
 
 We may take any lawful action, including claiming damages, against a user who breaches this section.
 
@@ -126,11 +126,11 @@ The Platform, its software, design, text, graphics, logos and the compilation of
 
 You may view, download and print product information and your own records for your own business or personal use, provided you keep any proprietary notices, make no changes, and do not add representations or warranties about the content.
 
-The Gloviaa Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
+The World Mart name and logo are our trade marks. You may not use them without our written permission, except to refer truthfully to the Platform.
 
 ## A10. Complaints about infringing or unlawful content
 
-We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@gloviaamart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
+We respect the intellectual property and other rights of others. If you believe that content on the Platform infringes your trade mark, copyright or another right, or is otherwise unlawful, write to us at ip@worldmart.com, or by post to our registered office marked "Legal - Content Complaints", or raise a support request on the Platform. Tell us who you are, what content you mean (with a link where possible), which right you hold, and why the content infringes it. We will review the notice, may remove or disable the content, and will tell the person who provided it where the law requires.
 
 ## A11. Other services and links
 
@@ -169,13 +169,13 @@ Nothing in these terms excludes or limits any guarantee, warranty or right that 
 
 To the extent the applicable law allows, we are not liable for any indirect, incidental, special or consequential loss, or for loss of profit, revenue, business, goodwill or data, arising out of or in connection with these terms or the Platform, even if we were told such loss was possible.
 
-If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to Gloviaa in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
+If you use the Platform as a business user, our total liability to you arising out of or in connection with these terms or the Platform, whether in contract, tort (including negligence) or otherwise, is limited to the total fees you paid to World in the 12 months before the event giving rise to the claim. This limit does not apply to consumers, and nothing in these terms limits the statutory rights of a consumer.
 
 Nothing in these terms limits or excludes liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, for wilful misconduct, or for anything else that the applicable law does not allow to be limited or excluded.
 
 ## A16. Indemnity
 
-To the extent the applicable law allows, you will indemnify and hold harmless Gloviaa Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
+To the extent the applicable law allows, you will indemnify and hold harmless World Mart and its officers, directors, employees and agents from any claim, demand, action, penalty or fine, including reasonable legal costs, brought by a third party or imposed by an authority because of your breach of these terms or of a policy that applies to you, your breach of any law, or your infringement of any right of a third party. This section does not apply to a consumer where the law of their country does not allow it.
 
 ## A17. Changes to these terms
 
@@ -211,21 +211,21 @@ These terms are published in several languages. If the language versions differ,
 
 ## A21. Contact and complaints
 
-For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@gloviaamart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@gloviaamart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
+For questions about these terms or the Platform, use the support page on the Platform or contact customer support at support@worldmart.com or +91 124 456 7800 (Monday to Saturday, 9:30 to 18:30 IST). Legal notices must be sent to legal@worldmart.com and by post to our registered office at 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India.
 
-Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@gloviaamart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
+Complaints are handled by our Grievance Officer, Mr Arjun Mehta, Grievance Officer, Uboss AI Private Limited, 3rd Floor, Plot No. 14, Sector 44, Gurugram, Haryana 122003, India; email grievance@worldmart.com; telephone +91 124 456 7801. We acknowledge a complaint and tell you how and when we will answer it.
 
 ## Part S - Terms for staff using the console
 
 ## S1. Your access and its purpose
 
-Your console account is personal to you. Your role gives you the permissions you need for your work and no more. You may use the console only for your work for Gloviaa Mart, and only within your permissions, even where the console would let you see more. Ask for a change of role if your work needs it; do not use another person's account.
+Your console account is personal to you. Your role gives you the permissions you need for your work and no more. You may use the console only for your work for World Mart, and only within your permissions, even where the console would let you see more. Ask for a change of role if your work needs it; do not use another person's account.
 
 ## S2. Signing in securely
 
 You must set your own password when you first sign in, keep it secret, and set up and use two-step sign-in. Sign out of shared devices and lock your screen when you leave it.
 
-When you sign in, the console records the location of the sign-in at city level, derived from your IP address, on your session, and shows colleagues responsible for the console's security where the sign-in came from. This record is kept for security purposes only. It is a record for people to read and is never used, by itself, to grant or refuse access. Gloviaa Mart has assessed this processing in data protection impact assessment DPIA-2026-03.
+When you sign in, the console records the location of the sign-in at city level, derived from your IP address, on your session, and shows colleagues responsible for the console's security where the sign-in came from. This record is kept for security purposes only. It is a record for people to read and is never used, by itself, to grant or refuse access. World Mart has assessed this processing in data protection impact assessment DPIA-2026-03.
 
 ## S3. Everything you do is recorded
 
@@ -233,17 +233,17 @@ The console keeps an audit trail of the actions taken in it, who took them and w
 
 ## S4. Confidentiality
 
-Information you see in the console - about buyers, sellers, carriers, inspection agencies, orders, money, prices and Gloviaa Mart's business - is confidential. You must not disclose it to anyone who is not entitled to it, copy it out of the console except as your work requires, or use it for any purpose other than your work. This duty continues after your access ends.
+Information you see in the console - about buyers, sellers, carriers, inspection agencies, orders, money, prices and World Mart's business - is confidential. You must not disclose it to anyone who is not entitled to it, copy it out of the console except as your work requires, or use it for any purpose other than your work. This duty continues after your access ends.
 
 ## S5. Personal data
 
-You must handle personal data in line with the Privacy Policy, the data-protection law that applies, and Gloviaa Mart's internal instructions. In particular:
+You must handle personal data in line with the Privacy Policy, the data-protection law that applies, and World Mart's internal instructions. In particular:
 
 - open a person's records only when your work needs it;
-- open identity, business and seller documents and privacy requests only from the places Gloviaa Mart allows;
+- open identity, business and seller documents and privacy requests only from the places World Mart allows;
 - never download or export personal data except as a documented task requires, and delete local copies when the task is done;
-- never send personal data, passwords or payment details through channels other than those Gloviaa Mart approves;
-- report a suspected security incident or data breach at once to security@gloviaamart.com.
+- never send personal data, passwords or payment details through channels other than those World Mart approves;
+- report a suspected security incident or data breach at once to security@worldmart.com.
 
 ## S6. Decisions about people and businesses
 
@@ -259,4 +259,4 @@ In addition to section A6 and A7, you must not change settings, documents, publi
 
 ## S9. Ending access
 
-Gloviaa Mart may change your role, suspend your account or close it at any time - for example when your work changes or ends. Your obligations under sections S4 and S5 continue after your access ends.
+World Mart may change your role, suspend your account or close it at any time - for example when your work changes or ends. Your obligations under sections S4 and S5 continue after your access ends.

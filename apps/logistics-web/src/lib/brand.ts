@@ -4,8 +4,8 @@
  * Three facts, and the difference between them is the whole reason this file
  * exists:
  *
- *   - **`PRODUCT_BRAND` is what this software is called.** It is Gloviaa
- *     Mart, and `PRODUCT_SHORT_NAME` — Gloviaa — is the same name where there
+ *   - **`PRODUCT_BRAND` is what this software is called.** It is World
+ *     Mart, and `PRODUCT_SHORT_NAME` — World — is the same name where there
  *     is room for one word only. It is not a per-deployment setting, because a buyer does not get to rename the
  *     product they licensed any more than they get to rename their browser.
  *   - **`PRODUCT_TAGLINE` is what it says under its name.** `The Way to the
@@ -18,7 +18,7 @@
  * It is not the carrier's name. That is `session.partner.displayName`, which
  * arrives with the portal session and belongs to whichever company signed in —
  * Sahyadri Express reads "Sahyadri Express" on the rail, under a portal called
- * Gloviaa Mart. Nothing here may ever stand in for it: a carrier shown the product's
+ * World Mart. Nothing here may ever stand in for it: a carrier shown the product's
  * name where their own company should be has no way to tell whose consignments
  * they are looking at.
  *
@@ -39,19 +39,19 @@
  */
 
 /**
- * The product. Never `Glovia`, never `Glovia Mart`, never `Gloviaa Market`:
+ * The product. Never `Gloviaa` or `Glovia` (old names), never `World Market`:
  * two a's, and "Mart".
  */
-export const PRODUCT_BRAND = 'Gloviaa Mart';
+export const PRODUCT_BRAND = 'World Mart';
 
 /**
  * The same name in one word, for the places a two-word name does not fit or
  * does not belong: the core of the orchestration hub on the landing page,
  * where the globe is the "Mart" and the name only has to say whose it is, and
  * the header on a phone, where the row beside five controls has room for one
- * word. Never `GLOVIAA`; any uppercasing is CSS.
+ * word. Never `WORLD`; any uppercasing is CSS.
  */
-export const PRODUCT_SHORT_NAME = 'Gloviaa';
+export const PRODUCT_SHORT_NAME = 'World';
 
 /**
  * The line under the wordmark. The product's slogan, written once, in English,

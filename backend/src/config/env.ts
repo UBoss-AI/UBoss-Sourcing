@@ -2185,7 +2185,7 @@ const envSchema = z
           'required when SELLER_ERP_ALLOW_DIRECT_MODE is on. TallyPrime’s HTTP interface has no ' +
           'authentication of any kind, so an unrestricted direct mode lets a seller point this ' +
           'server at an address of their choosing. List the hosts inside your own network, or ' +
-          'leave direct mode off and use the Gloviaa Mart Tally Bridge.',
+          'leave direct mode off and use the World Mart Tally Bridge.',
       });
     }
 

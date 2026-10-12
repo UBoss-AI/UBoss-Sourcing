@@ -15,7 +15,7 @@
  *
  * The second line used to say "Admin console", which is what told someone with
  * two tabs open which one they were in. The browser tab does that now — it
- * says "Gloviaa Mart Admin", which is a thing a person reads when they are looking
+ * says "World Mart Admin", which is a thing a person reads when they are looking
  * at two tabs, whereas a rail is a thing they read once they have already
  * picked one. See `lib/brand.ts`.
  *
@@ -41,7 +41,7 @@ import { EarthMark } from '@/components/EarthMark';
 import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 
 /**
- * "Gloviaa" in the script, "mart" in light lowercase Inter a step smaller on the same
+ * "World" in the script, "mart" in light lowercase Inter a step smaller on the same
  * baseline — a parent brand naming one of its services. The same treatment as
  * the storefront's `components/BrandName.tsx`.
  */

@@ -1,5 +1,5 @@
 # =============================================================================
-# Push-to-live for Gloviaa's Docker Compose install.
+# Push-to-live for World's Docker Compose install.
 #
 # Every push to `main` runs CI. When CI finishes green, this builds that exact
 # commit's customer, admin and logistics sites (and the Audit Console, when
@@ -24,7 +24,7 @@
 # The key is restricted on the server to one program, uboss-deploy-gate, which
 # accepts only `receive <release>` and `activate <release>`.
 # =============================================================================
-name: Deploy Gloviaa (Docker)
+name: Deploy World (Docker)
 
 on:
   workflow_run:
@@ -46,7 +46,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Gloviaa
+    name: Build World
     runs-on: ubuntu-24.04
     if: >-
       github.event_name == 'workflow_dispatch' ||

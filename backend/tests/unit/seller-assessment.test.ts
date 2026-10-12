@@ -182,7 +182,7 @@ describe('checklist', () => {
 
 describe('external certification', () => {
   const now = new Date('2026-10-09T00:00:00Z');
-  const ok = { status: 'AUTHENTICATED' as const, appointedByGloviaa: true, accreditationVerified: true, independenceVerified: true, authenticityVerified: true, expiresOn: new Date('2027-06-01'), facilityIds: ['F1'], productKeys: ['offer:A'] };
+  const ok = { status: 'AUTHENTICATED' as const, appointedByWorld: true, accreditationVerified: true, independenceVerified: true, authenticityVerified: true, expiresOn: new Date('2027-06-01'), facilityIds: ['F1'], productKeys: ['offer:A'] };
   it.each([
     ['missing', null, 'CERT_MISSING'],
     ['unauthenticated (seller upload only)', { ...ok, status: 'ISSUED_UNVERIFIED' as const, authenticityVerified: false }, 'CERT_NOT_AUTHENTICATED'],

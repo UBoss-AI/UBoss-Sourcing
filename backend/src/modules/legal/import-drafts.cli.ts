@@ -4,7 +4,7 @@
  * fills in every `[[DECISION: ...]]` blank, and presses Publish - which refuses
  * while any blank remains.
  *
- *   cd backend; npm run legal:import-drafts -- ../legal/drafts/gloviaa-mart
+ *   cd backend; npm run legal:import-drafts -- ../legal/drafts/world-mart
  *
  * Each `*.txt` file starts with a header, then a line `---`, then the body in
  * the legal-document format (`## ` heading, `- ` bullet):
@@ -12,7 +12,7 @@
  *   kind: PRIVACY_POLICY
  *   version: 2026-10-draft-1
  *   locale: en
- *   title: Gloviaa Mart Privacy Policy
+ *   title: World Mart Privacy Policy
  *   ---
  *
  * Safe to re-run. A draft with the same kind, version and language is

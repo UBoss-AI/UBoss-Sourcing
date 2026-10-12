@@ -57,11 +57,11 @@ describe('the marketplace name in the audit console', () => {
   });
 
   it('is the product’s own name until the deployment’s arrives', () => {
-    expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).toContain('invited by Gloviaa Mart,');
+    expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).toContain('invited by World Mart,');
   });
 
   it('names the marketplace, not the operator’s team, where an account comes from', () => {
-    setMarketplaceName('Gloviaa Mart');
+    setMarketplaceName('World Mart');
     setTeamName('UBoss');
     expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).not.toContain('UBoss');
   });

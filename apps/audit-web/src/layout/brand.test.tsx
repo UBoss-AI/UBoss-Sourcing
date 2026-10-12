@@ -1,7 +1,7 @@
 /**
  * What the console calls itself — and, more importantly, what it does not.
  *
- * Gloviaa Mart, over `Source with Intelligence | Deliver with Confidence`: the
+ * World Mart, over `Source with Intelligence | Deliver with Confidence`: the
  * product, and its tagline, identical to the other three applications. Both
  * strings live in `lib/brand.ts` and nowhere else, and `Powered by UBOSS` is
  * the sign-in screen's small print.
@@ -32,7 +32,7 @@ vi.mock('@/components/agreement-kit/SignInAgreements', () => import('@/component
 
 /**
  * The innermost element whose whole text is `text`. The wordmark is two spans
- * now — "Gloviaa" and "Mart" in different faces — so the name is no longer
+ * now — "World" and "Mart" in different faces — so the name is no longer
  * one text node that `getByText` can match on its own.
  */
 function whole(text: string): (content: string, element: Element | null) => boolean {
@@ -98,7 +98,7 @@ describe('the portal’s brand lockup', () => {
     renderBrand();
 
     // Written as a sentence, not in capitals.
-    expect(screen.getByText(whole('Gloviaa Mart')).textContent).toBe('Gloviaa Mart');
+    expect(screen.getByText(whole('World Mart')).textContent).toBe('World Mart');
     expect(screen.getByText('Source with Intelligence | Deliver with Confidence').textContent).toBe('Source with Intelligence | Deliver with Confidence');
   });
 
@@ -126,7 +126,7 @@ describe('the portal’s brand lockup', () => {
 
 describe('the tab', () => {
   it('is what says which portal this is', () => {
-    expect(PORTAL_TITLE).toBe('Gloviaa Mart Audit Console');
+    expect(PORTAL_TITLE).toBe('World Mart Audit Console');
   });
 });
 
@@ -154,7 +154,7 @@ describe('the agency’s own name', () => {
 
     // The brand is on the same screen, and the two are not the same thing.
     expect(screen.getByText(whole(PRODUCT_BRAND))).toBeDefined();
-    expect(screen.queryByText(/signed in for Gloviaa Mart/i)).toBeNull();
+    expect(screen.queryByText(/signed in for World Mart/i)).toBeNull();
 
     // Who makes the portal is the column's small print — once, and not the
     // lockup's second line.
